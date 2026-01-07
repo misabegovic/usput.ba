@@ -60,7 +60,10 @@ module Ai
     def create_experiences_from_proposals(proposals, available_locations)
       created = []
 
-      proposals.take(remaining_slots.to_i).each do |proposal|
+      # Handle infinite remaining slots (when no max_experiences limit set)
+      # Float::INFINITY.to_i raises FloatDomainError, so use proposals.count as fallback
+      slots = remaining_slots.finite? ? remaining_slots.to_i : proposals.count
+      proposals.take(slots).each do |proposal|
         experience = create_experience_from_proposal(proposal, available_locations)
         if experience
           created << experience
