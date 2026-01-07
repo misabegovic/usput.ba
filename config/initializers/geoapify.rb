@@ -91,7 +91,6 @@ Rails.application.config.geoapify.tourism_categories = %w[
   catering.pub
   catering.biergarten
   catering.taproom
-  catering.winery
   catering.food_court
   catering.ice_cream
 

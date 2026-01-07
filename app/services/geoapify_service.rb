@@ -33,7 +33,6 @@ class GeoapifyService
     catering.pub
     catering.biergarten
     catering.taproom
-    catering.winery
     catering.ice_cream
     commercial.marketplace
     commercial.shopping_mall
@@ -245,7 +244,6 @@ class GeoapifyService
     "catering.pub" => "pub",
     "catering.biergarten" => "beer_garden",
     "catering.taproom" => "brewery",
-    "catering.winery" => "winery",
     "catering.food_court" => "food_court",
     "catering.ice_cream" => "ice_cream_shop",
 
