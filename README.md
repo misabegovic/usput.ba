@@ -252,7 +252,7 @@ Location ←──N:M──→ Experience ←──N:M──→ Plan
 1. Run the full CI pipeline before submitting PRs: `bin/ci`
 2. Follow Rails Omakase Ruby style guide
 3. Add tests for new functionality
-4. Update this README for significant changes
+4. Update this README for significant changes test
 
 ## License
 
