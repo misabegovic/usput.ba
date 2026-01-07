@@ -45,6 +45,7 @@ class Location < ApplicationRecord
   validates :phone, format: { with: /\A[\d\s\+\-\(\)]+\z/, message: "must be a valid phone number" }, allow_blank: true
   validates :lat, numericality: { greater_than_or_equal_to: -90, less_than_or_equal_to: 90 }, allow_nil: true
   validates :lng, numericality: { greater_than_or_equal_to: -180, less_than_or_equal_to: 180 }, allow_nil: true
+  validates :lat, uniqueness: { scope: :lng, message: "i longitude kombinacija već postoji" }, allow_nil: true
   validates :video_url, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), message: "must be a valid URL" }, allow_blank: true
 
   # Callbacks
@@ -328,6 +329,45 @@ class Location < ApplicationRecord
   # Returns the city name as address
   def address
     city
+  end
+
+  # Find existing location by exact coordinates or initialize a new one
+  # @param lat [Float] Latitude
+  # @param lng [Float] Longitude
+  # @param attributes [Hash] Attributes for new location if not found
+  # @return [Location] Existing or new location (not persisted if new)
+  def self.find_or_initialize_by_coordinates(lat, lng, attributes = {})
+    return new(attributes.merge(lat: lat, lng: lng)) if lat.blank? || lng.blank?
+
+    existing = find_by(lat: lat.to_f, lng: lng.to_f)
+    existing || new(attributes.merge(lat: lat.to_f, lng: lng.to_f))
+  end
+
+  # Find existing location by exact coordinates or create a new one
+  # @param lat [Float] Latitude
+  # @param lng [Float] Longitude
+  # @param attributes [Hash] Attributes for new location if not found
+  # @return [Location] Existing or newly created location
+  def self.find_or_create_by_coordinates(lat, lng, attributes = {})
+    location = find_or_initialize_by_coordinates(lat, lng, attributes)
+    location.save! if location.new_record?
+    location
+  end
+
+  # Find existing location by coordinates with tolerance (for fuzzy matching)
+  # Useful when coordinates might have small precision differences
+  # @param lat [Float] Latitude
+  # @param lng [Float] Longitude
+  # @param tolerance [Float] Tolerance in degrees (default: 0.0001 ≈ 11 meters)
+  # @return [Location, nil] Existing location or nil
+  def self.find_by_coordinates_fuzzy(lat, lng, tolerance: 0.0001)
+    return nil if lat.blank? || lng.blank?
+
+    where(
+      "lat BETWEEN ? AND ? AND lng BETWEEN ? AND ?",
+      lat.to_f - tolerance, lat.to_f + tolerance,
+      lng.to_f - tolerance, lng.to_f + tolerance
+    ).first
   end
 
   # Pronađi lokacije u određenom radijusu (u km)

@@ -1158,6 +1158,13 @@ module Ai
         Rails.logger.warn "[AI::CountryWideLocationGenerator] Geocoding failed for #{suggestion[:name]} (#{suggestion[:lat]}, #{suggestion[:lng]}). Using AI suggestion: '#{city_name}' - THIS MAY BE INCORRECT!"
       end
 
+      # Check if location already exists at these coordinates (fuzzy match for small precision differences)
+      existing = Location.find_by_coordinates_fuzzy(suggestion[:lat], suggestion[:lng])
+      if existing
+        Rails.logger.info "[AI::CountryWideLocationGenerator] Found existing location at coordinates: #{existing.name} (#{existing.id})"
+        return existing
+      end
+
       # Merge AI suggestion with Geoapify data
       location = Location.new(
         name: suggestion[:name],

@@ -75,13 +75,20 @@ module Ai
     def create_and_enrich(place_data, city:)
       return nil if place_data[:name].blank? || place_data[:lat].blank?
 
-      # Provjeri da li lokacija već postoji
+      # Provjeri da li lokacija već postoji po koordinatama (primarno)
+      existing = Location.find_by_coordinates_fuzzy(place_data[:lat], place_data[:lng])
+      if existing
+        log_info "Location already exists at coordinates: #{existing.name} (#{existing.id})"
+        return existing
+      end
+
+      # Fallback: provjeri po imenu i gradu
       existing = Location.where(city: city)
                         .where("LOWER(name) = ?", place_data[:name].to_s.downcase)
                         .first
       if existing
         log_info "Location already exists: #{place_data[:name]} in #{city}"
-        return nil
+        return existing
       end
 
       # Kreiraj lokaciju
