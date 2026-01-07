@@ -10,6 +10,7 @@ module Admin
       @stats = ::Ai::ContentOrchestrator.content_stats
       @generation_status = ::Ai::ContentOrchestrator.current_status
       @fix_cities_status = LocationCityFixJob.current_status
+      @experience_type_sync_status = ExperienceTypeSyncJob.current_status
       @last_generation = parse_last_generation
 
       # Paginate cities for the table
@@ -122,6 +123,47 @@ module Admin
     def force_reset_city_fix
       LocationCityFixJob.force_reset_city_fix!
       redirect_to admin_ai_path, notice: t("admin.ai.city_fix_force_reset", default: "City fix has been force reset. You can now start a new run.")
+    end
+
+    # POST /admin/ai/sync_experience_types
+    # Syncs experience types from location suitable_experiences JSONB to the join table
+    def sync_experience_types
+      current_status = ExperienceTypeSyncJob.current_status
+      if current_status[:status] == "in_progress"
+        redirect_to admin_ai_path, alert: t("admin.ai.experience_type_sync_already_in_progress", default: "Experience type sync is already in progress")
+        return
+      end
+
+      dry_run = params[:dry_run] == "1"
+
+      ExperienceTypeSyncJob.clear_status!
+      ExperienceTypeSyncJob.perform_later(dry_run: dry_run)
+
+      notice_msg = if dry_run
+        t("admin.ai.experience_type_sync_preview_started", default: "Experience type sync preview started (no changes will be made)")
+      else
+        t("admin.ai.experience_type_sync_started", default: "Experience type sync started")
+      end
+
+      redirect_to admin_ai_path, notice: notice_msg
+    end
+
+    # GET /admin/ai/sync_experience_types_status (AJAX)
+    # Returns current status of experience type sync job
+    def sync_experience_types_status
+      @sync_status = ExperienceTypeSyncJob.current_status
+
+      respond_to do |format|
+        format.json { render json: @sync_status }
+        format.html { render partial: "experience_type_sync_status", locals: { status: @sync_status } }
+      end
+    end
+
+    # POST /admin/ai/force_reset_experience_type_sync
+    # Force resets a stuck or in-progress experience type sync job
+    def force_reset_experience_type_sync
+      ExperienceTypeSyncJob.force_reset!
+      redirect_to admin_ai_path, notice: t("admin.ai.experience_type_sync_force_reset", default: "Experience type sync has been force reset. You can now start a new run.")
     end
 
     private
