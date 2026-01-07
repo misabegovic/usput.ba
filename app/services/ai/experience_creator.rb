@@ -211,6 +211,11 @@ module Ai
         - Examples: "Tragovima Sevdaha", "Čaršijska Šetnja", "Ukus Bosne"
         - NOT generic like "City Tour" or "Cultural Walk"
 
+        ⚠️ KRITIČNO ZA BOSANSKI JEZIK ("bs"):
+        - OBAVEZNO koristiti IJEKAVICU: "lijepo", "vrijeme", "mjesto", "vidjeti", "bijelo"
+        - NIKAD ekavicu: NE "lepo", "vreme", "mesto", "videti", "belo"
+        - Koristiti "historija" (NE "istorija"), "hiljada" (NE "tisuća")
+
         Return ONLY valid JSON:
         {
           "experiences": [
@@ -222,13 +227,13 @@ module Ai
               "seasons": [],
               "titles": {
                 "en": "English title...",
-                "bs": "Bosanski naslov...",
+                "bs": "Bosanski naslov (IJEKAVICA!)...",
                 "hr": "Hrvatski naslov...",
                 "de": "Deutscher Titel..."
               },
               "descriptions": {
                 "en": "Rich, engaging description (1-2 paragraphs, 100-200 words) that captures the essence of this experience...",
-                "bs": "Bogat, privlačan opis (1-2 pasusa, 100-200 riječi) koji hvata suštinu ovog iskustva...",
+                "bs": "Bogat, privlačan opis (1-2 pasusa, 100-200 RIJEČI - ne reči!) koji hvata suštinu ovog ISKUSTVA sa LIJEPIM detaljima o POVIJESNOM MJESTU...",
                 "hr": "Bogat, privlačan opis (1-2 odlomka, 100-200 riječi) koji hvata bit ovog iskustva...",
                 "de": "Reichhaltige, ansprechende Beschreibung (1-2 Absätze, 100-200 Wörter), die das Wesen dieses Erlebnisses einfängt..."
               },
@@ -238,6 +243,7 @@ module Ai
         }
 
         Languages to include: #{supported_locales.join(', ')}
+        REMINDER: For "bs" (Bosnian) use IJEKAVICA (lijepo, rijeka, vrijeme), NOT ekavica!
       PROMPT
     end
 
@@ -276,6 +282,11 @@ module Ai
         4. Consider practical multi-day itinerary flow
         5. Highlight what makes BiH unique as a whole
 
+        ⚠️ KRITIČNO ZA BOSANSKI JEZIK ("bs"):
+        - OBAVEZNO koristiti IJEKAVICU: "lijepo", "vrijeme", "mjesto", "vidjeti", "bijelo", "stoljeća"
+        - NIKAD ekavicu: NE "lepo", "vreme", "mesto", "videti", "belo", "stoleća"
+        - Koristiti "historija" (NE "istorija"), "hiljada" (NE "tisuća")
+
         Return ONLY valid JSON:
         {
           "experiences": [
@@ -287,12 +298,12 @@ module Ai
               "seasons": [],
               "titles": {
                 "en": "Fortresses of Bosnia...",
-                "bs": "Tvrđave Bosne...",
+                "bs": "Tvrđave Bosne (IJEKAVICA!)...",
                 ...
               },
               "descriptions": {
                 "en": "Rich, engaging description (1-2 paragraphs, 100-200 words) - Journey through centuries of history...",
-                "bs": "Bogat opis (1-2 pasusa, 100-200 riječi) - Putovanje kroz stoljeća historije...",
+                "bs": "Bogat opis (1-2 pasusa, 100-200 RIJEČI) - Putovanje kroz STOLJEĆA historije, LIJEPIM MJESTIMA...",
                 ...
               },
               "cities_included": ["Travnik", "Jajce", "Banja Luka"],
@@ -302,6 +313,7 @@ module Ai
         }
 
         Languages to include: #{supported_locales.join(', ')}
+        REMINDER: For "bs" (Bosnian) use IJEKAVICA (lijepo, rijeka, vrijeme), NOT ekavica!
       PROMPT
     end
 
