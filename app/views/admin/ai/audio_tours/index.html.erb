@@ -179,7 +179,7 @@
     <% if @locations.total_pages > 1 %>
       <div class="p-4 sm:p-6 border-t bg-gray-50">
         <div class="flex items-center justify-center">
-          <%= paginate @locations, theme: 'tailwind' %>
+          <%= paginate @locations %>
         </div>
       </div>
     <% end %>
