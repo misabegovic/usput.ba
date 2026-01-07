@@ -121,6 +121,10 @@ module Ai
       tekstu - to je GREŠKA koju morate ispraviti na ijekavicu!
       ═══════════════════════════════════════════════════════════════════
 
+      ⚠️ FALLBACK PRAVILO: Ako niste sigurni kako napisati nešto na bosanskom,
+      UVIJEK koristite HRVATSKI (hr) kao model - oba jezika koriste IJEKAVICU.
+      NIKAD ne koristite srpski (ekavicu) za bosanski sadržaj!
+
       Za "hr" (HRVATSKI): Koristiti ijekavicu + hrvatske riječi (tisuća, povijest, kazalište)
       Za "sr" (SRPSKI): Koristiti ekavicu + srpske riječi (reka, mleko, lepo, istorija)
     CONTEXT
@@ -841,6 +845,7 @@ module Ai
 
         Write naturally in each language - not just translations. Each language should feel native.
         REMINDER: For "bs" (Bosnian) use IJEKAVICA (lijepo, rijeka, vrijeme), NOT ekavica!
+        FALLBACK: If unsure about Bosnian, use Croatian (hr) as a model - both use ijekavica. NEVER use Serbian patterns for Bosnian!
       PROMPT
     end
 

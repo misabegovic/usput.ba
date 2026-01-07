@@ -340,6 +340,7 @@ module Ai
         - OBAVEZNO koristiti IJEKAVICU: "lijepo", "vrijeme", "mjesto", "vidjeti", "bijelo", "stoljeća"
         - NIKAD ekavicu: NE "lepo", "vreme", "mesto", "videti", "belo", "stoleća"
         - Koristiti "historija" (NE "istorija"), "hiljada" (NE "tisuća")
+        - FALLBACK: Ako niste sigurni, pišite kao na HRVATSKOM - oba jezika koriste ijekavicu!
 
         Begin the narration:
       PROMPT

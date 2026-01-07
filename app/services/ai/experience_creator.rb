@@ -244,6 +244,7 @@ module Ai
 
         Languages to include: #{supported_locales.join(', ')}
         REMINDER: For "bs" (Bosnian) use IJEKAVICA (lijepo, rijeka, vrijeme), NOT ekavica!
+        FALLBACK: If unsure about Bosnian, use Croatian (hr) as a model - both use ijekavica. NEVER use Serbian patterns for Bosnian!
       PROMPT
     end
 
@@ -314,6 +315,7 @@ module Ai
 
         Languages to include: #{supported_locales.join(', ')}
         REMINDER: For "bs" (Bosnian) use IJEKAVICA (lijepo, rijeka, vrijeme), NOT ekavica!
+        FALLBACK: If unsure about Bosnian, use Croatian (hr) as a model - both use ijekavica. NEVER use Serbian patterns for Bosnian!
       PROMPT
     end
 
