@@ -396,6 +396,10 @@ module Ai
     def select_cross_region_locations(locations_by_region, theme)
       selected = []
       regions = locations_by_region.keys.shuffle
+
+      # Guard against empty regions to avoid division by zero (Infinity)
+      return selected if regions.empty?
+
       max_per_region = (theme[:max_locations].to_f / regions.count).ceil
 
       regions.each do |region|
