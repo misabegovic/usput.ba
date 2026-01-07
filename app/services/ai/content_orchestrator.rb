@@ -273,8 +273,9 @@ module Ai
         catering.restaurant, catering.cafe, catering.bar,
         entertainment.museum, entertainment.culture.theatre, entertainment.culture.gallery,
         tourism.sights.place_of_worship.mosque, tourism.sights.place_of_worship.church,
-        natural.water.waterfall, natural.water.river, natural.water.spring,
-        heritage.unesco, heritage.national,
+        natural.water, natural.water.spring, natural.water.hot_spring,
+        natural.mountain.peak, natural.mountain.cave_entrance, natural.protected_area,
+        heritage.unesco,
         leisure.park, leisure.spa,
         accommodation.hotel, accommodation.hostel
 

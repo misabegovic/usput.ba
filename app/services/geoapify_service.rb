@@ -84,21 +84,20 @@ class GeoapifyService
     natural
     natural.forest
     natural.water
-    natural.water.lake
-    natural.water.river
+    natural.water.sea
     natural.water.spring
+    natural.water.reef
     natural.water.hot_spring
-    natural.water.waterfall
-    natural.beach
-    natural.cave_entrance
-    natural.mountain_pass
-    natural.peak
-    natural.volcano
-    natural.cliff
-    natural.glacier
-    natural.geyser
-    natural.nature_reserve
+    natural.water.geyser
+    natural.mountain.peak
+    natural.mountain.glacier
+    natural.mountain.cliff
+    natural.mountain.rock
+    natural.mountain.cave_entrance
+    natural.sand.dune
     natural.protected_area
+    beach
+    beach.beach_resort
     production.brewery
     production.winery
     production.distillery
@@ -336,28 +335,28 @@ class GeoapifyService
     # National park
     "national_park" => "national_park",
 
-    # Natural
+    # Natural (valid Geoapify categories)
     "natural" => "nature",
     "natural.forest" => "forest",
     "natural.water" => "water_body",
-    "natural.water.lake" => "lake",
-    "natural.water.river" => "river",
-    "natural.water.pond" => "pond",
+    "natural.water.sea" => "sea",
     "natural.water.spring" => "spring",
+    "natural.water.reef" => "reef",
     "natural.water.hot_spring" => "hot_spring",
-    "natural.water.waterfall" => "waterfall",
-    "natural.water.wetland" => "wetland",
-    "natural.beach" => "beach",
-    "natural.cave_entrance" => "cave",
-    "natural.mountain_pass" => "mountain_pass",
-    "natural.peak" => "mountain_peak",
-    "natural.volcano" => "volcano",
-    "natural.cliff" => "cliff",
-    "natural.rock" => "rock_formation",
-    "natural.glacier" => "glacier",
-    "natural.geyser" => "geyser",
-    "natural.nature_reserve" => "nature_reserve",
+    "natural.water.geyser" => "geyser",
+    "natural.mountain" => "mountain",
+    "natural.mountain.peak" => "mountain_peak",
+    "natural.mountain.glacier" => "glacier",
+    "natural.mountain.cliff" => "cliff",
+    "natural.mountain.rock" => "rock_formation",
+    "natural.mountain.cave_entrance" => "cave",
+    "natural.sand" => "sand",
+    "natural.sand.dune" => "sand_dune",
     "natural.protected_area" => "protected_area",
+
+    # Beach (valid Geoapify categories - separate from natural)
+    "beach" => "beach",
+    "beach.beach_resort" => "beach_resort",
 
     # Office
     "office" => "office",
@@ -774,7 +773,7 @@ class GeoapifyService
     when /theater|theatre/ then "entertainment.culture.theatre"
     when /zoo/ then "entertainment.zoo"
     when /aquarium/ then "entertainment.aquarium"
-    when /beach/ then "natural.beach"
+    when /beach/ then "beach"
     when /stadium/ then "sport.stadium"
     when /hotel|lodging/ then "accommodation.hotel"
     when /historic|landmark|monument/ then "tourism.sights"
