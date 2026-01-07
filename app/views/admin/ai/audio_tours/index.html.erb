@@ -50,27 +50,35 @@
     <!-- Generation Controls - TOP -->
     <div class="p-4 sm:p-6 border-b bg-gray-50">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <div class="flex items-center gap-2">
-            <label for="locale" class="text-sm text-gray-600">Language:</label>
-            <select name="locale" id="locale" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-              <option value="bs">Bosnian</option>
-              <option value="en">English</option>
-              <option value="de">German</option>
-              <option value="hr">Croatian</option>
-              <option value="sr">Serbian</option>
-            </select>
+        <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
+          <div class="flex flex-col gap-2">
+            <span class="text-sm font-medium text-gray-600">Languages:</span>
+            <div class="flex flex-wrap gap-3">
+              <% AudioTour::SUPPORTED_LOCALES.each do |code, name| %>
+                <label class="flex items-center gap-1.5 text-sm text-gray-700">
+                  <input type="checkbox"
+                         name="locales[]"
+                         value="<%= code %>"
+                         <%= "checked" if AudioTour::DEFAULT_GENERATION_LOCALES.include?(code.to_s) %>
+                         data-action="change->audio-tours-generator#updateCostEstimate"
+                         class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                  <%= name %>
+                </label>
+              <% end %>
+            </div>
           </div>
 
-          <label class="flex items-center gap-2 text-sm text-gray-600">
-            <input type="checkbox" name="force" value="1" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-            Force regenerate
-          </label>
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <label class="flex items-center gap-2 text-sm text-gray-600">
+              <input type="checkbox" name="force" value="1" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+              Force regenerate
+            </label>
 
-          <div class="text-sm text-gray-500">
-            <button type="button" data-action="audio-tours-generator#selectAll" class="text-indigo-600 hover:text-indigo-800">Select all</button>
-            |
-            <button type="button" data-action="audio-tours-generator#deselectAll" class="text-indigo-600 hover:text-indigo-800">Deselect all</button>
+            <div class="text-sm text-gray-500">
+              <button type="button" data-action="audio-tours-generator#selectAll" class="text-indigo-600 hover:text-indigo-800">Select all</button>
+              |
+              <button type="button" data-action="audio-tours-generator#deselectAll" class="text-indigo-600 hover:text-indigo-800">Deselect all</button>
+            </div>
           </div>
         </div>
 
