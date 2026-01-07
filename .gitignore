@@ -1,0 +1,62 @@
+# See https://help.github.com/articles/ignoring-files for more about ignoring files.
+
+# Ignore bundler config.
+/.bundle
+
+# Ignore all logfiles and tempfiles.
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+
+# Ignore pidfiles, but keep the directory.
+/tmp/pids/*
+!/tmp/pids/
+!/tmp/pids/.keep
+
+# Ignore storage (for hierarchical storage), but keep the directory.
+/storage/*
+!/storage/.keep
+
+# Ignore uploaded files in development.
+/public/uploads
+
+# Ignore master key for decrypting credentials and more.
+/config/master.key
+/config/credentials/*.key
+
+# Ignore database files
+/db/*.sqlite3
+/db/*.sqlite3-*
+
+# Ignore node modules
+/node_modules
+
+# Ignore precompiled assets
+/public/assets
+
+# Ignore yarn files
+/yarn-error.log
+yarn-debug.log*
+.yarn-integrity
+
+# Ignore environment files
+.env
+.env.*
+
+# Tailwind standalone binaries
+tailwindcss-*
+
+# Editor directories and files
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# Byebug history
+.byebug_history
