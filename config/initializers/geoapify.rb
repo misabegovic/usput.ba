@@ -301,29 +301,23 @@ Rails.application.config.geoapify.tourism_categories = %w[
   natural
   natural.forest
   natural.water
-  natural.water.lake
-  natural.water.river
-  natural.water.pond
-  natural.water.stream
+  natural.water.sea
   natural.water.spring
+  natural.water.reef
   natural.water.hot_spring
-  natural.water.waterfall
-  natural.water.rapids
-  natural.water.wetland
-  natural.water.reservoir
-  natural.water.canal
-  natural.beach
-  natural.cave_entrance
-  natural.mountain_pass
-  natural.peak
-  natural.volcano
-  natural.cliff
-  natural.rock
+  natural.water.geyser
+  natural.mountain
+  natural.mountain.peak
+  natural.mountain.glacier
+  natural.mountain.cliff
+  natural.mountain.rock
+  natural.mountain.cave_entrance
   natural.sand
-  natural.glacier
-  natural.geyser
-  natural.nature_reserve
+  natural.sand.dune
   natural.protected_area
+
+  beach
+  beach.beach_resort
 
   office
   office.administrative
