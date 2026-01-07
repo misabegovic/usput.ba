@@ -1,0 +1,86 @@
+<%# Mobile slider for positive reviews - only shows if there are 3+ reviews %>
+<% if reviews.present? && reviews.size >= 3 %>
+  <section class="py-8 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-gray-800 dark:to-gray-900 md:hidden">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+          <span class="mr-2">⭐</span>
+          <%= t("home.reviews_slider.title", default: "Što kažu posjetitelji") %>
+        </h2>
+      </div>
+
+      <div data-controller="mobile-slider" data-mobile-slider-autoplay-value="false">
+        <%# Slider container %>
+        <div
+          data-mobile-slider-target="container"
+          class="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-4 pb-4 -mx-4 px-4"
+          style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch;"
+        >
+          <% reviews.each do |review| %>
+            <div
+              data-mobile-slider-target="slide"
+              class="flex-shrink-0 w-[85vw] max-w-sm snap-start"
+            >
+              <div class="bg-white dark:bg-gray-700 rounded-2xl p-5 shadow-md h-full">
+                <%# Stars %>
+                <div class="flex items-center mb-3">
+                  <% review.rating.times do %>
+                    <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                  <% end %>
+                </div>
+
+                <%# Comment %>
+                <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed line-clamp-4 mb-4">
+                  "<%= review.comment %>"
+                </p>
+
+                <%# Author and reviewable info %>
+                <div class="flex items-center justify-between mt-auto pt-3 border-t border-gray-100 dark:border-gray-600">
+                  <div>
+                    <% if review.author_name.present? %>
+                      <p class="font-medium text-gray-900 dark:text-white text-sm"><%= review.author_name %></p>
+                    <% else %>
+                      <p class="font-medium text-gray-900 dark:text-white text-sm"><%= t("reviews.anonymous", default: "Anonimni posjetitelj") %></p>
+                    <% end %>
+                  </div>
+                  <% if review.reviewable.present? %>
+                    <%= link_to polymorphic_path(review.reviewable), class: "text-xs text-emerald-600 dark:text-emerald-400 hover:underline flex items-center" do %>
+                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                      </svg>
+                      <span class="truncate max-w-[100px]">
+                        <% if review.reviewable.respond_to?(:translate) %>
+                          <%= review.reviewable.translate(:name, I18n.locale) || review.reviewable.translate(:title, I18n.locale) %>
+                        <% elsif review.reviewable.respond_to?(:name) %>
+                          <%= review.reviewable.name %>
+                        <% elsif review.reviewable.respond_to?(:title) %>
+                          <%= review.reviewable.title %>
+                        <% end %>
+                      </span>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <%# Dots navigation %>
+        <div data-mobile-slider-target="dots" class="flex justify-center gap-2 mt-2">
+          <% reviews.each_with_index do |_, index| %>
+            <button
+              type="button"
+              data-dot
+              data-index="<%= index %>"
+              data-action="click->mobile-slider#goToSlide"
+              class="w-2 h-2 rounded-full transition-colors <%= index == 0 ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-gray-300 dark:bg-gray-600' %>"
+              aria-label="<%= t('slider.go_to_slide', default: 'Idi na slajd') %> <%= index + 1 %>"
+            ></button>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </section>
+<% end %>

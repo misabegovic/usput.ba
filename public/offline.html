@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#059669">
+  <title>Offline - Usput</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #ecfdf5 0%, #f0fdfa 100%);
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .header {
+      text-align: center;
+      padding: 1rem 0 1.5rem;
+    }
+
+    .logo {
+      width: 80px;
+      height: auto;
+      margin-bottom: 0.75rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #1f2937;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: #059669;
+    }
+
+    .offline-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #fef3c7;
+      color: #92400e;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      margin-top: 1rem;
+    }
+
+    .offline-badge svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Navigation tabs */
+    .nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding: 0.5rem 0;
+      margin-bottom: 1rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .nav-tab {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-tab:hover {
+      border-color: #10b981;
+      color: #059669;
+    }
+
+    .nav-tab.active {
+      background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+      border-color: transparent;
+      color: white;
+    }
+
+    .nav-tab svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .nav-tab .count {
+      background: rgba(255,255,255,0.3);
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+    }
+
+    .nav-tab.active .count {
+      background: rgba(255,255,255,0.3);
+    }
+
+    /* Content sections */
+    .section {
+      display: none;
+      background: white;
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 1rem;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: #9ca3af;
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    /* Item cards */
+    .item-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: #f9fafb;
+      border-radius: 12px;
+      margin-bottom: 0.5rem;
+    }
+
+    .item-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .item-icon svg {
+      width: 20px;
+      height: 20px;
+      color: white;
+    }
+
+    .item-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .item-name {
+      font-weight: 500;
+      color: #1f2937;
+      margin-bottom: 0.125rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-meta {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
+    .item-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      margin-top: 0.375rem;
+    }
+
+    .tag {
+      font-size: 0.625rem;
+      padding: 0.125rem 0.5rem;
+      background: #e0f2fe;
+      color: #0369a1;
+      border-radius: 9999px;
+    }
+
+    /* Badge cards */
+    .badges-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .badge-card {
+      text-align: center;
+      padding: 1rem;
+      background: #f9fafb;
+      border-radius: 12px;
+    }
+
+    .badge-card.earned {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    }
+
+    .badge-emoji {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .badge-name {
+      font-weight: 500;
+      font-size: 0.875rem;
+      color: #1f2937;
+      margin-bottom: 0.25rem;
+    }
+
+    .badge-date {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
+    .badge-card.earned .badge-date {
+      color: #92400e;
+    }
+
+    /* Plan cards */
+    .plan-card {
+      padding: 1rem;
+      background: #f9fafb;
+      border-radius: 12px;
+      margin-bottom: 0.75rem;
+    }
+
+    .plan-card.active-plan {
+      border: 2px solid #10b981;
+      background: #ecfdf5;
+    }
+
+    .plan-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .plan-city {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #1f2937;
+    }
+
+    .plan-active-badge {
+      font-size: 0.625rem;
+      padding: 0.25rem 0.5rem;
+      background: #10b981;
+      color: white;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .plan-stats {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+
+    .plan-stat {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .plan-days {
+      margin-top: 1rem;
+    }
+
+    .plan-day {
+      padding: 0.75rem;
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
+
+    .plan-day-header {
+      font-weight: 500;
+      font-size: 0.875rem;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+
+    .plan-experience {
+      font-size: 0.8rem;
+      color: #6b7280;
+      padding: 0.25rem 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .plan-experience:last-child {
+      border-bottom: none;
+    }
+
+    /* Stats section */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 1rem;
+      background: linear-gradient(135deg, #f0fdfa 0%, #ecfdf5 100%);
+      border-radius: 12px;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #059669;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+
+    /* Export buttons */
+    .export-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.875rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+      color: white;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    }
+
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+
+    .btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Refresh button */
+    .refresh-section {
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+
+    /* Dark mode */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      }
+
+      h1, .section-title, .item-name, .plan-city, .badge-name, .plan-day-header {
+        color: #f3f4f6;
+      }
+
+      .section, .item-card, .plan-card, .badge-card, .plan-day {
+        background: #374151;
+      }
+
+      .plan-card.active-plan {
+        background: #064e3b;
+        border-color: #10b981;
+      }
+
+      .nav-tab {
+        background: #374151;
+        border-color: #4b5563;
+        color: #9ca3af;
+      }
+
+      .nav-tab:hover {
+        border-color: #10b981;
+        color: #10b981;
+      }
+
+      .offline-badge {
+        background: #78350f;
+        color: #fef3c7;
+      }
+
+      .stat-card {
+        background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+      }
+
+      .btn-secondary {
+        background: #4b5563;
+        color: #e5e7eb;
+      }
+
+      .tag {
+        background: #1e3a5f;
+        color: #7dd3fc;
+      }
+
+      .item-meta, .plan-stats, .plan-experience, .stat-label {
+        color: #9ca3af;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="/usput-logo.png" alt="Usput" class="logo">
+    <h1>Usput.ba</h1>
+    <p class="subtitle">Otkrij ljepote Bosne i Hercegovine</p>
+    <div class="offline-badge">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3"></path>
+      </svg>
+      Offline mod
+    </div>
+  </div>
+
+  <!-- Navigation tabs -->
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" data-section="profile">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+      </svg>
+      Profil
+    </button>
+    <button class="nav-tab" data-section="visited">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+      </svg>
+      Posjete
+      <span class="count" id="visitedCount">0</span>
+    </button>
+    <button class="nav-tab" data-section="favorites">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+      </svg>
+      Favoriti
+      <span class="count" id="favoritesCount">0</span>
+    </button>
+    <button class="nav-tab" data-section="badges">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+      </svg>
+      Badges
+      <span class="count" id="badgesCount">0</span>
+    </button>
+    <button class="nav-tab" data-section="plans">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+      </svg>
+      Planovi
+      <span class="count" id="plansCount">0</span>
+    </button>
+    <button class="nav-tab" data-section="export">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+      </svg>
+      Export
+    </button>
+  </div>
+
+  <!-- Profile section -->
+  <div class="section active" id="section-profile">
+    <div class="section-header">
+      <h2 class="section-title">Tvoja statistika</h2>
+    </div>
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-value" id="statVisits">0</div>
+        <div class="stat-label">Ukupno posjeta</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statCities">0</div>
+        <div class="stat-label">Gradova</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statFavorites">0</div>
+        <div class="stat-label">Favorita</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statBadges">0</div>
+        <div class="stat-label">Badges</div>
+      </div>
+    </div>
+    <div id="citiesList" style="margin-top: 1rem;"></div>
+  </div>
+
+  <!-- Visited section -->
+  <div class="section" id="section-visited">
+    <div class="section-header">
+      <h2 class="section-title">Posjete</h2>
+    </div>
+    <div id="visitedList"></div>
+  </div>
+
+  <!-- Favorites section -->
+  <div class="section" id="section-favorites">
+    <div class="section-header">
+      <h2 class="section-title">Favoriti</h2>
+    </div>
+    <div id="favoritesList"></div>
+  </div>
+
+  <!-- Badges section -->
+  <div class="section" id="section-badges">
+    <div class="section-header">
+      <h2 class="section-title">Tvoji badges</h2>
+    </div>
+    <div class="badges-grid" id="badgesList"></div>
+  </div>
+
+  <!-- Plans section -->
+  <div class="section" id="section-plans">
+    <div class="section-header">
+      <h2 class="section-title">Sačuvani planovi</h2>
+    </div>
+    <div id="plansList"></div>
+  </div>
+
+  <!-- Export section -->
+  <div class="section" id="section-export">
+    <div class="section-header">
+      <h2 class="section-title">Exportuj podatke</h2>
+    </div>
+    <p style="color: #6b7280; margin-bottom: 1rem; font-size: 0.875rem;">
+      Preuzmi svoje podatke u različitim formatima za backup ili dijeljenje.
+    </p>
+    <div class="export-buttons">
+      <button class="btn btn-primary" onclick="exportJSON()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+        </svg>
+        Preuzmi JSON
+      </button>
+      <button class="btn btn-secondary" onclick="exportText()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        Preuzmi kao tekst
+      </button>
+    </div>
+  </div>
+
+  <!-- Refresh section -->
+  <div class="refresh-section">
+    <button class="btn btn-secondary" onclick="window.location.reload()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+      </svg>
+      Pokušaj ponovo spojiti
+    </button>
+  </div>
+
+  <script>
+    // Badge definitions
+    const BADGE_DEFINITIONS = {
+      'first_visit': { emoji: '🎯', name: 'Prvi korak' },
+      'explorer_5': { emoji: '🧭', name: 'Istraživač' },
+      'adventurer_10': { emoji: '🏔️', name: 'Avanturista' },
+      'traveler_25': { emoji: '🎒', name: 'Putnik' },
+      'expert_50': { emoji: '🏆', name: 'Ekspert' },
+      'legend_100': { emoji: '👑', name: 'Legenda' },
+      'city_hopper': { emoji: '🌆', name: 'Gradski skakač' },
+      'season_master': { emoji: '🌈', name: 'Sva godišnja doba' },
+      'nature_lover': { emoji: '🌲', name: 'Ljubitelj prirode' },
+      'culture_buff': { emoji: '🏛️', name: 'Kulturnjak' }
+    };
+
+    // Load data from localStorage
+    function loadTravelProfile() {
+      try {
+        const data = localStorage.getItem('usput_travel_profile');
+        return data ? JSON.parse(data) : null;
+      } catch (e) {
+        console.error('Error loading travel profile:', e);
+        return null;
+      }
+    }
+
+    function loadPlans() {
+      try {
+        const data = localStorage.getItem('visitumo_plans');
+        return data ? JSON.parse(data) : [];
+      } catch (e) {
+        console.error('Error loading plans:', e);
+        return [];
+      }
+    }
+
+    function getActivePlanId() {
+      try {
+        return localStorage.getItem('visitumo_active_plan');
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // Format date
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('bs-BA', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    // Render functions
+    function renderProfile(profile) {
+      if (!profile) {
+        document.getElementById('statsGrid').innerHTML = `
+          <div class="empty-state" style="grid-column: span 2;">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+            </svg>
+            <p>Nema sačuvanih podataka</p>
+          </div>
+        `;
+        return;
+      }
+
+      const stats = profile.stats || {};
+      const visited = profile.visited || [];
+      const favorites = profile.favorites || [];
+      const badges = profile.badges || [];
+      const cities = stats.citiesVisited || [];
+
+      document.getElementById('statVisits').textContent = stats.totalVisits || visited.length;
+      document.getElementById('statCities').textContent = cities.length;
+      document.getElementById('statFavorites').textContent = favorites.length;
+      document.getElementById('statBadges').textContent = badges.length;
+
+      // Update counts in tabs
+      document.getElementById('visitedCount').textContent = visited.length;
+      document.getElementById('favoritesCount').textContent = favorites.length;
+      document.getElementById('badgesCount').textContent = badges.length;
+
+      // Cities list
+      if (cities.length > 0) {
+        document.getElementById('citiesList').innerHTML = `
+          <div style="font-size: 0.875rem; color: #6b7280;">
+            <strong>Posjećeni gradovi:</strong> ${cities.join(', ')}
+          </div>
+        `;
+      }
+    }
+
+    function renderVisited(profile) {
+      const container = document.getElementById('visitedList');
+      const visited = profile?.visited || [];
+
+      if (visited.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            </svg>
+            <p>Još nemaš posjećenih lokacija</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = visited.map(item => `
+        <div class="item-card">
+          <div class="item-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            </svg>
+          </div>
+          <div class="item-content">
+            <div class="item-name">${item.name}</div>
+            <div class="item-meta">${item.city || ''} ${item.visitedAt ? '• ' + formatDate(item.visitedAt) : ''}</div>
+            ${item.tags && item.tags.length > 0 ? `
+              <div class="item-tags">
+                ${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderFavorites(profile) {
+      const container = document.getElementById('favoritesList');
+      const favorites = profile?.favorites || [];
+
+      if (favorites.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+            </svg>
+            <p>Još nemaš favorita</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = favorites.map(item => `
+        <div class="item-card">
+          <div class="item-icon" style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+            </svg>
+          </div>
+          <div class="item-content">
+            <div class="item-name">${item.name}</div>
+            <div class="item-meta">${item.addedAt ? 'Dodano ' + formatDate(item.addedAt) : ''}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderBadges(profile) {
+      const container = document.getElementById('badgesList');
+      const earnedBadges = profile?.badges || [];
+      const earnedIds = earnedBadges.map(b => b.id);
+
+      const allBadges = Object.entries(BADGE_DEFINITIONS).map(([id, def]) => {
+        const earned = earnedBadges.find(b => b.id === id);
+        return {
+          id,
+          ...def,
+          earned: !!earned,
+          earnedAt: earned?.earnedAt
+        };
+      });
+
+      container.innerHTML = allBadges.map(badge => `
+        <div class="badge-card ${badge.earned ? 'earned' : ''}">
+          <div class="badge-emoji" style="${badge.earned ? '' : 'filter: grayscale(100%); opacity: 0.4;'}">${badge.emoji}</div>
+          <div class="badge-name">${badge.name}</div>
+          <div class="badge-date">${badge.earned ? formatDate(badge.earnedAt) : 'Nije otključano'}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderPlans(plans) {
+      const container = document.getElementById('plansList');
+      const activePlanId = getActivePlanId();
+
+      document.getElementById('plansCount').textContent = plans.length;
+
+      if (plans.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            <p>Još nemaš sačuvanih planova</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = plans.map(plan => {
+        const isActive = plan.id === activePlanId || plan.id?.toString() === activePlanId;
+        const cityName = plan.city?.display_name || plan.city?.name || 'Nepoznat grad';
+        const days = plan.days || [];
+        const totalExperiences = plan.total_experiences || days.reduce((sum, d) => sum + (d.experiences?.length || 0), 0);
+
+        return `
+          <div class="plan-card ${isActive ? 'active-plan' : ''}">
+            <div class="plan-header">
+              <span class="plan-city">${cityName}</span>
+              ${isActive ? '<span class="plan-active-badge">Aktivan</span>' : ''}
+            </div>
+            <div class="plan-stats">
+              <span class="plan-stat">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                ${plan.duration_days || days.length} dana
+              </span>
+              <span class="plan-stat">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                </svg>
+                ${totalExperiences} iskustva
+              </span>
+            </div>
+            ${days.length > 0 ? `
+              <div class="plan-days">
+                ${days.slice(0, 3).map(day => `
+                  <div class="plan-day">
+                    <div class="plan-day-header">Dan ${day.day_number}</div>
+                    ${(day.experiences || []).slice(0, 3).map(exp => `
+                      <div class="plan-experience">${exp.title}</div>
+                    `).join('')}
+                    ${(day.experiences || []).length > 3 ? `
+                      <div class="plan-experience" style="color: #10b981;">+ još ${day.experiences.length - 3} iskustva</div>
+                    ` : ''}
+                  </div>
+                `).join('')}
+                ${days.length > 3 ? `
+                  <div style="text-align: center; color: #9ca3af; font-size: 0.875rem; padding: 0.5rem;">
+                    + još ${days.length - 3} dana
+                  </div>
+                ` : ''}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Export functions
+    function exportJSON() {
+      const profile = loadTravelProfile();
+      const plans = loadPlans();
+      const data = {
+        exportedAt: new Date().toISOString(),
+        travelProfile: profile,
+        plans: plans
+      };
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `usput-backup-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function exportText() {
+      const profile = loadTravelProfile();
+      const plans = loadPlans();
+
+      let text = '=== USPUT.BA - TVOJI PODACI ===\n';
+      text += `Exportano: ${new Date().toLocaleDateString('bs-BA')}\n\n`;
+
+      if (profile) {
+        const stats = profile.stats || {};
+        text += '--- STATISTIKA ---\n';
+        text += `Ukupno posjeta: ${stats.totalVisits || 0}\n`;
+        text += `Posjećeni gradovi: ${(stats.citiesVisited || []).join(', ') || 'Nema'}\n\n`;
+
+        const visited = profile.visited || [];
+        if (visited.length > 0) {
+          text += '--- POSJETE ---\n';
+          visited.forEach((v, i) => {
+            text += `${i + 1}. ${v.name}`;
+            if (v.city) text += ` (${v.city})`;
+            if (v.visitedAt) text += ` - ${formatDate(v.visitedAt)}`;
+            text += '\n';
+          });
+          text += '\n';
+        }
+
+        const favorites = profile.favorites || [];
+        if (favorites.length > 0) {
+          text += '--- FAVORITI ---\n';
+          favorites.forEach((f, i) => {
+            text += `${i + 1}. ${f.name}\n`;
+          });
+          text += '\n';
+        }
+
+        const badges = profile.badges || [];
+        if (badges.length > 0) {
+          text += '--- BADGES ---\n';
+          badges.forEach(b => {
+            const def = BADGE_DEFINITIONS[b.id];
+            if (def) {
+              text += `${def.emoji} ${def.name} - ${formatDate(b.earnedAt)}\n`;
+            }
+          });
+          text += '\n';
+        }
+      }
+
+      if (plans.length > 0) {
+        text += '--- PLANOVI ---\n';
+        plans.forEach((plan, i) => {
+          const cityName = plan.city?.display_name || plan.city?.name || 'Nepoznat grad';
+          text += `\n${i + 1}. ${cityName} (${plan.duration_days || 0} dana)\n`;
+          (plan.days || []).forEach(day => {
+            text += `   Dan ${day.day_number}:\n`;
+            (day.experiences || []).forEach(exp => {
+              text += `   - ${exp.title}\n`;
+            });
+          });
+        });
+      }
+
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `usput-podaci-${new Date().toISOString().split('T')[0]}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Tab navigation
+    document.getElementById('navTabs').addEventListener('click', (e) => {
+      const tab = e.target.closest('.nav-tab');
+      if (!tab) return;
+
+      const section = tab.dataset.section;
+
+      // Update active tab
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      // Show section
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(`section-${section}`).classList.add('active');
+    });
+
+    // Initialize
+    function init() {
+      const profile = loadTravelProfile();
+      const plans = loadPlans();
+
+      renderProfile(profile);
+      renderVisited(profile);
+      renderFavorites(profile);
+      renderBadges(profile);
+      renderPlans(plans);
+    }
+
+    // Check connectivity and reload when back online
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+
+    // Run on load
+    init();
+  </script>
+</body>
+</html>

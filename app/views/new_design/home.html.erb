@@ -1,0 +1,731 @@
+<%#
+  HERO SEKCIJA
+  - Uključuje header/navigaciju sa mobile menu
+  - Hero ima grid sa slikama na desnoj strani
+  - Ima dark mode podršku
+  - SVG pattern pozadina sa blur efektom
+  - Funkcionalna navigacija sa pravim linkovima
+%>
+
+<%
+  # Get all hero background images and shuffle them
+  # Take 5 for hero section, 1 for bento grid card, and 1 for CTA section
+  hero_images_dir = Rails.root.join("app/assets/images/hero_backgrounds")
+  all_hero_images = Dir.glob("#{hero_images_dir}/*.{jpg,jpeg,png,webp}").map { |f| File.basename(f) }.reject { |f| f == ".keep" }
+  shuffled_images = all_hero_images.shuffle
+  random_images = shuffled_images.take(5)
+  bento_location_image = shuffled_images[5] || shuffled_images.first
+  cta_background_image = shuffled_images[6] || shuffled_images.second || shuffled_images.first
+%>
+
+<div class="bg-white dark:bg-gray-900 min-h-screen">
+  <%= render "new_design/header" %>
+
+  <main>
+    <div class="relative isolate">
+      <svg aria-hidden="true" class="absolute inset-x-0 top-0 -z-10 h-[64rem] w-full [mask-image:radial-gradient(32rem_32rem_at_center,white,transparent)] stroke-gray-200 dark:stroke-white/10">
+        <defs>
+          <pattern id="hero-pattern" width="200" height="200" x="50%" y="-1" patternUnits="userSpaceOnUse">
+            <path d="M.5 200V.5H200" fill="none" />
+          </pattern>
+        </defs>
+        <svg x="50%" y="-1" class="overflow-visible fill-gray-50 dark:fill-gray-800">
+          <path d="M-200 0h201v201h-201Z M600 0h201v201h-201Z M-400 600h201v201h-201Z M200 800h201v201h-201Z" stroke-width="0" />
+        </svg>
+        <rect width="100%" height="100%" fill="url(#hero-pattern)" stroke-width="0" />
+      </svg>
+      <div aria-hidden="true" class="absolute top-0 right-0 left-1/2 -z-10 -ml-24 transform-gpu overflow-hidden blur-3xl lg:ml-24 xl:ml-48">
+        <div style="clip-path: polygon(63.1% 29.5%, 100% 17.1%, 76.6% 3%, 48.4% 0%, 44.6% 4.7%, 54.5% 25.3%, 59.8% 49%, 55.2% 57.8%, 44.4% 57.2%, 27.8% 47.9%, 35.1% 81.5%, 0% 97.7%, 39.2% 100%, 35.2% 81.4%, 97.2% 52.8%, 63.1% 29.5%); aspect-ratio: 801/1036;" class="w-[50rem] bg-gradient-to-tr from-blue-400/30 to-yellow-400/30 dark:from-blue-600/20 dark:to-yellow-500/20 opacity-70"></div>
+      </div>
+      <div class="overflow-hidden">
+        <div class="mx-auto max-w-7xl px-6 pt-36 pb-32 sm:pt-60 lg:px-8 lg:pt-32">
+          <div class="mx-auto max-w-2xl gap-x-14 lg:mx-0 lg:flex lg:max-w-none lg:items-center">
+            <div class="relative w-full lg:max-w-xl lg:shrink-0 xl:max-w-2xl">
+              <h1 class="text-5xl font-extrabold tracking-tight text-pretty sm:text-7xl">
+                <span class="block text-gray-900 dark:text-white"><%= t("home.hero.title_part1", default: "Otkrij") %></span>
+                <span class="block text-blue-600 dark:text-blue-400"><%= t("home.hero.title_part2", default: "Ljepote Usput") %></span>
+              </h1>
+              <p class="mt-8 text-lg font-medium text-pretty text-gray-600 sm:max-w-md sm:text-xl/8 lg:max-w-none dark:text-gray-300">
+                <%= t("home.hero.subtitle", default: "Pronadi skrivene dragulje, autenticna iskustva i nezaboravna mjesta. Tvoja avantura pocinje ovdje.") %>
+              </p>
+              <div class="mt-10 flex flex-col sm:flex-row gap-4">
+                <%= link_to plan_wizard_path, class: "inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white text-lg px-8 py-4 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5" do %>
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  </svg>
+                  <%= t("home.cta.create_plan", default: "Kreiraj Svoj Plan") %>
+                <% end %>
+                <%= link_to explore_path, class: "btn-gold inline-flex items-center justify-center text-lg px-8 py-4 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg" do %>
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 1 1 -14 0 7 7 0 0 1 14 0z"></path>
+                  </svg>
+                  <%= t("home.cta.explore_short", default: "Istraži") %>
+                <% end %>
+              </div>
+            </div>
+            <div class="mt-14 flex justify-end gap-8 sm:-mt-44 sm:justify-start sm:pl-20 lg:mt-0 lg:pl-0">
+              <div class="ml-auto w-44 flex-none space-y-8 pt-32 sm:ml-0 sm:pt-80 lg:order-last lg:pt-36 xl:order-0 xl:pt-80">
+                <div class="relative">
+                  <%= image_tag "hero_backgrounds/#{random_images[0]}", alt: "Bosna i Hercegovina", class: "aspect-2/3 w-full rounded-xl bg-gray-900/5 object-cover shadow-lg dark:bg-gray-700/5" %>
+                  <div class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-gray-900/10 ring-inset dark:ring-white/10"></div>
+                </div>
+              </div>
+              <div class="mr-auto w-44 flex-none space-y-8 sm:mr-0 sm:pt-52 lg:pt-36">
+                <div class="relative">
+                  <%= image_tag "hero_backgrounds/#{random_images[1]}", alt: "Bosna i Hercegovina", class: "aspect-2/3 w-full rounded-xl bg-gray-900/5 object-cover shadow-lg dark:bg-gray-700/5" %>
+                  <div class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-gray-900/10 ring-inset dark:ring-white/10"></div>
+                </div>
+                <div class="relative">
+                  <%= image_tag "hero_backgrounds/#{random_images[2]}", alt: "Bosna i Hercegovina", class: "aspect-2/3 w-full rounded-xl bg-gray-900/5 object-cover shadow-lg dark:bg-gray-700/5" %>
+                  <div class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-gray-900/10 ring-inset dark:ring-white/10"></div>
+                </div>
+              </div>
+              <div class="w-44 flex-none space-y-8 pt-32 sm:pt-0">
+                <div class="relative">
+                  <%= image_tag "hero_backgrounds/#{random_images[3]}", alt: "Bosna i Hercegovina", class: "aspect-2/3 w-full rounded-xl bg-gray-900/5 object-cover shadow-lg dark:bg-gray-700/5" %>
+                  <div class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-gray-900/10 ring-inset dark:ring-white/10"></div>
+                </div>
+                <div class="relative">
+                  <%= image_tag "hero_backgrounds/#{random_images[4]}", alt: "Bosna i Hercegovina", class: "aspect-2/3 w-full rounded-xl bg-gray-900/5 object-cover shadow-lg dark:bg-gray-700/5" %>
+                  <div class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-gray-900/10 ring-inset dark:ring-white/10"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# ==================== BENTO GRID SEKCIJA ==================== %>
+    <div class="bg-white py-24 sm:py-32 dark:bg-gray-900">
+      <div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
+        <h2 class="text-center text-base/7 font-semibold text-blue-600 dark:text-yellow-400"><%= t("home.bento.section_title") %></h2>
+        <p class="mx-auto mt-2 max-w-lg text-center text-4xl font-semibold tracking-tight text-balance text-gray-950 sm:text-5xl dark:text-white"><%= t("home.bento.section_subtitle") %></p>
+        <div class="mt-10 grid gap-4 sm:mt-16 lg:grid-cols-3 lg:grid-rows-2">
+          <%# Lijeva velika kartica - Lokacije %>
+          <div class="relative lg:row-span-2 group">
+            <div class="absolute inset-px rounded-lg bg-gray-50 lg:rounded-l-4xl dark:bg-gray-800 transition-colors group-hover:bg-gray-100 dark:group-hover:bg-gray-700"></div>
+            <div class="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] lg:rounded-l-[calc(2rem+1px)]">
+              <div class="px-8 pt-8 pb-3 sm:px-10 sm:pt-10 sm:pb-0">
+                <p class="mt-2 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center dark:text-white"><%= t("home.bento.hidden_locations.title") %></p>
+                <p class="mt-2 max-w-lg text-sm/6 text-gray-600 max-lg:text-center dark:text-gray-400"><%= t("home.bento.hidden_locations.description") %></p>
+                <%= link_to explore_path(types: ["location"]), class: "inline-flex items-center mt-3 text-sm text-blue-600 dark:text-yellow-400 hover:underline font-medium max-lg:justify-center" do %>
+                  <%= t("home.bento.hidden_locations.cta") %> →
+                <% end %>
+              </div>
+              <div class="@container relative min-h-120 w-full grow max-lg:mx-auto max-lg:max-w-sm">
+                <%= link_to explore_path(types: ["location"]), class: "block absolute inset-x-10 top-10 bottom-0 overflow-hidden rounded-t-[12cqw] border-x-[3cqw] border-t-[3cqw] border-gray-700 bg-gray-900 shadow-2xl dark:shadow-none dark:outline dark:outline-white/20 transition-transform group-hover:scale-[1.02]" do %>
+                  <%= image_tag "hero_backgrounds/#{bento_location_image}", alt: "Skrivene lokacije", class: "size-full object-cover object-top" %>
+                <% end %>
+              </div>
+            </div>
+            <div class="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5 lg:rounded-l-4xl dark:outline-white/15"></div>
+          </div>
+
+          <%# Gornja srednja kartica - Iskustva %>
+          <div class="relative max-lg:row-start-1 group">
+            <div class="absolute inset-px rounded-lg bg-gray-50 max-lg:rounded-t-4xl dark:bg-gray-800 transition-colors group-hover:bg-gray-100 dark:group-hover:bg-gray-700"></div>
+            <div class="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] max-lg:rounded-t-[calc(2rem+1px)]">
+              <div class="px-8 pt-8 sm:px-10 sm:pt-10">
+                <p class="mt-2 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center dark:text-white"><%= t("home.bento.experiences.title") %></p>
+                <p class="mt-2 max-w-lg text-sm/6 text-gray-600 max-lg:text-center dark:text-gray-400"><%= t("home.bento.experiences.description") %></p>
+                <%= link_to explore_path(types: ["experience"]), class: "inline-flex items-center mt-3 text-sm text-blue-600 dark:text-yellow-400 hover:underline font-medium max-lg:justify-center" do %>
+                  <%= t("home.bento.experiences.cta") %> →
+                <% end %>
+              </div>
+              <%= link_to explore_path(types: ["experience"]), class: "flex flex-1 items-center justify-center px-8 max-lg:pt-6 max-lg:pb-8 sm:px-10 lg:pb-4" do %>
+                <div class="w-full max-lg:max-w-xs flex items-center justify-center py-4">
+                  <div class="grid grid-cols-3 gap-4">
+                    <div class="flex flex-col items-center">
+                      <div class="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center transition-transform group-hover:scale-110">
+                        <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                      </div>
+                      <span class="mt-2 text-xs text-gray-600 dark:text-gray-400"><%= t("home.bento.experiences.culture") %></span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                      <div class="w-16 h-16 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center transition-transform group-hover:scale-110">
+                        <svg class="w-8 h-8 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                      </div>
+                      <span class="mt-2 text-xs text-gray-600 dark:text-gray-400"><%= t("home.bento.experiences.food") %></span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                      <div class="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center transition-transform group-hover:scale-110">
+                        <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                        </svg>
+                      </div>
+                      <span class="mt-2 text-xs text-gray-600 dark:text-gray-400"><%= t("home.bento.experiences.adventure") %></span>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+            <div class="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5 max-lg:rounded-t-4xl dark:outline-white/15"></div>
+          </div>
+
+          <%# Donja srednja kartica - Audio ture %>
+          <div class="relative max-lg:row-start-3 lg:col-start-2 lg:row-start-2 group">
+            <div class="absolute inset-px rounded-lg bg-gray-50 dark:bg-gray-800 transition-colors group-hover:bg-gray-100 dark:group-hover:bg-gray-700"></div>
+            <div class="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
+              <div class="px-8 pt-8 sm:px-10 sm:pt-10">
+                <p class="mt-2 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center dark:text-white"><%= t("home.bento.audio_tours.title") %></p>
+                <p class="mt-2 max-w-lg text-sm/6 text-gray-600 max-lg:text-center dark:text-gray-400"><%= t("home.bento.audio_tours.description") %></p>
+                <%= link_to explore_path(types: ["location"], audio_support: true), class: "inline-flex items-center mt-3 text-sm text-blue-600 dark:text-yellow-400 hover:underline font-medium max-lg:justify-center" do %>
+                  <%= t("home.bento.audio_tours.cta") %> →
+                <% end %>
+              </div>
+              <div class="@container flex flex-1 flex-col items-center justify-center max-lg:py-6 lg:pb-4" data-controller="home-audio">
+                <audio data-home-audio-target="player" preload="metadata">
+                  <source src="<%= asset_path('usput-home.mp3') %>" type="audio/mpeg">
+                </audio>
+                <button type="button"
+                        data-action="click->home-audio#togglePlay"
+                        class="flex items-center gap-3 px-6 py-4 bg-white dark:bg-gray-900 rounded-xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                  <div class="w-12 h-12 rounded-full bg-blue-600 dark:bg-yellow-500 flex items-center justify-center hover:scale-105 transition-transform">
+                    <%# Play icon %>
+                    <svg data-home-audio-target="playIcon" class="w-6 h-6 text-white dark:text-gray-900 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    <%# Pause icon (hidden by default) %>
+                    <svg data-home-audio-target="pauseIcon" class="w-6 h-6 text-white dark:text-gray-900 hidden" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                    </svg>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white"><%= t("home.bento.audio_tours.welcome") %></p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                      <span data-home-audio-target="currentTime">0:00</span> / <span data-home-audio-target="duration">0:00</span>
+                    </p>
+                  </div>
+                  <div class="flex gap-0.5" data-home-audio-target="bars">
+                    <div class="w-1 h-4 bg-blue-600 dark:bg-yellow-500 rounded-full animate-pulse" style="animation-play-state: paused;"></div>
+                    <div class="w-1 h-6 bg-blue-600 dark:bg-yellow-500 rounded-full animate-pulse" style="animation-delay: 0.1s; animation-play-state: paused;"></div>
+                    <div class="w-1 h-3 bg-blue-600 dark:bg-yellow-500 rounded-full animate-pulse" style="animation-delay: 0.2s; animation-play-state: paused;"></div>
+                    <div class="w-1 h-5 bg-blue-600 dark:bg-yellow-500 rounded-full animate-pulse" style="animation-delay: 0.3s; animation-play-state: paused;"></div>
+                  </div>
+                </button>
+              </div>
+            </div>
+            <div class="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5 dark:outline-white/15"></div>
+          </div>
+
+          <%# Desna velika kartica - Planovi putovanja %>
+          <div class="relative lg:row-span-2 group">
+            <div class="absolute inset-px rounded-lg bg-gray-50 max-lg:rounded-b-4xl lg:rounded-r-4xl dark:bg-gray-800 transition-colors group-hover:bg-gray-100 dark:group-hover:bg-gray-700"></div>
+            <div class="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] max-lg:rounded-b-[calc(2rem+1px)] lg:rounded-r-[calc(2rem+1px)]">
+              <div class="px-8 pt-8 pb-3 sm:px-10 sm:pt-10 sm:pb-0">
+                <p class="mt-2 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center dark:text-white"><%= t("home.bento.travel_plans.title") %></p>
+                <p class="mt-2 max-w-lg text-sm/6 text-gray-600 max-lg:text-center dark:text-gray-400"><%= t("home.bento.travel_plans.description") %></p>
+                <%= link_to plan_wizard_path, class: "inline-flex items-center mt-3 text-sm text-blue-600 dark:text-yellow-400 hover:underline font-medium max-lg:justify-center" do %>
+                  <%= t("home.bento.travel_plans.cta") %> →
+                <% end %>
+              </div>
+              <div class="relative min-h-120 w-full grow">
+                <%= link_to plan_wizard_path, class: "block absolute top-10 right-0 bottom-0 left-10 overflow-hidden rounded-tl-xl bg-white dark:bg-gray-800 shadow-2xl outline outline-black/10 dark:outline-white/10 transition-transform group-hover:scale-[1.02]" do %>
+                  <%# Header sa naslovom plana %>
+                  <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <p class="text-sm text-gray-500 dark:text-gray-400"><%= t("home.plan_preview.duration") %></p>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white"><%= t("home.plan_preview.title") %></h3>
+                  </div>
+                  <%# Timeline feed %>
+                  <div class="px-6 py-5">
+                    <div class="flow-root">
+                      <ul role="list" class="-mb-8">
+                        <%# Dan 1 %>
+                        <li>
+                          <div class="relative pb-8">
+                            <span aria-hidden="true" class="absolute left-4 top-8 -ml-px h-full w-0.5 bg-gray-200 dark:bg-white/10"></span>
+                            <div class="relative flex space-x-3">
+                              <div>
+                                <span class="flex size-8 items-center justify-center rounded-full bg-blue-600 ring-4 ring-white dark:bg-yellow-500 dark:ring-gray-800">
+                                  <svg viewBox="0 0 20 20" fill="currentColor" class="size-4 text-white dark:text-gray-900">
+                                    <path fill-rule="evenodd" d="m9.69 18.933.003.001C9.89 19.02 10 19 10 19s.11.02.308-.066l.002-.001.006-.003.018-.008a5.741 5.741 0 0 0 .281-.14c.186-.096.446-.24.757-.433.62-.384 1.445-.966 2.274-1.765C15.302 14.988 17 12.493 17 9A7 7 0 1 0 3 9c0 3.492 1.698 5.988 3.355 7.584a13.731 13.731 0 0 0 2.273 1.765 11.842 11.842 0 0 0 .976.544l.062.029.018.008.006.003ZM10 11.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z" clip-rule="evenodd" />
+                                  </svg>
+                                </span>
+                              </div>
+                              <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+                                <div>
+                                  <p class="text-sm font-medium text-gray-900 dark:text-white"><%= t("home.plan_preview.day1.title") %></p>
+                                  <% t("home.plan_preview.day1.items").each do |item| %>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"><%= item %></p>
+                                  <% end %>
+                                </div>
+                                <div class="text-right text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
+                                  <%= t("home.bento.travel_plans.day", number: 1) %>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                        <%# Dan 2 %>
+                        <li>
+                          <div class="relative pb-8">
+                            <span aria-hidden="true" class="absolute left-4 top-8 -ml-px h-full w-0.5 bg-gray-200 dark:bg-white/10"></span>
+                            <div class="relative flex space-x-3">
+                              <div>
+                                <span class="flex size-8 items-center justify-center rounded-full bg-green-500 ring-4 ring-white dark:bg-green-600 dark:ring-gray-800">
+                                  <svg viewBox="0 0 20 20" fill="currentColor" class="size-4 text-white">
+                                    <path d="M15.98 1.804a1 1 0 0 0-1.96 0l-.24 1.192a1 1 0 0 1-.784.785l-1.192.238a1 1 0 0 0 0 1.962l1.192.238a1 1 0 0 1 .785.785l.238 1.192a1 1 0 0 0 1.962 0l.238-1.192a1 1 0 0 1 .785-.785l1.192-.238a1 1 0 0 0 0-1.962l-1.192-.238a1 1 0 0 1-.785-.785l-.238-1.192ZM6.949 5.684a1 1 0 0 0-1.898 0l-.683 2.051a1 1 0 0 1-.633.633l-2.051.683a1 1 0 0 0 0 1.898l2.051.684a1 1 0 0 1 .633.632l.683 2.051a1 1 0 0 0 1.898 0l.683-2.051a1 1 0 0 1 .633-.633l2.051-.683a1 1 0 0 0 0-1.898l-2.051-.683a1 1 0 0 1-.633-.633L6.95 5.684ZM13.949 13.684a1 1 0 0 0-1.898 0l-.184.551a1 1 0 0 1-.632.633l-.551.183a1 1 0 0 0 0 1.898l.551.183a1 1 0 0 1 .633.633l.183.551a1 1 0 0 0 1.898 0l.184-.551a1 1 0 0 1 .632-.633l.551-.183a1 1 0 0 0 0-1.898l-.551-.184a1 1 0 0 1-.633-.632l-.183-.551Z" />
+                                  </svg>
+                                </span>
+                              </div>
+                              <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+                                <div>
+                                  <p class="text-sm font-medium text-gray-900 dark:text-white"><%= t("home.plan_preview.day2.title") %></p>
+                                  <% t("home.plan_preview.day2.items").each do |item| %>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"><%= item %></p>
+                                  <% end %>
+                                </div>
+                                <div class="text-right text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
+                                  <%= t("home.bento.travel_plans.day", number: 2) %>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                        <%# Dan 3 %>
+                        <li>
+                          <div class="relative pb-8">
+                            <div class="relative flex space-x-3">
+                              <div>
+                                <span class="flex size-8 items-center justify-center rounded-full bg-purple-500 ring-4 ring-white dark:bg-purple-600 dark:ring-gray-800">
+                                  <svg viewBox="0 0 20 20" fill="currentColor" class="size-4 text-white">
+                                    <path fill-rule="evenodd" d="M9.674 2.075a.75.75 0 0 1 .652 0l7.25 3.5A.75.75 0 0 1 17 6.957V16.5h.25a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1 0-1.5H3V6.957a.75.75 0 0 1-.576-1.382l7.25-3.5ZM11 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM7.5 9.75a.75.75 0 0 0-1.5 0v5.5a.75.75 0 0 0 1.5 0v-5.5Zm3.25 0a.75.75 0 0 0-1.5 0v5.5a.75.75 0 0 0 1.5 0v-5.5Zm3.25 0a.75.75 0 0 0-1.5 0v5.5a.75.75 0 0 0 1.5 0v-5.5Z" clip-rule="evenodd" />
+                                  </svg>
+                                </span>
+                              </div>
+                              <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+                                <div>
+                                  <p class="text-sm font-medium text-gray-900 dark:text-white"><%= t("home.plan_preview.day3.title") %></p>
+                                  <% t("home.plan_preview.day3.items").each do |item| %>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"><%= item %></p>
+                                  <% end %>
+                                </div>
+                                <div class="text-right text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
+                                  <%= t("home.bento.travel_plans.day", number: 3) %>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+            <div class="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5 max-lg:rounded-b-4xl lg:rounded-r-4xl dark:outline-white/15"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<%
+  # Determine current season based on month
+  current_month = Date.current.month
+  current_season = case current_month
+                   when 12, 1, 2 then :winter
+                   when 3, 4, 5 then :spring
+                   when 6, 7, 8 then :summer
+                   when 9, 10, 11 then :fall
+                   end
+
+  # Season-specific content - now uses i18n
+  season_content = {
+    winter: { folder: "winter" },
+    spring: { folder: "spring" },
+    summer: { folder: "summer" },
+    fall: { folder: "fall" }
+  }
+
+  season = season_content[current_season]
+  season_images_dir = Rails.root.join("app/assets/images/seasons/#{season[:folder]}")
+  season_images = Dir.glob("#{season_images_dir}/*.{jpg,jpeg,png,webp}").map { |f| File.basename(f) }.reject { |f| f == ".keep" }.shuffle
+%>
+
+    <%# ==================== REVIEWS SEKCIJA ==================== %>
+    <div class="relative isolate bg-white pt-24 pb-32 sm:pt-32 dark:bg-gray-900">
+      <div aria-hidden="true" class="absolute inset-x-0 top-1/2 -z-10 -translate-y-1/2 transform-gpu overflow-hidden opacity-30 blur-3xl">
+        <div style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" class="ml-[max(50%,38rem)] aspect-[1313/771] w-[82.0625rem] bg-gradient-to-tr from-blue-400 to-yellow-400 dark:from-blue-600 dark:to-yellow-500"></div>
+      </div>
+      <div aria-hidden="true" class="absolute inset-x-0 top-0 -z-10 flex transform-gpu overflow-hidden pt-32 opacity-25 blur-3xl sm:pt-40 xl:justify-end">
+        <div style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" class="-ml-[22rem] aspect-[1313/771] w-[82.0625rem] flex-none origin-top-right rotate-[30deg] bg-gradient-to-tr from-blue-400 to-yellow-400 dark:from-blue-600 dark:to-yellow-500 xl:mr-[calc(50%-12rem)] xl:ml-0"></div>
+      </div>
+      <div class="mx-auto max-w-7xl px-6 lg:px-8">
+        <div class="mx-auto max-w-2xl text-center">
+          <h2 class="text-base/7 font-semibold text-blue-600 dark:text-yellow-400"><%= t("home.reviews.title") %></h2>
+          <p class="mt-2 text-4xl font-semibold tracking-tight text-balance text-gray-900 sm:text-5xl dark:text-white"><%= t("home.reviews.subtitle") %></p>
+        </div>
+        <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mx-0 lg:max-w-none">
+          <% if @positive_reviews.present? %>
+            <%# Mobile: horizontal scroll, SM+: masonry grid %>
+            <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide sm:overflow-visible sm:pb-0 sm:-mx-4 sm:block sm:columns-2 lg:columns-3">
+              <% @positive_reviews.each do |review| %>
+                <div class="w-72 h-64 shrink-0 sm:w-auto sm:h-auto sm:shrink sm:pt-8 sm:inline-block sm:px-4">
+                  <figure class="rounded-2xl bg-gray-50 p-6 text-sm/6 dark:bg-white/5 h-full sm:h-auto sm:p-8">
+                    <%# Star rating %>
+                    <div class="flex gap-x-1 text-blue-600 dark:text-yellow-400 mb-4">
+                      <% 5.times do |i| %>
+                        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="size-5 <%= i >= review.rating ? 'text-gray-300 dark:text-gray-600' : '' %>">
+                          <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clip-rule="evenodd" />
+                        </svg>
+                      <% end %>
+                    </div>
+                    <%# Comment %>
+                    <blockquote class="text-gray-900 dark:text-white">
+                      <p class="line-clamp-3 sm:line-clamp-none">"<%= truncate(review.comment, length: 200) %>"</p>
+                    </blockquote>
+                    <%# Author and reviewable info %>
+                    <figcaption class="mt-6 flex items-center gap-x-4">
+                      <%# Avatar - show user's avatar if logged in, otherwise initial %>
+                      <% if review.user.present? && review.user.avatar.attached? %>
+                        <%= image_tag rails_blob_path(review.user.avatar, only_path: true), alt: review.user.username, class: "size-10 rounded-full object-cover" %>
+                      <% else %>
+                        <% initial = review.user.present? ? review.user.username[0].upcase : (review.author_name.present? ? review.author_name[0].upcase : "A") %>
+                        <div class="size-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 dark:from-yellow-400 dark:to-yellow-500 flex items-center justify-center text-white dark:text-gray-900 font-bold text-sm">
+                          <%= initial %>
+                        </div>
+                      <% end %>
+                      <div>
+                        <div class="font-semibold text-gray-900 dark:text-white">
+                          <% if review.user.present? %>
+                            <%= review.user.username %>
+                          <% elsif review.author_name.present? %>
+                            <%= review.author_name %>
+                          <% else %>
+                            <%= t("reviews.anonymous", default: "Anonimni posjetitelj") %>
+                          <% end %>
+                        </div>
+                        <% if review.reviewable.present? %>
+                          <div class="text-blue-600 dark:text-yellow-400 text-xs">
+                            <%= link_to polymorphic_path(review.reviewable), class: "inline-flex items-center hover:underline" do %>
+                              <% case review.reviewable_type %>
+                              <% when "Location" %>
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                              <% when "Experience" %>
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                              <% when "Plan" %>
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                              <% end %>
+                              <span class="line-clamp-1 break-all">
+                                <% if review.reviewable.respond_to?(:translate) %>
+                                  <%= review.reviewable.translate(:name, I18n.locale) || review.reviewable.translate(:title, I18n.locale) %>
+                                <% elsif review.reviewable.respond_to?(:name) %>
+                                  <%= review.reviewable.name %>
+                                <% elsif review.reviewable.respond_to?(:title) %>
+                                  <%= review.reviewable.title %>
+                                <% end %>
+                              </span>
+                            <% end %>
+                          </div>
+                        <% end %>
+                      </div>
+                    </figcaption>
+                  </figure>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <%# Empty state %>
+            <div class="text-center py-12">
+              <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+              </svg>
+              <h3 class="mt-2 text-sm font-semibold text-gray-900 dark:text-white"><%= t("home.reviews.empty_title") %></h3>
+              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400"><%= t("home.reviews.empty_description") %></p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# ==================== SEZONSKE LOKACIJE SEKCIJA ==================== %>
+    <div class="overflow-hidden bg-white py-32 dark:bg-gray-900">
+      <div class="mx-auto max-w-7xl px-6 lg:flex lg:px-8">
+        <div class="mx-auto grid max-w-2xl grid-cols-1 gap-x-12 gap-y-16 lg:mx-0 lg:max-w-none lg:min-w-full lg:flex-none lg:gap-y-8">
+          <div class="lg:col-end-1 lg:w-full lg:max-w-lg lg:pb-8">
+            <h2 class="text-base/7 font-semibold text-blue-600 dark:text-yellow-400"><%= t("home.seasonal.#{current_season}.subtitle") %></h2>
+            <p class="mt-2 text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl dark:text-white"><%= t("home.seasonal.#{current_season}.title") %></p>
+            <p class="mt-6 text-xl/8 text-gray-700 dark:text-gray-300"><%= t("home.seasonal.#{current_season}.description") %></p>
+            <div class="mt-10 flex">
+              <%= link_to explore_path(types: ["location"], season: current_season), class: "rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:bg-yellow-500 dark:text-gray-900 dark:hover:bg-yellow-400 dark:focus-visible:outline-yellow-500" do %>
+                <%= t("home.seasonal.#{current_season}.cta") %>
+                <span aria-hidden="true">&rarr;</span>
+              <% end %>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-start justify-end gap-6 sm:gap-8 lg:contents">
+            <% if season_images.length >= 4 %>
+              <div class="w-0 flex-auto lg:ml-auto lg:w-auto lg:flex-none lg:self-end">
+                <%= image_tag "seasons/#{season[:folder]}/#{season_images[0]}", alt: season[:title], class: "aspect-7/5 w-148 max-w-none rounded-2xl bg-gray-50 object-cover max-sm:w-120 dark:bg-gray-800" %>
+              </div>
+              <div class="contents lg:col-span-2 lg:col-end-2 lg:ml-auto lg:flex lg:w-148 lg:items-start lg:justify-end lg:gap-x-8">
+                <div class="order-first flex w-64 flex-none justify-end self-end max-sm:w-40 lg:w-auto">
+                  <%= image_tag "seasons/#{season[:folder]}/#{season_images[1]}", alt: season[:title], class: "aspect-4/3 w-[24rem] max-w-none flex-none rounded-2xl bg-gray-50 object-cover dark:bg-gray-800" %>
+                </div>
+                <div class="flex w-96 flex-auto justify-end lg:w-auto lg:flex-none">
+                  <%= image_tag "seasons/#{season[:folder]}/#{season_images[2]}", alt: season[:title], class: "aspect-7/5 w-148 max-w-none flex-none rounded-2xl bg-gray-50 object-cover max-sm:w-120 dark:bg-gray-800" %>
+                </div>
+                <div class="hidden sm:block sm:w-0 sm:flex-auto lg:w-auto lg:flex-none">
+                  <%= image_tag "seasons/#{season[:folder]}/#{season_images[3]}", alt: season[:title], class: "aspect-4/3 w-[24rem] max-w-none rounded-2xl bg-gray-50 object-cover dark:bg-gray-800" %>
+                </div>
+              </div>
+            <% else %>
+              <%# Fallback: use hero backgrounds if no season images available %>
+              <div class="w-0 flex-auto lg:ml-auto lg:w-auto lg:flex-none lg:self-end">
+                <%= image_tag "hero_backgrounds/#{random_images[0]}", alt: season[:title], class: "aspect-7/5 w-148 max-w-none rounded-2xl bg-gray-50 object-cover max-sm:w-120 dark:bg-gray-800" %>
+              </div>
+              <div class="contents lg:col-span-2 lg:col-end-2 lg:ml-auto lg:flex lg:w-148 lg:items-start lg:justify-end lg:gap-x-8">
+                <div class="order-first flex w-64 flex-none justify-end self-end max-sm:w-40 lg:w-auto">
+                  <%= image_tag "hero_backgrounds/#{random_images[1]}", alt: season[:title], class: "aspect-4/3 w-[24rem] max-w-none flex-none rounded-2xl bg-gray-50 object-cover dark:bg-gray-800" %>
+                </div>
+                <div class="flex w-96 flex-auto justify-end lg:w-auto lg:flex-none">
+                  <%= image_tag "hero_backgrounds/#{random_images[2]}", alt: season[:title], class: "aspect-7/5 w-148 max-w-none flex-none rounded-2xl bg-gray-50 object-cover max-sm:w-120 dark:bg-gray-800" %>
+                </div>
+                <div class="hidden sm:block sm:w-0 sm:flex-auto lg:w-auto lg:flex-none">
+                  <%= image_tag "hero_backgrounds/#{random_images[3]}", alt: season[:title], class: "aspect-4/3 w-[24rem] max-w-none rounded-2xl bg-gray-50 object-cover dark:bg-gray-800" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# ==================== TRENDING SEKCIJA ==================== %>
+    <% if @trending_locations.present? || @trending_experiences.present? %>
+    <div class="bg-gray-50 py-24 sm:py-32 dark:bg-gray-800">
+      <div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
+        <h2 class="text-base/7 font-semibold text-blue-600 dark:text-yellow-400"><%= t("home.trending.section_title") %></h2>
+        <p class="mt-2 max-w-lg text-4xl font-semibold tracking-tight text-pretty text-gray-950 sm:text-5xl dark:text-white"><%= t("home.trending.section_subtitle") %></p>
+        <div class="mt-10 grid grid-cols-1 gap-4 sm:mt-16 lg:grid-cols-6 lg:grid-rows-2">
+          <% @trending_locations.each_with_index do |location, index| %>
+            <%# Prva lokacija - velika kartica gore lijevo %>
+            <% if index == 0 %>
+              <div class="relative lg:col-span-3 group">
+                <div class="absolute inset-0 rounded-lg bg-white max-lg:rounded-t-4xl lg:rounded-tl-4xl dark:bg-gray-900"></div>
+                <%= link_to location_path(location), class: "relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] max-lg:rounded-t-[calc(2rem+1px)] lg:rounded-tl-[calc(2rem+1px)]" do %>
+                  <% if location.photos.attached? %>
+                    <%= image_tag rails_blob_path(location.photos.first, only_path: true), alt: location.translate(:name, I18n.locale), class: "h-80 object-cover object-center transition-transform group-hover:scale-105" %>
+                  <% else %>
+                    <div class="h-80 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-yellow-500 dark:to-yellow-600 flex items-center justify-center">
+                      <svg class="w-16 h-16 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      </svg>
+                    </div>
+                  <% end %>
+                  <div class="p-10 pt-4">
+                    <h3 class="text-sm/4 font-semibold text-blue-600 dark:text-yellow-400">
+                      <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                      </svg>
+                      <%= t("home.trending.location") %>
+                    </h3>
+                    <p class="mt-2 text-lg font-medium tracking-tight text-gray-950 dark:text-white"><%= location.translate(:name, I18n.locale) %></p>
+                    <p class="mt-2 max-w-lg text-sm/6 text-gray-600 dark:text-gray-400 line-clamp-2"><%= truncate(location.translate(:description, I18n.locale), length: 120) %></p>
+                    <div class="mt-3 flex items-center gap-2">
+                      <% if location.average_rating.to_f > 0 %>
+                        <div class="flex items-center text-yellow-500">
+                          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                          </svg>
+                          <span class="ml-1 text-sm font-medium text-gray-700 dark:text-gray-300"><%= number_with_precision(location.average_rating, precision: 1) %></span>
+                        </div>
+                      <% end %>
+                      <% if location.city.present? %>
+                        <span class="text-sm text-gray-500 dark:text-gray-400"><%= location.city %></span>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+                <div class="pointer-events-none absolute inset-0 rounded-lg shadow-sm outline outline-black/5 max-lg:rounded-t-4xl lg:rounded-tl-4xl dark:outline-white/15"></div>
+              </div>
+
+            <%# Druga lokacija - velika kartica gore desno %>
+            <% elsif index == 1 %>
+              <div class="relative lg:col-span-3 group">
+                <div class="absolute inset-0 rounded-lg bg-white lg:rounded-tr-4xl dark:bg-gray-900"></div>
+                <%= link_to location_path(location), class: "relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] lg:rounded-tr-[calc(2rem+1px)]" do %>
+                  <% if location.photos.attached? %>
+                    <%= image_tag rails_blob_path(location.photos.first, only_path: true), alt: location.translate(:name, I18n.locale), class: "h-80 object-cover object-center lg:object-right transition-transform group-hover:scale-105" %>
+                  <% else %>
+                    <div class="h-80 bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+                      <svg class="w-16 h-16 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      </svg>
+                    </div>
+                  <% end %>
+                  <div class="p-10 pt-4">
+                    <h3 class="text-sm/4 font-semibold text-blue-600 dark:text-yellow-400">
+                      <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                      </svg>
+                      <%= t("home.trending.location") %>
+                    </h3>
+                    <p class="mt-2 text-lg font-medium tracking-tight text-gray-950 dark:text-white"><%= location.translate(:name, I18n.locale) %></p>
+                    <p class="mt-2 max-w-lg text-sm/6 text-gray-600 dark:text-gray-400 line-clamp-2"><%= truncate(location.translate(:description, I18n.locale), length: 120) %></p>
+                    <div class="mt-3 flex items-center gap-2">
+                      <% if location.average_rating.to_f > 0 %>
+                        <div class="flex items-center text-yellow-500">
+                          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                          </svg>
+                          <span class="ml-1 text-sm font-medium text-gray-700 dark:text-gray-300"><%= number_with_precision(location.average_rating, precision: 1) %></span>
+                        </div>
+                      <% end %>
+                      <% if location.city.present? %>
+                        <span class="text-sm text-gray-500 dark:text-gray-400"><%= location.city %></span>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+                <div class="pointer-events-none absolute inset-0 rounded-lg shadow-sm outline outline-black/5 lg:rounded-tr-4xl dark:outline-white/15"></div>
+              </div>
+
+            <%# Treća lokacija - mala kartica dolje lijevo %>
+            <% elsif index == 2 %>
+              <div class="relative lg:col-span-2 group">
+                <div class="absolute inset-0 rounded-lg bg-white lg:rounded-bl-4xl dark:bg-gray-900"></div>
+                <%= link_to location_path(location), class: "relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] lg:rounded-bl-[calc(2rem+1px)]" do %>
+                  <% if location.photos.attached? %>
+                    <%= image_tag rails_blob_path(location.photos.first, only_path: true), alt: location.translate(:name, I18n.locale), class: "h-80 object-cover object-left transition-transform group-hover:scale-105" %>
+                  <% else %>
+                    <div class="h-80 bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                      <svg class="w-16 h-16 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      </svg>
+                    </div>
+                  <% end %>
+                  <div class="p-10 pt-4">
+                    <h3 class="text-sm/4 font-semibold text-blue-600 dark:text-yellow-400">
+                      <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                      </svg>
+                      <%= t("home.trending.location") %>
+                    </h3>
+                    <p class="mt-2 text-lg font-medium tracking-tight text-gray-950 dark:text-white"><%= location.translate(:name, I18n.locale) %></p>
+                    <p class="mt-2 max-w-lg text-sm/6 text-gray-600 dark:text-gray-400 line-clamp-2"><%= truncate(location.translate(:description, I18n.locale), length: 80) %></p>
+                    <div class="mt-3 flex items-center gap-2">
+                      <% if location.average_rating.to_f > 0 %>
+                        <div class="flex items-center text-yellow-500">
+                          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                          </svg>
+                          <span class="ml-1 text-sm font-medium text-gray-700 dark:text-gray-300"><%= number_with_precision(location.average_rating, precision: 1) %></span>
+                        </div>
+                      <% end %>
+                      <% if location.city.present? %>
+                        <span class="text-sm text-gray-500 dark:text-gray-400"><%= location.city %></span>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+                <div class="pointer-events-none absolute inset-0 rounded-lg shadow-sm outline outline-black/5 lg:rounded-bl-4xl dark:outline-white/15"></div>
+              </div>
+            <% end %>
+          <% end %>
+
+          <%# Experiences - dvije srednje kartice dolje %>
+          <% @trending_experiences.each_with_index do |experience, index| %>
+            <div class="relative lg:col-span-2 group">
+              <div class="absolute inset-0 rounded-lg bg-white dark:bg-gray-900 <%= index == 1 ? 'max-lg:rounded-b-4xl lg:rounded-br-4xl' : '' %>"></div>
+              <%= link_to experience_path(experience), class: "relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] #{index == 1 ? 'max-lg:rounded-b-[calc(2rem+1px)] lg:rounded-br-[calc(2rem+1px)]' : ''}" do %>
+                <% if experience.cover_photo.attached? %>
+                  <%= image_tag rails_blob_path(experience.cover_photo, only_path: true), alt: experience.translate(:title, I18n.locale), class: "h-80 object-cover transition-transform group-hover:scale-105" %>
+                <% else %>
+                  <div class="h-80 bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+                    <svg class="w-16 h-16 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                    </svg>
+                  </div>
+                <% end %>
+                <div class="p-10 pt-4">
+                  <h3 class="text-sm/4 font-semibold text-blue-600 dark:text-yellow-400">
+                    <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                    </svg>
+                    <%= t("home.trending.experience") %>
+                  </h3>
+                  <p class="mt-2 text-lg font-medium tracking-tight text-gray-950 dark:text-white"><%= experience.translate(:title, I18n.locale) %></p>
+                  <p class="mt-2 max-w-lg text-sm/6 text-gray-600 dark:text-gray-400 line-clamp-2"><%= truncate(experience.translate(:description, I18n.locale), length: 80) %></p>
+                  <div class="mt-3 flex items-center gap-2">
+                    <% if experience.average_rating.to_f > 0 %>
+                      <div class="flex items-center text-yellow-500">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-700 dark:text-gray-300"><%= number_with_precision(experience.average_rating, precision: 1) %></span>
+                      </div>
+                    <% end %>
+                    <% if experience.formatted_duration.present? %>
+                      <span class="text-sm text-gray-500 dark:text-gray-400"><%= experience.formatted_duration %></span>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+              <div class="pointer-events-none absolute inset-0 rounded-lg shadow-sm outline outline-black/5 dark:outline-white/15 <%= index == 1 ? 'max-lg:rounded-b-4xl lg:rounded-br-4xl' : '' %>"></div>
+            </div>
+          <% end %>
+
+          <%# Ako nema dovoljno lokacija ili experiences, popuni prazne kartice %>
+          <% empty_slots = 5 - (@trending_locations.size + @trending_experiences.size) %>
+          <% if empty_slots > 0 %>
+            <% empty_slots.times do |i| %>
+              <div class="relative lg:col-span-2">
+                <div class="absolute inset-0 rounded-lg bg-white dark:bg-gray-900 <%= i == empty_slots - 1 ? 'max-lg:rounded-b-4xl lg:rounded-br-4xl' : '' %>"></div>
+                <div class="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] <%= i == empty_slots - 1 ? 'max-lg:rounded-b-[calc(2rem+1px)] lg:rounded-br-[calc(2rem+1px)]' : '' %>">
+                  <div class="h-80 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
+                    <svg class="w-16 h-16 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                  </div>
+                  <div class="p-10 pt-4">
+                    <h3 class="text-sm/4 font-semibold text-gray-400 dark:text-gray-500"><%= t("home.trending.coming_soon") %></h3>
+                    <p class="mt-2 text-lg font-medium tracking-tight text-gray-500 dark:text-gray-400"><%= t("home.trending.new_experience") %></p>
+                    <p class="mt-2 max-w-lg text-sm/6 text-gray-400 dark:text-gray-500"><%= t("home.trending.follow_us") %></p>
+                  </div>
+                </div>
+                <div class="pointer-events-none absolute inset-0 rounded-lg shadow-sm outline outline-black/5 dark:outline-white/15 <%= i == empty_slots - 1 ? 'max-lg:rounded-b-4xl lg:rounded-br-4xl' : '' %>"></div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <% end %>
+
+    <%# ==================== CTA SEKCIJA ==================== %>
+    <div class="bg-white dark:bg-gray-900">
+      <div class="mx-auto max-w-7xl py-24 sm:px-6 sm:py-32 lg:px-8">
+        <div class="relative isolate overflow-hidden px-6 py-24 text-center shadow-2xl sm:rounded-3xl sm:px-16">
+          <%# Background image %>
+          <% if cta_background_image.present? %>
+            <%= image_tag "hero_backgrounds/#{cta_background_image}", class: "absolute inset-0 -z-20 w-full h-full object-cover", alt: "" %>
+          <% end %>
+          <%# Dark overlay %>
+          <div class="absolute inset-0 -z-10 bg-gray-900/80 dark:bg-gray-900/90"></div>
+
+          <h2 class="text-4xl font-semibold tracking-tight text-balance text-white sm:text-5xl"><%= t("home.cta_section.title") %></h2>
+          <p class="mx-auto mt-6 max-w-xl text-lg/8 text-pretty text-gray-300"><%= t("home.cta_section.description") %></p>
+          <div class="mt-10 flex items-center justify-center gap-x-6">
+            <%= link_to plan_wizard_path, class: "rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-xs hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" do %>
+              <%= t("home.cta_section.button") %>
+            <% end %>
+            <%= link_to explore_path(types: ["plan"]), class: "text-sm/6 font-semibold text-white" do %>
+              <%= t("home.cta_section.view_plans") %> <span aria-hidden="true">→</span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%= render "new_design/footer" %>
+  </main>
+</div>

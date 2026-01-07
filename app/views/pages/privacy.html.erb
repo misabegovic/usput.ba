@@ -1,0 +1,329 @@
+<div class="min-h-screen flex flex-col">
+  <%# Navigation %>
+  <nav class="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <%# Logo %>
+        <div class="flex items-center">
+          <a href="/" class="flex items-center space-x-2">
+            <img src="/usput-logo.png" alt="Usput" class="h-10 w-auto">
+            <span class="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Usput.ba</span>
+          </a>
+        </div>
+
+        <%# Desktop Navigation %>
+        <div class="hidden md:flex items-center space-x-6">
+          <%= link_to t("nav.explore"), explore_path, class: "text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 font-medium transition-colors" %>
+          <%= link_to t("nav.plans"), plans_path, class: "text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 font-medium transition-colors" %>
+
+          <%# Theme Toggle %>
+          <div data-controller="theme">
+            <button data-action="click->theme#toggle"
+                    class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    aria-label="Toggle theme">
+              <span data-theme-target="icon">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                </svg>
+              </span>
+            </button>
+          </div>
+
+          <%= link_to plan_wizard_path, class: "bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-6 py-2 rounded-lg font-medium hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg" do %>
+            <%= t("home.cta.start") %>
+          <% end %>
+        </div>
+
+        <%# Mobile menu button %>
+        <div class="flex items-center md:hidden space-x-2">
+          <div data-controller="theme">
+            <button data-action="click->theme#toggle"
+                    class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    aria-label="Toggle theme">
+              <span data-theme-target="icon">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                </svg>
+              </span>
+            </button>
+          </div>
+
+          <a href="/" class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <%# Main Content %>
+  <main class="flex-grow bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <%# Header %>
+      <div class="text-center mb-12">
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-white mb-4">
+          <%= t("privacy.title", default: "Politika privatnosti") %>
+        </h1>
+        <p class="text-gray-500 dark:text-gray-400 text-sm">
+          <%= t("privacy.last_updated", default: "Posljednje ažuriranje") %>: <%= Date.today.strftime("%d.%m.%Y") %>
+        </p>
+        <div class="w-24 h-1 bg-gradient-to-r from-emerald-500 to-teal-600 mx-auto rounded-full mt-4"></div>
+      </div>
+
+      <%# Privacy Policy Content %>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-12 transition-colors duration-300">
+        <div class="prose dark:prose-invert max-w-none">
+
+          <%# Introduction %>
+          <section class="mb-10">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+              <svg class="w-6 h-6 mr-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+              </svg>
+              <%= t("privacy.intro.title", default: "Uvod") %>
+            </h2>
+            <div class="text-gray-600 dark:text-gray-400 space-y-3">
+              <p><%= t("privacy.intro.text1", default: "Zaštita vaših ličnih podataka nam je veoma važna. U ovom dokumentu objašnjavamo koje podatke prikupljamo, kako ih koristimo i koja prava imate u vezi s njima.") %></p>
+              <p><%= t("privacy.intro.text2", default: "Ova politika privatnosti je usklađena s Općom uredbom o zaštiti podataka (GDPR/DSGVO) Europske unije i austrijskim Zakonom o zaštiti podataka (DSG).") %></p>
+            </div>
+          </section>
+
+          <%# Data Controller %>
+          <section class="mb-10">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+              <svg class="w-6 h-6 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+              <%= t("privacy.controller.title", default: "Voditelj obrade podataka") %>
+            </h2>
+            <div class="text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+              <p class="font-semibold text-gray-900 dark:text-white">Muhamed Isabegović</p>
+              <p><%= t("privacy.controller.form", default: "Einzelunternehmer (Samostalni poduzetnik)") %></p>
+              <p><%= t("privacy.controller.country", default: "Austrija") %></p>
+              <p class="mt-2">
+                <span class="font-medium"><%= t("privacy.controller.email", default: "E-mail") %>:</span>
+                <a href="mailto:info@muhamed.at" class="text-emerald-600 dark:text-emerald-400 hover:underline">info@muhamed.at</a>
+              </p>
+            </div>
+          </section>
+
+          <%# Data Collection %>
+          <section class="mb-10">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+              <svg class="w-6 h-6 mr-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path>
+              </svg>
+              <%= t("privacy.collection.title", default: "Koje podatke prikupljamo") %>
+            </h2>
+            <div class="text-gray-600 dark:text-gray-400 space-y-4">
+              <div>
+                <h3 class="font-semibold text-gray-900 dark:text-white mb-2"><%= t("privacy.collection.auto.title", default: "Automatski prikupljeni podaci") %></h3>
+                <ul class="list-disc list-inside space-y-1 ml-4">
+                  <li><%= t("privacy.collection.auto.ip", default: "IP adresa (anonimizirana)") %></li>
+                  <li><%= t("privacy.collection.auto.browser", default: "Tip i verzija preglednika") %></li>
+                  <li><%= t("privacy.collection.auto.os", default: "Operativni sistem") %></li>
+                  <li><%= t("privacy.collection.auto.time", default: "Datum i vrijeme pristupa") %></li>
+                  <li><%= t("privacy.collection.auto.pages", default: "Posjećene stranice") %></li>
+                </ul>
+              </div>
+              <div>
+                <h3 class="font-semibold text-gray-900 dark:text-white mb-2"><%= t("privacy.collection.voluntary.title", default: "Dobrovoljno dati podaci") %></h3>
+                <ul class="list-disc list-inside space-y-1 ml-4">
+                  <li><%= t("privacy.collection.voluntary.account", default: "Podaci za registraciju (korisničko ime)") %></li>
+                  <li><%= t("privacy.collection.voluntary.profile", default: "Travel profil (preferencije putovanja, posjećena mjesta)") %></li>
+                  <li><%= t("privacy.collection.voluntary.reviews", default: "Recenzije i ocjene") %></li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <%# Purpose of Processing %>
+          <section class="mb-10">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+              <svg class="w-6 h-6 mr-3 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+              <%= t("privacy.purpose.title", default: "Svrha obrade podataka") %>
+            </h2>
+            <div class="text-gray-600 dark:text-gray-400">
+              <ul class="list-disc list-inside space-y-2 ml-4">
+                <li><%= t("privacy.purpose.service", default: "Pružanje i poboljšanje naših usluga") %></li>
+                <li><%= t("privacy.purpose.personalization", default: "Personalizacija korisničkog iskustva") %></li>
+                <li><%= t("privacy.purpose.security", default: "Sigurnost i sprječavanje zloupotreba") %></li>
+                <li><%= t("privacy.purpose.legal", default: "Ispunjavanje pravnih obaveza") %></li>
+              </ul>
+            </div>
+          </section>
+
+          <%# Legal Basis %>
+          <section class="mb-10">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+              <svg class="w-6 h-6 mr-3 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
+              </svg>
+              <%= t("privacy.legal_basis.title", default: "Pravna osnova") %>
+            </h2>
+            <div class="text-gray-600 dark:text-gray-400 space-y-3">
+              <p><%= t("privacy.legal_basis.text", default: "Obrađujemo vaše podatke na osnovu:") %></p>
+              <ul class="list-disc list-inside space-y-2 ml-4">
+                <li><strong><%= t("privacy.legal_basis.consent", default: "Pristanak (čl. 6(1)(a) GDPR)") %></strong> - <%= t("privacy.legal_basis.consent_desc", default: "za opcionalne funkcije i kolačiće") %></li>
+                <li><strong><%= t("privacy.legal_basis.contract", default: "Izvršenje ugovora (čl. 6(1)(b) GDPR)") %></strong> - <%= t("privacy.legal_basis.contract_desc", default: "za pružanje usluga") %></li>
+                <li><strong><%= t("privacy.legal_basis.legitimate", default: "Legitimni interes (čl. 6(1)(f) GDPR)") %></strong> - <%= t("privacy.legal_basis.legitimate_desc", default: "za sigurnost i poboljšanje usluga") %></li>
+              </ul>
+            </div>
+          </section>
+
+          <%# Cookies %>
+          <section class="mb-10">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+              <svg class="w-6 h-6 mr-3 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <%= t("privacy.cookies.title", default: "Kolačići") %>
+            </h2>
+            <div class="text-gray-600 dark:text-gray-400 space-y-4">
+              <p><%= t("privacy.cookies.text", default: "Koristimo samo tehički neophodne kolačiće i lokalnu pohranu za:") %></p>
+              <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                <ul class="space-y-2">
+                  <li class="flex items-center">
+                    <span class="w-3 h-3 bg-emerald-500 rounded-full mr-3"></span>
+                    <span><strong><%= t("privacy.cookies.session", default: "Sesijski kolačići") %></strong> - <%= t("privacy.cookies.session_desc", default: "za autentifikaciju korisnika") %></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="w-3 h-3 bg-emerald-500 rounded-full mr-3"></span>
+                    <span><strong><%= t("privacy.cookies.theme", default: "Postavke teme") %></strong> - <%= t("privacy.cookies.theme_desc", default: "za pamćenje svijetle/tamne teme") %></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="w-3 h-3 bg-emerald-500 rounded-full mr-3"></span>
+                    <span><strong><%= t("privacy.cookies.consent", default: "Pristanak na kolačiće") %></strong> - <%= t("privacy.cookies.consent_desc", default: "za pamćenje vaših preferencija") %></span>
+                  </li>
+                </ul>
+              </div>
+              <p class="text-sm"><%= t("privacy.cookies.no_tracking", default: "Ne koristimo kolačiće za praćenje ili analitiku trećih strana.") %></p>
+            </div>
+          </section>
+
+          <%# Data Retention %>
+          <section class="mb-10">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+              <svg class="w-6 h-6 mr-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+              <%= t("privacy.retention.title", default: "Čuvanje podataka") %>
+            </h2>
+            <div class="text-gray-600 dark:text-gray-400 space-y-3">
+              <p><%= t("privacy.retention.text", default: "Vaše podatke čuvamo samo onoliko dugo koliko je potrebno za svrhu za koju su prikupljeni:") %></p>
+              <ul class="list-disc list-inside space-y-2 ml-4">
+                <li><%= t("privacy.retention.account", default: "Podaci korisničkog računa: do brisanja računa") %></li>
+                <li><%= t("privacy.retention.logs", default: "Server logovi: 30 dana") %></li>
+                <li><%= t("privacy.retention.local", default: "Lokalno pohranjeni podaci: kontrolisano od strane korisnika") %></li>
+              </ul>
+            </div>
+          </section>
+
+          <%# Your Rights %>
+          <section class="mb-10">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+              <svg class="w-6 h-6 mr-3 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <%= t("privacy.rights.title", default: "Vaša prava") %>
+            </h2>
+            <div class="text-gray-600 dark:text-gray-400 space-y-3">
+              <p><%= t("privacy.rights.intro", default: "Prema GDPR-u imate sljedeća prava:") %></p>
+              <div class="grid gap-3 sm:grid-cols-2">
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                  <h4 class="font-semibold text-gray-900 dark:text-white"><%= t("privacy.rights.access", default: "Pravo pristupa") %></h4>
+                  <p class="text-sm"><%= t("privacy.rights.access_desc", default: "Možete zatražiti kopiju vaših podataka") %></p>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                  <h4 class="font-semibold text-gray-900 dark:text-white"><%= t("privacy.rights.rectification", default: "Pravo ispravke") %></h4>
+                  <p class="text-sm"><%= t("privacy.rights.rectification_desc", default: "Možete ispraviti netačne podatke") %></p>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                  <h4 class="font-semibold text-gray-900 dark:text-white"><%= t("privacy.rights.erasure", default: "Pravo brisanja") %></h4>
+                  <p class="text-sm"><%= t("privacy.rights.erasure_desc", default: "Možete zatražiti brisanje podataka") %></p>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                  <h4 class="font-semibold text-gray-900 dark:text-white"><%= t("privacy.rights.portability", default: "Pravo prenosivosti") %></h4>
+                  <p class="text-sm"><%= t("privacy.rights.portability_desc", default: "Možete dobiti podatke u prenosivom formatu") %></p>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                  <h4 class="font-semibold text-gray-900 dark:text-white"><%= t("privacy.rights.objection", default: "Pravo prigovora") %></h4>
+                  <p class="text-sm"><%= t("privacy.rights.objection_desc", default: "Možete se usprotiviti obradi podataka") %></p>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                  <h4 class="font-semibold text-gray-900 dark:text-white"><%= t("privacy.rights.complaint", default: "Pravo žalbe") %></h4>
+                  <p class="text-sm"><%= t("privacy.rights.complaint_desc", default: "Možete se žaliti nadzornom tijelu") %></p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <%# Supervisory Authority %>
+          <section class="mb-10">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+              <svg class="w-6 h-6 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+              </svg>
+              <%= t("privacy.authority.title", default: "Nadzorno tijelo") %>
+            </h2>
+            <div class="text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+              <p class="font-semibold text-gray-900 dark:text-white">Österreichische Datenschutzbehörde</p>
+              <p>Barichgasse 40-42</p>
+              <p>1030 Wien, Austria</p>
+              <p class="mt-2">
+                <span class="font-medium">Web:</span>
+                <a href="https://www.dsb.gv.at" target="_blank" rel="noopener" class="text-emerald-600 dark:text-emerald-400 hover:underline">www.dsb.gv.at</a>
+              </p>
+            </div>
+          </section>
+
+          <%# Contact %>
+          <section>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+              <svg class="w-6 h-6 mr-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              <%= t("privacy.contact.title", default: "Kontakt za pitanja o privatnosti") %>
+            </h2>
+            <div class="text-gray-600 dark:text-gray-400">
+              <p><%= t("privacy.contact.text", default: "Za sva pitanja vezana za zaštitu vaših podataka, kontaktirajte nas na:") %></p>
+              <p class="mt-2">
+                <a href="mailto:info@muhamed.at" class="text-emerald-600 dark:text-emerald-400 hover:underline font-medium">info@muhamed.at</a>
+              </p>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <%# Back to Home %>
+      <div class="text-center mt-12">
+        <%= link_to root_path, class: "inline-flex items-center text-emerald-600 dark:text-emerald-400 font-medium hover:underline" do %>
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          <%= t("common.back_to_home", default: "Nazad na pocetnu") %>
+        <% end %>
+      </div>
+    </div>
+  </main>
+
+  <%# Footer %>
+  <footer class="bg-gray-900 dark:bg-black text-gray-400 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+        <div class="flex items-center space-x-2">
+          <img src="/usput-logo.png" alt="Usput" class="h-8 w-auto">
+          <span class="text-white font-semibold">Usput.ba</span>
+        </div>
+        <p class="text-sm">
+          &copy; <%= Time.current.year %> Usput. <%= t("footer.rights", default: "Sva prava pridrzana.") %>
+        </p>
+      </div>
+    </div>
+  </footer>
+</div>

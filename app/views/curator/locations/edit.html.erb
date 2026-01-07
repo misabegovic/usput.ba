@@ -1,0 +1,15 @@
+<div class="space-y-6">
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <h1 class="text-2xl font-bold text-gray-900"><%= t("curator.locations.edit_title", name: @location.name) %></h1>
+    <div class="mt-4 sm:mt-0">
+      <%= link_to t("curator.locations.back_to_list"), curator_locations_path,
+          class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+    </div>
+  </div>
+
+  <div class="overflow-hidden rounded-lg bg-white shadow">
+    <div class="px-4 py-5 sm:p-6">
+      <%= render "form", location: @location %>
+    </div>
+  </div>
+</div>

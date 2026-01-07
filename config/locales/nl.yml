@@ -1,0 +1,1036 @@
+nl:
+  # Application
+  app:
+    name: "Usput.ba"
+    tagline: "Ontdek de schoonheid van Bosnië en Herzegovina"
+
+  # Common
+  common:
+    save: "Opslaan"
+    cancel: "Annuleren"
+    delete: "Verwijderen"
+    edit: "Bewerken"
+    back: "Terug"
+    next: "Volgende"
+    previous: "Vorige"
+    search: "Zoeken"
+    loading: "Laden..."
+    confirm: "Bevestigen"
+    close: "Sluiten"
+    yes: "Ja"
+    no: "Nee"
+    or: "of"
+    and: "en"
+    all: "Alles"
+    none: "Geen"
+    select: "Selecteren"
+    required: "Verplicht"
+    optional: "Optioneel"
+    share: "Delen"
+    link_copied: "Link gekopieerd!"
+    view_all: "Alles bekijken"
+
+  # Navigation
+  nav:
+    home: "Home"
+    plans: "Plannen"
+    experiences: "Ervaringen"
+    locations: "Locaties"
+    explore: "Ontdekken"
+    about: "Over ons"
+    contact: "Contact"
+    language: "Taal"
+    back_to_site: "Terug naar site"
+    logout: "Afmelden"
+
+  # Explore Page
+  explore:
+    title: "Ontdekken"
+    subtitle: "Vind de perfecte locatie, ervaring of plan voor je volgende avontuur."
+    search_placeholder: "Zoek locaties, ervaringen, plannen..."
+    search_button: "Zoeken"
+    types:
+      location: "Locaties"
+      experience: "Ervaringen"
+      plan: "Plannen"
+    nearby: "In de buurt"
+    more_filters: "Meer filters"
+    clear_filters: "Wissen"
+    filters:
+      season: "Seizoen"
+      budget: "Budget"
+      duration: "Duur"
+      rating: "Minimumbeoordeling"
+      sort: "Sorteren op"
+      audio_support: "Audiotours"
+    seasons:
+      spring: "Lente"
+      summer: "Zomer"
+      autumn: "Herfst"
+      winter: "Winter"
+    budgets:
+      low: "Laag"
+      medium: "Gemiddeld"
+      high: "Hoog"
+    durations:
+      short: "Tot 1 uur"
+      medium: "1-3 uur"
+      long: "3+ uur"
+    sorts:
+      relevance: "Relevantie"
+      rating: "Beoordeling"
+      newest: "Nieuwste"
+      name: "Naam"
+    cities:
+      any: "Alle steden"
+    loading: "Laden..."
+    results_count: "%{count} resultaten gevonden"
+    sections:
+      locations: "Locaties"
+      experiences: "Ervaringen"
+      plans: "Plannen"
+    empty:
+      title: "Geen resultaten"
+      with_filters: "Probeer de filters te wijzigen of iets anders te zoeken."
+      no_filters: "Voer een zoekterm in of selecteer een brontype."
+
+  # Homepage
+  home:
+    hero:
+      title: "Bouw Vandaag Iets Geweldigs"
+      title_part1: "Ontdek"
+      title_part2: "de Schoonheid van Bosnië en Herzegovina"
+      subtitle: "Vind verborgen pareltjes, authentieke ervaringen en onvergetelijke plekken. Je avontuur begint hier."
+    cta:
+      start: "Start met Plannen"
+      explore: "Verken Bestemmingen"
+      create_plan: "Maak Je Plan"
+      explore_short: "Verken"
+    trending_experiences:
+      title: "Populaire Ervaringen"
+      subtitle: "Wat reizigers nu geweldig vinden"
+      none: "Ervaringen komen binnenkort!"
+    trending_locations:
+      title: "Populaire Locaties"
+      subtitle: "Plaatsen die deze maand harten veroveren"
+      none: "Locaties komen binnenkort!"
+    audio_tours:
+      title: "Ontdek Audio Tours"
+      subtitle: "Luister naar verhalen over fascinerende plekken terwijl je ze verkent"
+    seasonal:
+      title: "Seizoenshoogtepunten"
+      subtitle: "Beste ervaringen voor deze tijd van het jaar"
+      winter:
+        title: "Wintermagie"
+        subtitle: "Ontdek de magie van winterbestemmingen"
+        description: "Van besneeuwde bergen tot gezellige cafés, de winter in BiH biedt onvergetelijke ervaringen. Skiën op olympische pistes, wandelingen door winterlandschappen en warme drankjes."
+        cta: "Verken winterlocaties"
+      spring:
+        title: "Lente Ontwaken"
+        subtitle: "De natuur ontwaakt in volle pracht"
+        description: "De lente brengt wilde bloemen, weelderige groene landschappen en perfect wandelweer. Ontdek verborgen watervallen en geniet van de frisse berglucht."
+        cta: "Verken lentelocaties"
+      summer:
+        title: "Zomeravontuur"
+        subtitle: "Tijd voor onvergetelijke avonturen"
+        description: "De zomer is ideaal om rivieren, meren en kloven te verkennen. Raften op de Neretva, zwemmen in de Una of wandelen door oude steden - de mogelijkheden zijn eindeloos."
+        cta: "Verken zomerlocaties"
+      fall:
+        title: "Herfst Kleuren"
+        subtitle: "Het gouden reisseizoen"
+        description: "De herfst schildert BiH in warme goud- en roodtinten. Perfecte tijd voor wijntours, fruit plukken en gastronomische specialiteiten zonder drukte."
+        cta: "Verken herfstlocaties"
+    explore:
+      title: "Verken Op Jouw Manier"
+      subtitle: "Kies hoe je wilt verkennen - per locatie, ervaring of kant-en-klare plannen"
+      locations:
+        title: "Alle Locaties"
+        description: "Blader door alle beschikbare locaties en vind de perfecte plek"
+      experiences:
+        title: "Alle Ervaringen"
+        description: "Ontdek unieke ervaringen die wachten om beleefd te worden"
+      plans:
+        title: "Alle Plannen"
+        description: "Bekijk kant-en-klare plannen of laat je inspireren voor je eigen"
+    cta_section:
+      title: "Klaar voor Avontuur?"
+      description: "Maak je eigen gepersonaliseerd reisplan in slechts een paar stappen. Kies je bestemming, duur en interesses - wij stellen de perfecte ervaringen voor!"
+      button: "Begin met Plan Maken"
+      view_plans: "Bekijk Bestaande Plannen"
+    reviews:
+      title: "Beoordelingen"
+      subtitle: "Indrukken van onze gasten"
+      empty_title: "Nog geen beoordelingen"
+      empty_description: "Wees de eerste om je ervaring te delen!"
+    reviews_slider:
+      title: "Wat bezoekers zeggen"
+    support:
+      title: "Steun Dit Project"
+      description: "Als je dit project leuk vindt en wilt helpen om het te laten groeien, kun je me steunen door een koffie te kopen!"
+    bento:
+      section_title: "Waarom Usput.ba"
+      section_subtitle: "Alles wat je nodig hebt voor de perfecte reis"
+      hidden_locations:
+        title: "Verborgen Locaties"
+        description: "Ontdek magische plekken die niet in reisgidsen staan. Van verborgen watervallen tot authentieke dorpjes."
+        cta: "Verken alle locaties"
+      experiences:
+        title: "Authentieke Ervaringen"
+        description: "Lokale gidsen, traditionele keuken en culturele activiteiten die je verbinden met de ziel van BiH."
+        cta: "Verken alle ervaringen"
+        culture: "Cultuur"
+        food: "Eten"
+        adventure: "Avontuur"
+      audio_tours:
+        title: "Audio Tours"
+        description: "Luister naar verhalen over plekken terwijl je ze bezoekt. Je persoonlijke gids in je zak."
+        cta: "Verken alle audio tours"
+        welcome: "Welkom bij Usput"
+      travel_plans:
+        title: "Reisplannen"
+        description: "Maak je eigen reisplan met onze wizard of verken plannen gemaakt door andere reizigers."
+        cta: "Maak je plan"
+        days: "%{count} dagen"
+        day: "Dag %{number}"
+    trending:
+      section_title: "Nu populair"
+      section_subtitle: "Ontdek wat anderen geweldig vinden"
+      location: "Locatie"
+      experience: "Ervaring"
+      coming_soon: "Binnenkort"
+      new_experience: "Nieuwe ervaring komt eraan"
+      follow_us: "Volg ons voor nieuwe spannende ontdekkingen."
+    plan_preview:
+      title: "Sarajevo en omgeving"
+      duration: "3 dagen"
+      day1:
+        title: "Wandeling door de oude stad"
+        items:
+          - "Baščaršija"
+          - "Sebilj"
+          - "Gazi Husrev-bey Moskee"
+      day2:
+        title: "Ontsnapping naar de natuur"
+        items:
+          - "Vrelo Bosne"
+          - "Ilidža"
+          - "Reddingstunnel"
+      day3:
+        title: "Geschiedenis en cultuur"
+        items:
+          - "Stadhuis"
+          - "Latijnse Brug"
+          - "Historisch Museum"
+
+  # Reviews
+  reviews:
+    title: "Beoordelingen"
+    anonymous: "Anonieme bezoeker"
+    load_more: "Meer beoordelingen laden"
+    remaining: "resterend"
+    none: "Nog geen beoordelingen. Wees de eerste!"
+    count:
+      one: "beoordeling"
+      other: "beoordelingen"
+    form:
+      title: "Beoordeling achterlaten"
+      rating: "Beoordeling"
+      comment: "Opmerking"
+      comment_placeholder: "Deel je ervaring..."
+      author_name: "Je naam"
+      author_name_placeholder: "Hoe heet je?"
+      submit: "Beoordeling verzenden"
+
+  # Slider
+  slider:
+    go_to_slide: "Ga naar dia"
+
+  # Plan Wizard
+  wizard:
+    title: "Maak Je Plan"
+    steps:
+      location: "Locatie"
+      dates: "Data"
+      interests: "Interesses"
+      generate: "Genereren"
+    location:
+      title: "Waar bevind je je?"
+      subtitle: "We vinden ervaringen bij jou in de buurt"
+      detect: "Detecteer mijn locatie"
+      search_placeholder: "Zoek stad..."
+      searching: "Zoeken..."
+      no_results: "Geen steden gevonden"
+    errors:
+      geolocation_not_supported: "Je browser ondersteunt geen geolocatie"
+      location_failed: "Kon locatie niet verkrijgen. Selecteer handmatig een stad."
+      permission_denied: "Locatie toegang geweigerd. Schakel toegang in of selecteer handmatig een stad."
+      location_unavailable: "Locatie informatie niet beschikbaar"
+      location_timeout: "Locatie verkrijgen duurt te lang..."
+      no_city_found: "We konden geen stad in je buurt vinden. Selecteer handmatig."
+      city_lookup_error: "Fout bij opzoeken stad"
+      enable_location: "Schakel locatie toegang in"
+      no_search_results: "Geen resultaten. Probeer een andere zoekterm."
+      server_error: "Fout bij verbinden met server"
+    dates:
+      title: "Hoe lang blijf je?"
+      start_date: "Startdatum"
+      end_date: "Einddatum"
+      duration: "Duur"
+      days: "dagen"
+    interests:
+      title: "Wat zijn je interesses?"
+      subtitle: "Selecteer alles wat van toepassing is"
+      culture: "Cultuur"
+      history: "Geschiedenis"
+      sport: "Sport"
+      vegan: "Veganistisch"
+      vegetarian: "Vegetarisch"
+      meat: "Vlees"
+      food: "Eten"
+      nature: "Natuur"
+      woods: "Bossen"
+      mountains: "Bergen"
+    preferences:
+      daily_hours: "Hoeveel uur per dag wil je verkennen?"
+      daily_hours_hint: "Dit beïnvloedt het aantal ervaringen per dag"
+      relaxed: "Ontspannen"
+      balanced: "Gebalanceerd"
+      active: "Actief"
+      intensive: "Intensief"
+      food: "Eten"
+      meat_lover: "Vleesliefhebber"
+      vegetarian: "Vegetarische optie"
+    generate:
+      title: "Genereer Je Plan"
+      subtitle: "We maken een gepersonaliseerde reisroute voor je"
+      button: "Plan Genereren"
+      generating: "Plan wordt gegenereerd..."
+
+  # Plans
+  plans:
+    auto_title: "%{city} - %{days} dagen"
+    day_singular: "dag"
+    day_plural: "dagen"
+    duration_days:
+      one: "%{count} dag"
+      other: "%{count} dagen"
+    errors:
+      experience_not_found: "Ervaring met ID %{id} niet gevonden"
+      experiences_skipped: "%{count} ervaringen zijn overgeslagen omdat ze niet meer bestaan"
+      city_not_found: "Stad niet gevonden"
+      invalid_plan_data: "Ongeldige plangegevens verstrekt"
+    index:
+      title: "Reisplannen"
+      subtitle: "Vind inspiratie of maak je eigen plan"
+      my_plans: "Mijn Plannen"
+      public_plans: "Openbare Plannen"
+      no_plans: "Nog geen openbare plannen"
+      no_plans_description: "Gebruikers hebben hun plannen nog niet met de gemeenschap gedeeld"
+      no_my_plans: "Je hebt nog geen plannen"
+      no_my_plans_description: "Maak een gepersonaliseerd reisplan met onze wizard"
+      create_new: "Nieuw Plan Maken"
+      create_first: "Eerste plan maken"
+    show:
+      day: "Dag %{number}"
+      experiences: "Ervaringen"
+      locations: "Locaties"
+      duration: "Duur"
+      notes: "Notities"
+      save_favorite: "Opslaan"
+      summary: "Overzicht"
+      destination: "Bestemming"
+      experiences_count: "Ervaringen"
+      no_experiences: "Geen ervaringen voor deze dag"
+      cta_title: "Laat je inspireren!"
+      cta_description: "Maak je eigen gepersonaliseerd plan"
+    view:
+      share: "Delen"
+      share_plan: "Deel plan met de gemeenschap"
+      share_plan_description: "Je plan wordt zichtbaar voor alle gebruikers en helpt anderen nieuwe plekken te ontdekken."
+      share_button: "Delen"
+      login_required_to_share: "Je moet ingelogd zijn om een plan te delen."
+      statistics: "Statistieken"
+      total_time: "Totale tijd"
+      avg_daily: "Dagelijks gemiddelde"
+      daily_breakdown: "Per dag"
+      preferences: "Voorkeuren"
+    form:
+      title_label: "Titel"
+      notes_label: "Notities"
+      city_label: "Stad"
+    search:
+      title: "Vind plannen in de buurt"
+      subtitle: "Zoek openbare plannen op basis van locaties en ervaringen die bij je passen"
+      placeholder: "Zoek op naam, locatie, ervaring..."
+      nearby_active: "Toon plannen in de buurt"
+      use_location: "Gebruik mijn locatie"
+      clear_location: "Verwijder locatie"
+      radius: "Radius:"
+      getting_location: "Locatie ophalen..."
+      any_duration: "Elke duur"
+      duration_short: "Kort (1-2 dagen)"
+      duration_medium: "Gemiddeld (3-5 dagen)"
+      duration_long: "Lang (6+ dagen)"
+      within_radius: "Binnen %{radius} km"
+      results_count:
+        one: "%{count} plan gevonden"
+        other: "%{count} plannen gevonden"
+      no_results: "Geen resultaten"
+      no_results_description: "Probeer een andere zoekterm of wijzig je filters"
+      clear_filters: "Filters wissen"
+      create_plan: "Maak je eigen plan"
+
+  # Experiences
+  experiences:
+    duration:
+      hours: "%{count} uur"
+      hours_plural: "%{count} uur"
+      minutes: "%{count} minuut"
+      minutes_plural: "%{count} minuten"
+    locations_count:
+      one: "1 locatie"
+      other: "%{count} locaties"
+    show:
+      about: "Over"
+      locations: "Locaties in de ervaring"
+      info: "Informatie"
+      duration: "Duur"
+      locations_count: "Aantal locaties"
+      contact: "Contact"
+      save_favorite: "Opslaan"
+      nearby_experiences: "Ervaringen in de buurt"
+      see_all_experiences: "Bekijk alle ervaringen"
+      related_plans: "Plannen met deze ervaring"
+      see_all_plans: "Bekijk alle plannen"
+      cta_title: "Toevoegen aan plan"
+      cta_description: "Maak je eigen reisplan"
+      add_to_existing: "Toevoegen aan bestaand plan"
+      add_to_existing_desc: "Je hebt een actief plan. Voeg deze ervaring toe."
+      add_button: "Toevoegen aan plan"
+      view_plan: "Bekijk plan"
+
+  # Filters
+  filters:
+    nearby: "In de buurt"
+    all_cities: "Alle steden"
+    all_types: "Alle types"
+    all_budgets: "Alle budgetten"
+    all_categories: "Alle categorieën"
+    any_duration: "Elke duur"
+    any_rating: "Elke beoordeling"
+    duration_short: "Kort (< 1u)"
+    duration_medium: "Gemiddeld (1-3u)"
+    duration_long: "Lang (3u+)"
+    has_audio: "Audio Tour"
+    clear_all: "Alles wissen"
+    active: "Actieve filters:"
+
+  # Locations
+  locations:
+    types:
+      place: "Plaats"
+      guide: "Gids"
+      business: "Bedrijf"
+      restaurant: "Restaurant"
+      artisan: "Ambachtsman"
+      accommodation: "Accommodatie"
+    budget:
+      low: "Voordelig"
+      medium: "Gemiddeld"
+      high: "Premium"
+    contact:
+      email: "E-mail"
+      phone: "Telefoon"
+      website: "Website"
+    show:
+      audio_tour: "Audio Tour"
+      audio_tour_subtitle: "Luister naar het verhaal van deze locatie"
+      audio_not_supported: "Je browser ondersteunt de audiospeler niet."
+      languages_available:
+        one: "1 taal"
+        other: "%{count} talen"
+      select_language: "Selecteer taal"
+      about: "Over"
+      history: "Historische context"
+      info: "Informatie"
+      budget: "Budget"
+      type: "Type"
+      contact: "Contact"
+      website: "Website"
+      video: "Video"
+      video_subtitle: "Bekijk een video over deze locatie"
+      watch_video: "Video bekijken"
+      nearby_locations: "Locaties in de buurt"
+      see_all_locations: "Bekijk alle locaties"
+      related_experiences: "Ervaringen met deze locatie"
+      see_all_experiences: "Bekijk alle ervaringen"
+      related_plans: "Plannen met deze locatie"
+      see_all_plans: "Bekijk alle plannen"
+      go_to_photo: "Ga naar foto %{number}"
+      open_fullscreen: "Openen op volledig scherm"
+      fullscreen: "Volledig scherm"
+    social:
+      facebook: "Facebook"
+      instagram: "Instagram"
+      twitter: "Twitter"
+      linkedin: "LinkedIn"
+      youtube: "YouTube"
+      tiktok: "TikTok"
+      whatsapp: "WhatsApp"
+      viber: "Viber"
+
+  # Date and time
+  date:
+    formats:
+      default: "%d-%m-%Y"
+      short: "%d %b"
+      long: "%d %B %Y"
+  time:
+    formats:
+      default: "%H:%M"
+      short: "%H:%M"
+      long: "%d %B %Y %H:%M"
+
+  # Errors
+  errors:
+    messages:
+      not_found: "Niet gevonden"
+      unauthorized: "Ongeautoriseerd"
+      server_error: "Er is iets misgegaan"
+    models:
+      plan:
+        blank_title: "Titel mag niet leeg zijn"
+        invalid_dates: "Einddatum moet na startdatum liggen"
+      location:
+        blank_name: "Naam mag niet leeg zijn"
+      experience:
+        blank_title: "Titel mag niet leeg zijn"
+
+  # Flash messages
+  flash:
+    plan:
+      created: "Plan is succesvol aangemaakt"
+      updated: "Plan is succesvol bijgewerkt"
+      deleted: "Plan is succesvol verwijderd"
+    location:
+      created: "Locatie is succesvol aangemaakt"
+      updated: "Locatie is succesvol bijgewerkt"
+      deleted: "Locatie is succesvol verwijderd"
+    experience:
+      created: "Ervaring is succesvol aangemaakt"
+      updated: "Ervaring is succesvol bijgewerkt"
+      deleted: "Ervaring is succesvol verwijderd"
+
+  # Authentication
+  auth:
+    register_title: "Registreren - Usput"
+    register_heading: "Account aanmaken"
+    register_subheading: "Sla je reisprofiel permanent op"
+    register_button: "Registreren"
+    register_link: "Registreren"
+    login_title: "Inloggen - Usput"
+    login_heading: "Aanmelden"
+    login_subheading: "Toegang tot je reisprofiel"
+    login_button: "Aanmelden"
+    login_link: "Aanmelden"
+    logout: "Afmelden"
+    username: "Gebruikersnaam"
+    username_placeholder: "bijv. reiziger123"
+    username_hint: "Alleen letters, cijfers en underscores (_). Min. 3 tekens."
+    password: "Wachtwoord"
+    password_hint: "Minimaal 6 tekens"
+    password_confirmation: "Bevestig wachtwoord"
+    have_account: "Heb je al een account?"
+    no_account: "Heb je nog geen account?"
+    profile_sync_info: "Je huidige reisprofiel (bezochte plaatsen, favorieten, badges) wordt opgeslagen in je account."
+    profile_merge_info: "Als je een lokaal profiel hebt, wordt dit samengevoegd met je opgeslagen profiel."
+    registration_success: "Account succesvol aangemaakt! Je reisprofiel is nu permanent opgeslagen."
+    login_success: "Succesvol aangemeld!"
+    logout_success: "Succesvol afgemeld."
+    login_required: "Je moet ingelogd zijn om deze pagina te bekijken."
+    invalid_credentials: "Ongeldige gebruikersnaam of wachtwoord."
+    curator_required: "Je hebt curator privileges nodig om deze pagina te bekijken."
+    admin_required: "Je hebt beheerder privileges nodig om deze pagina te bekijken."
+
+  # Profile
+  profile:
+    title: "Mijn Reisprofiel"
+    subtitle: "Je reizen op één plek"
+    logged_in_subtitle: "Profiel is permanent opgeslagen"
+    save_title: "Sla je profiel op"
+    save_warning: "Je profiel wordt alleen in deze browser opgeslagen."
+    save_warning_extended: "Registreer je om je gegevens permanent op te slaan."
+    visited: "Bezocht"
+    favorites: "Favorieten"
+    badges: "Badges"
+    visited_places: "Bezochte Plaatsen"
+    no_visited: "Je hebt nog geen locaties bezocht"
+    no_favorites: "Je hebt nog geen favoriete locaties"
+    my_badges: "Mijn Badges"
+    no_badges: "Je hebt nog geen badges"
+    recently_viewed: "Recent Bekeken"
+    no_recent: "Geen recent bekeken items"
+    show_more: "Toon meer"
+    actions: "Acties"
+    export_json: "Exporteren (JSON)"
+    export_pdf: "Afdrukken / PDF"
+    import: "Profiel Importeren"
+    add_favorite: "Toevoegen aan favorieten"
+    remove_favorite: "Verwijderen uit favorieten"
+    mark_visited: "Markeren als bezocht"
+    avatar:
+      remove: "Afbeelding verwijderen"
+      remove_confirm: "Weet je zeker dat je de profielfoto wilt verwijderen?"
+    curator:
+      title: "Word een Curator"
+      description: "Curators kunnen nieuwe locaties, ervaringen en content toevoegen aan het platform. Help ons de verborgen pareltjes van Bosnië en Herzegovina te ontdekken!"
+      apply: "Solliciteer als Curator"
+      you_are_curator: "Je bent een Curator"
+      manage_content: "Beheer locaties en ervaringen"
+      open_dashboard: "Open Dashboard"
+    my_plans:
+      title: "Mijn Plannen"
+      empty: "Je hebt geen opgeslagen plannen"
+      create: "Maak je eerste plan"
+
+  # PWA Install
+  pwa:
+    install_title: "Installeer de Usput app"
+    install_subtitle: "Snellere toegang en offline ondersteuning"
+    install_button: "Installeren"
+    ios_title: "Voeg toe aan startscherm"
+    ios_step1: "Tik op"
+    ios_share_button: "de (Delen) knop in je browser"
+    ios_step2: "Scroll en selecteer"
+    ios_add_home: "Zet op beginscherm"
+    ios_step3: "Tik op \"Voeg toe\" rechtsboven"
+    benefits_title: "App voordelen:"
+    benefit_fast: "Snellere toegang vanaf startscherm"
+    benefit_offline: "Werkt offline"
+    benefit_fullscreen: "Volledig scherm zonder browserbalk"
+    got_it: "Begrepen"
+    desktop_title: "Beschikbaar op mobiel"
+    desktop_subtitle: "Open deze site op je telefoon om de app te installeren"
+
+  # Footer
+  footer:
+    tagline: "Ontdek verborgen parels en authentieke ervaringen tijdens je reis."
+    legal: "Juridisch"
+    privacy: "Privacybeleid"
+    terms: "Servicevoorwaarden"
+    imprint: "Impressum"
+    about_us: "Over Ons"
+    contact: "Contact"
+    faq: "Veelgestelde Vragen"
+    rights: "Alle rechten voorbehouden."
+    community: "Community"
+    become_curator: "Word Curator"
+
+  # Cookie Consent
+  cookie_consent:
+    title: "Cookies & Privacy"
+    message: "We gebruiken alleen technisch noodzakelijke cookies voor de werking van de site (sessie, thema). We gebruiken geen analytics en volgen je activiteiten niet."
+    learn_more: "Meer informatie"
+    accept: "Accepteren"
+    decline: "Alleen essentiële"
+
+  # Imprint
+  imprint:
+    title: "Impressum"
+    legal_info: "Bedrijfsinformatie"
+    legal_form: "Eenmanszaak (Einzelunternehmer)"
+    jurisdiction: "Gevestigd in Oostenrijk"
+    contact: "Contact"
+    email: "E-mail"
+    website: "Website"
+    legal_notice: "Juridische Kennisgeving"
+    ecg_notice: "Informatie volgens de Oostenrijkse E-Commerce Wet (ECG) en Mediawet."
+    liability_content: "De inhoud van deze website is met de grootst mogelijke zorg samengesteld. We kunnen echter niet garanderen dat de inhoud nauwkeurig, volledig en actueel is."
+    liability_links: "Onze website bevat links naar externe websites van derden, waarover wij geen controle hebben. Daarom kunnen we geen aansprakelijkheid aanvaarden voor deze externe inhoud."
+    made_by: "Gemaakt door"
+    inspired_by: "Geïnspireerd door"
+    support: "Ondersteunen"
+    support_description: "Als je dit project leuk vindt, kun je me ondersteunen door me een koffie te kopen!"
+
+  # Privacy Policy
+  privacy:
+    title: "Privacybeleid"
+    last_updated: "Laatst bijgewerkt"
+    intro:
+      title: "Introductie"
+      text1: "De bescherming van je persoonlijke gegevens is voor ons zeer belangrijk. In dit document leggen we uit welke gegevens we verzamelen, hoe we deze gebruiken en welke rechten je hebt."
+      text2: "Dit privacybeleid voldoet aan de Algemene Verordening Gegevensbescherming (AVG) van de Europese Unie en de Oostenrijkse Wet Gegevensbescherming (DSG)."
+    controller:
+      title: "Gegevensbeheerder"
+      form: "Eenmanszaak (Einzelunternehmer)"
+      country: "Oostenrijk"
+      email: "E-mail"
+    collection:
+      title: "Welke Gegevens We Verzamelen"
+      auto:
+        title: "Automatisch Verzamelde Gegevens"
+        ip: "IP-adres (geanonimiseerd)"
+        browser: "Browsertype en versie"
+        os: "Besturingssysteem"
+        time: "Datum en tijd van toegang"
+        pages: "Bezochte pagina's"
+      voluntary:
+        title: "Vrijwillig Verstrekte Gegevens"
+        account: "Registratiegegevens (gebruikersnaam)"
+        profile: "Reisprofiel (reisvoorkeuren, bezochte plaatsen)"
+        reviews: "Beoordelingen en ratings"
+    purpose:
+      title: "Doel van Gegevensverwerking"
+      service: "Het leveren en verbeteren van onze diensten"
+      personalization: "Personalisatie van gebruikerservaring"
+      security: "Beveiliging en preventie van misbruik"
+      legal: "Voldoen aan wettelijke verplichtingen"
+    legal_basis:
+      title: "Rechtsgrondslag"
+      text: "We verwerken je gegevens op basis van:"
+      consent: "Toestemming (Art. 6(1)(a) AVG)"
+      consent_desc: "voor optionele functies en cookies"
+      contract: "Uitvoering van contract (Art. 6(1)(b) AVG)"
+      contract_desc: "voor het leveren van diensten"
+      legitimate: "Gerechtvaardigd belang (Art. 6(1)(f) AVG)"
+      legitimate_desc: "voor beveiliging en serviceverbetering"
+    cookies:
+      title: "Cookies"
+      text: "We gebruiken alleen technisch noodzakelijke cookies en lokale opslag voor:"
+      session: "Sessiecookies"
+      session_desc: "voor gebruikersauthenticatie"
+      theme: "Thema-instellingen"
+      theme_desc: "voor het onthouden van licht/donker thema"
+      consent: "Cookie toestemming"
+      consent_desc: "voor het onthouden van je voorkeuren"
+      no_tracking: "We gebruiken geen cookies voor tracking of externe analytics."
+    retention:
+      title: "Gegevensbewaring"
+      text: "We bewaren je gegevens alleen zolang als nodig is voor het doel waarvoor ze zijn verzameld:"
+      account: "Gebruikersaccountgegevens: tot accountverwijdering"
+      logs: "Serverlogboeken: 30 dagen"
+      local: "Lokaal opgeslagen gegevens: gecontroleerd door gebruiker"
+    rights:
+      title: "Jouw Rechten"
+      intro: "Onder de AVG heb je de volgende rechten:"
+      access: "Recht op toegang"
+      access_desc: "Je kunt een kopie van je gegevens opvragen"
+      rectification: "Recht op rectificatie"
+      rectification_desc: "Je kunt onjuiste gegevens corrigeren"
+      erasure: "Recht op verwijdering"
+      erasure_desc: "Je kunt verwijdering van je gegevens aanvragen"
+      portability: "Recht op overdraagbaarheid"
+      portability_desc: "Je kunt je gegevens in een overdraagbaar formaat ontvangen"
+      objection: "Recht van bezwaar"
+      objection_desc: "Je kunt bezwaar maken tegen gegevensverwerking"
+      complaint: "Recht om te klagen"
+      complaint_desc: "Je kunt een klacht indienen bij de toezichthoudende autoriteit"
+    authority:
+      title: "Toezichthoudende Autoriteit"
+    contact:
+      title: "Privacy Contact"
+      text: "Voor vragen over de bescherming van je gegevens, neem contact met ons op via:"
+
+  # Terms of Service
+  terms:
+    title: "Servicevoorwaarden"
+    last_updated: "Laatst bijgewerkt"
+    intro:
+      title: "Algemene Bepalingen"
+      text1: "Welkom bij Usput. Door gebruik te maken van deze website en diensten, ga je akkoord met deze servicevoorwaarden in hun geheel."
+      text2: "De exploitant van deze website is Muhamed Isabegović, een eenmanszaak gevestigd in Oostenrijk."
+      text3: "Als je niet akkoord gaat met deze voorwaarden, gebruik deze website dan niet."
+    service:
+      title: "Servicebeschrijving"
+      text1: "Usput is een platform voor reisontdekking en -planning waarmee gebruikers kunnen:"
+      feature1: "Ervaringen en locaties verkennen"
+      feature2: "Gepersonaliseerde reisplannen maken"
+      feature3: "Beoordelingen en ratings achterlaten"
+      feature4: "Een gebruikersaccount maken om hun profiel permanent op te slaan"
+      text2: "De dienst is gratis te gebruiken. We behouden ons het recht voor om in de toekomst premiumfuncties te introduceren."
+    registration:
+      title: "Gebruikersregistratie"
+      text1: "Registratie is vereist voor bepaalde functies. Door te registreren garandeer je dat:"
+      req1: "Je bent minimaal 16 jaar oud"
+      req2: "Je nauwkeurige informatie verstrekt"
+      req3: "Je je inloggegevens vertrouwelijk houdt"
+      req4: "Je verantwoordelijk bent voor alle activiteiten op je account"
+    content:
+      title: "Gebruikersinhoud"
+      text1: "Door inhoud te publiceren (beoordelingen, ratings) op ons platform:"
+      grant1: "Verleen je ons een niet-exclusieve licentie om die inhoud te gebruiken, weer te geven en te distribueren"
+      grant2: "Garandeer je dat je het recht hebt om die inhoud te publiceren"
+      grant3: "Garandeer je dat de inhoud geen inbreuk maakt op rechten van derden"
+      prohibited: "Het is verboden om inhoud te publiceren die:"
+      prohibited1: "Illegaal, beledigend of discriminerend is"
+      prohibited2: "Vals of misleidend is"
+      prohibited3: "Spam of ongevraagde reclame is"
+      prohibited4: "Inbreuk maakt op auteursrechten"
+    ip:
+      title: "Intellectueel Eigendom"
+      text1: "Alle inhoud op deze website (inclusief tekst, afbeeldingen, logo's, pictogrammen, afbeeldingen en software) is eigendom van Usput of onze licentiegevers en wordt beschermd door auteursrechtwetten."
+      text2: "Kopiëren, verspreiden, wijzigen of het maken van afgeleide werken zonder onze uitdrukkelijke schriftelijke toestemming is niet toegestaan."
+    disclaimer:
+      title: "Disclaimer"
+      text1: "De dienst wordt \"as is\" geleverd zonder enige garanties, uitdrukkelijk of impliciet."
+      text2: "We garanderen niet:"
+      item1: "Ononderbroken of veilige beschikbaarheid van de dienst"
+      item2: "Nauwkeurigheid of volledigheid van informatie over locaties en ervaringen"
+      item3: "Dat de dienst aan je specifieke behoeften zal voldoen"
+      text3: "Gebruik de informatie op eigen risico. Verifieer altijd informatie met officiële bronnen voordat je gaat reizen."
+    liability:
+      title: "Beperking van Aansprakelijkheid"
+      text1: "Voor zover maximaal toegestaan door de wet, zijn we niet aansprakelijk voor:"
+      item1: "Indirecte, incidentele of gevolgschade"
+      item2: "Verlies van gegevens of winst"
+      item3: "Schade voortvloeiend uit gebruik of onvermogen om de dienst te gebruiken"
+      text2: "Deze beperking van aansprakelijkheid heeft geen invloed op je wettelijke rechten als consument onder Oostenrijks recht."
+    termination:
+      title: "Beëindiging van Dienst"
+      text1: "Je kunt op elk moment stoppen met het gebruik van de dienst door je account te verwijderen."
+      text2: "We behouden ons het recht voor om:"
+      item1: "Je account op te schorten of te beëindigen wegens overtreding van voorwaarden"
+      item2: "De dienst te wijzigen of te beëindigen met redelijke kennisgeving"
+    changes:
+      title: "Wijzigingen in Voorwaarden"
+      text1: "We behouden ons het recht voor om deze voorwaarden op elk moment te wijzigen. Significante wijzigingen worden op de website gepubliceerd."
+      text2: "Voortgezet gebruik van de dienst na wijzigingen wordt beschouwd als acceptatie van de nieuwe voorwaarden."
+    law:
+      title: "Toepasselijk Recht"
+      text1: "Deze servicevoorwaarden worden beheerst door de wetten van de Republiek Oostenrijk."
+      text2: "Rechtbanken in Oostenrijk hebben jurisdictie voor geschillenbeslechting, tenzij verplichte consumentenbeschermingsbepalingen anders bepalen."
+    contact:
+      title: "Contact"
+      text: "Voor vragen over deze servicevoorwaarden, neem contact met ons op via:"
+
+  # ActiveRecord
+  activerecord:
+    models:
+      plan:
+        one: "Plan"
+        other: "Plannen"
+      location:
+        one: "Locatie"
+        other: "Locaties"
+      experience:
+        one: "Ervaring"
+        other: "Ervaringen"
+      city:
+        one: "Stad"
+        other: "Steden"
+    attributes:
+      plan:
+        title: "Titel"
+        start_date: "Startdatum"
+        end_date: "Einddatum"
+        notes: "Notities"
+        city: "Stad"
+      location:
+        name: "Naam"
+        description: "Beschrijving"
+        historical_context: "Historische context"
+        budget: "Budget"
+        location_type: "Type"
+        email: "E-mail"
+        phone: "Telefoon"
+        website: "Website"
+      experience:
+        title: "Titel"
+        description: "Beschrijving"
+        estimated_duration: "Geschatte duur"
+      city:
+        name: "Naam"
+        country_name: "Land"
+        region: "Regio"
+
+  # Curator Dashboard
+  curator:
+    title: "Curator Dashboard"
+    nav:
+      dashboard: "Dashboard"
+      locations: "Locaties"
+      experiences: "Ervaringen"
+    dashboard:
+      welcome: "Welkom, %{username}!"
+      total_locations: "Totaal Locaties"
+      total_experiences: "Totaal Ervaringen"
+      total_cities: "Totaal Steden"
+      quick_actions: "Snelle Acties"
+      new_location: "Nieuwe Locatie"
+      new_experience: "Nieuwe Ervaring"
+      recent_locations: "Recente Locaties"
+      recent_experiences: "Recente Ervaringen"
+      no_locations: "Nog geen locaties"
+      no_experiences: "Nog geen ervaringen"
+    locations:
+      title: "Locaties"
+      new: "Nieuwe Locatie"
+      edit: "Bewerken"
+      view: "Bekijken"
+      delete: "Verwijderen"
+      edit_title: "Bewerken: %{name}"
+      back_to_list: "Terug naar lijst"
+      name: "Naam"
+      city: "Stad"
+      type: "Type"
+      budget: "Budget"
+      address: "Adres"
+      description: "Beschrijving"
+      latitude: "Breedtegraad"
+      longitude: "Lengtegraad"
+      coordinates: "Coördinaten"
+      phone: "Telefoon"
+      email: "E-mail"
+      website: "Website"
+      opening_hours: "Openingstijden"
+      created_at: "Aangemaakt"
+      actions: "Acties"
+      select_city: "Selecteer stad..."
+      no_locations: "Geen locaties gevonden"
+      created: "Locatie succesvol aangemaakt"
+      updated: "Locatie succesvol bijgewerkt"
+      deleted: "Locatie succesvol verwijderd"
+      confirm_delete: "Weet je zeker dat je %{name} wilt verwijderen?"
+      filter:
+        all_cities: "Alle steden"
+    experiences:
+      title: "Ervaringen"
+      new: "Nieuwe Ervaring"
+      edit: "Bewerken"
+      view: "Bekijken"
+      delete: "Verwijderen"
+      edit_title: "Bewerken: %{name}"
+      back_to_list: "Terug naar lijst"
+      name: "Naam"
+      city: "Stad"
+      category: "Categorie"
+      duration: "Duur"
+      best_season: "Beste Seizoen"
+      difficulty: "Moeilijkheidsgraad"
+      description: "Beschrijving"
+      created_at: "Aangemaakt"
+      actions: "Acties"
+      select_city: "Selecteer stad..."
+      select_category: "Selecteer categorie..."
+      no_experiences: "Geen ervaringen gevonden"
+      created: "Ervaring succesvol aangemaakt"
+      updated: "Ervaring succesvol bijgewerkt"
+      deleted: "Ervaring succesvol verwijderd"
+      confirm_delete: "Weet je zeker dat je %{name} wilt verwijderen?"
+      filter:
+        all_cities: "Alle steden"
+      seasons:
+        all_year: "Het hele jaar"
+        spring: "Lente"
+        summer: "Zomer"
+        autumn: "Herfst"
+        winter: "Winter"
+      difficulties:
+        easy: "Makkelijk"
+        moderate: "Gemiddeld"
+        challenging: "Uitdagend"
+
+  # Admin Dashboard
+  admin:
+    title: "Beheerder Dashboard"
+    nav:
+      dashboard: "Dashboard"
+      users: "Gebruikers"
+      applications: "Aanvragen"
+      ai_generations: "AI Generaties"
+      admin_panel: "Beheer Paneel"
+    dashboard:
+      welcome: "Welkom, %{username}!"
+      total_users: "Totaal Gebruikers"
+      basic_users: "Basis Gebruikers"
+      curator_users: "Curators"
+      admin_users: "Beheerders"
+      total_locations: "Totaal Locaties"
+      total_experiences: "Totaal Ervaringen"
+      total_cities: "Totaal Steden"
+      recent_users: "Recente Gebruikers"
+      view_all_users: "Bekijk alle gebruikers"
+    users:
+      title: "Gebruikersbeheer"
+      username: "Gebruikersnaam"
+      type: "Gebruikerstype"
+      created_at: "Aangemaakt"
+      updated_at: "Bijgewerkt"
+      actions: "Acties"
+      view: "Bekijken"
+      edit: "Bewerken"
+      delete: "Verwijderen"
+      back_to_list: "Terug naar lijst"
+      edit_title: "Gebruiker Bewerken: %{username}"
+      type_help: "Basisgebruikers kunnen browsen. Curators kunnen inhoud beheren. Beheerders hebben volledige toegang."
+      no_users: "Geen gebruikers gevonden"
+      updated: "Gebruiker succesvol bijgewerkt"
+      deleted: "Gebruiker succesvol verwijderd"
+      cannot_delete_self: "Je kunt je eigen account niet verwijderen"
+      confirm_delete: "Weet je zeker dat je gebruiker %{username} wilt verwijderen?"
+      types:
+        basic: "Basis"
+        curator: "Curator"
+        admin: "Beheerder"
+      filter:
+        all: "Alle types"
+    curator_applications:
+      title: "Curator Aanvragen"
+      user: "Gebruiker"
+      status_label: "Status"
+      submitted: "Ingediend"
+      actions: "Acties"
+      view: "Bekijken"
+      approve_btn: "Goedkeuren"
+      reject_btn: "Afwijzen"
+      no_applications: "Geen aanvragen gevonden"
+      application_from: "Aanvraag van %{username}"
+      back_to_list: "Terug naar lijst"
+      user_info: "Gebruikersinformatie"
+      admin_notes: "Beheerder Notities"
+      rejection_reason: "Reden voor afwijzing (optioneel)"
+      reviewed_by: "Beoordeeld door %{admin} op %{date}"
+      approved: "Aanvraag van %{username} is goedgekeurd"
+      rejected: "Aanvraag van %{username} is afgewezen"
+      already_reviewed: "Deze aanvraag is al beoordeeld"
+      confirm_approve: "%{username} goedkeuren als curator?"
+      confirm_reject: "Aanvraag van %{username} afwijzen?"
+      stats:
+        pending: "In behandeling"
+        approved: "Goedgekeurd"
+        rejected: "Afgewezen"
+
+  # Curator Applications (user-facing)
+  curator_applications:
+    created: "Je aanvraag is succesvol ingediend!"
+    status:
+      pending: "In behandeling"
+      approved: "Goedgekeurd"
+      rejected: "Afgewezen"
+    errors:
+      already_curator: "Je hebt al curator privileges"
+      pending_exists: "Je hebt al een aanvraag in behandeling"
+    new:
+      title: "Word een Curator"
+      subtitle: "Help ons de inhoud te verbeteren door curator te worden"
+      benefits_title: "Als curator kun je:"
+      benefit_1: "Nieuwe locaties en ervaringen toevoegen"
+      benefit_2: "Bestaande inhoud bewerken om de nauwkeurigheid te verbeteren"
+      benefit_3: "Reizigers helpen verborgen parels te ontdekken"
+    form:
+      motivation: "Waarom wil je curator worden?"
+      motivation_hint: "Vertel ons over je passie voor reizen en lokale kennis (min. 50 tekens)"
+      motivation_placeholder: "Ik wil curator worden omdat..."
+      experience: "Relevante ervaring (optioneel)"
+      experience_hint: "Heb je ervaring in toerisme, contentcreatie of lokale kennis?"
+      experience_placeholder: "Ik heb ervaring in..."
+      submit: "Aanvraag Indienen"
+    show:
+      title: "Je Curator Aanvraag"
+      pending_message: "Je aanvraag wordt beoordeeld. We zullen je op de hoogte stellen zodra er een beslissing is genomen."
+      approved_message: "Gefeliciteerd! Je aanvraag is goedgekeurd. Je hebt nu toegang tot het Curator Dashboard."
+      rejected_message: "Helaas is je aanvraag op dit moment niet goedgekeurd."
+      go_to_dashboard: "Ga naar Curator Dashboard"
+      submitted_at: "Ingediend"
+      reviewed_at: "Beoordeeld"
+      feedback: "Feedback"

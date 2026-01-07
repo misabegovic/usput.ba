@@ -1,0 +1,89 @@
+<%# Custom Tailwind pagination for explore page with Turbo Frames %>
+<%# Expects: collection (Kaminari paginated collection), param_name (symbol for page param), frame (turbo frame id) %>
+<% return unless collection.total_pages > 1 %>
+<% frame ||= nil %>
+<% link_data = frame ? { turbo_frame: frame } : {} %>
+
+<nav class="flex items-center justify-center gap-1" aria-label="Pagination">
+  <%# Previous Button %>
+  <% if collection.first_page? %>
+    <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-400 dark:text-gray-500 cursor-not-allowed">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+    </span>
+  <% else %>
+    <%= link_to url_for(request.query_parameters.merge(param_name => collection.prev_page)),
+        class: "inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors",
+        data: link_data do %>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+    <% end %>
+  <% end %>
+
+  <%# Page Numbers %>
+  <% window = 2 %>
+  <% pages_to_show = [] %>
+
+  <%# Always show first page %>
+  <% pages_to_show << 1 %>
+
+  <%# Calculate range around current page %>
+  <% range_start = [collection.current_page - window, 2].max %>
+  <% range_end = [collection.current_page + window, collection.total_pages - 1].min %>
+
+  <%# Add ellipsis after first page if needed %>
+  <% if range_start > 2 %>
+    <% pages_to_show << :gap %>
+  <% end %>
+
+  <%# Add pages in range %>
+  <% (range_start..range_end).each do |page| %>
+    <% pages_to_show << page %>
+  <% end %>
+
+  <%# Add ellipsis before last page if needed %>
+  <% if range_end < collection.total_pages - 1 %>
+    <% pages_to_show << :gap %>
+  <% end %>
+
+  <%# Always show last page if more than 1 page %>
+  <% if collection.total_pages > 1 %>
+    <% pages_to_show << collection.total_pages %>
+  <% end %>
+
+  <%# Remove duplicates while preserving order %>
+  <% pages_to_show = pages_to_show.uniq %>
+
+  <% pages_to_show.each do |page| %>
+    <% if page == :gap %>
+      <span class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">...</span>
+    <% elsif page == collection.current_page %>
+      <span class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 dark:bg-yellow-500 dark:text-gray-900 rounded-lg">
+        <%= page %>
+      </span>
+    <% else %>
+      <%= link_to page, url_for(request.query_parameters.merge(param_name => page)),
+          class: "inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors",
+          data: link_data %>
+    <% end %>
+  <% end %>
+
+  <%# Next Button %>
+  <% if collection.last_page? %>
+    <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-400 dark:text-gray-500 cursor-not-allowed">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+      </svg>
+    </span>
+  <% else %>
+    <%= link_to url_for(request.query_parameters.merge(param_name => collection.next_page)),
+        class: "inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors",
+        data: link_data do %>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+      </svg>
+    <% end %>
+  <% end %>
+</nav>

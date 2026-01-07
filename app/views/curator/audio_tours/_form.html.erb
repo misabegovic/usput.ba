@@ -1,0 +1,90 @@
+<%= form_with model: [:curator, audio_tour], class: "space-y-6" do |f| %>
+  <% if audio_tour.errors.any? %>
+    <div class="rounded-md bg-red-50 p-4">
+      <div class="flex">
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800"><%= t("errors.messages.form_errors", count: audio_tour.errors.count) %></h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc pl-5 space-y-1">
+              <% audio_tour.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="rounded-lg bg-white shadow">
+    <div class="px-4 py-5 sm:px-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.audio_tours.sections.basic_info") %></h2>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <%= f.label :location_id, t("curator.audio_tours.location"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.select :location_id,
+              options_from_collection_for_select(@locations, :id, :name, audio_tour.location_id),
+              { include_blank: t("curator.audio_tours.select_location") },
+              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+        </div>
+
+        <div>
+          <%= f.label :locale, t("curator.audio_tours.locale"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.select :locale,
+              options_for_select(@locales, audio_tour.locale),
+              { include_blank: t("curator.audio_tours.select_locale") },
+              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+        </div>
+
+        <div>
+          <%= f.label :word_count, t("curator.audio_tours.word_count"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.number_field :word_count, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+        </div>
+
+        <div>
+          <%= f.label :duration, t("curator.audio_tours.duration"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_field :duration, placeholder: "e.g. 5 min", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+        </div>
+
+        <div class="sm:col-span-2">
+          <%= f.label :script, t("curator.audio_tours.script"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_area :script, rows: 8, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+          <p class="mt-1 text-sm text-gray-500"><%= t("curator.audio_tours.script_hint") %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio File -->
+  <div class="rounded-lg bg-white shadow">
+    <div class="px-4 py-5 sm:px-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.audio_tours.sections.audio_file") %></h2>
+
+      <% if audio_tour.audio_file.attached? %>
+        <div class="mb-4">
+          <p class="text-sm font-medium text-gray-700 mb-2"><%= t("curator.audio_tours.current_audio") %></p>
+          <audio controls class="w-full mb-2">
+            <source src="<%= rails_blob_path(audio_tour.audio_file, only_path: true) %>" type="<%= audio_tour.audio_file.content_type %>">
+            <%= t("curator.audio_tours.audio_not_supported") %>
+          </audio>
+          <div class="flex items-center gap-2">
+            <%= f.check_box :remove_audio_file, class: "rounded border-gray-300 text-red-600 focus:ring-red-500" %>
+            <%= f.label :remove_audio_file, t("curator.audio_tours.remove_audio"), class: "text-sm text-red-600" %>
+          </div>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.label :audio_file, t("curator.audio_tours.upload_audio"), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.file_field :audio_file, accept: "audio/*", class: "mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" %>
+        <p class="mt-1 text-sm text-gray-500"><%= t("curator.audio_tours.audio_hint") %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-end gap-3">
+    <%= link_to t("common.cancel"), curator_audio_tours_path, class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+    <%= f.submit t("common.save"), class: "rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 cursor-pointer" %>
+  </div>
+<% end %>

@@ -1,0 +1,528 @@
+<%#
+  EXPLORE / SEARCH STRANICA
+  - Koristi isti header i footer kao homepage
+  - Omogućava pretragu lokacija, iskustava i planova
+%>
+
+<div class="bg-white dark:bg-gray-900 min-h-screen">
+  <%= render "new_design/header" %>
+
+  <main data-controller="explore" data-explore-search-url-value="<%= explore_path %>">
+    <%# Hero/Search Section %>
+    <div class="relative isolate pt-14">
+      <svg aria-hidden="true" class="absolute inset-x-0 top-0 -z-10 h-[64rem] w-full [mask-image:radial-gradient(32rem_32rem_at_center,white,transparent)] stroke-gray-200 dark:stroke-white/10">
+        <defs>
+          <pattern id="explore-pattern" width="200" height="200" x="50%" y="-1" patternUnits="userSpaceOnUse">
+            <path d="M.5 200V.5H200" fill="none" />
+          </pattern>
+        </defs>
+        <svg x="50%" y="-1" class="overflow-visible fill-gray-50 dark:fill-gray-800">
+          <path d="M-200 0h201v201h-201Z M600 0h201v201h-201Z M-400 600h201v201h-201Z M200 800h201v201h-201Z" stroke-width="0" />
+        </svg>
+        <rect width="100%" height="100%" fill="url(#explore-pattern)" stroke-width="0" />
+      </svg>
+      <div aria-hidden="true" class="absolute top-0 right-0 left-1/2 -z-10 -ml-24 transform-gpu overflow-hidden blur-3xl lg:ml-24 xl:ml-48">
+        <div style="clip-path: polygon(63.1% 29.5%, 100% 17.1%, 76.6% 3%, 48.4% 0%, 44.6% 4.7%, 54.5% 25.3%, 59.8% 49%, 55.2% 57.8%, 44.4% 57.2%, 27.8% 47.9%, 35.1% 81.5%, 0% 97.7%, 39.2% 100%, 35.2% 81.4%, 97.2% 52.8%, 63.1% 29.5%); aspect-ratio: 801/1036;" class="w-[50rem] bg-gradient-to-tr from-blue-400/30 to-yellow-400/30 dark:from-blue-600/20 dark:to-yellow-500/20 opacity-70"></div>
+      </div>
+
+      <div class="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
+        <%# Header Section %>
+        <div class="mx-auto max-w-2xl text-center">
+          <h1 class="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+            <%= t("explore.title") %>
+          </h1>
+          <p class="mt-6 text-lg/8 text-gray-600 dark:text-gray-300">
+            <%= t("explore.subtitle") %>
+          </p>
+        </div>
+
+        <%# Search & Filters %>
+        <%= form_with url: explore_path, method: :get, local: true, data: { explore_target: "form" }, class: "mt-10" do |f| %>
+          <%# Hidden inputs for coordinates %>
+          <%= f.hidden_field :lat, value: @lat, data: { explore_target: "latInput" } %>
+          <%= f.hidden_field :lng, value: @lng, data: { explore_target: "lngInput" } %>
+
+          <%# Search Input %>
+          <div class="mx-auto max-w-2xl">
+            <div class="relative flex gap-3">
+              <div class="relative flex-1">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                  <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <%= f.text_field :q,
+                    value: @query,
+                    placeholder: t("explore.search_placeholder"),
+                    class: "block w-full rounded-2xl border-0 bg-white dark:bg-gray-800 py-4 pl-12 pr-4 text-gray-900 dark:text-white shadow-lg ring-1 ring-inset ring-gray-300 dark:ring-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:focus:ring-yellow-500 sm:text-sm/6",
+                    data: { explore_target: "searchInput" } %>
+              </div>
+              <button type="submit"
+                      class="inline-flex items-center justify-center px-6 py-4 rounded-2xl bg-blue-600 dark:bg-yellow-500 text-white dark:text-gray-900 font-medium shadow-lg hover:bg-blue-700 dark:hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 dark:focus:ring-yellow-500 transition-colors">
+                <svg class="h-5 w-5 sm:mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                </svg>
+                <span class="hidden sm:inline"><%= t("explore.search_button") %></span>
+              </button>
+            </div>
+          </div>
+
+          <%# Filter Bar %>
+          <div class="mt-8 mx-auto max-w-4xl">
+            <%# Type Filters - Pills %>
+            <div class="flex flex-wrap items-center justify-center gap-3">
+              <%# Resource Type Checkboxes as Pills %>
+              <label class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" name="types[]" value="location"
+                       <%= "checked" if @types.include?("location") %>
+                       class="sr-only peer"
+                       data-explore-target="typeCheckbox"
+                       data-action="change->explore#onTypeChange">
+                <span class="px-4 py-2 rounded-full text-sm font-medium transition-all
+                             peer-checked:bg-blue-600 peer-checked:text-white peer-checked:dark:bg-yellow-500 peer-checked:dark:text-gray-900
+                             bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                  <svg class="w-4 h-4 inline-block mr-1.5 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                  </svg>
+                  <%= t("explore.types.location") %>
+                </span>
+              </label>
+
+              <label class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" name="types[]" value="experience"
+                       <%= "checked" if @types.include?("experience") %>
+                       class="sr-only peer"
+                       data-explore-target="typeCheckbox"
+                       data-action="change->explore#onTypeChange">
+                <span class="px-4 py-2 rounded-full text-sm font-medium transition-all
+                             peer-checked:bg-blue-600 peer-checked:text-white peer-checked:dark:bg-yellow-500 peer-checked:dark:text-gray-900
+                             bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                  <svg class="w-4 h-4 inline-block mr-1.5 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <%= t("explore.types.experience") %>
+                </span>
+              </label>
+
+              <label class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" name="types[]" value="plan"
+                       <%= "checked" if @types.include?("plan") %>
+                       class="sr-only peer"
+                       data-explore-target="typeCheckbox"
+                       data-action="change->explore#onTypeChange">
+                <span class="px-4 py-2 rounded-full text-sm font-medium transition-all
+                             peer-checked:bg-blue-600 peer-checked:text-white peer-checked:dark:bg-yellow-500 peer-checked:dark:text-gray-900
+                             bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                  <svg class="w-4 h-4 inline-block mr-1.5 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                  </svg>
+                  <%= t("explore.types.plan") %>
+                </span>
+              </label>
+
+              <%# Divider %>
+              <div class="hidden sm:block h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+
+              <%# Nearby Button %>
+              <div class="flex items-center gap-2">
+                <button type="button"
+                        class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-all <%= @lat.present? ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600' %>"
+                        data-explore-target="nearbyButton"
+                        data-action="click->explore#toggleNearby">
+                  <% if @lat.present? %>
+                    <svg class="w-4 h-4 mr-1.5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                  <% else %>
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                  <% end %>
+                  <%= t("explore.nearby") %>
+                </button>
+
+                <%# Radius select - shown when nearby is active %>
+                <div class="<%= @lat.present? ? '' : 'hidden' %>" data-explore-target="nearbyOptions">
+                  <select name="radius"
+                          class="rounded-full border-0 bg-white dark:bg-gray-700 py-2 pl-3 pr-8 text-sm text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-200 dark:ring-gray-600 focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-500"
+                          data-explore-target="radiusSelect"
+                          data-action="change->explore#onRadiusChange">
+                    <option value="5" <%= @radius.to_i == 5 ? 'selected' : '' %>>5 km</option>
+                    <option value="10" <%= @radius.to_i == 10 ? 'selected' : '' %>>10 km</option>
+                    <option value="25" <%= @radius.to_i == 25 || @radius.blank? ? 'selected' : '' %>>25 km</option>
+                    <option value="50" <%= @radius.to_i == 50 ? 'selected' : '' %>>50 km</option>
+                    <option value="100" <%= @radius.to_i == 100 ? 'selected' : '' %>>100 km</option>
+                  </select>
+                </div>
+              </div>
+              <span class="hidden text-sm text-red-600 dark:text-red-400" data-explore-target="nearbyStatus"></span>
+
+              <%# More Filters Toggle %>
+              <button type="button"
+                      class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                      data-explore-target="filterToggle"
+                      data-action="click->explore#toggleFilters">
+                <svg class="w-4 h-4 mr-1.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                </svg>
+                <%= t("explore.more_filters") %>
+                <span class="hidden ml-2 w-5 h-5 rounded-full bg-blue-600 dark:bg-yellow-500 text-white dark:text-gray-900 text-xs flex items-center justify-center"
+                      data-explore-target="filterCount"></span>
+              </button>
+
+              <%# Clear Filters %>
+              <button type="button"
+                      class="hidden inline-flex items-center px-3 py-2 rounded-full text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                      data-explore-target="clearFiltersButton"
+                      data-action="click->explore#clearAllFilters">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                <%= t("explore.clear_filters") %>
+              </button>
+            </div>
+
+            <%# Advanced Filters Panel (hidden by default) %>
+            <div class="hidden mt-6 p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl" data-explore-target="filterPanel">
+              <%# Season Filter - Toggle Buttons %>
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  <%= t("explore.filters.season") %>
+                </label>
+                <div class="flex flex-wrap gap-2 items-center">
+                  <% [
+                    ["spring", t("explore.seasons.spring")],
+                    ["summer", t("explore.seasons.summer")],
+                    ["autumn", t("explore.seasons.autumn")],
+                    ["winter", t("explore.seasons.winter")]
+                  ].each do |value, label| %>
+                    <label class="inline-flex items-center cursor-pointer">
+                      <input type="radio" name="season" value="<%= value %>"
+                             <%= "checked" if @season == value %>
+                             class="sr-only peer"
+                             data-explore-target="filterInput"
+                             data-action="change->explore#onFilterChange">
+                      <span class="px-3 py-1.5 rounded-full text-sm font-medium transition-all
+                                   peer-checked:bg-blue-600 peer-checked:text-white peer-checked:dark:bg-yellow-500 peer-checked:dark:text-gray-900
+                                   bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600
+                                   ring-1 ring-gray-200 dark:ring-gray-600 peer-checked:ring-0">
+                        <%= label %>
+                      </span>
+                    </label>
+                  <% end %>
+                  <%# Clear season button - shown via CSS when a sibling is checked %>
+                  <button type="button"
+                          class="<%= @season.present? ? '' : 'hidden' %> px-2 py-1.5 rounded-full text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          data-action="click->explore#clearSeason"
+                          data-explore-target="seasonClearBtn">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <%# Budget Filter - Toggle Buttons %>
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  <%= t("explore.filters.budget") %>
+                </label>
+                <div class="flex flex-wrap gap-2 items-center">
+                  <% [
+                    ["low", "$", t("explore.budgets.low")],
+                    ["medium", "$$", t("explore.budgets.medium")],
+                    ["high", "$$$", t("explore.budgets.high")]
+                  ].each do |value, symbol, label| %>
+                    <label class="inline-flex items-center cursor-pointer">
+                      <input type="radio" name="budget" value="<%= value %>"
+                             <%= "checked" if @budget == value %>
+                             class="sr-only peer"
+                             data-explore-target="filterInput"
+                             data-action="change->explore#onFilterChange">
+                      <span class="px-3 py-1.5 rounded-full text-sm font-medium transition-all
+                                   peer-checked:bg-blue-600 peer-checked:text-white peer-checked:dark:bg-yellow-500 peer-checked:dark:text-gray-900
+                                   bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600
+                                   ring-1 ring-gray-200 dark:ring-gray-600 peer-checked:ring-0">
+                        <span class="font-bold mr-1"><%= symbol %></span> <%= label %>
+                      </span>
+                    </label>
+                  <% end %>
+                  <button type="button"
+                          class="<%= @budget.present? ? '' : 'hidden' %> px-2 py-1.5 rounded-full text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          data-action="click->explore#clearBudget"
+                          data-explore-target="budgetClearBtn">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <%# Duration Filter - Toggle Buttons %>
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  <%= t("explore.filters.duration") %>
+                </label>
+                <div class="flex flex-wrap gap-2 items-center">
+                  <% [
+                    ["short", t("explore.durations.short")],
+                    ["medium", t("explore.durations.medium")],
+                    ["long", t("explore.durations.long")]
+                  ].each do |value, label| %>
+                    <label class="inline-flex items-center cursor-pointer">
+                      <input type="radio" name="duration" value="<%= value %>"
+                             <%= "checked" if @duration == value %>
+                             class="sr-only peer"
+                             data-explore-target="filterInput"
+                             data-action="change->explore#onFilterChange">
+                      <span class="px-3 py-1.5 rounded-full text-sm font-medium transition-all
+                                   peer-checked:bg-blue-600 peer-checked:text-white peer-checked:dark:bg-yellow-500 peer-checked:dark:text-gray-900
+                                   bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600
+                                   ring-1 ring-gray-200 dark:ring-gray-600 peer-checked:ring-0">
+                        <svg class="w-4 h-4 inline-block mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <%= label %>
+                      </span>
+                    </label>
+                  <% end %>
+                  <button type="button"
+                          class="<%= @duration.present? ? '' : 'hidden' %> px-2 py-1.5 rounded-full text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          data-action="click->explore#clearDuration"
+                          data-explore-target="durationClearBtn">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <%# Rating Filter - Toggle Buttons %>
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  <%= t("explore.filters.rating") %>
+                </label>
+                <div class="flex flex-wrap gap-2 items-center">
+                  <% [
+                    ["4.5", "4.5+"],
+                    ["4.0", "4.0+"],
+                    ["3.5", "3.5+"],
+                    ["3.0", "3.0+"]
+                  ].each do |value, label| %>
+                    <label class="inline-flex items-center cursor-pointer">
+                      <input type="radio" name="min_rating" value="<%= value %>"
+                             <%= "checked" if @min_rating == value %>
+                             class="sr-only peer"
+                             data-explore-target="filterInput"
+                             data-action="change->explore#onFilterChange">
+                      <span class="px-3 py-1.5 rounded-full text-sm font-medium transition-all
+                                   peer-checked:bg-blue-600 peer-checked:text-white peer-checked:dark:bg-yellow-500 peer-checked:dark:text-gray-900
+                                   bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600
+                                   ring-1 ring-gray-200 dark:ring-gray-600 peer-checked:ring-0">
+                        <svg class="w-4 h-4 inline-block mr-1 -mt-0.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <%= label %>
+                      </span>
+                    </label>
+                  <% end %>
+                  <button type="button"
+                          class="<%= @min_rating.present? ? '' : 'hidden' %> px-2 py-1.5 rounded-full text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          data-action="click->explore#clearRating"
+                          data-explore-target="ratingClearBtn">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <%# Sort Filter - Toggle Buttons %>
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  <%= t("explore.filters.sort") %>
+                </label>
+                <div class="flex flex-wrap gap-2">
+                  <% [
+                    ["relevance", t("explore.sorts.relevance")],
+                    ["rating", t("explore.sorts.rating")],
+                    ["newest", t("explore.sorts.newest")],
+                    ["name", t("explore.sorts.name")]
+                  ].each do |value, label| %>
+                    <label class="inline-flex items-center cursor-pointer">
+                      <input type="radio" name="sort" value="<%= value %>"
+                             <%= "checked" if @sort == value %>
+                             class="sr-only peer"
+                             data-explore-target="filterInput"
+                             data-action="change->explore#onFilterChange">
+                      <span class="px-3 py-1.5 rounded-full text-sm font-medium transition-all
+                                   peer-checked:bg-blue-600 peer-checked:text-white peer-checked:dark:bg-yellow-500 peer-checked:dark:text-gray-900
+                                   bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600
+                                   ring-1 ring-gray-200 dark:ring-gray-600 peer-checked:ring-0">
+                        <%= label %>
+                      </span>
+                    </label>
+                  <% end %>
+                </div>
+              </div>
+
+              <%# Additional Toggles Row %>
+              <div class="flex flex-wrap gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <%# Audio Support Toggle %>
+                <label class="inline-flex items-center cursor-pointer">
+                  <input type="checkbox" name="audio_support" value="true"
+                         <%= "checked" if @audio_support %>
+                         class="sr-only peer"
+                         data-explore-target="audioToggle"
+                         data-action="change->explore#onFilterChange">
+                  <span class="px-4 py-2 rounded-full text-sm font-medium transition-all
+                               peer-checked:bg-purple-600 peer-checked:text-white peer-checked:dark:bg-purple-500
+                               bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600
+                               ring-1 ring-gray-200 dark:ring-gray-600 peer-checked:ring-0">
+                    <svg class="w-4 h-4 inline-block mr-1.5 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414 1.414m2.828-9.9a9 9 0 0112.728 0"></path>
+                    </svg>
+                    <%= t("explore.filters.audio_support") %>
+                  </span>
+                </label>
+
+                <%# City Filter - Keep as select for many options %>
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                  </svg>
+                  <%= f.select :city_name,
+                      options_for_select([[t("explore.cities.any"), ""]] + @city_names.map { |name| [name, name] }, @city_name),
+                      {},
+                      { class: "rounded-full border-0 bg-white dark:bg-gray-700 py-2 pl-3 pr-8 text-sm text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-200 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:focus:ring-yellow-500",
+                        data: { explore_target: "citySelect", action: "change->explore#onFilterChange" } } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Results Section %>
+    <div class="relative z-10 mx-auto max-w-7xl px-6 pb-24 lg:px-8">
+      <%# Loading Indicator %>
+      <div class="hidden text-center py-12" data-explore-target="loadingIndicator">
+        <svg class="animate-spin h-8 w-8 mx-auto text-blue-600 dark:text-yellow-500" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="mt-4 text-gray-600 dark:text-gray-400"><%= t("explore.loading") %></p>
+      </div>
+
+      <%# Results Container %>
+      <div data-explore-target="resultsContainer">
+        <% total_results = @locations.size + @experiences.size + @plans.size %>
+
+        <% if total_results > 0 %>
+          <%# Results Summary %>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-8">
+            <% total_count = @locations.total_count + @experiences.total_count + @plans.total_count %>
+            <%= t("explore.results_count", count: total_count) %>
+          </p>
+
+          <%# Locations Section %>
+          <% if @locations.any? %>
+            <%= turbo_frame_tag "locations_section" do %>
+              <div class="mb-12">
+                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                  <svg class="w-6 h-6 mr-2 text-blue-600 dark:text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                  </svg>
+                  <%= t("explore.sections.locations") %>
+                  <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">(<%= @locations.total_count %>)</span>
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <% @locations.each do |location| %>
+                    <%= render "new_design/explore/location_card", location: location %>
+                  <% end %>
+                </div>
+                <% if @locations.total_pages > 1 %>
+                  <div class="mt-6">
+                    <%= render "new_design/explore/pagination", collection: @locations, param_name: :locations_page, frame: "locations_section" %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
+
+          <%# Experiences Section %>
+          <% if @experiences.any? %>
+            <%= turbo_frame_tag "experiences_section" do %>
+              <div class="mb-12">
+                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                  <svg class="w-6 h-6 mr-2 text-blue-600 dark:text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <%= t("explore.sections.experiences") %>
+                  <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">(<%= @experiences.total_count %>)</span>
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <% @experiences.each do |experience| %>
+                    <%= render "new_design/explore/experience_card", experience: experience %>
+                  <% end %>
+                </div>
+                <% if @experiences.total_pages > 1 %>
+                  <div class="mt-6">
+                    <%= render "new_design/explore/pagination", collection: @experiences, param_name: :experiences_page, frame: "experiences_section" %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
+
+          <%# Plans Section %>
+          <% if @plans.any? %>
+            <%= turbo_frame_tag "plans_section" do %>
+              <div class="mb-12">
+                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                  <svg class="w-6 h-6 mr-2 text-blue-600 dark:text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                  </svg>
+                  <%= t("explore.sections.plans") %>
+                  <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">(<%= @plans.total_count %>)</span>
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <% @plans.each do |plan| %>
+                    <%= render "new_design/explore/plan_card", plan: plan %>
+                  <% end %>
+                </div>
+                <% if @plans.total_pages > 1 %>
+                  <div class="mt-6">
+                    <%= render "new_design/explore/pagination", collection: @plans, param_name: :plans_page, frame: "plans_section" %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
+
+        <% else %>
+          <%# Empty State %>
+          <div class="text-center py-16" data-explore-target="emptyState">
+            <svg class="mx-auto h-16 w-16 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path>
+            </svg>
+            <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
+              <%= t("explore.empty.title") %>
+            </h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <% if @query.present? || @types.any? %>
+                <%= t("explore.empty.with_filters") %>
+              <% else %>
+                <%= t("explore.empty.no_filters") %>
+              <% end %>
+            </p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%= render "new_design/footer" %>
+  </main>
+</div>

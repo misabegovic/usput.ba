@@ -1,0 +1,31 @@
+<div class="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
+  <%= form_with url: admin_login_path, method: :post, class: "space-y-6" do |f| %>
+    <div>
+      <%= f.label :username, t("admin.session.username"), class: "block text-sm font-medium leading-6 text-gray-900" %>
+      <div class="mt-2">
+        <%= f.text_field :username,
+            required: true,
+            autocomplete: "username",
+            class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" %>
+      </div>
+    </div>
+
+    <div>
+      <%= f.label :password, t("admin.session.password"), class: "block text-sm font-medium leading-6 text-gray-900" %>
+      <div class="mt-2">
+        <%= f.password_field :password,
+            required: true,
+            autocomplete: "current-password",
+            class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" %>
+      </div>
+    </div>
+
+    <div>
+      <%= f.submit t("admin.session.login_button"), class: "flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer" %>
+    </div>
+  <% end %>
+</div>
+
+<p class="mt-10 text-center text-sm text-gray-500">
+  <%= link_to t("nav.back_to_site"), root_path, class: "font-semibold leading-6 text-indigo-600 hover:text-indigo-500" %>
+</p>

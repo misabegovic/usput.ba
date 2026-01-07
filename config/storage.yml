@@ -1,0 +1,21 @@
+test:
+  service: Disk
+  root: <%= Rails.root.join("tmp/storage") %>
+
+local:
+  service: Disk
+  root: <%= Rails.root.join("storage") %>
+
+# Amazon S3 configuration for production
+# Required environment variables:
+#   AWS_ACCESS_KEY_ID     - Your AWS access key
+#   AWS_SECRET_ACCESS_KEY - Your AWS secret key
+#   AWS_REGION            - AWS region (e.g., eu-central-1)
+#   AWS_BUCKET            - S3 bucket name
+amazon:
+  service: S3
+  access_key_id: <%= ENV["AWS_ACCESS_KEY_ID"] %>
+  secret_access_key: <%= ENV["AWS_SECRET_ACCESS_KEY"] %>
+  region: <%= ENV.fetch("AWS_REGION", "eu-central-1") %>
+  bucket: <%= ENV["AWS_BUCKET"] %>
+  public: false

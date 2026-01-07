@@ -1,0 +1,191 @@
+<div class="space-y-4 sm:space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900"><%= t("curator.locations.title") %></h1>
+    <%= link_to t("curator.locations.new"), new_curator_location_path,
+        class: "inline-flex items-center justify-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 w-full sm:w-auto" %>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="rounded-lg bg-white shadow" data-controller="curator-filters">
+    <!-- Mobile Filter Toggle -->
+    <div class="sm:hidden">
+      <button type="button"
+              data-action="click->curator-filters#toggle"
+              class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700">
+        <span class="flex items-center gap-2">
+          <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+          </svg>
+          <%= t("curator.locations.filter.title", default: "Filters") %>
+          <% if params[:city_name].present? || params[:search].present? || params[:location_type].present? %>
+            <span class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">
+              <%= [params[:city_name], params[:search], params[:location_type]].compact_blank.size %>
+            </span>
+          <% end %>
+        </span>
+        <svg class="h-5 w-5 text-gray-400 transition-transform duration-200"
+             data-curator-filters-target="icon"
+             fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Filter Content -->
+    <div class="hidden sm:block px-4 py-4" data-curator-filters-target="content">
+      <%= form_with url: curator_locations_path, method: :get, class: "flex flex-col sm:flex-row flex-wrap gap-3" do |f| %>
+        <!-- Search Input -->
+        <div class="flex-1 min-w-0 sm:max-w-xs">
+          <%= f.text_field :search,
+              value: params[:search],
+              placeholder: t("curator.locations.filter.search_placeholder", default: "Search by name..."),
+              class: "block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500" %>
+        </div>
+
+        <!-- City Filter -->
+        <div class="w-full sm:w-auto">
+          <%= f.select :city_name,
+              options_for_select([[t("curator.locations.filter.all_cities"), ""]] + @city_names.map { |c| [c, c] }, params[:city_name]),
+              {},
+              class: "block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500",
+              onchange: "this.form.submit()" %>
+        </div>
+
+        <!-- Location Type Filter -->
+        <div class="w-full sm:w-auto">
+          <%= f.select :location_type,
+              options_for_select(
+                [[t("curator.locations.filter.all_types", default: "All types"), ""]] +
+                Location.location_types.keys.map { |type| [t("locations.types.#{type}", default: type.humanize), type] },
+                params[:location_type]
+              ),
+              {},
+              class: "block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500",
+              onchange: "this.form.submit()" %>
+        </div>
+
+        <!-- Search Button (for text search) -->
+        <div class="w-full sm:w-auto">
+          <%= f.submit t("common.search"), class: "w-full sm:w-auto inline-flex justify-center items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 cursor-pointer" %>
+        </div>
+
+        <% if params[:city_name].present? || params[:search].present? || params[:location_type].present? %>
+          <%= link_to curator_locations_path, class: "w-full sm:w-auto inline-flex justify-center items-center rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200" do %>
+            <%= t("filters.clear_all", default: "Clear All") %>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Results Count -->
+  <div class="flex items-center justify-between text-sm text-gray-600">
+    <span><%= t("curator.locations.count", count: @locations.size, default: "#{@locations.size} locations") %></span>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="hidden sm:block overflow-hidden rounded-lg bg-white shadow">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.locations.name") %></th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.locations.city") %></th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.locations.type") %></th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.locations.created_at") %></th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.locations.actions") %></th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @locations.each do |location| %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-medium text-gray-900"><%= location.name %></div>
+              <div class="text-sm text-gray-500 truncate max-w-xs"><%= location.address %></div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <%= location.city %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                <%= t("locations.types.#{location.location_type}", default: location.location_type&.humanize) %>
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <%= location.created_at.strftime("%d.%m.%Y") %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+              <%= link_to t("curator.locations.view"), curator_location_path(location), class: "text-emerald-600 hover:text-emerald-900" %>
+              <%= link_to t("curator.locations.edit"), edit_curator_location_path(location), class: "text-emerald-600 hover:text-emerald-900" %>
+              <%= button_to t("curator.locations.delete"), curator_location_path(location),
+                  method: :delete,
+                  class: "text-red-600 hover:text-red-900",
+                  data: { turbo_confirm: t("curator.locations.confirm_delete", name: location.name) } %>
+            </td>
+          </tr>
+        <% end %>
+
+        <% if @locations.empty? %>
+          <tr>
+            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+              <%= t("curator.locations.no_locations") %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Card Layout -->
+  <div class="sm:hidden space-y-3">
+    <% @locations.each do |location| %>
+      <div class="bg-white rounded-lg shadow p-4">
+        <div class="flex items-start justify-between mb-2">
+          <div class="flex-1 min-w-0">
+            <h3 class="font-medium text-gray-900 truncate"><%= location.name %></h3>
+            <p class="text-sm text-gray-500 truncate"><%= location.address %></p>
+          </div>
+          <span class="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">
+            <%= t("locations.types.#{location.location_type}", default: location.location_type&.humanize) %>
+          </span>
+        </div>
+
+        <div class="flex items-center gap-4 text-sm text-gray-500 mb-3">
+          <span class="flex items-center gap-1">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+            </svg>
+            <%= location.city %>
+          </span>
+          <span class="flex items-center gap-1">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+            </svg>
+            <%= location.created_at.strftime("%d.%m.%Y") %>
+          </span>
+        </div>
+
+        <div class="flex items-center gap-4 pt-3 border-t border-gray-100">
+          <%= link_to curator_location_path(location), class: "flex-1 text-center py-2 text-sm font-medium text-emerald-600 hover:text-emerald-900" do %>
+            <%= t("curator.locations.view") %>
+          <% end %>
+          <%= link_to edit_curator_location_path(location), class: "flex-1 text-center py-2 text-sm font-medium text-emerald-600 hover:text-emerald-900" do %>
+            <%= t("curator.locations.edit") %>
+          <% end %>
+          <%= button_to curator_location_path(location),
+              method: :delete,
+              class: "flex-1 text-center py-2 text-sm font-medium text-red-600 hover:text-red-900",
+              data: { turbo_confirm: t("curator.locations.confirm_delete", name: location.name) } do %>
+            <%= t("curator.locations.delete") %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @locations.empty? %>
+      <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+        <%= t("curator.locations.no_locations") %>
+      </div>
+    <% end %>
+  </div>
+</div>

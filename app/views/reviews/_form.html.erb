@@ -1,0 +1,60 @@
+<%# Review form component %>
+<%# Usage: render "reviews/form", reviewable: @location, review: @review %>
+
+<div id="review-form" class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+  <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
+    <%= t("reviews.form.title", default: "Ostavi recenziju") %>
+  </h3>
+
+  <%= form_with model: [reviewable, review], local: true, class: "space-y-4" do |f| %>
+    <% if review.errors.any? %>
+      <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+        <p class="text-red-700 dark:text-red-400 text-sm">
+          <%= review.errors.full_messages.join(", ") %>
+        </p>
+      </div>
+    <% end %>
+
+    <%# Star Rating Input %>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <%= t("reviews.form.rating", default: "Ocjena") %> <span class="text-red-500">*</span>
+      </label>
+      <div class="flex items-center space-x-1" data-controller="star-rating">
+        <% 5.times do |i| %>
+          <button type="button"
+                  data-action="click->star-rating#setRating"
+                  data-star-rating-value-param="<%= i + 1 %>"
+                  class="star-btn p-1 focus:outline-none transition-colors"
+                  data-star-rating-target="star">
+            <svg class="w-8 h-8 text-gray-300 dark:text-gray-600 hover:text-amber-400 transition-colors" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+            </svg>
+          </button>
+        <% end %>
+        <%= f.hidden_field :rating, data: { star_rating_target: "input" }, value: review.rating || "" %>
+      </div>
+    </div>
+
+    <%# Comment %>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <%= t("reviews.form.comment", default: "Komentar") %>
+      </label>
+      <%= f.text_area :comment, rows: 4, class: "w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors", placeholder: t("reviews.form.comment_placeholder", default: "Podijeli svoje iskustvo...") %>
+    </div>
+
+    <%# Author Name %>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <%= t("reviews.form.author_name", default: "Tvoje ime") %>
+      </label>
+      <%= f.text_field :author_name, class: "w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors", placeholder: t("reviews.form.author_name_placeholder", default: "Kako se zoves?") %>
+    </div>
+
+    <%# Submit %>
+    <div class="pt-2">
+      <%= f.submit t("reviews.form.submit", default: "Posalji recenziju"), class: "w-full bg-blue-600 hover:bg-blue-700 dark:bg-yellow-500 dark:hover:bg-yellow-600 text-white dark:text-gray-900 py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg cursor-pointer" %>
+    </div>
+  <% end %>
+</div>

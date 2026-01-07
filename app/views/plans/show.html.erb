@@ -1,0 +1,529 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300"
+     data-controller="travel-profile"
+     data-travel-profile-item-id-value="<%= @plan.uuid %>"
+     data-travel-profile-item-type-value="plan"
+     data-travel-profile-item-name-value="<%= @plan.display_title %>"
+     data-travel-profile-logged-in-value="<%= logged_in? %>"
+     data-travel-profile-translations-value="<%= travel_profile_translations_json %>">
+  <%# Navigation %>
+  <%= render "new_design/header" %>
+
+  <%# Spacer for fixed header %>
+  <div class="h-20"></div>
+
+  <%# Hero Section - Styled like homepage %>
+  <div class="relative isolate bg-white dark:bg-gray-900 overflow-hidden">
+    <%# SVG Pattern Background %>
+    <svg aria-hidden="true" class="absolute inset-x-0 top-0 -z-10 h-full w-full [mask-image:radial-gradient(32rem_32rem_at_center,white,transparent)] stroke-gray-200 dark:stroke-white/10">
+      <defs>
+        <pattern id="plan-hero-pattern" width="200" height="200" x="50%" y="-1" patternUnits="userSpaceOnUse">
+          <path d="M.5 200V.5H200" fill="none" />
+        </pattern>
+      </defs>
+      <svg x="50%" y="-1" class="overflow-visible fill-gray-50 dark:fill-gray-800">
+        <path d="M-200 0h201v201h-201Z M600 0h201v201h-201Z M-400 600h201v201h-201Z M200 800h201v201h-201Z" stroke-width="0" />
+      </svg>
+      <rect width="100%" height="100%" fill="url(#plan-hero-pattern)" stroke-width="0" />
+    </svg>
+
+    <%# Blur gradient accent %>
+    <div aria-hidden="true" class="absolute top-0 right-0 left-1/2 -z-10 -ml-24 transform-gpu overflow-hidden blur-3xl lg:ml-24 xl:ml-48">
+      <div style="clip-path: polygon(63.1% 29.5%, 100% 17.1%, 76.6% 3%, 48.4% 0%, 44.6% 4.7%, 54.5% 25.3%, 59.8% 49%, 55.2% 57.8%, 44.4% 57.2%, 27.8% 47.9%, 35.1% 81.5%, 0% 97.7%, 39.2% 100%, 35.2% 81.4%, 97.2% 52.8%, 63.1% 29.5%); aspect-ratio: 801/1036;" class="w-[50rem] bg-gradient-to-tr from-amber-400/30 to-orange-400/30 dark:from-amber-600/20 dark:to-orange-500/20 opacity-70"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+      <%# Back link %>
+      <%= link_to smart_back_path, class: "inline-flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6 transition-colors" do %>
+        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        <%= t("common.back") %>
+      <% end %>
+
+      <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
+        <%# Left side - Title and basic info %>
+        <div class="flex-1">
+          <span class="inline-block px-3 py-1 bg-amber-100 dark:bg-amber-900/30 rounded-full text-xs font-semibold text-amber-600 dark:text-amber-400 mb-4">
+            <%= t("plans.badge", default: "Plan putovanja") %>
+          </span>
+          <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+            <%= @plan.display_title %>
+          </h1>
+
+          <%# Location and duration %>
+          <div class="flex items-center gap-4 mt-4 text-gray-600 dark:text-gray-400">
+            <span class="flex items-center">
+              <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              </svg>
+              <%= @plan.city_name %>
+            </span>
+            <span class="flex items-center">
+              <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              <%= @plan.duration_in_days %> <%= t("wizard.dates.days") %>
+            </span>
+          </div>
+
+          <%# Dates %>
+          <% if @plan.start_date.present? && @plan.end_date.present? %>
+            <p class="text-gray-500 dark:text-gray-400 mt-2">
+              <%= l(@plan.start_date, format: :long) rescue @plan.start_date.strftime("%d.%m.%Y") %> - <%= l(@plan.end_date, format: :long) rescue @plan.end_date.strftime("%d.%m.%Y") %>
+            </p>
+          <% end %>
+
+          <%# Rating inline %>
+          <div class="flex items-center gap-3 mt-4">
+            <div class="flex items-center">
+              <%= render "shared/star_rating", rating: @plan.average_rating %>
+            </div>
+            <span class="text-2xl font-bold text-gray-900 dark:text-white"><%= number_with_precision(@plan.average_rating, precision: 1) %></span>
+            <span class="text-gray-500 dark:text-gray-400">(<%= @plan.reviews_count %> <%= t("reviews.count", count: @plan.reviews_count) %>)</span>
+          </div>
+        </div>
+
+        <%# Right side - Action buttons %>
+        <div class="flex flex-wrap gap-3 lg:flex-col lg:w-auto">
+          <%# Action buttons %>
+          <div class="flex gap-2 flex-wrap">
+            <%# Share Button %>
+            <div data-controller="share" data-share-success-message-value="<%= t('common.link_copied', default: 'Link kopiran!') %>">
+              <button data-share-target="button"
+                      data-action="click->share#copy"
+                      class="inline-flex items-center space-x-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                      aria-label="<%= t('common.share', default: 'Podijeli') %>">
+                <svg data-share-target="icon" class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                </svg>
+                <svg data-share-target="checkIcon" class="w-5 h-5 text-emerald-500 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span data-share-target="text" class="text-sm font-medium text-gray-700 dark:text-gray-300"><%= t('common.share', default: 'Podijeli') %></span>
+              </button>
+            </div>
+
+            <%# Favorite Button - only show if user doesn't own the plan %>
+            <% if @plan.user_id.nil? || @plan.user_id != current_user&.id %>
+              <button data-action="click->travel-profile#toggleFavorite"
+                      data-travel-profile-target="favoriteButton"
+                      class="inline-flex items-center space-x-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors group"
+                      aria-label="<%= t('profile.add_favorite', default: 'Dodaj u omiljene') %>"
+                      title="<%= t('profile.add_favorite', default: 'Dodaj u omiljene') %>">
+                <svg class="w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-red-500 heart-empty transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                </svg>
+                <svg class="w-5 h-5 text-red-500 heart-filled hidden" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                </svg>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-red-500 transition-colors"><%= t('profile.add_favorite', default: 'Spremi') %></span>
+              </button>
+            <% end %>
+          </div>
+
+          <%# Feedback message area %>
+          <div data-travel-profile-target="feedbackMessage"
+               class="hidden mt-3 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Photo Gallery Section - Cover photos from experiences in plan %>
+  <% cover_photos = @plan.experiences.select { |e| e.cover_photo.attached? }.map(&:cover_photo) %>
+  <% if cover_photos.any? %>
+    <div class="bg-gray-100 dark:bg-gray-800 py-6"
+         data-controller="photo-gallery"
+         data-photo-gallery-index-value="0">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+            <svg class="w-5 h-5 mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <%= t("plans.show.photos", default: "Fotografije iskustava") %>
+            <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">(<%= cover_photos.count %>)</span>
+          </h2>
+          <button data-action="click->photo-gallery#openLightbox"
+                  data-index="0"
+                  class="text-sm text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium flex items-center">
+            <%= t("plans.show.view_all", default: "Pogledaj sve") %>
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+            </svg>
+          </button>
+        </div>
+
+        <%# Horizontal slider %>
+        <div class="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
+             data-photo-gallery-target="slider">
+          <% cover_photos.each_with_index do |photo, index| %>
+            <button data-action="click->photo-gallery#openLightbox"
+                    data-index="<%= index %>"
+                    data-photo-gallery-target="thumbnail"
+                    class="flex-shrink-0 snap-start rounded-xl overflow-hidden ring-2 transition-all hover:ring-amber-400 focus:outline-none focus:ring-amber-500 <%= index == 0 ? 'ring-amber-500' : 'ring-transparent' %>"
+                    aria-label="<%= t('plans.show.view_photo', number: index + 1, default: 'Pogledaj fotografiju %{number}') %>">
+              <%= image_tag photo.variant(resize_to_fill: [400, 300]), class: "w-48 h-36 sm:w-56 sm:h-40 object-cover", alt: "#{@plan.display_title} - #{index + 1}" %>
+            </button>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Lightbox Modal %>
+      <div data-photo-gallery-target="lightbox"
+           data-action="click->photo-gallery#closeLightboxOnBackground"
+           class="hidden fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
+        <%# Close button %>
+        <button data-action="click->photo-gallery#closeLightbox"
+                class="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
+                aria-label="<%= t('common.close', default: 'Zatvori') %>">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+
+        <%# Counter %>
+        <div data-photo-gallery-target="lightboxCounter"
+             class="absolute top-4 left-4 px-3 py-1.5 bg-black/60 rounded-full text-white text-sm font-medium">
+          1 / <%= cover_photos.count %>
+        </div>
+
+        <%# Navigation arrows %>
+        <% if cover_photos.count > 1 %>
+          <button data-action="click->photo-gallery#previous"
+                  class="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                  aria-label="<%= t('common.previous', default: 'Prethodna') %>">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <button data-action="click->photo-gallery#next"
+                  class="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                  aria-label="<%= t('common.next', default: 'Sljedeća') %>">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        <% end %>
+
+        <%# Main image %>
+        <div class="max-w-6xl max-h-[85vh] mx-4">
+          <img data-photo-gallery-target="lightboxImage"
+               src=""
+               alt=""
+               class="max-w-full max-h-[85vh] object-contain rounded-lg">
+        </div>
+
+        <%# Thumbnail strip at bottom %>
+        <div class="absolute bottom-4 left-0 right-0 px-4">
+          <div class="max-w-4xl mx-auto flex gap-2 justify-center overflow-x-auto pb-2">
+            <% cover_photos.each_with_index do |photo, index| %>
+              <button data-action="click->photo-gallery#goTo"
+                      data-index="<%= index %>"
+                      data-photo-gallery-target="lightboxThumbnail"
+                      class="flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden ring-2 transition-all hover:opacity-100 <%= index == 0 ? 'ring-amber-500 opacity-100' : 'ring-transparent opacity-60' %>"
+                      aria-label="<%= t('plans.show.go_to_photo', number: index + 1, default: 'Idi na fotografiju %{number}') %>">
+                <%= image_tag photo.variant(resize_to_fill: [128, 96]), class: "w-full h-full object-cover", alt: "Thumbnail #{index + 1}" %>
+              </button>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Content %>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid gap-8 lg:grid-cols-3">
+      <%# Main Content - Days %>
+      <div class="lg:col-span-2 space-y-6">
+        <% @plan.days_with_experiences.each do |day| %>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+                  <%= t("plans.show.day", number: day[:day_number]) %>
+                </h2>
+                <% if day[:total_duration] > 0 %>
+                  <span class="text-sm text-gray-500 dark:text-gray-400 flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <%= @plan.formatted_duration_for_day(day[:day_number]) %>
+                  </span>
+                <% end %>
+              </div>
+              <% if day[:date].present? %>
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                  <%= l(day[:date], format: :long) rescue day[:date].strftime("%A, %d.%m.%Y") %>
+                </span>
+              <% end %>
+            </div>
+
+            <% if day[:experiences].any? %>
+              <div class="flow-root">
+                <ul role="list" class="-mb-8">
+                  <% day[:experiences].each_with_index do |experience, idx| %>
+                    <% is_last = idx == day[:experiences].length - 1 %>
+                    <li>
+                      <div class="relative pb-8">
+                        <%# Connector line - hide for last item %>
+                        <% unless is_last %>
+                          <span aria-hidden="true" class="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200 dark:bg-white/10"></span>
+                        <% end %>
+                        <div class="relative flex items-start space-x-4">
+                          <%# Timeline icon %>
+                          <div class="relative">
+                            <% if experience.cover_photo.attached? %>
+                              <%= link_to experience_path(experience), class: "block" do %>
+                                <%= image_tag experience.cover_photo.variant(resize_to_fill: [40, 40]), class: "size-10 rounded-full object-cover ring-4 ring-white dark:ring-gray-800", alt: experience.translate(:title, I18n.locale) %>
+                              <% end %>
+                            <% else %>
+                              <%= link_to experience_path(experience), class: "flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-orange-600 ring-4 ring-white dark:ring-gray-800" do %>
+                                <svg class="size-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                              <% end %>
+                            <% end %>
+                          </div>
+                          <%# Content %>
+                          <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1">
+                            <div class="min-w-0 flex-1">
+                              <%= link_to experience_path(experience), class: "group" do %>
+                                <p class="font-medium text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                                  <%= experience.translate(:title, I18n.locale) %>
+                                </p>
+                              <% end %>
+                              <% if experience.translate(:description, I18n.locale).present? %>
+                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+                                  <%= experience.translate(:description, I18n.locale).truncate(120) %>
+                                </p>
+                              <% end %>
+                              <%# Tags %>
+                              <div class="flex flex-wrap items-center gap-2 mt-2">
+                                <% if experience.locations_count > 0 %>
+                                  <span class="inline-flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    </svg>
+                                    <%= experience.locations_count %> <%= t("nav.locations").downcase %>
+                                  </span>
+                                <% end %>
+                                <% if experience.average_rating.to_f > 0 %>
+                                  <span class="inline-flex items-center text-xs text-amber-600 dark:text-amber-400">
+                                    <svg class="w-3.5 h-3.5 mr-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                    <%= number_with_precision(experience.average_rating, precision: 1) %>
+                                  </span>
+                                <% end %>
+                              </div>
+                            </div>
+                            <%# Duration on the right %>
+                            <% if experience.formatted_duration %>
+                              <div class="text-right text-sm whitespace-nowrap text-gray-500 dark:text-gray-400 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <%= experience.formatted_duration %>
+                              </div>
+                            <% end %>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            <% else %>
+              <div class="text-center py-8 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                <p class="text-gray-500 dark:text-gray-400"><%= t("plans.show.no_experiences") %></p>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        <%# Notes %>
+        <% if @plan.notes.present? %>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4"><%= t("plans.show.notes") %></h2>
+            <p class="text-gray-700 dark:text-gray-300"><%= @plan.translate(:notes, I18n.locale) %></p>
+          </div>
+        <% end %>
+
+        <%# Reviews Section %>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+          <%= render "reviews/reviews_section", reviewable: @plan %>
+        </div>
+      </div>
+
+      <%# Sidebar %>
+      <div class="space-y-6">
+        <%# Quick Info %>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><%= t("plans.show.summary") %></h3>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600 dark:text-gray-400"><%= t("plans.show.destination") %></span>
+              <span class="font-medium text-gray-900 dark:text-white"><%= @plan.city_name %></span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600 dark:text-gray-400"><%= t("plans.show.duration") %></span>
+              <span class="font-medium text-gray-900 dark:text-white"><%= @plan.duration_in_days %> <%= t("wizard.dates.days") %></span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600 dark:text-gray-400"><%= t("plans.show.experiences_count") %></span>
+              <span class="font-medium text-gray-900 dark:text-white"><%= @plan.experiences.count %></span>
+            </div>
+          </div>
+        </div>
+
+        <%# Statistics %>
+        <% total_minutes = @plan.days_with_experiences.sum { |d| d[:total_duration] } %>
+        <% if total_minutes > 0 %>
+          <% days_with_content = @plan.days_with_experiences.select { |d| d[:experiences].any? } %>
+          <% avg_daily_minutes = days_with_content.any? ? (total_minutes.to_f / days_with_content.size).round : 0 %>
+          <% daily_hours = @plan.preferences&.dig("daily_hours") || 6 %>
+          <% max_limit = daily_hours * 60 %>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+              <svg class="w-5 h-5 inline-block mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+              </svg>
+              <%= t('plans.view.statistics') %>
+            </h3>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="text-gray-600 dark:text-gray-400"><%= t('plans.view.total_time') %></span>
+                <span class="font-medium text-gray-900 dark:text-white">
+                  <% hours = total_minutes / 60 %>
+                  <% mins = total_minutes % 60 %>
+                  <%= hours > 0 ? "#{hours}h" : "" %><%= mins > 0 ? " #{mins}min" : "" %>
+                </span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-gray-600 dark:text-gray-400"><%= t('plans.view.avg_daily') %></span>
+                <span class="font-medium text-gray-900 dark:text-white">
+                  <% avg_hours = avg_daily_minutes / 60 %>
+                  <% avg_mins = avg_daily_minutes % 60 %>
+                  <%= avg_hours > 0 ? "#{avg_hours}h" : "" %><%= avg_mins > 0 ? " #{avg_mins}min" : "" %>
+                </span>
+              </div>
+              <%# Daily breakdown %>
+              <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
+                <span class="text-sm text-gray-500 dark:text-gray-400 block mb-2"><%= t('plans.view.daily_breakdown') %></span>
+                <div class="space-y-2">
+                  <% @plan.days_with_experiences.each do |day| %>
+                    <% day_minutes = day[:total_duration] %>
+                    <% percentage = [(day_minutes.to_f / max_limit * 100), 100].min %>
+                    <% is_over_limit = day_minutes > max_limit %>
+                    <% bar_color = is_over_limit ? 'bg-red-500' : (percentage > 80 ? 'bg-amber-500' : 'bg-emerald-500') %>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs text-gray-500 dark:text-gray-400 w-14"><%= t("plans.show.day", number: day[:day_number]) %></span>
+                      <div class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div class="<%= bar_color %> h-full rounded-full" style="width: <%= percentage %>%"></div>
+                      </div>
+                      <span class="text-xs <%= is_over_limit ? 'text-red-500 font-medium' : 'text-gray-500 dark:text-gray-400' %> w-12 text-right">
+                        <% d_hours = day_minutes / 60 %>
+                        <% d_mins = day_minutes % 60 %>
+                        <%= d_hours > 0 ? "#{d_hours}h" : "" %><%= d_mins > 0 ? "#{d_mins}m" : (d_hours == 0 ? "0" : "") %>
+                      </span>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <%# Preferences %>
+        <% if @plan.preferences.present? %>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><%= t('plans.view.preferences') %></h3>
+            <div class="space-y-3">
+              <% if @plan.preferences["budget"].present? %>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
+                    <span class="text-sm">💰</span>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400"><%= t('activerecord.attributes.location.budget') %></p>
+                    <p class="font-medium text-gray-900 dark:text-white"><%= t("locations.budget.#{@plan.preferences['budget']}", default: @plan.preferences['budget'].capitalize) %></p>
+                  </div>
+                </div>
+              <% end %>
+              <% if @plan.preferences["daily_hours"].present? %>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                    <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400"><%= t('wizard.preferences.daily_hours') %></p>
+                    <p class="font-medium text-gray-900 dark:text-white"><%= @plan.preferences["daily_hours"] %>h</p>
+                  </div>
+                </div>
+              <% end %>
+              <% if @plan.preferences["meat_lover"] == true %>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+                    <span class="text-sm">🥩</span>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400"><%= t('wizard.preferences.food') %></p>
+                    <p class="font-medium text-gray-900 dark:text-white"><%= t('wizard.preferences.meat_lover') %></p>
+                  </div>
+                </div>
+              <% elsif @plan.preferences["meat_lover"] == false %>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                    <span class="text-sm">🥗</span>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400"><%= t('wizard.preferences.food') %></p>
+                    <p class="font-medium text-gray-900 dark:text-white"><%= t('wizard.preferences.vegetarian') %></p>
+                  </div>
+                </div>
+              <% end %>
+              <% if @plan.preferences["interests"].present? && @plan.preferences["interests"].any? %>
+                <div class="flex items-start gap-3">
+                  <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400"><%= t('wizard.interests.title') %></p>
+                    <div class="flex flex-wrap gap-1 mt-1">
+                      <% @plan.preferences["interests"].each do |interest| %>
+                        <span class="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full">
+                          <%= t("location_categories.#{interest}", default: interest.humanize) %>
+                        </span>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <%# CTA %>
+        <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-6 text-white text-center">
+          <h3 class="font-bold text-lg mb-2"><%= t("plans.show.cta_title") %></h3>
+          <p class="text-white/80 text-sm mb-4"><%= t("plans.show.cta_description") %></p>
+          <%= link_to plan_wizard_path, class: "inline-flex items-center bg-white text-amber-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors" do %>
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            <%= t("home.cta.create_plan") %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%= render "new_design/footer" %>
+</div>

@@ -1,0 +1,257 @@
+<div class="space-y-4 sm:space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900"><%= @location.name %></h1>
+    <div class="flex flex-col sm:flex-row gap-2">
+      <%= link_to location_path(@location),
+          target: "_blank",
+          class: "inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500" do %>
+        <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+        </svg>
+        <%= t("curator.locations.view_in_app", default: "View in App") %>
+      <% end %>
+      <%= link_to edit_curator_location_path(@location),
+          class: "inline-flex items-center justify-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500" do %>
+        <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+        </svg>
+        <%= t("curator.locations.edit") %>
+      <% end %>
+      <%= link_to curator_locations_path,
+          class: "inline-flex items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" do %>
+        <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+        </svg>
+        <%= t("curator.locations.back_to_list") %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Photos Section %>
+  <% if @location.photos.attached? %>
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+      <div class="px-4 py-4 sm:py-5 sm:px-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.locations.sections.photos", default: "Photos") %> (<%= @location.photos.count %>)</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <% @location.photos.each do |photo| %>
+            <%= image_tag rails_blob_path(photo, disposition: "inline"), class: "w-full h-40 object-cover rounded-lg" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Basic Information %>
+  <div class="overflow-hidden rounded-lg bg-white shadow">
+    <div class="px-4 py-4 sm:py-5 sm:px-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.locations.sections.basic_info", default: "Basic Information") %></h3>
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-6 sm:grid-cols-2">
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.locations.name") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @location.name %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.locations.city") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @location.city.presence || "-" %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.locations.type") %></dt>
+          <dd class="mt-1">
+            <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+              <%= t("locations.types.#{@location.location_type}", default: @location.location_type&.humanize) %>
+            </span>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.locations.budget") %></dt>
+          <dd class="mt-1">
+            <span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+              <%= t("locations.budget.#{@location.budget}", default: @location.budget&.humanize) %>
+            </span>
+          </dd>
+        </div>
+        <div class="sm:col-span-2">
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.locations.description") %></dt>
+          <dd class="mt-1 text-sm text-gray-900 prose prose-sm max-w-none"><%= simple_format(@location.description) if @location.description.present? %></dd>
+        </div>
+        <% if @location.historical_context.present? %>
+          <div class="sm:col-span-2">
+            <dt class="text-sm font-medium text-gray-500"><%= t("curator.locations.historical_context", default: "Historical Context") %></dt>
+            <dd class="mt-1 text-sm text-gray-900 prose prose-sm max-w-none"><%= simple_format(@location.historical_context) %></dd>
+          </div>
+        <% end %>
+      </dl>
+    </div>
+  </div>
+
+  <%# Location & Coordinates %>
+  <div class="overflow-hidden rounded-lg bg-white shadow">
+    <div class="px-4 py-4 sm:py-5 sm:px-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.locations.sections.location", default: "Location & Coordinates") %></h3>
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-6 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.locations.address") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @location.address || "-" %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.locations.coordinates") %></dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <% if @location.lat.present? && @location.lng.present? %>
+              <%= @location.lat %>, <%= @location.lng %>
+              <a href="https://www.google.com/maps?q=<%= @location.lat %>,<%= @location.lng %>" target="_blank" rel="noopener" class="ml-2 text-emerald-600 hover:text-emerald-900 text-xs">
+                (<%= t("curator.locations.view_on_map", default: "View on map") %>)
+              </a>
+            <% else %>
+              -
+            <% end %>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <%# Contact Information %>
+  <% if @location.has_contact_info? || @location.video_url.present? %>
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+      <div class="px-4 py-4 sm:py-5 sm:px-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.locations.sections.contact", default: "Contact Information") %></h3>
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-6 sm:grid-cols-2">
+          <% if @location.phone.present? %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500"><%= t("curator.locations.phone") %></dt>
+              <dd class="mt-1 text-sm text-gray-900">
+                <%= link_to @location.phone, "tel:#{@location.phone}", class: "text-emerald-600 hover:text-emerald-900" %>
+              </dd>
+            </div>
+          <% end %>
+          <% if @location.email.present? %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500"><%= t("curator.locations.email") %></dt>
+              <dd class="mt-1 text-sm text-gray-900">
+                <%= link_to @location.email, "mailto:#{@location.email}", class: "text-emerald-600 hover:text-emerald-900" %>
+              </dd>
+            </div>
+          <% end %>
+          <% if @location.website.present? %>
+            <div class="sm:col-span-2">
+              <dt class="text-sm font-medium text-gray-500"><%= t("curator.locations.website") %></dt>
+              <dd class="mt-1 text-sm text-gray-900 truncate">
+                <%= link_to @location.website, @location.website, target: "_blank", rel: "noopener", class: "text-emerald-600 hover:text-emerald-900" %>
+              </dd>
+            </div>
+          <% end %>
+          <% if @location.video_url.present? %>
+            <div class="sm:col-span-2">
+              <dt class="text-sm font-medium text-gray-500"><%= t("curator.locations.video_url", default: "Video URL") %></dt>
+              <dd class="mt-1 text-sm text-gray-900 truncate">
+                <%= link_to @location.video_url, @location.video_url, target: "_blank", rel: "noopener", class: "text-emerald-600 hover:text-emerald-900" %>
+              </dd>
+            </div>
+          <% end %>
+        </dl>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Social Links %>
+  <% if @location.social_links.present? && @location.social_links.any? %>
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+      <div class="px-4 py-4 sm:py-5 sm:px-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.locations.sections.social", default: "Social Media") %></h3>
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-6 sm:grid-cols-2">
+          <% @location.social_links.each do |platform, url| %>
+            <% next if url.blank? %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500"><%= t("locations.social.#{platform}", default: platform.humanize) %></dt>
+              <dd class="mt-1 text-sm text-gray-900 truncate">
+                <%= link_to url, url, target: "_blank", rel: "noopener", class: "text-emerald-600 hover:text-emerald-900" %>
+              </dd>
+            </div>
+          <% end %>
+        </dl>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Experience Types %>
+  <% if @location.suitable_experiences.present? && @location.suitable_experiences.any? %>
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+      <div class="px-4 py-4 sm:py-5 sm:px-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.locations.sections.experiences", default: "Suitable Experience Types") %></h3>
+        <div class="flex flex-wrap gap-2">
+          <% @location.experience_types.each do |exp_type| %>
+            <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-800">
+              <%= exp_type.name %>
+            </span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Tags %>
+  <% if @location.tags.present? && @location.tags.any? %>
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+      <div class="px-4 py-4 sm:py-5 sm:px-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.locations.sections.tags", default: "Tags") %></h3>
+        <div class="flex flex-wrap gap-2">
+          <% @location.tags.each do |tag| %>
+            <span class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">
+              <%= tag %>
+            </span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Audio Tours %>
+  <% if @location.has_audio_tours? %>
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+      <div class="px-4 py-4 sm:py-5 sm:px-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-medium text-gray-900"><%= t("curator.locations.sections.audio", default: "Audio Tours") %></h3>
+          <%= link_to curator_audio_tours_path(location_id: @location.to_param), class: "text-sm text-emerald-600 hover:text-emerald-700" do %>
+            <%= t("curator.locations.manage_all", default: "Manage all") %> →
+          <% end %>
+        </div>
+        <div class="space-y-3">
+          <% @location.audio_tours.with_audio.each do |audio_tour| %>
+            <div class="flex items-center gap-4 bg-gray-50 rounded-lg p-3">
+              <span class="text-sm font-medium text-gray-700 w-20"><%= audio_tour.language_name %></span>
+              <audio controls class="flex-grow">
+                <source src="<%= url_for(audio_tour.audio_file) %>" type="<%= audio_tour.audio_file.content_type %>">
+                <%= t("curator.locations.audio_not_supported", default: "Your browser does not support audio playback.") %>
+              </audio>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Metadata %>
+  <div class="overflow-hidden rounded-lg bg-white shadow">
+    <div class="px-4 py-4 sm:py-5 sm:px-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.locations.sections.metadata", default: "Metadata") %></h3>
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-6 sm:grid-cols-2">
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.locations.created_at") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @location.created_at.strftime("%d.%m.%Y %H:%M") %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.locations.updated_at", default: "Updated") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @location.updated_at.strftime("%d.%m.%Y %H:%M") %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.locations.average_rating", default: "Average Rating") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @location.average_rating.present? ? "#{@location.average_rating} / 5" : "-" %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.locations.reviews_count", default: "Reviews") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @location.reviews_count %></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</div>

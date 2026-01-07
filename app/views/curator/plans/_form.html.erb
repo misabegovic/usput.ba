@@ -1,0 +1,94 @@
+<%= form_with model: [:curator, plan], class: "space-y-6" do |f| %>
+  <% if plan.errors.any? %>
+    <div class="rounded-md bg-red-50 p-4">
+      <div class="flex">
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800"><%= t("errors.messages.form_errors", count: plan.errors.count) %></h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc pl-5 space-y-1">
+              <% plan.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="rounded-lg bg-white shadow">
+    <div class="px-4 py-5 sm:px-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.plans.sections.basic_info") %></h2>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <%= f.label :title, t("curator.plans.plan_title"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_field :title, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+        </div>
+
+        <div>
+          <%= f.label :city_name, t("curator.plans.city"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.select :city_name,
+              options_for_select([[t("curator.plans.select_city"), ""]] + @city_names.map { |c| [c, c] }, plan.city_name),
+              {},
+              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+        </div>
+
+        <div>
+          <%= f.label :visibility, t("curator.plans.visibility"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.select :visibility,
+              options_for_select([
+                [t("curator.plans.public"), "public_plan"],
+                [t("curator.plans.private"), "private_plan"]
+              ], plan.visibility),
+              {},
+              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+          <p class="mt-1 text-sm text-gray-500"><%= t("curator.plans.visibility_hint") %></p>
+        </div>
+
+        <div>
+          <%= f.label :start_date, t("curator.plans.start_date"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.date_field :start_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+        </div>
+
+        <div>
+          <%= f.label :end_date, t("curator.plans.end_date"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.date_field :end_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+        </div>
+
+        <div class="sm:col-span-2">
+          <%= f.label :notes, t("curator.plans.notes"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_area :notes, rows: 4, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+          <p class="mt-1 text-sm text-gray-500"><%= t("curator.plans.notes_hint") %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <% if plan.persisted? %>
+    <div class="rounded-lg bg-white shadow">
+      <div class="px-4 py-5 sm:px-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.plans.sections.experiences") %></h2>
+        <p class="text-sm text-gray-500 mb-4"><%= t("curator.plans.experiences_hint") %></p>
+
+        <% if plan.plan_experiences.any? %>
+          <ul class="space-y-2 mb-4">
+            <% plan.plan_experiences.includes(:experience).order(:day_number, :position).each do |pe| %>
+              <li class="flex items-center gap-2 text-sm text-gray-600 p-2 bg-gray-50 rounded">
+                <span class="text-gray-400"><%= t("plans.show.day", number: pe.day_number) %></span>
+                <span class="font-medium"><%= pe.experience.title %></span>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-sm text-gray-500 italic"><%= t("curator.plans.no_experiences_yet") %></p>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="flex justify-end gap-3">
+    <%= link_to t("common.cancel"), curator_plans_path, class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+    <%= f.submit t("common.save"), class: "rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 cursor-pointer" %>
+  </div>
+<% end %>

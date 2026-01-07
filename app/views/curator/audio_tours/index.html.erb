@@ -1,0 +1,173 @@
+<div class="space-y-4 sm:space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900"><%= t("curator.audio_tours.title") %></h1>
+    <%= link_to t("curator.audio_tours.new"), new_curator_audio_tour_path,
+        class: "inline-flex items-center justify-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 w-full sm:w-auto" %>
+  </div>
+
+  <!-- Stats Overview -->
+  <div class="grid grid-cols-2 gap-3 sm:gap-5 sm:grid-cols-4">
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-4 shadow">
+      <dt class="truncate text-sm font-medium text-gray-500"><%= t("curator.audio_tours.total") %></dt>
+      <dd class="mt-1 text-2xl font-semibold tracking-tight text-gray-900"><%= @stats[:total] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-4 shadow">
+      <dt class="truncate text-sm font-medium text-gray-500"><%= t("curator.audio_tours.with_audio") %></dt>
+      <dd class="mt-1 text-2xl font-semibold tracking-tight text-gray-900"><%= @stats[:with_audio] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-4 shadow">
+      <dt class="truncate text-sm font-medium text-gray-500"><%= t("curator.audio_tours.locations_with_tours") %></dt>
+      <dd class="mt-1 text-2xl font-semibold tracking-tight text-gray-900"><%= @stats[:locations_with_tours] %>/<%= @stats[:locations_total] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-4 shadow">
+      <dt class="truncate text-sm font-medium text-gray-500"><%= t("curator.audio_tours.by_locale") %></dt>
+      <dd class="mt-1 text-sm text-gray-900">
+        <% @stats[:by_locale].first(3).each do |locale, count| %>
+          <span class="block"><%= locale.upcase %>: <%= count %></span>
+        <% end %>
+      </dd>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="rounded-lg bg-white shadow px-4 py-4">
+    <%= form_with url: curator_audio_tours_path, method: :get, class: "flex flex-col sm:flex-row flex-wrap gap-3" do |f| %>
+      <div class="flex-1 min-w-0 sm:max-w-xs">
+        <%= f.text_field :search,
+            value: params[:search],
+            placeholder: t("curator.audio_tours.search_placeholder"),
+            class: "block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500" %>
+      </div>
+      <div class="w-full sm:w-auto">
+        <%= f.select :locale,
+            options_for_select([[t("curator.audio_tours.all_locales"), ""]] + AudioTour.locale_options, params[:locale]),
+            {},
+            class: "block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500" %>
+      </div>
+      <div class="w-full sm:w-auto">
+        <%= f.submit t("common.search"), class: "w-full sm:w-auto inline-flex justify-center items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Audio Tours Table -->
+  <div class="hidden sm:block overflow-hidden rounded-lg bg-white shadow">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.audio_tours.location") %></th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.audio_tours.locale") %></th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.audio_tours.audio_status") %></th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.audio_tours.duration") %></th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.audio_tours.actions") %></th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @audio_tours.each do |audio_tour| %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-medium text-gray-900"><%= audio_tour.location.name %></div>
+              <div class="text-sm text-gray-500"><%= audio_tour.location.city %></div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                <%= audio_tour.language_name %>
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <% if audio_tour.audio_ready? %>
+                <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                  <%= t("curator.audio_tours.ready") %>
+                </span>
+              <% else %>
+                <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
+                  <%= t("curator.audio_tours.pending") %>
+                </span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <%= audio_tour.estimated_duration || "-" %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+              <%= link_to t("curator.audio_tours.view"), curator_audio_tour_path(audio_tour), class: "text-emerald-600 hover:text-emerald-900" %>
+              <%= link_to t("curator.audio_tours.edit"), edit_curator_audio_tour_path(audio_tour), class: "text-emerald-600 hover:text-emerald-900" %>
+              <%= button_to curator_audio_tour_path(audio_tour),
+                  method: :delete,
+                  class: "text-red-600 hover:text-red-900",
+                  data: { turbo_confirm: t("curator.audio_tours.confirm_delete") } do %>
+                <%= t("curator.audio_tours.delete") %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+
+        <% if @audio_tours.empty? %>
+          <tr>
+            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+              <%= t("curator.audio_tours.no_audio_tours") %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Card Layout -->
+  <div class="sm:hidden space-y-3">
+    <% @audio_tours.each do |audio_tour| %>
+      <div class="bg-white rounded-lg shadow p-4">
+        <div class="flex items-start justify-between mb-2">
+          <div class="flex-1 min-w-0">
+            <h3 class="font-medium text-gray-900 truncate"><%= audio_tour.location.name %></h3>
+            <p class="text-sm text-gray-500"><%= audio_tour.location.city %></p>
+          </div>
+          <span class="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
+            <%= audio_tour.language_name %>
+          </span>
+        </div>
+
+        <div class="flex items-center gap-4 text-sm mb-3">
+          <% if audio_tour.audio_ready? %>
+            <span class="inline-flex items-center text-green-600">
+              <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              <%= t("curator.audio_tours.ready") %>
+            </span>
+          <% else %>
+            <span class="inline-flex items-center text-yellow-600">
+              <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+              </svg>
+              <%= t("curator.audio_tours.pending") %>
+            </span>
+          <% end %>
+          <% if audio_tour.estimated_duration %>
+            <span class="text-gray-500"><%= audio_tour.estimated_duration %></span>
+          <% end %>
+        </div>
+
+        <div class="flex items-center gap-4 pt-3 border-t border-gray-100">
+          <%= link_to curator_audio_tour_path(audio_tour), class: "flex-1 text-center py-2 text-sm font-medium text-emerald-600 hover:text-emerald-900" do %>
+            <%= t("curator.audio_tours.view") %>
+          <% end %>
+          <%= link_to edit_curator_audio_tour_path(audio_tour), class: "flex-1 text-center py-2 text-sm font-medium text-emerald-600 hover:text-emerald-900" do %>
+            <%= t("curator.audio_tours.edit") %>
+          <% end %>
+          <%= button_to curator_audio_tour_path(audio_tour),
+              method: :delete,
+              class: "flex-1 text-center py-2 text-sm font-medium text-red-600 hover:text-red-900",
+              data: { turbo_confirm: t("curator.audio_tours.confirm_delete") } do %>
+            <%= t("curator.audio_tours.delete") %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @audio_tours.empty? %>
+      <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+        <%= t("curator.audio_tours.no_audio_tours") %>
+      </div>
+    <% end %>
+  </div>
+</div>

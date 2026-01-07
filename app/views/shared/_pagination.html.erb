@@ -1,0 +1,155 @@
+<%# Mobile-friendly pagination component %>
+<%# Usage: render "shared/pagination", collection: @items %>
+
+<% if collection.respond_to?(:total_pages) && collection.total_pages > 1 %>
+  <nav aria-label="<%= t('pagination.aria_label', default: 'Pagination') %>" class="mt-8">
+    <div class="flex flex-col items-center gap-4">
+      <%# Mobile: Simplified pagination with prev/next and page info %>
+      <div class="flex items-center justify-between w-full sm:hidden">
+        <%# Previous button %>
+        <% if collection.first_page? %>
+          <span class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-800 rounded-lg cursor-not-allowed">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            <%= t('pagination.previous', default: 'Previous') %>
+          </span>
+        <% else %>
+          <%= link_to url_for(request.query_parameters.merge(page: collection.prev_page)),
+              class: "inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" do %>
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            <%= t('pagination.previous', default: 'Previous') %>
+          <% end %>
+        <% end %>
+
+        <%# Page indicator %>
+        <span class="text-sm text-gray-600 dark:text-gray-400">
+          <%= t('pagination.page_of', page: collection.current_page, total: collection.total_pages, default: "#{collection.current_page} / #{collection.total_pages}") %>
+        </span>
+
+        <%# Next button %>
+        <% if collection.last_page? %>
+          <span class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-800 rounded-lg cursor-not-allowed">
+            <%= t('pagination.next', default: 'Next') %>
+            <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </span>
+        <% else %>
+          <%= link_to url_for(request.query_parameters.merge(page: collection.next_page)),
+              class: "inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" do %>
+            <%= t('pagination.next', default: 'Next') %>
+            <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          <% end %>
+        <% end %>
+      </div>
+
+      <%# Desktop: Full pagination with page numbers %>
+      <div class="hidden sm:flex items-center gap-1">
+        <%# Previous button %>
+        <% if collection.first_page? %>
+          <span class="inline-flex items-center justify-center w-10 h-10 text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-800 rounded-lg cursor-not-allowed">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </span>
+        <% else %>
+          <%= link_to url_for(request.query_parameters.merge(page: collection.prev_page)),
+              class: "inline-flex items-center justify-center w-10 h-10 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors",
+              title: t('pagination.previous', default: 'Previous') do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          <% end %>
+        <% end %>
+
+        <%# Page numbers with smart truncation %>
+        <%
+          window_size = 2
+          total_pages = collection.total_pages
+          current = collection.current_page
+
+          # Calculate which pages to show
+          pages_to_show = []
+
+          # Always show first page
+          pages_to_show << 1
+
+          # Calculate window around current page
+          window_start = [2, current - window_size].max
+          window_end = [total_pages - 1, current + window_size].min
+
+          # Add ellipsis before window if needed
+          if window_start > 2
+            pages_to_show << :ellipsis_start
+          elsif window_start == 2
+            pages_to_show << 2
+          end
+
+          # Add pages in window (excluding first and last which are handled separately)
+          (window_start..window_end).each do |page|
+            pages_to_show << page unless page == 1 || page == total_pages
+          end
+
+          # Add ellipsis after window if needed
+          if window_end < total_pages - 1
+            pages_to_show << :ellipsis_end
+          elsif window_end == total_pages - 1 && total_pages > 1
+            pages_to_show << (total_pages - 1) unless pages_to_show.include?(total_pages - 1)
+          end
+
+          # Always show last page if more than 1 page
+          pages_to_show << total_pages if total_pages > 1
+
+          # Remove duplicates while preserving order
+          pages_to_show = pages_to_show.uniq
+        %>
+
+        <% pages_to_show.each do |page| %>
+          <% if page == :ellipsis_start || page == :ellipsis_end %>
+            <span class="inline-flex items-center justify-center w-10 h-10 text-gray-500 dark:text-gray-400">
+              &hellip;
+            </span>
+          <% elsif page == current %>
+            <span class="inline-flex items-center justify-center w-10 h-10 text-white bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-500 dark:to-indigo-500 rounded-lg font-medium shadow-md">
+              <%= page %>
+            </span>
+          <% else %>
+            <%= link_to page, url_for(request.query_parameters.merge(page: page)),
+                class: "inline-flex items-center justify-center w-10 h-10 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium" %>
+          <% end %>
+        <% end %>
+
+        <%# Next button %>
+        <% if collection.last_page? %>
+          <span class="inline-flex items-center justify-center w-10 h-10 text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-800 rounded-lg cursor-not-allowed">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </span>
+        <% else %>
+          <%= link_to url_for(request.query_parameters.merge(page: collection.next_page)),
+              class: "inline-flex items-center justify-center w-10 h-10 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors",
+              title: t('pagination.next', default: 'Next') do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          <% end %>
+        <% end %>
+      </div>
+
+      <%# Results info %>
+      <div class="text-sm text-gray-500 dark:text-gray-400">
+        <%= t('pagination.showing',
+              from: collection.offset_value + 1,
+              to: [collection.offset_value + collection.limit_value, collection.total_count].min,
+              total: collection.total_count,
+              default: "Showing #{collection.offset_value + 1}-#{[collection.offset_value + collection.limit_value, collection.total_count].min} of #{collection.total_count}") %>
+      </div>
+    </div>
+  </nav>
+<% end %>

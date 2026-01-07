@@ -1,0 +1,29 @@
+<%# Logo component - works for both light and dark modes %>
+<%# Usage: render "shared/logo", size: "md", link: true %>
+<%
+  size ||= "md"
+  link ||= true
+
+  size_classes = case size
+  when "sm" then "h-8"
+  when "md" then "h-10"
+  when "lg" then "h-12"
+  when "xl" then "h-20"
+  when "1.5xl" then "h-24"
+  when "2xl" then "h-28"
+  when "3xl" then "h-36"
+  else "h-10"
+  end
+%>
+
+<% if link %>
+  <a href="/" class="flex items-center">
+    <img src="/usput-logo.png"
+         alt="Usput"
+         class="<%= size_classes %> w-auto">
+  </a>
+<% else %>
+  <img src="/usput-logo.png"
+       alt="Usput"
+       class="<%= size_classes %> w-auto">
+<% end %>

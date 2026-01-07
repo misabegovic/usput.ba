@@ -1,0 +1,1191 @@
+bs:
+  # Application
+  app:
+    name: "Usput.ba"
+    tagline: "Otkrij ljepote Bosne i Hercegovine"
+
+  # Common
+  common:
+    save: "Spasi"
+    cancel: "Odustani"
+    delete: "Obriši"
+    edit: "Uredi"
+    back: "Nazad"
+    next: "Dalje"
+    previous: "Prethodno"
+    search: "Pretraži"
+    loading: "Učitavanje..."
+    confirm: "Potvrdi"
+    close: "Zatvori"
+    yes: "Da"
+    no: "Ne"
+    or: "ili"
+    and: "i"
+    all: "Sve"
+    none: "Ništa"
+    select: "Odaberi"
+    required: "Obavezno"
+    optional: "Opcionalno"
+    share: "Podijeli"
+    link_copied: "Link kopiran!"
+    view_all: "Pogledaj sve"
+
+  # Navigation
+  nav:
+    home: "Početna"
+    plans: "Planovi"
+    experiences: "Iskustva"
+    locations: "Lokacije"
+    explore: "Istražuj"
+    about: "O nama"
+    contact: "Kontakt"
+    language: "Jezik"
+    back_to_site: "Nazad na stranicu"
+    logout: "Odjavi se"
+
+  # Explore Page
+  explore:
+    title: "Istraži"
+    subtitle: "Pronađi savršenu lokaciju, iskustvo ili plan za svoju sljedeću avanturu."
+    search_placeholder: "Pretraži lokacije, iskustva, planove..."
+    search_button: "Pretraži"
+    types:
+      location: "Lokacije"
+      experience: "Iskustva"
+      plan: "Planovi"
+    nearby: "U blizini"
+    more_filters: "Više filtera"
+    clear_filters: "Očisti"
+    filters:
+      season: "Sezona"
+      budget: "Budžet"
+      duration: "Trajanje"
+      rating: "Minimalna ocjena"
+      sort: "Sortiraj po"
+      audio_support: "Audio ture"
+    seasons:
+      spring: "Proljeće"
+      summer: "Ljeto"
+      autumn: "Jesen"
+      winter: "Zima"
+    budgets:
+      low: "Niski"
+      medium: "Srednji"
+      high: "Visoki"
+    durations:
+      short: "Do 1h"
+      medium: "1-3h"
+      long: "3h+"
+    sorts:
+      relevance: "Relevantnost"
+      rating: "Ocjena"
+      newest: "Najnovije"
+      name: "Naziv"
+    cities:
+      any: "Sva mjesta"
+    loading: "Učitavanje..."
+    results_count: "Pronađeno %{count} rezultata"
+    sections:
+      locations: "Lokacije"
+      experiences: "Iskustva"
+      plans: "Planovi"
+    empty:
+      title: "Nema rezultata"
+      with_filters: "Pokušajte promijeniti filtere ili pretražiti nešto drugo."
+      no_filters: "Unesite pojam za pretragu ili odaberite tip resursa."
+
+  # Homepage
+  home:
+    hero:
+      title_part1: "Otkrij"
+      title_part2: "Ljepote Bosne i Hercegovine"
+      subtitle: "Pronađi skrivene dragulje, autentična iskustva i nezaboravna mjesta. Tvoja avantura počinje ovdje."
+    cta:
+      start: "Započni Planiranje"
+      explore: "Istraži Iskustva"
+      create_plan: "Kreiraj Svoj Plan"
+      explore_short: "Istraži"
+    trending_experiences:
+      title: "U Trendu"
+      subtitle: "Šta putnici trenutno obožavaju"
+      none: "Iskustva uskoro dolaze!"
+    trending_locations:
+      title: "Popularne Lokacije"
+      subtitle: "Mjesta koja osvajaju srca ovog mjeseca"
+      none: "Lokacije uskoro dolaze!"
+    audio_tours:
+      title: "Otkrijte Audio Ture"
+      subtitle: "Slušajte priče o fascinantnim mjestima dok ih istražujete"
+    seasonal:
+      title: "Sezonske Preporuke"
+      subtitle: "Najbolja iskustva za ovo doba godine"
+      winter:
+        title: "Zimska Čarolija"
+        subtitle: "Otkrijte magiju zimskih destinacija"
+        description: "Od zasnježenih planina do toplih kafana, zima u BiH nudi nezaboravna iskustva. Skijanje na olimpijskim stazama, šetnje zimskim pejzažima i uživanje u toplim napicima."
+        cta: "Istraži zimske lokacije"
+      spring:
+        title: "Proljetno Buđenje"
+        subtitle: "Priroda se budi u punom sjaju"
+        description: "Proljeće donosi cvjetanje divljih cvjetova, bujne zelene pejzaže i savršeno vrijeme za planinarenje. Otkrijte skrivene vodopade i uživajte u svježem planinskom zraku."
+        cta: "Istraži proljetne lokacije"
+      summer:
+        title: "Ljetna Avantura"
+        subtitle: "Vrijeme za nezaboravne pustolovine"
+        description: "Ljeto je idealno za istraživanje rijeka, jezera i kanona. Rafting na Neretvi, kupanje u Uni ili šetnja kroz drevne gradove - mogućnosti su beskrajne."
+        cta: "Istraži ljetne lokacije"
+      fall:
+        title: "Jesenske Boje"
+        subtitle: "Zlatna sezona putovanja"
+        description: "Jesen oboji BiH u tople nijanse zlata i crvene. Savršeno vrijeme za vinske ture, berbu voća i uživanje u gastronomskim specijalitetima bez gužvi."
+        cta: "Istraži jesenske lokacije"
+    explore:
+      title: "Istraži na svoj način"
+      subtitle: "Odaberi kako želiš istraživati - prema lokacijama, iskustvima ili gotovim planovima"
+      locations:
+        title: "Sve lokacije"
+        description: "Pregledaj sve dostupne lokacije i pronađi savršeno mjesto"
+      experiences:
+        title: "Sva iskustva"
+        description: "Otkrij jedinstvena iskustva koja čekaju da ih doživiš"
+      plans:
+        title: "Svi planovi"
+        description: "Pregledaj gotove planove ili pronađi inspiraciju za svoj"
+    cta_section:
+      title: "Spremni za Avanturu?"
+      description: "Kreirajte vlastiti personalizirani plan putovanja u samo nekoliko koraka. Odaberite destinaciju, trajanje i interese - mi ćemo vam predložiti savršena iskustva!"
+      button: "Započni Kreiranje Plana"
+      view_plans: "Pregledaj Postojeće Planove"
+    reviews:
+      title: "Recenzije"
+      subtitle: "Utisci naših gostiju"
+      empty_title: "Još nema recenzija"
+      empty_description: "Budi prvi koji će podijeliti svoje iskustvo!"
+    reviews_slider:
+      title: "Što kažu posjetitelji"
+    support:
+      title: "Podrži Ovaj Projekat"
+      description: "Ako ti se sviđa ovaj projekat i želiš pomoći da nastavi rasti, možeš me podržati kupovinom kafe!"
+    bento:
+      section_title: "Zašto Usput.ba"
+      section_subtitle: "Sve što vam treba za savršeno putovanje"
+      hidden_locations:
+        title: "Skrivene lokacije"
+        description: "Otkrijte čarobna mjesta koja nisu u turističkim vodičima. Od skrivenih vodopada do autentičnih sela."
+        cta: "Istraži sve lokacije"
+      experiences:
+        title: "Autentična iskustva"
+        description: "Lokalni vodiči, tradicionalna jela i kulturne aktivnosti koje vas povezuju sa dušom BiH."
+        cta: "Istraži sva iskustva"
+        culture: "Kultura"
+        food: "Hrana"
+        adventure: "Avantura"
+      audio_tours:
+        title: "Audio ture"
+        description: "Slušajte priče o mjestima dok ih posjećujete. Vaš lični vodič u džepu."
+        cta: "Istraži sve audio ture"
+        welcome: "Dobrodošli na Usput"
+      travel_plans:
+        title: "Planovi putovanja"
+        description: "Kreirajte vlastiti plan putovanja kroz naš wizard ili istražite gotove planove koje su kreirali drugi putnici."
+        cta: "Kreiraj svoj plan"
+        days: "%{count} dana"
+        day: "Dan %{number}"
+    trending:
+      section_title: "Popularno sada"
+      section_subtitle: "Otkrijte što drugi vole"
+      location: "Lokacija"
+      experience: "Iskustvo"
+      coming_soon: "Uskoro"
+      new_experience: "Novo iskustvo dolazi"
+      follow_us: "Pratite nas za nova uzbudljiva otkrića."
+    plan_preview:
+      title: "Sarajevo & okolina"
+      duration: "3 dana"
+      day1:
+        title: "Šetnja starim gradom"
+        items:
+          - "Baščaršija"
+          - "Sebilj"
+          - "Gazi Husrev-begova džamija"
+      day2:
+        title: "Bijeg u prirodu"
+        items:
+          - "Vrelo Bosne"
+          - "Ilidža"
+          - "Tunel spasa"
+      day3:
+        title: "Historija i kultura"
+        items:
+          - "Vijećnica"
+          - "Latinska ćuprija"
+          - "Historijski muzej"
+
+  # Reviews
+  reviews:
+    title: "Recenzije"
+    anonymous: "Anonimni posjetitelj"
+    load_more: "Učitaj još recenzija"
+    remaining: "preostalo"
+    none: "Još nema recenzija. Budi prvi!"
+    count:
+      one: "recenzija"
+      other: "recenzija"
+    form:
+      title: "Ostavi recenziju"
+      rating: "Ocjena"
+      comment: "Komentar"
+      comment_placeholder: "Podijeli svoje iskustvo..."
+      author_name: "Tvoje ime"
+      author_name_placeholder: "Kako se zoveš?"
+      submit: "Pošalji recenziju"
+
+  # Slider
+  slider:
+    go_to_slide: "Idi na slajd"
+
+  # Plan Wizard
+  wizard:
+    title: "Kreiraj Svoj Plan"
+    steps:
+      location: "Lokacija"
+      dates: "Datumi"
+      interests: "Interesi"
+      generate: "Generiši"
+    location:
+      title: "Gdje se nalaziš?"
+      subtitle: "Pronaći ćemo iskustva u tvojoj blizini"
+      detect: "Otkrij moju lokaciju"
+      search_placeholder: "Pretraži mjesto..."
+      searching: "Pretražujem..."
+      no_results: "Nema pronađenih mjesta"
+    errors:
+      geolocation_not_supported: "Vaš preglednik ne podržava geolokaciju"
+      location_failed: "Nije moguće dobiti lokaciju. Molimo odaberite mjesto ručno."
+      permission_denied: "Pristup lokaciji je odbijen. Molimo omogućite pristup ili odaberite mjesto ručno."
+      location_unavailable: "Informacije o lokaciji nisu dostupne"
+      location_timeout: "Traženje lokacije traje predugo..."
+      no_city_found: "Nismo pronašli mjesto u vašoj blizini. Molimo odaberite ručno."
+      city_lookup_error: "Greška pri traženju mjesta"
+      enable_location: "Molimo omogućite pristup lokaciji"
+      no_search_results: "Nema rezultata. Pokušajte s drugim terminom."
+      server_error: "Greška pri povezivanju sa serverom"
+    dates:
+      title: "Koliko dugo ostaješ?"
+      start_date: "Datum početka"
+      end_date: "Datum završetka"
+      duration: "Trajanje"
+      days: "dana"
+    interests:
+      title: "Koji su tvoji interesi?"
+      subtitle: "Odaberi sve što se odnosi na tebe"
+      culture: "Kultura"
+      history: "Historija"
+      sport: "Sport"
+      vegan: "Vegan"
+      vegetarian: "Vegetarijansko"
+      meat: "Meso"
+      food: "Hrana"
+      nature: "Priroda"
+      woods: "Šume"
+      mountains: "Planine"
+    preferences:
+      daily_hours: "Koliko sati dnevno želiš razgledati?"
+      daily_hours_hint: "Ovo utiče na broj iskustava po danu"
+      relaxed: "Opušteno"
+      balanced: "Uravnoteženo"
+      active: "Aktivno"
+      intensive: "Intenzivno"
+      food: "Hrana"
+      meat_lover: "Ljubitelj mesa"
+      vegetarian: "Vegetarijanska opcija"
+    generate:
+      title: "Generiši Svoj Plan"
+      subtitle: "Kreiraćemo personalizirani itinerar za tebe"
+      button: "Generiši Plan"
+      generating: "Generisanje plana u toku..."
+
+  # Plans
+  plans:
+    auto_title: "%{city} - %{days} dana"
+    day_singular: "dan"
+    day_plural: "dana"
+    duration_days:
+      one: "%{count} dan"
+      other: "%{count} dana"
+    errors:
+      experience_not_found: "Iskustvo sa ID %{id} nije pronađeno"
+      experiences_skipped: "%{count} iskustava je preskočeno jer više ne postoje"
+      city_not_found: "Mjesto nije pronađeno"
+      invalid_plan_data: "Neispravni podaci plana"
+    index:
+      title: "Planovi Putovanja"
+      subtitle: "Pronađi inspiraciju ili kreiraj vlastiti plan"
+      my_plans: "Moji Planovi"
+      public_plans: "Javni Planovi"
+      no_plans: "Još nema javnih planova"
+      no_plans_description: "Korisnici još nisu podijelili svoje planove sa zajednicom"
+      no_my_plans: "Nemaš još nijedan plan"
+      no_my_plans_description: "Kreiraj personalizirani plan putovanja pomoću našeg wizarda"
+      create_new: "Kreiraj Novi Plan"
+      create_first: "Kreiraj prvi plan"
+    show:
+      day: "Dan %{number}"
+      experiences: "Iskustva"
+      locations: "Lokacije"
+      duration: "Trajanje"
+      notes: "Bilješke"
+      save_favorite: "Spremi"
+      summary: "Pregled"
+      destination: "Destinacija"
+      experiences_count: "Iskustva"
+      no_experiences: "Nema iskustava za ovaj dan"
+      cta_title: "Inspiriraj se!"
+      cta_description: "Kreiraj vlastiti personalizirani plan"
+    view:
+      share: "Podijeli"
+      share_plan: "Podijeli plan sa zajednicom"
+      share_plan_description: "Tvoj plan će biti vidljiv svim korisnicima i pomoći će drugima da otkriju nova mjesta."
+      share_button: "Podijeli"
+      login_required_to_share: "Moraš biti prijavljen da bi podijelio plan."
+      statistics: "Statistika"
+      total_time: "Ukupno vrijeme"
+      avg_daily: "Prosjek dnevno"
+      daily_breakdown: "Po danima"
+      preferences: "Preference"
+      notes: "Bilješke"
+      add_notes: "Dodaj bilješke"
+      edit_notes: "Uredi bilješke"
+      edit_notes_title: "Uredi bilješke"
+      notes_label: "Bilješke za plan"
+      notes_placeholder: "npr. Ne zaboravi rezervaciju za restoran, ponijeti kišobran..."
+      notes_hint: "Dodaj lične bilješke, podsjetnike ili važne informacije za putovanje"
+    search:
+      title: "Pronađi planove u blizini"
+      subtitle: "Pretraži javne planove na osnovu lokacija i iskustava koja ti odgovaraju"
+      placeholder: "Pretraži po nazivu, lokaciji, iskustvu..."
+      nearby_active: "Prikazujem planove u blizini"
+      use_location: "Koristi moju lokaciju"
+      clear_location: "Ukloni lokaciju"
+      radius: "Radijus:"
+      getting_location: "Dohvatam lokaciju..."
+      any_duration: "Bilo koje trajanje"
+      duration_short: "Kratko (1-2 dana)"
+      duration_medium: "Srednje (3-5 dana)"
+      duration_long: "Dugo (6+ dana)"
+      within_radius: "Unutar %{radius} km"
+      results_count:
+        one: "%{count} plan pronađen"
+        other: "%{count} planova pronađeno"
+      no_results: "Nema rezultata"
+      no_results_description: "Pokušaj s drugim pojmom za pretragu ili promijeni filtere"
+      clear_filters: "Očisti filtere"
+      create_plan: "Kreiraj vlastiti plan"
+    form:
+      title_label: "Naslov"
+      notes_label: "Bilješke"
+      city_label: "Mjesto"
+
+  # Authentication
+  auth:
+    register_title: "Registracija - Usput"
+    register_heading: "Kreiraj nalog"
+    register_subheading: "Sačuvaj svoj travel profil trajno"
+    register_button: "Registruj se"
+    register_link: "Registruj se"
+    login_title: "Prijava - Usput"
+    login_heading: "Prijavi se"
+    login_subheading: "Pristupi svom travel profilu"
+    login_button: "Prijavi se"
+    login_link: "Prijavi se"
+    logout: "Odjavi se"
+    username: "Korisničko ime"
+    username_placeholder: "npr. traveler123"
+    username_hint: "Samo slova, brojevi i donje crte (_). Min 3 karaktera."
+    password: "Lozinka"
+    password_hint: "Minimalno 6 karaktera"
+    password_confirmation: "Potvrdi lozinku"
+    have_account: "Već imaš nalog?"
+    no_account: "Nemaš nalog?"
+    profile_sync_info: "Tvoj trenutni travel profil (posjećena mjesta, favoriti, badges) će biti sačuvan na tvom nalogu."
+    profile_merge_info: "Ako imaš lokalni profil, biće spojen sa tvojim sačuvanim profilom."
+    registration_success: "Uspješno si kreirao nalog! Tvoj travel profil je sada trajno sačuvan."
+    login_success: "Uspješno si se prijavio!"
+    logout_success: "Uspješno si se odjavio."
+    login_required: "Moraš biti prijavljen da pristupiš ovoj stranici."
+    invalid_credentials: "Pogrešno korisničko ime ili lozinka."
+    curator_required: "Potrebne su ti kuratorske privilegije da pristupiš ovoj stranici."
+    admin_required: "Potrebne su ti administratorske privilegije da pristupiš ovoj stranici."
+
+  # Profile
+  profile:
+    title: "Moj Travel Profil"
+    subtitle: "Tvoja putovanja na jednom mjestu"
+    logged_in_subtitle: "Profil je trajno sačuvan"
+    save_title: "Sačuvaj svoj profil"
+    save_warning: "Tvoj profil je sačuvan samo u ovom pregledniku."
+    save_warning_extended: "Registruj se da bi trajno sačuvao svoje podatke."
+    visited: "Posjećeno"
+    favorites: "Omiljeno"
+    badges: "Badges"
+    visited_places: "Posjećena Mjesta"
+    no_visited: "Još nisi posjetio nijednu lokaciju"
+    no_favorites: "Još nemaš omiljenih lokacija"
+    my_badges: "Moji Badges"
+    no_badges: "Još nemaš nijedan badge"
+    recently_viewed: "Nedavno Pregledano"
+    no_recent: "Nema nedavno pregledanih"
+    show_more: "Prikaži još"
+    actions: "Akcije"
+    export_json: "Export (JSON)"
+    export_pdf: "Print / PDF"
+    import: "Import Profila"
+    add_favorite: "Dodaj u omiljene"
+    remove_favorite: "Ukloni iz omiljenih"
+    mark_visited: "Označi kao posjećeno"
+    avatar:
+      remove: "Ukloni sliku"
+      remove_confirm: "Da li ste sigurni da želite ukloniti profilnu sliku?"
+    curator:
+      title: "Postani Curator"
+      description: "Curatori mogu dodavati nove lokacije, iskustva i sadržaj na platformu. Pomozi nam da otkrijemo skrivene dragulje Bosne i Hercegovine!"
+      apply: "Prijavi se za Curatora"
+      you_are_curator: "Ti si Curator"
+      manage_content: "Upravljaj lokacijama i iskustvima"
+      open_dashboard: "Otvori Dashboard"
+    my_plans:
+      title: "Moji Planovi"
+      empty: "Nemaš nijedan sačuvan plan"
+      create: "Kreiraj prvi plan"
+
+  # PWA Install
+  pwa:
+    install_title: "Instaliraj Usput aplikaciju"
+    install_subtitle: "Brži pristup i offline podrška"
+    install_button: "Instaliraj"
+    ios_title: "Dodaj na početni ekran"
+    ios_step1: "Klikni na"
+    ios_share_button: "(Share) dugme u browseru"
+    ios_step2: "Skrolaj i odaberi"
+    ios_add_home: "Add to Home Screen"
+    ios_step3: "Klikni \"Add\" u gornjem desnom uglu"
+    benefits_title: "Prednosti aplikacije:"
+    benefit_fast: "Brži pristup s početnog ekrana"
+    benefit_offline: "Radi i bez interneta"
+    benefit_fullscreen: "Puni ekran bez browser trake"
+    got_it: "Razumijem"
+    desktop_title: "Dostupno na mobitelu"
+    desktop_subtitle: "Otvori ovu stranicu na telefonu da instaliras aplikaciju"
+
+  # Footer
+  footer:
+    tagline: "Otkrivaj skrivene dragulje i autentična iskustva na svom putu."
+    legal: "Pravne informacije"
+    privacy: "Politika privatnosti"
+    terms: "Uvjeti korištenja"
+    imprint: "Impresum"
+    about_us: "O nama"
+    contact: "Kontakt"
+    faq: "Česta pitanja"
+    rights: "Sva prava pridržana."
+    community: "Zajednica"
+    become_curator: "Postani kurator"
+
+  # Cookie Consent
+  cookie_consent:
+    title: "Kolačići i privatnost"
+    message: "Koristimo samo tehnički neophodne kolačiće za funkcionisanje stranice (sesija, tema). Ne koristimo analitiku niti pratimo vaše aktivnosti."
+    learn_more: "Saznaj više"
+    accept: "Prihvatam"
+    decline: "Samo neophodni"
+
+  # Imprint
+  imprint:
+    title: "Impresum"
+    legal_info: "Informacije o operateru"
+    legal_form: "Einzelunternehmer (Samostalni poduzetnik)"
+    jurisdiction: "Sjedište u Austriji"
+    contact: "Kontakt"
+    email: "E-mail"
+    website: "Web"
+    legal_notice: "Pravna napomena"
+    ecg_notice: "Informacije prema austrijskom zakonu o e-trgovini (ECG) i zakonu o medijima."
+    liability_content: "Sadržaj ove web stranice je kreiran s najvećom pažnjom. Međutim, ne možemo garantovati tačnost, potpunost i aktualnost sadržaja."
+    liability_links: "Naša web stranica sadrži linkove ka eksternim web stranicama trećih strana, na čiji sadržaj nemamo uticaj. Stoga ne možemo preuzeti odgovornost za te eksterne sadržaje."
+    made_by: "Napravio"
+    inspired_by: "Inspirisan od"
+    support: "Podrška"
+    support_description: "Ako ti se sviđa ovaj projekat, možeš me podržati kupovinom kafe!"
+
+  # Privacy Policy
+  privacy:
+    title: "Politika privatnosti"
+    last_updated: "Posljednje ažuriranje"
+    intro:
+      title: "Uvod"
+      text1: "Zaštita vaših ličnih podataka nam je veoma važna. U ovom dokumentu objašnjavamo koje podatke prikupljamo, kako ih koristimo i koja prava imate u vezi s njima."
+      text2: "Ova politika privatnosti je usklađena s Općom uredbom o zaštiti podataka (GDPR/DSGVO) Europske unije i austrijskim Zakonom o zaštiti podataka (DSG)."
+    controller:
+      title: "Voditelj obrade podataka"
+      form: "Einzelunternehmer (Samostalni poduzetnik)"
+      country: "Austrija"
+      email: "E-mail"
+    collection:
+      title: "Koje podatke prikupljamo"
+      auto:
+        title: "Automatski prikupljeni podaci"
+        ip: "IP adresa (anonimizirana)"
+        browser: "Tip i verzija preglednika"
+        os: "Operativni sistem"
+        time: "Datum i vrijeme pristupa"
+        pages: "Posjećene stranice"
+      voluntary:
+        title: "Dobrovoljno dati podaci"
+        account: "Podaci za registraciju (korisničko ime)"
+        profile: "Travel profil (preferencije putovanja, posjećena mjesta)"
+        reviews: "Recenzije i ocjene"
+    purpose:
+      title: "Svrha obrade podataka"
+      service: "Pružanje i poboljšanje naših usluga"
+      personalization: "Personalizacija korisničkog iskustva"
+      security: "Sigurnost i sprječavanje zloupotreba"
+      legal: "Ispunjavanje pravnih obaveza"
+    legal_basis:
+      title: "Pravna osnova"
+      text: "Obrađujemo vaše podatke na osnovu:"
+      consent: "Pristanak (čl. 6(1)(a) GDPR)"
+      consent_desc: "za opcionalne funkcije i kolačiće"
+      contract: "Izvršenje ugovora (čl. 6(1)(b) GDPR)"
+      contract_desc: "za pružanje usluga"
+      legitimate: "Legitimni interes (čl. 6(1)(f) GDPR)"
+      legitimate_desc: "za sigurnost i poboljšanje usluga"
+    cookies:
+      title: "Kolačići"
+      text: "Koristimo samo tehnički neophodne kolačiće i lokalnu pohranu za:"
+      session: "Sesijski kolačići"
+      session_desc: "za autentifikaciju korisnika"
+      theme: "Postavke teme"
+      theme_desc: "za pamćenje svijetle/tamne teme"
+      consent: "Pristanak na kolačiće"
+      consent_desc: "za pamćenje vaših preferencija"
+      no_tracking: "Ne koristimo kolačiće za praćenje ili analitiku trećih strana."
+    retention:
+      title: "Čuvanje podataka"
+      text: "Vaše podatke čuvamo samo onoliko dugo koliko je potrebno za svrhu za koju su prikupljeni:"
+      account: "Podaci korisničkog računa: do brisanja računa"
+      logs: "Server logovi: 30 dana"
+      local: "Lokalno pohranjeni podaci: kontrolisano od strane korisnika"
+    rights:
+      title: "Vaša prava"
+      intro: "Prema GDPR-u imate sljedeća prava:"
+      access: "Pravo pristupa"
+      access_desc: "Možete zatražiti kopiju vaših podataka"
+      rectification: "Pravo ispravke"
+      rectification_desc: "Možete ispraviti netačne podatke"
+      erasure: "Pravo brisanja"
+      erasure_desc: "Možete zatražiti brisanje podataka"
+      portability: "Pravo prenosivosti"
+      portability_desc: "Možete dobiti podatke u prenosivom formatu"
+      objection: "Pravo prigovora"
+      objection_desc: "Možete se usprotiviti obradi podataka"
+      complaint: "Pravo žalbe"
+      complaint_desc: "Možete se žaliti nadzornom tijelu"
+    authority:
+      title: "Nadzorno tijelo"
+    contact:
+      title: "Kontakt za pitanja o privatnosti"
+      text: "Za sva pitanja vezana za zaštitu vaših podataka, kontaktirajte nas na:"
+
+  # Terms of Service
+  terms:
+    title: "Uvjeti korištenja"
+    last_updated: "Posljednje ažuriranje"
+    intro:
+      title: "Opće odredbe"
+      text1: "Dobrodošli na Usput. Korištenjem ove web stranice i usluga prihvaćate ove uvjete korištenja u cijelosti."
+      text2: "Operater ove web stranice je Muhamed Isabegović, samostalni poduzetnik sa sjedištem u Austriji."
+      text3: "Ako se ne slažete s ovim uvjetima, molimo vas da ne koristite našu web stranicu."
+    service:
+      title: "Opis usluge"
+      text1: "Usput je platforma za otkrivanje i planiranje putovanja koja omogućava korisnicima da:"
+      feature1: "Pregledaju iskustva i lokacije"
+      feature2: "Kreiraju personalizirane planove putovanja"
+      feature3: "Ostavljaju recenzije i ocjene"
+      feature4: "Kreiraju korisnički račun za trajno čuvanje profila"
+      text2: "Usluga je besplatna za korištenje. Zadržavamo pravo da u budućnosti uvedemo premium funkcije."
+    registration:
+      title: "Registracija korisnika"
+      text1: "Za korištenje određenih funkcija potrebna je registracija. Registracijom jamčite da:"
+      req1: "Imate najmanje 16 godina"
+      req2: "Pružate tačne informacije"
+      req3: "Čuvate povjerljivost svojih pristupnih podataka"
+      req4: "Ste odgovorni za sve aktivnosti na svom računu"
+    content:
+      title: "Korisnički sadržaj"
+      text1: "Objavljivanjem sadržaja (recenzije, ocjene) na našoj platformi:"
+      grant1: "Dajete nam neisključivu licencu za korištenje, prikazivanje i distribuciju tog sadržaja"
+      grant2: "Jamčite da imate pravo objaviti taj sadržaj"
+      grant3: "Jamčite da sadržaj ne krši prava trećih strana"
+      prohibited: "Zabranjeno je objavljivanje sadržaja koji je:"
+      prohibited1: "Nezakonit, uvredljiv ili diskriminirajući"
+      prohibited2: "Lažan ili obmanjujući"
+      prohibited3: "Spam ili neželjena reklama"
+      prohibited4: "Sadržaj koji krši autorska prava"
+    ip:
+      title: "Intelektualno vlasništvo"
+      text1: "Sav sadržaj na ovoj web stranici (uključujući tekst, grafiku, logotipe, ikone, slike i softver) je vlasništvo Usput ili naših davatelja licenci i zaštićen je zakonima o autorskim pravima."
+      text2: "Nije dozvoljeno kopiranje, distribucija, modifikacija ili kreiranje izvedenih djela bez našeg izričitog pisanog odobrenja."
+    disclaimer:
+      title: "Odricanje odgovornosti"
+      text1: "Usluga se pruža \"kakva jest\" bez ikakvih garancija, izričitih ili impliciranih."
+      text2: "Ne garantujemo:"
+      item1: "Neprekidnu ili sigurnu dostupnost usluge"
+      item2: "Tačnost ili potpunost informacija o lokacijama i iskustvima"
+      item3: "Da će usluga ispuniti vaše specifične potrebe"
+      text3: "Koristite informacije na vlastitu odgovornost. Uvijek provjerite informacije kod službenih izvora prije putovanja."
+    liability:
+      title: "Ograničenje odgovornosti"
+      text1: "U maksimalnom opsegu dozvoljenom zakonom, ne snosimo odgovornost za:"
+      item1: "Indirektne, slučajne ili posljedične štete"
+      item2: "Gubitak podataka ili profita"
+      item3: "Štete nastale korištenjem ili nemogućnošću korištenja usluge"
+      text2: "Ovo ograničenje odgovornosti ne utječe na vaša zakonska prava kao potrošača prema austrijskom pravu."
+    termination:
+      title: "Prekid usluge"
+      text1: "Možete prestati koristiti uslugu u bilo kojem trenutku brisanjem svog računa."
+      text2: "Zadržavamo pravo da:"
+      item1: "Suspendujemo ili ukinemo vaš račun zbog kršenja uvjeta"
+      item2: "Modificiramo ili prekinemo pružanje usluge uz razumnu najavu"
+    changes:
+      title: "Izmjene uvjeta"
+      text1: "Zadržavamo pravo izmjene ovih uvjeta u bilo kojem trenutku. Značajne izmjene ćemo objaviti na web stranici."
+      text2: "Nastavkom korištenja usluge nakon izmjena smatrat će se da ste prihvatili nove uvjete."
+    law:
+      title: "Mjerodavno pravo"
+      text1: "Ovi uvjeti korištenja podliježu zakonima Republike Austrije."
+      text2: "Za rješavanje sporova nadležni su sudovi u Austriji, osim ako obavezujuće odredbe potrošačkog prava ne odrede drugačije."
+    contact:
+      title: "Kontakt"
+      text: "Za pitanja o ovim uvjetima korištenja, kontaktirajte nas na:"
+
+  # Experiences
+  experiences:
+    duration:
+      hours: "%{count} sat"
+      hours_plural: "%{count} sata"
+      minutes: "%{count} minuta"
+      minutes_plural: "%{count} minuta"
+    locations_count:
+      one: "1 lokacija"
+      other: "%{count} lokacija"
+    show:
+      about: "O iskustvu"
+      locations: "Lokacije u iskustvu"
+      info: "Informacije"
+      duration: "Trajanje"
+      locations_count: "Broj lokacija"
+      contact: "Kontakt"
+      save_favorite: "Spremi"
+      nearby_experiences: "Iskustva u blizini"
+      see_all_experiences: "Pogledaj sva iskustva"
+      related_plans: "Planovi s ovim iskustvom"
+      see_all_plans: "Pogledaj sve planove"
+      cta_title: "Dodaj u plan"
+      cta_description: "Kreiraj vlastiti plan putovanja"
+      add_to_existing: "Dodaj u postojeći plan"
+      add_to_existing_desc: "Imate aktivan plan. Dodajte ovo iskustvo."
+      add_button: "Dodaj u plan"
+      view_plan: "Pogledaj plan"
+
+  # Locations
+  locations:
+    types:
+      place: "Mjesto"
+      guide: "Vodič"
+      business: "Biznis"
+      restaurant: "Restoran"
+      artisan: "Zanatlija"
+      accommodation: "Smještaj"
+    budget:
+      low: "Povoljno"
+      medium: "Umjereno"
+      high: "Premium"
+    contact:
+      email: "E-mail"
+      phone: "Telefon"
+      website: "Web stranica"
+    social:
+      facebook: "Facebook"
+      instagram: "Instagram"
+      twitter: "Twitter"
+      linkedin: "LinkedIn"
+      youtube: "YouTube"
+      tiktok: "TikTok"
+      whatsapp: "WhatsApp"
+      viber: "Viber"
+    show:
+      audio_tour: "Audio Tura"
+      audio_tour_subtitle: "Slušaj priču o ovoj lokaciji"
+      audio_not_supported: "Tvoj preglednik ne podržava audio player."
+      languages_available:
+        one: "1 jezik"
+        other: "%{count} jezika"
+      select_language: "Odaberi jezik"
+      about: "O lokaciji"
+      history: "Povijesni kontekst"
+      info: "Informacije"
+      budget: "Budžet"
+      type: "Tip"
+      contact: "Kontakt"
+      website: "Web stranica"
+      video: "Video"
+      video_subtitle: "Pogledaj video o ovoj lokaciji"
+      watch_video: "Pogledaj video"
+      nearby_locations: "Lokacije u blizini"
+      see_all_locations: "Pogledaj sve lokacije"
+      related_experiences: "Iskustva s ovom lokacijom"
+      see_all_experiences: "Pogledaj sva iskustva"
+      related_plans: "Planovi s ovom lokacijom"
+      see_all_plans: "Pogledaj sve planove"
+      go_to_photo: "Idi na fotografiju %{number}"
+      open_fullscreen: "Otvori u punom ekranu"
+      fullscreen: "Puni ekran"
+
+  # Date and time
+  date:
+    formats:
+      default: "%d.%m.%Y"
+      short: "%d. %b"
+      long: "%d. %B %Y."
+    day_names:
+      - nedjelja
+      - ponedjeljak
+      - utorak
+      - srijeda
+      - četvrtak
+      - petak
+      - subota
+    abbr_day_names:
+      - ned
+      - pon
+      - uto
+      - sri
+      - čet
+      - pet
+      - sub
+    month_names:
+      - ~
+      - januar
+      - februar
+      - mart
+      - april
+      - maj
+      - juni
+      - juli
+      - august
+      - septembar
+      - oktobar
+      - novembar
+      - decembar
+    abbr_month_names:
+      - ~
+      - jan
+      - feb
+      - mar
+      - apr
+      - maj
+      - jun
+      - jul
+      - aug
+      - sep
+      - okt
+      - nov
+      - dec
+  time:
+    formats:
+      default: "%H:%M"
+      short: "%H:%M"
+      long: "%d. %B %Y. %H:%M"
+
+  # Filters
+  filters:
+    nearby: "U blizini"
+    all_cities: "Sva mjesta"
+    all_types: "Svi tipovi"
+    all_budgets: "Svi budžeti"
+    all_categories: "Sve kategorije"
+    any_duration: "Bilo koje trajanje"
+    any_rating: "Bilo koja ocjena"
+    duration_short: "Kratko (< 1h)"
+    duration_medium: "Srednje (1-3h)"
+    duration_long: "Dugo (3h+)"
+    has_audio: "Audio tura"
+    clear_all: "Obriši sve"
+    active: "Aktivni filteri:"
+
+  # ActiveRecord
+  activerecord:
+    models:
+      plan:
+        one: "Plan"
+        other: "Planovi"
+      location:
+        one: "Lokacija"
+        other: "Lokacije"
+      experience:
+        one: "Iskustvo"
+        other: "Iskustva"
+      city:
+        one: "Mjesto"
+        other: "Mjesta"
+
+  # Curator Dashboard
+  curator:
+    title: "Kurator Panel"
+    nav:
+      dashboard: "Pregled"
+      locations: "Lokacije"
+      experiences: "Iskustva"
+    dashboard:
+      welcome: "Dobrodošao, %{username}!"
+      total_locations: "Ukupno lokacija"
+      total_experiences: "Ukupno iskustava"
+      total_cities: "Ukupno mjesta"
+      quick_actions: "Brze akcije"
+      new_location: "Nova lokacija"
+      new_experience: "Novo iskustvo"
+      recent_locations: "Nedavne lokacije"
+      recent_experiences: "Nedavna iskustva"
+      no_locations: "Još nema lokacija"
+      no_experiences: "Još nema iskustava"
+    locations:
+      title: "Lokacije"
+      new: "Nova lokacija"
+      edit: "Uredi"
+      view: "Pregledaj"
+      delete: "Obriši"
+      edit_title: "Uredi: %{name}"
+      back_to_list: "Nazad na listu"
+      name: "Naziv"
+      city: "Mjesto"
+      type: "Tip"
+      budget: "Budžet"
+      address: "Adresa"
+      description: "Opis"
+      historical_context: "Istorijski kontekst"
+      historical_context_hint: "Istorijska pozadina i značaj ove lokacije"
+      latitude: "Geografska širina"
+      longitude: "Geografska dužina"
+      coordinates: "Koordinate"
+      view_on_map: "Pogledaj na mapi"
+      phone: "Telefon"
+      email: "E-mail"
+      website: "Web stranica"
+      video_url: "Video URL"
+      video_url_hint: "YouTube ili drugi video link o ovoj lokaciji"
+      opening_hours: "Radno vrijeme"
+      created_at: "Kreirano"
+      updated_at: "Ažurirano"
+      average_rating: "Prosječna ocjena"
+      reviews_count: "Recenzije"
+      actions: "Akcije"
+      select_city: "Odaberi mjesto..."
+      no_locations: "Nema pronađenih lokacija"
+      created: "Lokacija uspješno kreirana"
+      updated: "Lokacija uspješno ažurirana"
+      deleted: "Lokacija uspješno obrisana"
+      confirm_delete: "Jesi li siguran da želiš obrisati %{name}?"
+      tags: "Oznake"
+      tags_placeholder: "npr. priroda, istorijsko, za porodice"
+      tags_hint: "Razdvoji oznake zarezom"
+      experiences_hint: "Odaberi za koje tipove iskustava je ova lokacija pogodna"
+      current_photos: "Trenutne fotografije"
+      add_photos: "Dodaj fotografije"
+      photos_hint: "Možeš odabrati više fotografija. Podržani formati: JPG, PNG, WebP"
+      remove_photos_hint: "Klikni na ikonu kante za brisanje fotografije"
+      current_audio: "Trenutni audio zapis"
+      upload_audio: "Učitaj audio zapis"
+      audio_hint: "Podržani formati: MP3, WAV, OGG. Maksimalna veličina: 50MB"
+      remove_audio: "Ukloni"
+      audio_not_supported: "Tvoj preglednik ne podržava reprodukciju zvuka."
+      sections:
+        basic_info: "Osnovne informacije"
+        location: "Lokacija i koordinate"
+        contact: "Kontakt informacije"
+        social: "Društvene mreže"
+        experiences: "Pogodni tipovi iskustava"
+        tags: "Oznake"
+        photos: "Fotografije"
+        audio: "Audio zapis"
+        metadata: "Metapodaci"
+      filter:
+        all_cities: "Sva mjesta"
+    experiences:
+      title: "Iskustva"
+      new: "Novo iskustvo"
+      edit: "Uredi"
+      view: "Pregledaj"
+      delete: "Obriši"
+      edit_title: "Uredi: %{name}"
+      back_to_list: "Nazad na listu"
+      name: "Naziv"
+      city: "Mjesto"
+      category: "Kategorija"
+      duration: "Trajanje"
+      duration_placeholder: "Trajanje u minutama"
+      duration_hint: "Unesi trajanje u minutama"
+      best_season: "Najbolja sezona"
+      difficulty: "Težina"
+      description: "Opis"
+      created_at: "Kreirano"
+      updated_at: "Ažurirano"
+      average_rating: "Prosječna ocjena"
+      reviews_count: "Recenzije"
+      locations_count: "Lokacije"
+      actions: "Akcije"
+      select_city: "Odaberi mjesto..."
+      select_category: "Odaberi kategoriju..."
+      no_experiences: "Nema pronađenih iskustava"
+      created: "Iskustvo uspješno kreirano"
+      updated: "Iskustvo uspješno ažurirano"
+      deleted: "Iskustvo uspješno obrisano"
+      confirm_delete: "Jesi li siguran da želiš obrisati %{name}?"
+      # Cover photo
+      current_cover: "Trenutna naslovna fotografija"
+      upload_cover: "Učitaj naslovnu fotografiju"
+      cover_photo_hint: "Preporučena veličina: 1200x800px. Podržani formati: JPG, PNG, WebP"
+      remove_cover_hint: "Klikni na ikonu kante za uklanjanje trenutne naslovne fotografije"
+      # Contact information
+      contact_hint: "Kontakt podaci za rezervacije ili upite o ovom iskustvu"
+      contact_name: "Ime kontakta"
+      contact_name_placeholder: "npr. Marko Marković"
+      contact_email: "E-mail kontakta"
+      contact_phone: "Telefon kontakta"
+      contact_website: "Web stranica kontakta"
+      # Locations
+      locations_hint: "Odaberi lokacije koje su dio ovog iskustva. Redoslijed je bitan - povuci za reorganizaciju."
+      selected_locations: "Odabrane lokacije"
+      add_location: "Dodaj lokaciju"
+      search_location: "Pretraži i odaberi lokaciju..."
+      no_locations_selected: "Još nema odabranih lokacija"
+      sections:
+        basic_info: "Osnovne informacije"
+        cover_photo: "Naslovna fotografija"
+        contact: "Kontakt informacije"
+        locations: "Lokacije"
+        metadata: "Metapodaci"
+      filter:
+        all_cities: "Sva mjesta"
+      seasons:
+        all_year: "Cijela godina"
+        spring: "Proljeće"
+        summer: "Ljeto"
+        autumn: "Jesen"
+        winter: "Zima"
+      difficulties:
+        easy: "Lako"
+        moderate: "Umjereno"
+        challenging: "Zahtjevno"
+
+  # Admin Dashboard
+  admin:
+    title: "Admin Panel"
+    nav:
+      dashboard: "Pregled"
+      users: "Korisnici"
+      applications: "Prijave"
+      ai_generations: "AI Generacije"
+    session:
+      title: "Admin Prijava"
+      username: "Korisničko ime"
+      password: "Lozinka"
+      login_button: "Prijavi se"
+      logout_button: "Odjava"
+      login_required: "Molimo prijavite se za pristup admin panelu"
+      invalid_credentials: "Neispravno korisničko ime ili lozinka"
+      login_success: "Uspješno ste se prijavili"
+      logged_out: "Uspješno ste se odjavili"
+    dashboard:
+      welcome: "Admin Panel"
+      total_users: "Ukupno korisnika"
+      basic_users: "Osnovni korisnici"
+      curator_users: "Kuratori"
+      admin_users: "Administratori"
+      total_locations: "Ukupno lokacija"
+      total_experiences: "Ukupno iskustava"
+      total_cities: "Ukupno mjesta"
+      recent_users: "Nedavni korisnici"
+      view_all_users: "Pogledaj sve korisnike"
+      danger_zone: "Opasna zona"
+      clear_database: "Obriši bazu"
+      clear_database_warning: "Ova akcija će trajno obrisati SVE podatke iz baze. Ovo uključuje sve korisnike, lokacije, iskustva, planove i ostale podatke. Ova akcija se NE MOŽE poništiti."
+      confirmation_placeholder: "Unesite DELETE ALL za potvrdu"
+      confirmation_text: "DELETE ALL"
+      confirm_clear: "Da li ste APSOLUTNO sigurni da želite obrisati sve podatke?"
+      database_cleared: "Baza podataka je uspješno obrisana"
+      invalid_confirmation: "Neispravan tekst potvrde. Baza nije obrisana."
+    users:
+      title: "Upravljanje korisnicima"
+      username: "Korisničko ime"
+      type: "Tip korisnika"
+      created_at: "Kreirano"
+      updated_at: "Ažurirano"
+      actions: "Akcije"
+      view: "Pregledaj"
+      edit: "Uredi"
+      delete: "Obriši"
+      back_to_list: "Nazad na listu"
+      edit_title: "Uredi korisnika: %{username}"
+      type_help: "Osnovni korisnici mogu pregledati. Kuratori mogu upravljati sadržajem."
+      no_users: "Nema pronađenih korisnika"
+      updated: "Korisnik uspješno ažuriran"
+      deleted: "Korisnik uspješno obrisan"
+      cannot_delete_self: "Ne možeš obrisati vlastiti nalog"
+      confirm_delete: "Jesi li siguran da želiš obrisati korisnika %{username}?"
+      types:
+        basic: "Osnovni"
+        curator: "Kurator"
+        admin: "Administrator"
+      filter:
+        all: "Svi tipovi"
+    curator_applications:
+      title: "Prijave za kuratora"
+      user: "Korisnik"
+      status_label: "Status"
+      submitted: "Podneseno"
+      actions: "Akcije"
+      view: "Pregledaj"
+      approve_btn: "Odobri"
+      reject_btn: "Odbij"
+      no_applications: "Nema pronađenih prijava"
+      application_from: "Prijava od %{username}"
+      back_to_list: "Nazad na listu"
+      user_info: "Informacije o korisniku"
+      admin_notes: "Admin bilješke"
+      rejection_reason: "Razlog odbijanja (opcionalno)"
+      reviewed_by: "Pregledao %{admin} dana %{date}"
+      approved: "Prijava od %{username} je odobrena"
+      rejected: "Prijava od %{username} je odbijena"
+      already_reviewed: "Ova prijava je već pregledana"
+      confirm_approve: "Odobriti %{username} kao kuratora?"
+      confirm_reject: "Odbiti prijavu od %{username}?"
+      stats:
+        pending: "Na čekanju"
+        approved: "Odobreno"
+        rejected: "Odbijeno"
+
+  # Travel Profile
+  travel_profile:
+    checking_location: "Provjeravamo vašu lokaciju..."
+    visit_recorded: "Posjeta uspješno zabilježena!"
+    removed_from_visited: "Uklonjeno iz posjećenih"
+    removed_from_favorites: "Uklonjeno iz omiljenih"
+    added_to_favorites: "Dodano u omiljene!"
+    too_far_from_location: "Predaleko ste od lokacije (%{distance}). Morate biti unutar %{max_distance}m."
+    location_no_coordinates: "Lokacija nema koordinate za validaciju"
+    geolocation_not_supported: "Vaš preglednik ne podržava geolokaciju"
+    geolocation_permission_denied: "Pristup lokaciji je odbijen. Dozvolite pristup u postavkama preglednika."
+    geolocation_unavailable: "Lokacija nije dostupna. Provjerite da li je GPS uključen."
+    geolocation_timeout: "Vrijeme za dobijanje lokacije je isteklo. Pokušajte ponovo."
+    geolocation_error: "Greška pri dobijanju lokacije"
+    validation_error: "Greška pri validaciji posjete"
+    not_close_enough: "Niste dovoljno blizu lokacije"
+    sync_syncing: "Sinkronizacija..."
+    sync_saved: "Sačuvano"
+    sync_error: "Greška pri sinkronizaciji"
+    no_badges_yet: "Još nemaš nijedan badge. Posjeti lokacije da ih zaradiš!"
+    no_recent_items: "Nema nedavno pregledanih stavki."
+    no_visited_locations: "Još nisi posjetio nijednu lokaciju"
+    no_favorite_locations: "Još nemaš omiljenih lokacija"
+    new_badge: "Novi Badge!"
+    badge_awesome: "Super!"
+    profile_exported: "Profil exportovan!"
+    profile_imported: "Profil uspješno importovan!"
+    profile_import_error: "Greška pri importu profila"
+    profile_cleared: "Profil obrisan"
+    confirm_clear: "Jesi li siguran da želiš obrisati sve podatke profila? Ova akcija se ne može poništiti."
+    confirm_replace_or_merge: "Želiš li zamijeniti trenutni profil ili spojiti podatke?"
+    show_more: "Prikaži još (%{count})"
+    time_just_now: "Upravo sada"
+    time_minutes_ago: "Prije %{count} min"
+    time_hours_ago: "Prije %{count}h"
+    time_days_ago: "Prije %{count} dana"
+    badges:
+      first_visit:
+        name: "Prvi Korak"
+        description: "Posjetio prvu lokaciju"
+      explorer_5:
+        name: "Istraživač"
+        description: "Posjetio 5 lokacija"
+      explorer_10:
+        name: "Avanturista"
+        description: "Posjetio 10 lokacija"
+      explorer_25:
+        name: "Putnik"
+        description: "Posjetio 25 lokacija"
+      culture_lover:
+        name: "Ljubitelj Kulture"
+        description: "Posjetio 5 kulturnih lokacija"
+      foodie:
+        name: "Gurmanski Putnik"
+        description: "Posjetio 5 restorana"
+      nature_lover:
+        name: "Prirodnjak"
+        description: "Posjetio 5 prirodnih lokacija"
+      city_hopper:
+        name: "Skakač Mjesta"
+        description: "Posjetio lokacije na 3 različita mjesta"
+      all_seasons:
+        name: "Sva Godišnja Doba"
+        description: "Posjetio lokacije u sva 4 godišnja doba"
+      collector:
+        name: "Kolekcionar"
+        description: "Dodao 10 omiljenih lokacija"
+
+  # Curator Applications (user-facing)
+  curator_applications:
+    created: "Tvoja prijava je uspješno podnesena!"
+    status:
+      pending: "Na čekanju"
+      approved: "Odobreno"
+      rejected: "Odbijeno"
+    errors:
+      already_curator: "Već imaš kuratorske privilegije"
+      pending_exists: "Već imaš prijavu na čekanju"
+    new:
+      title: "Postani kurator"
+      subtitle: "Pomozi nam poboljšati sadržaj tako što ćeš postati kurator"
+      benefits_title: "Kao kurator možeš:"
+      benefit_1: "Dodavati nove lokacije i iskustva"
+      benefit_2: "Uređivati postojeći sadržaj za poboljšanje tačnosti"
+      benefit_3: "Pomoći putnicima da otkriju skrivene dragulje"
+    form:
+      motivation: "Zašto želiš postati kurator?"
+      motivation_hint: "Reci nam o svojoj strasti za putovanja i lokalnom znanju (min. 50 karaktera)"
+      motivation_placeholder: "Želim postati kurator jer..."
+      experience: "Relevantno iskustvo (opcionalno)"
+      experience_hint: "Imaš li iskustva u turizmu, kreiranju sadržaja ili lokalnom znanju?"
+      experience_placeholder: "Imam iskustva u..."
+      submit: "Podnesi prijavu"
+    show:
+      title: "Tvoja prijava za kuratora"
+      pending_message: "Tvoja prijava se pregleda. Obavijestit ćemo te kada se donese odluka."
+      approved_message: "Čestitamo! Tvoja prijava je odobrena. Sada imaš pristup Kurator Panelu."
+      rejected_message: "Nažalost, tvoja prijava nije odobrena ovog puta."
+      go_to_dashboard: "Idi na Kurator Panel"
+      submitted_at: "Podneseno"
+      reviewed_at: "Pregledano"
+      feedback: "Povratna informacija"
+    info:
+      title: "Postani kurator"
+      subtitle: "Pridruži se našoj zajednici kuratora i pomozi drugima otkriti najbolja mjesta"
+      how_it_works: "Kako funkcioniše?"
+      step_1: "Kreiraj svoj profil na Usput.ba"
+      step_2: "Pošalji prijavu sa kratkim opisom zašto želiš biti kurator"
+      step_3: "Naš tim će pregledati tvoju prijavu i obavijestiti te o odluci"
+      create_profile_first: "Potrebno je prvo kreirati profil"
+      create_profile_hint: "Da bi se prijavio/la za kuratora, moraš imati korisnički račun"
+      already_curator: "Već si kurator! Imaš pristup Kurator Panelu."
+      pending_application: "Tvoja prijava za kuratora je na čekanju."
+      view_application: "Pogledaj prijavu"
+      apply_now: "Prijavi se sada"

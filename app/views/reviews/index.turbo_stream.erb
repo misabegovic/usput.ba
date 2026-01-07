@@ -1,0 +1,30 @@
+<%# Append new reviews to the list %>
+<%= turbo_stream.append "reviews-list" do %>
+  <% @reviews.each do |review| %>
+    <%= render "reviews/review_card", review: review %>
+  <% end %>
+<% end %>
+
+<%# Update load more button %>
+<%= turbo_stream.replace "reviews-pagination" do %>
+  <% if @has_more %>
+    <%
+      next_page = @page + 1
+      remaining = @total_reviews - (@page * @per_page)
+      reviews_path = polymorphic_path([@reviewable, :reviews])
+    %>
+    <div id="reviews-pagination" class="text-center">
+      <%= link_to "#{reviews_path}?page=#{next_page}",
+                  class: "inline-flex items-center px-6 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-xl transition-colors",
+                  data: { turbo_stream: true } do %>
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+        <%= t("reviews.load_more", default: "Učitaj još recenzija") %>
+        <span class="ml-2 text-gray-500 dark:text-gray-400">(<%= remaining %> <%= t("reviews.remaining", default: "preostalo") %>)</span>
+      <% end %>
+    </div>
+  <% else %>
+    <div id="reviews-pagination"></div>
+  <% end %>
+<% end %>

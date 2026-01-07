@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html class="h-full" lang="<%= I18n.locale %>" data-turbo-prefetch="false">
+  <head>
+    <title><%= content_for(:title) || "Usput.ba - Experience Bosnia & Herzegovina" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="<%= t('app.description', default: 'Discover hidden gems, authentic experiences and unforgettable places in Bosnia and Herzegovina') %>">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Usput.ba">
+    <meta name="application-name" content="Usput.ba">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <meta name="user-logged-in" content="<%= logged_in? ? 'true' : 'false' %>">
+    <% if logged_in? %>
+      <meta name="user-id" content="<%= current_user.uuid %>">
+    <% end %>
+
+    <%= yield :head %>
+
+    <%# PWA Manifest %>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#059669" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#065f46" media="(prefers-color-scheme: dark)">
+
+    <%# Icons %>
+    <link rel="icon" href="/pwa-icon-192.png?v=2" type="image/png">
+    <link rel="apple-touch-icon" href="/pwa-icon-192.png?v=2">
+
+    <%# Inline script to prevent flash of wrong theme %>
+    <script nonce="<%= content_security_policy_nonce %>" data-turbo-eval="false">
+      (function() {
+        try {
+          var theme = localStorage.getItem('theme');
+          if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+
+    <%# Includes Tailwind CSS compiled stylesheet %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="h-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <%= render "shared/pwa_install_banner" %>
+    <%= render "shared/cookie_consent" %>
+    <%= render "shared/offline_banner" %>
+    <%= yield %>
+
+    <script nonce="<%= content_security_policy_nonce %>" data-turbo-eval="false">
+      // Register Service Worker for PWA/Offline support
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function() {
+          navigator.serviceWorker.register("/sw.js")
+            .then(function(registration) {
+              console.log("[Usput] Service Worker registered:", registration.scope);
+            })
+            .catch(function(error) {
+              console.error("[Usput] Service Worker registration failed:", error);
+            });
+        });
+      }
+    </script>
+  </body>
+</html>

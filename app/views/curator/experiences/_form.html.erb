@@ -1,0 +1,252 @@
+<%= form_with model: [:curator, experience], class: "space-y-6", html: { multipart: true } do |f| %>
+  <% if experience.errors.any? %>
+    <div class="rounded-md bg-red-50 p-4">
+      <div class="text-sm text-red-700">
+        <ul class="list-disc pl-5 space-y-1">
+          <% experience.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Basic Information Section %>
+  <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+    <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.experiences.sections.basic_info", default: "Basic Information") %></h3>
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <div>
+        <%= f.label :title, t("curator.experiences.name"), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :title, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+      </div>
+
+      <div>
+        <%= f.label :experience_category_id, t("curator.experiences.category"), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.select :experience_category_id,
+            options_for_select(@experience_categories.map { |c| [c.name, c.id] }, experience.experience_category_id),
+            { prompt: t("curator.experiences.select_category") },
+            class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+      </div>
+
+      <div>
+        <%= f.label :estimated_duration, t("curator.experiences.duration"), class: "block text-sm font-medium text-gray-700" %>
+        <div class="mt-1 flex rounded-md shadow-sm">
+          <%= f.number_field :estimated_duration, min: 0, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm", placeholder: t("curator.experiences.duration_placeholder", default: "Duration in minutes") %>
+        </div>
+        <p class="mt-1 text-xs text-gray-500"><%= t("curator.experiences.duration_hint", default: "Enter duration in minutes") %></p>
+      </div>
+
+      <div>
+        <span class="block text-sm font-medium text-gray-700 mb-2"><%= t("curator.experiences.seasons", default: "Best Seasons") %></span>
+        <div class="flex flex-wrap gap-3">
+          <% Experience::SEASONS.each do |season| %>
+            <label class="inline-flex items-center">
+              <%= check_box_tag "experience[seasons][]", season, experience.seasons.include?(season),
+                  class: "rounded border-gray-300 text-emerald-600 shadow-sm focus:border-emerald-500 focus:ring-emerald-500" %>
+              <span class="ml-2 text-sm text-gray-700"><%= t("seasons.#{season}", default: season.titleize) %></span>
+            </label>
+          <% end %>
+        </div>
+        <p class="mt-1 text-xs text-gray-500"><%= t("curator.experiences.seasons_hint", default: "Leave unchecked for year-round experiences") %></p>
+        <%# Hidden field to ensure empty array is sent when no seasons selected %>
+        <%= hidden_field_tag "experience[seasons][]", "" %>
+      </div>
+
+      <div class="sm:col-span-2">
+        <%= f.label :description, t("curator.experiences.description"), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_area :description, rows: 5, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+      </div>
+    </div>
+  </div>
+
+  <%# Cover Photo Section %>
+  <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+    <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.experiences.sections.cover_photo", default: "Cover Photo") %></h3>
+
+    <% if experience.persisted? && experience.cover_photo.attached? %>
+      <div class="mb-4">
+        <p class="text-sm text-gray-500 mb-2"><%= t("curator.experiences.current_cover", default: "Current cover photo") %>:</p>
+        <div class="relative inline-block">
+          <%= image_tag rails_blob_path(experience.cover_photo, disposition: "inline"), class: "max-w-xs h-auto rounded-lg" %>
+          <label class="absolute top-2 right-2 bg-white rounded-full p-2 shadow cursor-pointer hover:bg-gray-50">
+            <%= check_box_tag "experience[remove_cover_photo]", "1", false, class: "sr-only peer" %>
+            <svg class="w-5 h-5 text-gray-400 peer-checked:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </label>
+        </div>
+        <p class="mt-2 text-xs text-gray-500"><%= t("curator.experiences.remove_cover_hint", default: "Click the trash icon to remove the current cover photo") %></p>
+      </div>
+    <% end %>
+
+    <div>
+      <%= f.label :cover_photo, t("curator.experiences.upload_cover", default: "Upload Cover Photo"), class: "block text-sm font-medium text-gray-700" %>
+      <%= f.file_field :cover_photo, accept: "image/*", class: "mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" %>
+      <p class="mt-1 text-xs text-gray-500"><%= t("curator.experiences.cover_photo_hint", default: "Recommended size: 1200x800px. Supported formats: JPG, PNG, WebP") %></p>
+    </div>
+  </div>
+
+  <%# Contact Information Section %>
+  <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+    <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.experiences.sections.contact", default: "Contact Information") %></h3>
+    <p class="text-sm text-gray-500 mb-4"><%= t("curator.experiences.contact_hint", default: "Contact details for booking or inquiries about this experience") %></p>
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <div>
+        <%= f.label :contact_name, t("curator.experiences.contact_name", default: "Contact Name"), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :contact_name, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm", placeholder: t("curator.experiences.contact_name_placeholder", default: "e.g. John Doe") %>
+      </div>
+
+      <div>
+        <%= f.label :contact_email, t("curator.experiences.contact_email", default: "Contact Email"), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.email_field :contact_email, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm", placeholder: "contact@example.com" %>
+      </div>
+
+      <div>
+        <%= f.label :contact_phone, t("curator.experiences.contact_phone", default: "Contact Phone"), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :contact_phone, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm", placeholder: "+387 33 123 456" %>
+      </div>
+
+      <div>
+        <%= f.label :contact_website, t("curator.experiences.contact_website", default: "Contact Website"), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.url_field :contact_website, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm", placeholder: "https://example.com" %>
+      </div>
+    </div>
+  </div>
+
+  <%# Locations Section %>
+  <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+    <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.experiences.sections.locations", default: "Locations") %></h3>
+    <p class="text-sm text-gray-500 mb-4"><%= t("curator.experiences.locations_hint", default: "Select locations that are part of this experience. The order matters - drag to reorder.") %></p>
+
+    <% current_location_ids = experience.experience_locations.order(:position).pluck(:location_id) %>
+
+    <%# Selected Locations (sortable) %>
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700 mb-2"><%= t("curator.experiences.selected_locations", default: "Selected Locations") %></label>
+      <div id="selected-locations" class="space-y-2 min-h-[60px] border-2 border-dashed border-gray-200 rounded-lg p-3">
+        <% if current_location_ids.any? %>
+          <% experience.locations.each_with_index do |loc, idx| %>
+            <div class="flex items-center justify-between bg-emerald-50 rounded-lg px-3 py-2" data-location-id="<%= loc.uuid %>">
+              <div class="flex items-center gap-2">
+                <span class="text-gray-400 cursor-move">
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                  </svg>
+                </span>
+                <span class="text-sm font-medium text-gray-900"><%= loc.name %></span>
+                <span class="text-xs text-gray-500">(<%= loc.city&.name %>)</span>
+              </div>
+              <button type="button" class="remove-location text-gray-400 hover:text-red-500" data-location-id="<%= loc.uuid %>">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              <input type="hidden" name="experience[location_uuids][]" value="<%= loc.uuid %>">
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-gray-400 text-center py-4" id="no-locations-message"><%= t("curator.experiences.no_locations_selected", default: "No locations selected yet") %></p>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Location Search/Add %>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2"><%= t("curator.experiences.add_location", default: "Add Location") %></label>
+      <select id="location-search" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm">
+        <option value=""><%= t("curator.experiences.search_location", default: "Search and select a location...") %></option>
+        <% @locations.each do |loc| %>
+          <option value="<%= loc.uuid %>" data-name="<%= loc.name %>" data-city="<%= loc.city&.name %>" <%= 'disabled' if current_location_ids.include?(loc.id) %>>
+            <%= loc.name %> (<%= loc.city&.name %>)
+          </option>
+        <% end %>
+      </select>
+    </div>
+  </div>
+
+  <div class="flex justify-end gap-3">
+    <%= link_to t("common.cancel"), curator_experiences_path,
+        class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+    <%= f.submit t("common.save"), class: "rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 cursor-pointer" %>
+  </div>
+<% end %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const locationSearch = document.getElementById('location-search');
+  const selectedLocations = document.getElementById('selected-locations');
+  const noLocationsMessage = document.getElementById('no-locations-message');
+
+  // Add location
+  locationSearch.addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    if (!selectedOption.value) return;
+
+    const locationId = selectedOption.value;
+    const locationName = selectedOption.dataset.name;
+    const locationCity = selectedOption.dataset.city;
+
+    // Remove "no locations" message if exists
+    if (noLocationsMessage) {
+      noLocationsMessage.remove();
+    }
+
+    // Create location item
+    const locationItem = document.createElement('div');
+    locationItem.className = 'flex items-center justify-between bg-emerald-50 rounded-lg px-3 py-2';
+    locationItem.dataset.locationId = locationId;
+    locationItem.innerHTML = `
+      <div class="flex items-center gap-2">
+        <span class="text-gray-400 cursor-move">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+          </svg>
+        </span>
+        <span class="text-sm font-medium text-gray-900">${locationName}</span>
+        <span class="text-xs text-gray-500">(${locationCity || ''})</span>
+      </div>
+      <button type="button" class="remove-location text-gray-400 hover:text-red-500" data-location-id="${locationId}">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <input type="hidden" name="experience[location_uuids][]" value="${locationId}">
+    `;
+
+    selectedLocations.appendChild(locationItem);
+
+    // Disable option in dropdown
+    selectedOption.disabled = true;
+
+    // Reset dropdown
+    this.value = '';
+  });
+
+  // Remove location (event delegation)
+  selectedLocations.addEventListener('click', function(e) {
+    const removeBtn = e.target.closest('.remove-location');
+    if (!removeBtn) return;
+
+    const locationId = removeBtn.dataset.locationId;
+    const locationItem = removeBtn.closest('[data-location-id]');
+
+    // Remove item
+    locationItem.remove();
+
+    // Re-enable option in dropdown
+    const option = locationSearch.querySelector(`option[value="${locationId}"]`);
+    if (option) {
+      option.disabled = false;
+    }
+
+    // Show "no locations" message if empty
+    if (selectedLocations.children.length === 0) {
+      const msg = document.createElement('p');
+      msg.className = 'text-sm text-gray-400 text-center py-4';
+      msg.id = 'no-locations-message';
+      msg.textContent = '<%= t("curator.experiences.no_locations_selected", default: "No locations selected yet") %>';
+      selectedLocations.appendChild(msg);
+    }
+  });
+});
+</script>

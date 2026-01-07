@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Solid Queue worker process
+# This script starts the Solid Queue supervisor for background job processing
+# Run with: bin/jobs
+
+require_relative "../config/environment"
+
+SolidQueue::Supervisor.start

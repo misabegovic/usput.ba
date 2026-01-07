@@ -1,0 +1,61 @@
+<% if status[:status] == "in_progress" %>
+  <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <div>
+          <span class="font-medium text-blue-900">City fix in progress</span>
+          <span class="text-blue-700 ml-2"><%= status[:message] %></span>
+        </div>
+      </div>
+      <%= button_to "Force Stop & Restart", admin_force_reset_city_fix_admin_ai_path,
+          method: :post,
+          class: "inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors",
+          data: { confirm: "Are you sure? This will reset the city fix status and allow you to start a new run." } %>
+    </div>
+  </div>
+<% elsif status[:status] == "completed" && status[:results].present? %>
+  <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+    <div class="flex items-start gap-3">
+      <svg class="h-5 w-5 text-green-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <div class="flex-1">
+        <span class="font-medium text-green-900">City fix completed</span>
+        <p class="text-green-700 text-sm mt-1"><%= status[:message] %></p>
+        <% if status[:results]["corrections"].present? && status[:results]["corrections"].any? %>
+          <details class="mt-2">
+            <summary class="text-sm text-green-700 cursor-pointer hover:underline">
+              View <%= status[:results]["corrections"].size %> corrections
+            </summary>
+            <ul class="mt-2 text-xs text-green-800 space-y-1 max-h-40 overflow-y-auto">
+              <% status[:results]["corrections"].each do |correction| %>
+                <li class="bg-green-100 rounded px-2 py-1">
+                  <strong><%= correction["name"] %></strong>:
+                  <span class="line-through text-green-600"><%= correction["old_city"] %></span>
+                  &rarr;
+                  <span class="font-medium"><%= correction["new_city"] %></span>
+                </li>
+              <% end %>
+            </ul>
+          </details>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% elsif status[:status] == "failed" %>
+  <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+    <div class="flex items-center gap-3">
+      <svg class="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+      <div>
+        <span class="font-medium text-red-900">City fix failed</span>
+        <span class="text-red-700 ml-2"><%= status[:message] %></span>
+      </div>
+    </div>
+  </div>
+<% end %>

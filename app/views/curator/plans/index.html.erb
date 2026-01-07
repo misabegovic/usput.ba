@@ -1,0 +1,174 @@
+<div class="space-y-4 sm:space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900"><%= t("curator.plans.title") %></h1>
+    <%= link_to t("curator.plans.new"), new_curator_plan_path,
+        class: "inline-flex items-center justify-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 w-full sm:w-auto" %>
+  </div>
+
+  <!-- Stats Overview -->
+  <div class="grid grid-cols-2 gap-3 sm:gap-5 sm:grid-cols-4">
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-4 shadow">
+      <dt class="truncate text-sm font-medium text-gray-500"><%= t("curator.plans.total") %></dt>
+      <dd class="mt-1 text-2xl font-semibold tracking-tight text-gray-900"><%= @stats[:total] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-4 shadow">
+      <dt class="truncate text-sm font-medium text-gray-500"><%= t("curator.plans.public") %></dt>
+      <dd class="mt-1 text-2xl font-semibold tracking-tight text-gray-900"><%= @stats[:public_plans] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-4 shadow">
+      <dt class="truncate text-sm font-medium text-gray-500"><%= t("curator.plans.private") %></dt>
+      <dd class="mt-1 text-2xl font-semibold tracking-tight text-gray-900"><%= @stats[:private_plans] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-4 shadow">
+      <dt class="truncate text-sm font-medium text-gray-500"><%= t("curator.plans.with_experiences") %></dt>
+      <dd class="mt-1 text-2xl font-semibold tracking-tight text-gray-900"><%= @stats[:with_experiences] %></dd>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="rounded-lg bg-white shadow px-4 py-4">
+    <%= form_with url: curator_plans_path, method: :get, class: "flex flex-col sm:flex-row flex-wrap gap-3" do |f| %>
+      <div class="flex-1 min-w-0 sm:max-w-xs">
+        <%= f.text_field :search,
+            value: params[:search],
+            placeholder: t("curator.plans.search_placeholder"),
+            class: "block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500" %>
+      </div>
+      <div class="w-full sm:w-auto">
+        <%= f.select :city_name,
+            options_for_select([[t("curator.plans.all_cities"), ""]] + @city_names.map { |c| [c, c] }, params[:city_name]),
+            {},
+            class: "block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500" %>
+      </div>
+      <div class="w-full sm:w-auto">
+        <%= f.select :visibility,
+            options_for_select([
+              [t("curator.plans.all_visibility"), ""],
+              [t("curator.plans.public"), "public"],
+              [t("curator.plans.private"), "private"]
+            ], params[:visibility]),
+            {},
+            class: "block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500" %>
+      </div>
+      <div class="w-full sm:w-auto">
+        <%= f.submit t("common.search"), class: "w-full sm:w-auto inline-flex justify-center items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Plans Table -->
+  <div class="hidden sm:block overflow-hidden rounded-lg bg-white shadow">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.plans.plan_title") %></th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.plans.city") %></th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.plans.author") %></th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.plans.visibility") %></th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.plans.experiences") %></th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.plans.actions") %></th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @plans.each do |plan| %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-medium text-gray-900"><%= plan.title %></div>
+              <div class="text-sm text-gray-500"><%= plan.created_at.strftime("%d.%m.%Y") %></div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <%= plan.city_name %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <%= plan.user&.username || t("curator.plans.no_author") %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <% if plan.visibility_public_plan? %>
+                <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                  <%= t("curator.plans.public") %>
+                </span>
+              <% else %>
+                <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                  <%= t("curator.plans.private") %>
+                </span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <%= plan.experiences.count %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+              <%= link_to t("curator.plans.view"), curator_plan_path(plan), class: "text-emerald-600 hover:text-emerald-900" %>
+              <%= link_to t("curator.plans.edit"), edit_curator_plan_path(plan), class: "text-emerald-600 hover:text-emerald-900" %>
+              <%= button_to curator_plan_path(plan),
+                  method: :delete,
+                  class: "text-red-600 hover:text-red-900",
+                  data: { turbo_confirm: t("curator.plans.confirm_delete", title: plan.title) } do %>
+                <%= t("curator.plans.delete") %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+
+        <% if @plans.empty? %>
+          <tr>
+            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+              <%= t("curator.plans.no_plans") %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Card Layout -->
+  <div class="sm:hidden space-y-3">
+    <% @plans.each do |plan| %>
+      <div class="bg-white rounded-lg shadow p-4">
+        <div class="flex items-start justify-between mb-2">
+          <div class="flex-1 min-w-0">
+            <h3 class="font-medium text-gray-900 truncate"><%= plan.title %></h3>
+            <p class="text-sm text-gray-500"><%= plan.city_name %></p>
+          </div>
+          <% if plan.visibility_public_plan? %>
+            <span class="ml-2 inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
+              <%= t("curator.plans.public") %>
+            </span>
+          <% else %>
+            <span class="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">
+              <%= t("curator.plans.private") %>
+            </span>
+          <% end %>
+        </div>
+
+        <div class="flex items-center gap-4 text-sm text-gray-500 mb-3">
+          <span><%= plan.user&.username || t("curator.plans.no_author") %></span>
+          <span>&middot;</span>
+          <span><%= plan.experiences.count %> <%= t("curator.plans.experiences").downcase %></span>
+          <span>&middot;</span>
+          <span><%= plan.created_at.strftime("%d.%m.%Y") %></span>
+        </div>
+
+        <div class="flex items-center gap-4 pt-3 border-t border-gray-100">
+          <%= link_to curator_plan_path(plan), class: "flex-1 text-center py-2 text-sm font-medium text-emerald-600 hover:text-emerald-900" do %>
+            <%= t("curator.plans.view") %>
+          <% end %>
+          <%= link_to edit_curator_plan_path(plan), class: "flex-1 text-center py-2 text-sm font-medium text-emerald-600 hover:text-emerald-900" do %>
+            <%= t("curator.plans.edit") %>
+          <% end %>
+          <%= button_to curator_plan_path(plan),
+              method: :delete,
+              class: "flex-1 text-center py-2 text-sm font-medium text-red-600 hover:text-red-900",
+              data: { turbo_confirm: t("curator.plans.confirm_delete", title: plan.title) } do %>
+            <%= t("curator.plans.delete") %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @plans.empty? %>
+      <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+        <%= t("curator.plans.no_plans") %>
+      </div>
+    <% end %>
+  </div>
+</div>

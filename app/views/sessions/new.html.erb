@@ -1,0 +1,119 @@
+<%# Login page %>
+<% content_for(:title) { t('auth.login_title', default: 'Prijava - Usput') } %>
+
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <%# Header %>
+    <div class="text-center">
+      <a href="<%= root_path %>" class="inline-block hover:opacity-80 transition-opacity">
+        <img src="/usput-logo.png" alt="Usput" class="h-12 w-auto">
+      </a>
+      <h2 class="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">
+        <%= t('auth.login_heading', default: 'Prijavi se') %>
+      </h2>
+      <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        <%= t('auth.login_subheading', default: 'Pristupi svom travel profilu') %>
+      </p>
+    </div>
+
+    <%# Login Form %>
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+      <% if flash[:alert] %>
+        <div class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <div class="flex">
+            <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+            </svg>
+            <div class="ml-3">
+              <p class="text-sm text-red-700 dark:text-red-400"><%= flash[:alert] %></p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <%= form_with url: login_path, local: true, class: "space-y-6" do |f| %>
+        <%# Username %>
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <%= t('auth.username', default: 'Korisničko ime') %>
+          </label>
+          <input type="text"
+                 name="username"
+                 id="username"
+                 class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors"
+                 placeholder="<%= t('auth.username_placeholder', default: 'npr. traveler123') %>"
+                 autocomplete="username"
+                 required>
+        </div>
+
+        <%# Password %>
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <%= t('auth.password', default: 'Lozinka') %>
+          </label>
+          <input type="password"
+                 name="password"
+                 id="password"
+                 class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors"
+                 placeholder="••••••••"
+                 autocomplete="current-password"
+                 required>
+        </div>
+
+        <%# Hidden field for travel profile data from localStorage %>
+        <input type="hidden" name="travel_profile_data" id="travel_profile_data">
+
+        <%# Info about profile merge %>
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <div class="flex">
+            <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+            </svg>
+            <div class="ml-3">
+              <p class="text-sm text-blue-700 dark:text-blue-400">
+                <%= t('auth.profile_merge_info', default: 'Ako imaš lokalni profil, biće spojen sa tvojim sačuvanim profilom.') %>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <%# Submit %>
+        <div>
+          <button type="submit"
+                  class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 px-6 rounded-lg font-medium hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg cursor-pointer">
+            <%= t('auth.login_button', default: 'Prijavi se') %>
+          </button>
+        </div>
+      <% end %>
+
+      <%# Register link %>
+      <div class="mt-6 text-center">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          <%= t('auth.no_account', default: 'Nemaš nalog?') %>
+          <a href="<%= register_path %>" class="font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-500">
+            <%= t('auth.register_link', default: 'Registruj se') %>
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script nonce="<%= content_security_policy_nonce %>" data-turbo-eval="false">
+  // Populate hidden field with localStorage travel profile on page load
+  (function() {
+    function populateTravelProfile() {
+      try {
+        var profile = localStorage.getItem('usput_travel_profile');
+        if (profile) {
+          var field = document.getElementById('travel_profile_data');
+          if (field) field.value = profile;
+        }
+      } catch (e) {
+        console.error('Could not read travel profile from localStorage:', e);
+      }
+    }
+    // Run immediately since script is at bottom of body
+    populateTravelProfile();
+  })();
+</script>

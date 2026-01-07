@@ -1,0 +1,230 @@
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <%= link_to admin_ai_path, class: "text-gray-500 hover:text-gray-700" do %>
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      <% end %>
+      <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Audio Tours Generator</h1>
+    </div>
+  </div>
+
+  <!-- Warning Banner -->
+  <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+    <div class="flex items-start gap-3">
+      <svg class="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+      </svg>
+      <div>
+        <p class="font-medium text-amber-800">ElevenLabs API has per-character costs!</p>
+        <p class="text-sm text-amber-700 mt-1">
+          Approximately $0.30 per 1000 characters. Review the cost estimate before generating.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="bg-white rounded-lg shadow p-4 text-center">
+      <div class="text-2xl font-bold text-gray-900"><%= @stats[:total_locations] %></div>
+      <div class="text-sm text-gray-500">Total Locations</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4 text-center">
+      <div class="text-2xl font-bold text-green-600"><%= @stats[:with_audio] %></div>
+      <div class="text-sm text-gray-500">With Audio</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4 text-center">
+      <div class="text-2xl font-bold text-amber-600"><%= @stats[:without_audio] %></div>
+      <div class="text-sm text-gray-500">Without Audio</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4 text-center">
+      <div class="text-2xl font-bold text-indigo-600"><%= @stats[:coverage_percent] %>%</div>
+      <div class="text-sm text-gray-500">Coverage</div>
+    </div>
+  </div>
+
+  <!-- Main Form -->
+  <%= form_with url: admin_generate_admin_ai_audio_tours_path, method: :post, class: "bg-white shadow rounded-lg" do |f| %>
+    <div class="p-4 sm:p-6 border-b">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h2 class="text-lg font-semibold text-gray-900">Locations Without Audio Tours</h2>
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div class="flex items-center gap-2">
+            <label for="locale" class="text-sm text-gray-600">Language:</label>
+            <select name="locale" id="locale" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+              <option value="bs">Bosnian</option>
+              <option value="en">English</option>
+              <option value="de">German</option>
+              <option value="hr">Croatian</option>
+              <option value="sr">Serbian</option>
+            </select>
+          </div>
+
+          <label class="flex items-center gap-2 text-sm text-gray-600">
+            <input type="checkbox" name="force" value="1" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+            Force regenerate
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cost Estimate Bar -->
+    <div id="cost-estimate" class="hidden px-4 sm:px-6 py-3 bg-indigo-50 border-b border-indigo-100">
+      <div class="flex items-center justify-between">
+        <div class="text-sm text-indigo-800">
+          Selected: <span id="selected-count">0</span> locations |
+          Est. characters: <span id="est-chars">0</span>
+        </div>
+        <div class="text-sm font-medium text-indigo-900">
+          Estimated cost: <span id="est-cost">$0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Locations List -->
+    <div class="divide-y divide-gray-200">
+      <% if @locations_by_city.any? %>
+        <% @locations_by_city.each do |city, locations| %>
+          <div class="p-4">
+            <div class="flex items-center gap-3 mb-3">
+              <label class="flex items-center gap-2">
+                <input type="checkbox"
+                       class="city-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                       data-city="<%= city %>">
+                <span class="font-medium text-gray-900"><%= city || "Unknown City" %></span>
+              </label>
+              <span class="text-sm text-gray-500">(<%= locations.count %> locations)</span>
+            </div>
+
+            <div class="ml-6 space-y-2">
+              <% locations.each do |location| %>
+                <label class="flex items-center gap-3 p-2 rounded hover:bg-gray-50">
+                  <input type="checkbox"
+                         name="location_ids[]"
+                         value="<%= location.id %>"
+                         class="location-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                         data-city="<%= city %>"
+                         data-chars="2000">
+                  <div class="flex-1 min-w-0">
+                    <div class="font-medium text-gray-900 truncate"><%= location.name %></div>
+                    <div class="text-sm text-gray-500">
+                      <%= location.location_type&.humanize %> |
+                      ~2000 characters
+                    </div>
+                  </div>
+                </label>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="p-8 text-center">
+          <svg class="mx-auto h-12 w-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">All locations have audio tours!</h3>
+          <p class="mt-1 text-sm text-gray-500">There are no locations without audio tours.</p>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Submit Button -->
+    <% if @locations_by_city.any? %>
+      <div class="p-4 sm:p-6 border-t bg-gray-50">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div class="text-sm text-gray-500">
+            <button type="button" id="select-all" class="text-indigo-600 hover:text-indigo-800">Select all</button>
+            |
+            <button type="button" id="deselect-all" class="text-indigo-600 hover:text-indigo-800">Deselect all</button>
+          </div>
+
+          <button type="submit"
+                  id="generate-btn"
+                  disabled
+                  class="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+            </svg>
+            Generate Audio Tours
+          </button>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const locationCheckboxes = document.querySelectorAll('.location-checkbox');
+  const cityCheckboxes = document.querySelectorAll('.city-checkbox');
+  const costEstimate = document.getElementById('cost-estimate');
+  const selectedCount = document.getElementById('selected-count');
+  const estChars = document.getElementById('est-chars');
+  const estCost = document.getElementById('est-cost');
+  const generateBtn = document.getElementById('generate-btn');
+  const selectAllBtn = document.getElementById('select-all');
+  const deselectAllBtn = document.getElementById('deselect-all');
+
+  function updateCostEstimate() {
+    let count = 0;
+    let chars = 0;
+
+    locationCheckboxes.forEach(cb => {
+      if (cb.checked) {
+        count++;
+        chars += parseInt(cb.dataset.chars || 2000);
+      }
+    });
+
+    if (count > 0) {
+      costEstimate.classList.remove('hidden');
+      selectedCount.textContent = count;
+      estChars.textContent = chars.toLocaleString();
+      // $0.30 per 1000 chars
+      const cost = (chars / 1000 * 0.30).toFixed(2);
+      estCost.textContent = '$' + cost;
+      generateBtn.disabled = false;
+    } else {
+      costEstimate.classList.add('hidden');
+      generateBtn.disabled = true;
+    }
+  }
+
+  // Location checkbox change
+  locationCheckboxes.forEach(cb => {
+    cb.addEventListener('change', updateCostEstimate);
+  });
+
+  // City checkbox change - toggle all locations in that city
+  cityCheckboxes.forEach(cb => {
+    cb.addEventListener('change', function() {
+      const city = this.dataset.city;
+      document.querySelectorAll(`.location-checkbox[data-city="${city}"]`).forEach(lcb => {
+        lcb.checked = this.checked;
+      });
+      updateCostEstimate();
+    });
+  });
+
+  // Select all
+  if (selectAllBtn) {
+    selectAllBtn.addEventListener('click', function() {
+      locationCheckboxes.forEach(cb => cb.checked = true);
+      cityCheckboxes.forEach(cb => cb.checked = true);
+      updateCostEstimate();
+    });
+  }
+
+  // Deselect all
+  if (deselectAllBtn) {
+    deselectAllBtn.addEventListener('click', function() {
+      locationCheckboxes.forEach(cb => cb.checked = false);
+      cityCheckboxes.forEach(cb => cb.checked = false);
+      updateCostEstimate();
+    });
+  }
+});
+</script>

@@ -1,0 +1,158 @@
+<div class="space-y-6">
+  <div class="flex items-center gap-4">
+    <%= link_to admin_ai_path, class: "text-gray-500 hover:text-gray-700" do %>
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+    <% end %>
+    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Generation Report</h1>
+  </div>
+
+  <% if @generation_status[:started_at].present? %>
+    <!-- Status Header -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <div class="flex flex-wrap items-center gap-4 mb-4">
+        <% case @generation_status[:status] %>
+        <% when "completed" %>
+          <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-800 font-medium">Completed</span>
+        <% when "in_progress" %>
+          <span class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 font-medium">In Progress</span>
+        <% when "failed" %>
+          <span class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-800 font-medium">Failed</span>
+        <% else %>
+          <span class="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-800 font-medium">Idle</span>
+        <% end %>
+
+        <span class="text-sm text-gray-500">
+          Started: <%= Time.parse(@generation_status[:started_at]).strftime("%Y-%m-%d %H:%M:%S") rescue "N/A" %>
+        </span>
+      </div>
+
+      <% if @generation_status[:message].present? %>
+        <p class="text-gray-600"><%= @generation_status[:message] %></p>
+      <% end %>
+    </div>
+
+    <!-- Results Summary -->
+    <% if @results.present? %>
+      <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Results Summary</h2>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          <div class="text-center p-4 bg-gray-50 rounded-lg">
+            <div class="text-3xl font-bold text-gray-900"><%= @results["locations_created"] || 0 %></div>
+            <div class="text-sm text-gray-500">Locations Created</div>
+          </div>
+          <div class="text-center p-4 bg-gray-50 rounded-lg">
+            <div class="text-3xl font-bold text-gray-900"><%= @results["locations_enriched"] || 0 %></div>
+            <div class="text-sm text-gray-500">Locations Enriched</div>
+          </div>
+          <div class="text-center p-4 bg-gray-50 rounded-lg">
+            <div class="text-3xl font-bold text-teal-600"><%= @results["experiences_created"] || 0 %></div>
+            <div class="text-sm text-gray-500">Experiences Created</div>
+          </div>
+          <div class="text-center p-4 bg-gray-50 rounded-lg">
+            <div class="text-3xl font-bold text-indigo-600"><%= @results["plans_created"] || 0 %></div>
+            <div class="text-sm text-gray-500">Plans Created</div>
+          </div>
+        </div>
+
+        <!-- Cities Processed -->
+        <% if @results["cities_processed"].present? %>
+          <h3 class="font-medium text-gray-900 mb-3">Cities Processed</h3>
+          <div class="space-y-2">
+            <% @results["cities_processed"].each do |city_data| %>
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <span class="font-medium text-gray-900"><%= city_data["city"] %></span>
+                <div class="flex items-center gap-4 text-sm text-gray-600">
+                  <span><%= city_data["locations"] %> locations</span>
+                  <span><%= city_data["experiences"] %> experiences</span>
+                  <span><%= city_data["plans"] %> plans</span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        <!-- Errors -->
+        <% if @results["errors"].present? && @results["errors"].any? %>
+          <div class="mt-6">
+            <h3 class="font-medium text-red-800 mb-3">Errors</h3>
+            <div class="space-y-2">
+              <% @results["errors"].each do |error| %>
+                <div class="p-3 bg-red-50 rounded-lg border border-red-100">
+                  <span class="font-medium text-red-800"><%= error["city"] %>:</span>
+                  <span class="text-red-600"><%= error["error"] %></span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Timing -->
+        <% if @results["started_at"].present? && @results["finished_at"].present? %>
+          <div class="mt-6 text-sm text-gray-500">
+            Duration: <%= ((Time.parse(@results["finished_at"]) - Time.parse(@results["started_at"])) / 60).round(1) %> minutes
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- AI Plan -->
+    <% if @generation_status[:plan].present? && @generation_status[:plan].any? %>
+      <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">AI Plan</h2>
+
+        <% if @generation_status[:plan]["analysis"].present? %>
+          <div class="p-4 bg-indigo-50 rounded-lg mb-4">
+            <p class="text-indigo-800"><%= @generation_status[:plan]["analysis"] %></p>
+          </div>
+        <% end %>
+
+        <% if @generation_status[:plan]["target_cities"].present? %>
+          <h3 class="font-medium text-gray-900 mb-3">Target Cities</h3>
+          <div class="space-y-3">
+            <% @generation_status[:plan]["target_cities"].each do |city_plan| %>
+              <div class="p-4 border rounded-lg">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-medium text-gray-900"><%= city_plan["city"] %></span>
+                  <span class="text-sm text-gray-500"><%= city_plan["locations_to_fetch"] %> locations</span>
+                </div>
+                <% if city_plan["reasoning"].present? %>
+                  <p class="text-sm text-gray-600"><%= city_plan["reasoning"] %></p>
+                <% end %>
+                <% if city_plan["categories"].present? %>
+                  <div class="mt-2 flex flex-wrap gap-1">
+                    <% city_plan["categories"].first(5).each do |cat| %>
+                      <span class="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded"><%= cat %></span>
+                    <% end %>
+                    <% if city_plan["categories"].size > 5 %>
+                      <span class="px-2 py-0.5 text-xs text-gray-400">+<%= city_plan["categories"].size - 5 %> more</span>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        <% if @generation_status[:plan]["tourist_profiles_to_generate"].present? %>
+          <div class="mt-4">
+            <h3 class="font-medium text-gray-900 mb-2">Tourist Profiles</h3>
+            <div class="flex flex-wrap gap-2">
+              <% @generation_status[:plan]["tourist_profiles_to_generate"].each do |profile| %>
+                <span class="px-3 py-1 text-sm bg-purple-100 text-purple-800 rounded-full"><%= profile.titleize %></span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+  <% else %>
+    <div class="bg-white shadow rounded-lg p-8 text-center">
+      <p class="text-gray-500">No generation has been run yet.</p>
+      <%= link_to "Start Generation", admin_ai_path, class: "text-indigo-600 hover:text-indigo-800 mt-2 inline-block" %>
+    </div>
+  <% end %>
+</div>

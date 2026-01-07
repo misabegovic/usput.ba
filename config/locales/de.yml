@@ -1,0 +1,1080 @@
+de:
+  # Application
+  app:
+    name: "Usput.ba"
+    tagline: "Entdecken Sie die Schönheit von Bosnien und Herzegowina"
+
+  # Common
+  common:
+    save: "Speichern"
+    cancel: "Abbrechen"
+    delete: "Löschen"
+    edit: "Bearbeiten"
+    back: "Zurück"
+    next: "Weiter"
+    previous: "Zurück"
+    search: "Suchen"
+    loading: "Laden..."
+    confirm: "Bestätigen"
+    close: "Schließen"
+    yes: "Ja"
+    no: "Nein"
+    or: "oder"
+    and: "und"
+    all: "Alle"
+    none: "Keine"
+    select: "Auswählen"
+    required: "Erforderlich"
+    optional: "Optional"
+    share: "Teilen"
+    link_copied: "Link kopiert!"
+    view_all: "Alle anzeigen"
+
+  # Navigation
+  nav:
+    home: "Startseite"
+    plans: "Pläne"
+    experiences: "Erlebnisse"
+    locations: "Orte"
+    explore: "Erkunden"
+    about: "Über uns"
+    contact: "Kontakt"
+    language: "Sprache"
+    back_to_site: "Zurück zur Website"
+    logout: "Abmelden"
+
+  # Explore Page
+  explore:
+    title: "Erkunden"
+    subtitle: "Finden Sie den perfekten Ort, das perfekte Erlebnis oder den perfekten Plan für Ihr nächstes Abenteuer."
+    search_placeholder: "Orte, Erlebnisse, Pläne suchen..."
+    search_button: "Suchen"
+    types:
+      location: "Orte"
+      experience: "Erlebnisse"
+      plan: "Pläne"
+    nearby: "In der Nähe"
+    more_filters: "Mehr Filter"
+    clear_filters: "Löschen"
+    filters:
+      season: "Saison"
+      budget: "Budget"
+      duration: "Dauer"
+      rating: "Mindestbewertung"
+      sort: "Sortieren nach"
+      audio_support: "Audio-Touren"
+    seasons:
+      spring: "Frühling"
+      summer: "Sommer"
+      autumn: "Herbst"
+      winter: "Winter"
+    budgets:
+      low: "Niedrig"
+      medium: "Mittel"
+      high: "Hoch"
+    durations:
+      short: "Bis 1 Std."
+      medium: "1-3 Std."
+      long: "3+ Std."
+    sorts:
+      relevance: "Relevanz"
+      rating: "Bewertung"
+      newest: "Neueste"
+      name: "Name"
+    cities:
+      any: "Alle Orte"
+    loading: "Laden..."
+    results_count: "%{count} Ergebnisse gefunden"
+    sections:
+      locations: "Orte"
+      experiences: "Erlebnisse"
+      plans: "Pläne"
+    empty:
+      title: "Keine Ergebnisse"
+      with_filters: "Versuchen Sie, die Filter zu ändern oder etwas anderes zu suchen."
+      no_filters: "Geben Sie einen Suchbegriff ein oder wählen Sie einen Ressourcentyp."
+
+  # Homepage
+  home:
+    hero:
+      title: "Erschaffen Sie heute etwas Großartiges"
+      title_part1: "Entdecken Sie"
+      title_part2: "die Schönheit Bosniens und Herzegowinas"
+      subtitle: "Finden Sie versteckte Juwelen, authentische Erlebnisse und unvergessliche Orte. Ihr Abenteuer beginnt hier."
+    cta:
+      start: "Planung starten"
+      explore: "Ziele erkunden"
+      create_plan: "Ihren Plan erstellen"
+      explore_short: "Erkunden"
+    trending_experiences:
+      title: "Im Trend"
+      subtitle: "Was Reisende gerade lieben"
+      none: "Erlebnisse kommen bald!"
+    trending_locations:
+      title: "Beliebte Orte"
+      subtitle: "Orte, die diesen Monat Herzen erobern"
+      none: "Orte kommen bald!"
+    audio_tours:
+      title: "Entdecken Sie Audio-Touren"
+      subtitle: "Hören Sie Geschichten über faszinierende Orte, während Sie sie erkunden"
+    seasonal:
+      title: "Saisonale Empfehlungen"
+      subtitle: "Die besten Erlebnisse für diese Jahreszeit"
+      winter:
+        title: "Winterzauber"
+        subtitle: "Entdecken Sie die Magie der Winterdestinationen"
+        description: "Von verschneiten Bergen bis zu gemütlichen Cafés bietet der Winter in BiH unvergessliche Erlebnisse. Skifahren auf olympischen Pisten, Spaziergänge durch Winterlandschaften und warme Getränke genießen."
+        cta: "Winterorte erkunden"
+      spring:
+        title: "Frühlingserwachen"
+        subtitle: "Die Natur erwacht in voller Pracht"
+        description: "Der Frühling bringt blühende Wildblumen, üppig grüne Landschaften und perfektes Wanderwetter. Entdecken Sie versteckte Wasserfälle und genießen Sie die frische Bergluft."
+        cta: "Frühlingsorte erkunden"
+      summer:
+        title: "Sommerabenteuer"
+        subtitle: "Zeit für unvergessliche Abenteuer"
+        description: "Der Sommer ist ideal, um Flüsse, Seen und Schluchten zu erkunden. Rafting auf der Neretva, Schwimmen in der Una oder Spaziergänge durch alte Städte - die Möglichkeiten sind endlos."
+        cta: "Sommerorte erkunden"
+      fall:
+        title: "Herbstfarben"
+        subtitle: "Die goldene Reisesaison"
+        description: "Der Herbst färbt BiH in warme Gold- und Rottöne. Perfekte Zeit für Weintouren, Obstpflücken und gastronomische Spezialitäten ohne Menschenmassen."
+        cta: "Herbstorte erkunden"
+    explore:
+      title: "Erkunden Sie auf Ihre Weise"
+      subtitle: "Wählen Sie, wie Sie erkunden möchten - nach Orten, Erlebnissen oder fertigen Plänen"
+      locations:
+        title: "Alle Orte"
+        description: "Durchsuchen Sie alle verfügbaren Orte und finden Sie den perfekten Platz"
+      experiences:
+        title: "Alle Erlebnisse"
+        description: "Entdecken Sie einzigartige Erlebnisse, die darauf warten, erlebt zu werden"
+      plans:
+        title: "Alle Pläne"
+        description: "Sehen Sie sich fertige Pläne an oder lassen Sie sich für Ihren eigenen inspirieren"
+    cta_section:
+      title: "Bereit für ein Abenteuer?"
+      description: "Erstellen Sie Ihren eigenen personalisierten Reiseplan in nur wenigen Schritten. Wählen Sie Ihr Ziel, die Dauer und Ihre Interessen - wir schlagen Ihnen die perfekten Erlebnisse vor!"
+      button: "Plan erstellen starten"
+      view_plans: "Bestehende Pläne ansehen"
+    reviews:
+      title: "Bewertungen"
+      subtitle: "Eindrücke unserer Gäste"
+      empty_title: "Noch keine Bewertungen"
+      empty_description: "Seien Sie der Erste, der seine Erfahrung teilt!"
+    reviews_slider:
+      title: "Was Besucher sagen"
+    support:
+      title: "Unterstütze Dieses Projekt"
+      description: "Wenn dir dieses Projekt gefällt und du helfen möchtest, dass es weiter wächst, kannst du mich mit einem Kaffee unterstützen!"
+    bento:
+      section_title: "Warum Usput.ba"
+      section_subtitle: "Alles, was Sie für die perfekte Reise brauchen"
+      hidden_locations:
+        title: "Versteckte Orte"
+        description: "Entdecken Sie magische Orte, die nicht in Reiseführern stehen. Von versteckten Wasserfällen bis zu authentischen Dörfern."
+        cta: "Alle Orte erkunden"
+      experiences:
+        title: "Authentische Erlebnisse"
+        description: "Lokale Führer, traditionelle Küche und kulturelle Aktivitäten, die Sie mit der Seele von BiH verbinden."
+        cta: "Alle Erlebnisse erkunden"
+        culture: "Kultur"
+        food: "Essen"
+        adventure: "Abenteuer"
+      audio_tours:
+        title: "Audio-Touren"
+        description: "Hören Sie Geschichten über Orte, während Sie sie besuchen. Ihr persönlicher Führer in der Tasche."
+        cta: "Alle Audio-Touren erkunden"
+        welcome: "Willkommen bei Usput"
+      travel_plans:
+        title: "Reisepläne"
+        description: "Erstellen Sie Ihren eigenen Reiseplan mit unserem Wizard oder erkunden Sie fertige Pläne, die andere Reisende erstellt haben."
+        cta: "Ihren Plan erstellen"
+        days: "%{count} Tage"
+        day: "Tag %{number}"
+    trending:
+      section_title: "Jetzt beliebt"
+      section_subtitle: "Entdecken Sie, was andere lieben"
+      location: "Ort"
+      experience: "Erlebnis"
+      coming_soon: "Demnächst"
+      new_experience: "Neues Erlebnis kommt"
+      follow_us: "Folgen Sie uns für neue aufregende Entdeckungen."
+    plan_preview:
+      title: "Sarajevo & Umgebung"
+      duration: "3 Tage"
+      day1:
+        title: "Spaziergang durch die Altstadt"
+        items:
+          - "Baščaršija"
+          - "Sebilj"
+          - "Gazi-Husrev-Beg-Moschee"
+      day2:
+        title: "Flucht in die Natur"
+        items:
+          - "Vrelo Bosne"
+          - "Ilidža"
+          - "Rettungstunnel"
+      day3:
+        title: "Geschichte und Kultur"
+        items:
+          - "Rathaus"
+          - "Lateinerbrücke"
+          - "Historisches Museum"
+
+  # Slider
+  slider:
+    go_to_slide: "Zur Folie gehen"
+
+  # Reviews
+  reviews:
+    title: "Bewertungen"
+    anonymous: "Anonymer Besucher"
+    load_more: "Mehr Bewertungen laden"
+    remaining: "verbleibend"
+    none: "Noch keine Bewertungen. Sei der Erste!"
+    count:
+      one: "Bewertung"
+      other: "Bewertungen"
+    form:
+      title: "Bewertung hinterlassen"
+      rating: "Bewertung"
+      comment: "Kommentar"
+      comment_placeholder: "Teile deine Erfahrung..."
+      author_name: "Dein Name"
+      author_name_placeholder: "Wie heißt du?"
+      submit: "Bewertung absenden"
+
+  # Plan Wizard
+  wizard:
+    title: "Erstellen Sie Ihren Plan"
+    steps:
+      location: "Standort"
+      dates: "Termine"
+      interests: "Interessen"
+      generate: "Generieren"
+    location:
+      title: "Wo befinden Sie sich?"
+      subtitle: "Wir finden Erlebnisse in Ihrer Nähe"
+      detect: "Meinen Standort erkennen"
+      search_placeholder: "Ort suchen..."
+      searching: "Suche..."
+      no_results: "Keine Orte gefunden"
+    errors:
+      geolocation_not_supported: "Ihr Browser unterstützt keine Geolokalisierung"
+      location_failed: "Standort konnte nicht ermittelt werden. Bitte wählen Sie einen Ort manuell aus."
+      permission_denied: "Standortzugriff wurde verweigert. Bitte aktivieren Sie den Zugriff oder wählen Sie einen Ort manuell aus."
+      location_unavailable: "Standortinformationen sind nicht verfügbar"
+      location_timeout: "Standortermittlung dauert zu lange..."
+      no_city_found: "Wir konnten keinen Ort in Ihrer Nähe finden. Bitte wählen Sie manuell aus."
+      city_lookup_error: "Fehler bei der Ortssuche"
+      enable_location: "Bitte aktivieren Sie den Standortzugriff"
+      no_search_results: "Keine Ergebnisse. Versuchen Sie einen anderen Suchbegriff."
+      server_error: "Fehler bei der Verbindung zum Server"
+    dates:
+      title: "Wie lange bleiben Sie?"
+      start_date: "Startdatum"
+      end_date: "Enddatum"
+      duration: "Dauer"
+      days: "Tage"
+    interests:
+      title: "Was sind Ihre Interessen?"
+      subtitle: "Wählen Sie alle zutreffenden aus"
+      culture: "Kultur"
+      history: "Geschichte"
+      sport: "Sport"
+      vegan: "Vegan"
+      vegetarian: "Vegetarisch"
+      meat: "Fleisch"
+      food: "Essen"
+      nature: "Natur"
+      woods: "Wälder"
+      mountains: "Berge"
+    preferences:
+      daily_hours: "Wie viele Stunden pro Tag möchten Sie erkunden?"
+      daily_hours_hint: "Dies beeinflusst die Anzahl der Erlebnisse pro Tag"
+      relaxed: "Entspannt"
+      balanced: "Ausgewogen"
+      active: "Aktiv"
+      intensive: "Intensiv"
+      food: "Essen"
+      meat_lover: "Fleischliebhaber"
+      vegetarian: "Vegetarische Option"
+    generate:
+      title: "Generieren Sie Ihren Plan"
+      subtitle: "Wir erstellen einen personalisierten Reiseplan für Sie"
+      button: "Plan generieren"
+      generating: "Plan wird generiert..."
+
+  # Plans
+  plans:
+    auto_title: "%{city} - %{days} Tage"
+    day_singular: "Tag"
+    day_plural: "Tage"
+    duration_days:
+      one: "%{count} Tag"
+      other: "%{count} Tage"
+    errors:
+      experience_not_found: "Erlebnis mit ID %{id} nicht gefunden"
+      experiences_skipped: "%{count} Erlebnisse wurden übersprungen, da sie nicht mehr existieren"
+      city_not_found: "Ort nicht gefunden"
+      invalid_plan_data: "Ungültige Plandaten angegeben"
+    index:
+      title: "Reisepläne"
+      subtitle: "Finden Sie Inspiration oder erstellen Sie Ihren eigenen Plan"
+      my_plans: "Meine Pläne"
+      public_plans: "Öffentliche Pläne"
+      no_plans: "Noch keine öffentlichen Pläne"
+      no_plans_description: "Benutzer haben ihre Pläne noch nicht mit der Community geteilt"
+      no_my_plans: "Sie haben noch keine Pläne"
+      no_my_plans_description: "Erstellen Sie einen personalisierten Reiseplan mit unserem Assistenten"
+      create_new: "Neuen Plan erstellen"
+      create_first: "Ersten Plan erstellen"
+    show:
+      day: "Tag %{number}"
+      experiences: "Erlebnisse"
+      locations: "Orte"
+      duration: "Dauer"
+      notes: "Notizen"
+      save_favorite: "Speichern"
+      summary: "Übersicht"
+      destination: "Ziel"
+      experiences_count: "Erlebnisse"
+      no_experiences: "Keine Erlebnisse für diesen Tag"
+      cta_title: "Lassen Sie sich inspirieren!"
+      cta_description: "Erstellen Sie Ihren eigenen personalisierten Plan"
+    view:
+      share: "Teilen"
+      share_plan: "Plan mit der Community teilen"
+      share_plan_description: "Ihr Plan wird für alle Benutzer sichtbar sein und anderen helfen, neue Orte zu entdecken."
+      share_button: "Teilen"
+      login_required_to_share: "Sie müssen angemeldet sein, um einen Plan zu teilen."
+      statistics: "Statistik"
+      total_time: "Gesamtzeit"
+      avg_daily: "Tagesdurchschnitt"
+      daily_breakdown: "Nach Tagen"
+      preferences: "Präferenzen"
+    form:
+      title_label: "Titel"
+      notes_label: "Notizen"
+      city_label: "Ort"
+    search:
+      title: "Pläne in der Nähe finden"
+      subtitle: "Suchen Sie öffentliche Pläne basierend auf Orten und Erlebnissen, die zu Ihnen passen"
+      placeholder: "Nach Name, Ort, Erlebnis suchen..."
+      nearby_active: "Zeige Pläne in der Nähe"
+      use_location: "Meinen Standort verwenden"
+      clear_location: "Standort entfernen"
+      radius: "Radius:"
+      getting_location: "Standort wird ermittelt..."
+      any_duration: "Jede Dauer"
+      duration_short: "Kurz (1-2 Tage)"
+      duration_medium: "Mittel (3-5 Tage)"
+      duration_long: "Lang (6+ Tage)"
+      within_radius: "Innerhalb von %{radius} km"
+      results_count:
+        one: "%{count} Plan gefunden"
+        other: "%{count} Pläne gefunden"
+      no_results: "Keine Ergebnisse"
+      no_results_description: "Versuchen Sie einen anderen Suchbegriff oder ändern Sie Ihre Filter"
+      clear_filters: "Filter löschen"
+      create_plan: "Eigenen Plan erstellen"
+
+  # Experiences
+  experiences:
+    duration:
+      hours: "%{count} Stunde"
+      hours_plural: "%{count} Stunden"
+      minutes: "%{count} Minute"
+      minutes_plural: "%{count} Minuten"
+    locations_count:
+      one: "1 Ort"
+      other: "%{count} Orte"
+    show:
+      about: "Über"
+      locations: "Orte im Erlebnis"
+      info: "Informationen"
+      duration: "Dauer"
+      locations_count: "Anzahl der Orte"
+      contact: "Kontakt"
+      save_favorite: "Speichern"
+      nearby_experiences: "Erlebnisse in der Nähe"
+      see_all_experiences: "Alle Erlebnisse anzeigen"
+      related_plans: "Pläne mit diesem Erlebnis"
+      see_all_plans: "Alle Pläne anzeigen"
+      cta_title: "Zum Plan hinzufügen"
+      cta_description: "Erstellen Sie Ihren eigenen Reiseplan"
+      add_to_existing: "Zu bestehendem Plan hinzufügen"
+      add_to_existing_desc: "Sie haben einen aktiven Plan. Fügen Sie dieses Erlebnis hinzu."
+      add_button: "Zum Plan hinzufügen"
+      view_plan: "Plan anzeigen"
+
+  # Filters
+  filters:
+    nearby: "In der Nähe"
+    all_cities: "Alle Orte"
+    all_types: "Alle Typen"
+    all_budgets: "Alle Budgets"
+    all_categories: "Alle Kategorien"
+    any_duration: "Jede Dauer"
+    any_rating: "Jede Bewertung"
+    duration_short: "Kurz (< 1h)"
+    duration_medium: "Mittel (1-3h)"
+    duration_long: "Lang (3h+)"
+    has_audio: "Audio-Tour"
+    clear_all: "Alles löschen"
+    active: "Aktive Filter:"
+
+  # Locations
+  locations:
+    types:
+      place: "Ort"
+      guide: "Reiseführer"
+      business: "Unternehmen"
+      restaurant: "Restaurant"
+      artisan: "Handwerker"
+      accommodation: "Unterkunft"
+    budget:
+      low: "Günstig"
+      medium: "Mittel"
+      high: "Premium"
+    contact:
+      email: "E-Mail"
+      phone: "Telefon"
+      website: "Webseite"
+    social:
+      facebook: "Facebook"
+      instagram: "Instagram"
+      twitter: "Twitter"
+      linkedin: "LinkedIn"
+      youtube: "YouTube"
+      tiktok: "TikTok"
+      whatsapp: "WhatsApp"
+      viber: "Viber"
+    show:
+      audio_tour: "Audio-Tour"
+      audio_tour_subtitle: "Hören Sie die Geschichte über diesen Ort"
+      audio_not_supported: "Ihr Browser unterstützt den Audio-Player nicht."
+      languages_available:
+        one: "1 Sprache"
+        other: "%{count} Sprachen"
+      select_language: "Sprache auswählen"
+      about: "Über"
+      history: "Historischer Kontext"
+      info: "Informationen"
+      budget: "Budget"
+      type: "Typ"
+      contact: "Kontakt"
+      website: "Webseite"
+      video: "Video"
+      video_subtitle: "Video über diesen Ort ansehen"
+      watch_video: "Video ansehen"
+      nearby_locations: "Orte in der Nähe"
+      see_all_locations: "Alle Orte anzeigen"
+      related_experiences: "Erlebnisse mit diesem Ort"
+      see_all_experiences: "Alle Erlebnisse anzeigen"
+      related_plans: "Pläne mit diesem Ort"
+      see_all_plans: "Alle Pläne anzeigen"
+      go_to_photo: "Gehe zu Foto %{number}"
+      open_fullscreen: "Im Vollbildmodus öffnen"
+      fullscreen: "Vollbild"
+
+  # Date and time
+  date:
+    formats:
+      default: "%d.%m.%Y"
+      short: "%d. %b"
+      long: "%d. %B %Y"
+    day_names:
+      - Sonntag
+      - Montag
+      - Dienstag
+      - Mittwoch
+      - Donnerstag
+      - Freitag
+      - Samstag
+    abbr_day_names:
+      - So
+      - Mo
+      - Di
+      - Mi
+      - Do
+      - Fr
+      - Sa
+    month_names:
+      - ~
+      - Januar
+      - Februar
+      - März
+      - April
+      - Mai
+      - Juni
+      - Juli
+      - August
+      - September
+      - Oktober
+      - November
+      - Dezember
+    abbr_month_names:
+      - ~
+      - Jan
+      - Feb
+      - Mär
+      - Apr
+      - Mai
+      - Jun
+      - Jul
+      - Aug
+      - Sep
+      - Okt
+      - Nov
+      - Dez
+  time:
+    formats:
+      default: "%H:%M"
+      short: "%H:%M"
+      long: "%d. %B %Y %H:%M"
+
+  # Errors
+  errors:
+    messages:
+      not_found: "Nicht gefunden"
+      unauthorized: "Nicht autorisiert"
+      server_error: "Etwas ist schief gelaufen"
+    models:
+      plan:
+        blank_title: "Titel darf nicht leer sein"
+        invalid_dates: "Enddatum muss nach dem Startdatum liegen"
+      location:
+        blank_name: "Name darf nicht leer sein"
+      experience:
+        blank_title: "Titel darf nicht leer sein"
+
+  # Flash messages
+  flash:
+    plan:
+      created: "Plan wurde erfolgreich erstellt"
+      updated: "Plan wurde erfolgreich aktualisiert"
+      deleted: "Plan wurde erfolgreich gelöscht"
+    location:
+      created: "Ort wurde erfolgreich erstellt"
+      updated: "Ort wurde erfolgreich aktualisiert"
+      deleted: "Ort wurde erfolgreich gelöscht"
+    experience:
+      created: "Erlebnis wurde erfolgreich erstellt"
+      updated: "Erlebnis wurde erfolgreich aktualisiert"
+      deleted: "Erlebnis wurde erfolgreich gelöscht"
+
+  # Authentication
+  auth:
+    register_title: "Registrierung - Usput"
+    register_heading: "Konto erstellen"
+    register_subheading: "Speichern Sie Ihr Reiseprofil dauerhaft"
+    register_button: "Registrieren"
+    register_link: "Registrieren"
+    login_title: "Anmeldung - Usput"
+    login_heading: "Anmelden"
+    login_subheading: "Greifen Sie auf Ihr Reiseprofil zu"
+    login_button: "Anmelden"
+    login_link: "Anmelden"
+    logout: "Abmelden"
+    username: "Benutzername"
+    username_placeholder: "z.B. traveler123"
+    username_hint: "Nur Buchstaben, Zahlen und Unterstriche (_). Min. 3 Zeichen."
+    password: "Passwort"
+    password_hint: "Mindestens 6 Zeichen"
+    password_confirmation: "Passwort bestätigen"
+    have_account: "Haben Sie bereits ein Konto?"
+    no_account: "Kein Konto?"
+    profile_sync_info: "Ihr aktuelles Reiseprofil (besuchte Orte, Favoriten, Abzeichen) wird in Ihrem Konto gespeichert."
+    profile_merge_info: "Wenn Sie ein lokales Profil haben, wird es mit Ihrem gespeicherten Profil zusammengeführt."
+    registration_success: "Konto erfolgreich erstellt! Ihr Reiseprofil ist jetzt dauerhaft gespeichert."
+    login_success: "Erfolgreich angemeldet!"
+    logout_success: "Erfolgreich abgemeldet."
+    login_required: "Sie müssen angemeldet sein, um auf diese Seite zuzugreifen."
+    invalid_credentials: "Ungültiger Benutzername oder Passwort."
+    curator_required: "Sie benötigen Kurator-Rechte, um auf diese Seite zuzugreifen."
+    admin_required: "Sie benötigen Administrator-Rechte, um auf diese Seite zuzugreifen."
+
+  # Profile
+  profile:
+    title: "Mein Reiseprofil"
+    subtitle: "Ihre Reisen an einem Ort"
+    logged_in_subtitle: "Profil ist dauerhaft gespeichert"
+    save_title: "Speichern Sie Ihr Profil"
+    save_warning: "Ihr Profil ist nur in diesem Browser gespeichert."
+    save_warning_extended: "Registrieren Sie sich, um Ihre Daten dauerhaft zu speichern."
+    visited: "Besucht"
+    favorites: "Favoriten"
+    badges: "Abzeichen"
+    visited_places: "Besuchte Orte"
+    no_visited: "Sie haben noch keinen Ort besucht"
+    no_favorites: "Sie haben noch keine Lieblingsorte"
+    my_badges: "Meine Abzeichen"
+    no_badges: "Sie haben noch keine Abzeichen"
+    recently_viewed: "Kürzlich angesehen"
+    no_recent: "Keine kürzlich angesehenen Einträge"
+    show_more: "Mehr anzeigen"
+    actions: "Aktionen"
+    export_json: "Export (JSON)"
+    export_pdf: "Drucken / PDF"
+    import: "Profil importieren"
+    add_favorite: "Zu Favoriten hinzufügen"
+    remove_favorite: "Aus Favoriten entfernen"
+    mark_visited: "Als besucht markieren"
+    avatar:
+      remove: "Bild entfernen"
+      remove_confirm: "Sind Sie sicher, dass Sie das Profilbild entfernen möchten?"
+    curator:
+      title: "Kurator werden"
+      description: "Kuratoren können neue Orte, Erlebnisse und Inhalte zur Plattform hinzufügen. Helfen Sie uns, die verborgenen Juwelen Bosniens und Herzegowinas zu entdecken!"
+      apply: "Als Kurator bewerben"
+      you_are_curator: "Sie sind Kurator"
+      manage_content: "Orte und Erlebnisse verwalten"
+      open_dashboard: "Dashboard öffnen"
+    my_plans:
+      title: "Meine Pläne"
+      empty: "Sie haben keine gespeicherten Pläne"
+      create: "Ersten Plan erstellen"
+
+  # PWA Install
+  pwa:
+    install_title: "Usput App installieren"
+    install_subtitle: "Schnellerer Zugriff und Offline-Unterstützung"
+    install_button: "Installieren"
+    ios_title: "Zum Startbildschirm hinzufügen"
+    ios_step1: "Tippen Sie auf"
+    ios_share_button: "die (Teilen) Schaltfläche im Browser"
+    ios_step2: "Scrollen Sie und wählen Sie"
+    ios_add_home: "Zum Home-Bildschirm"
+    ios_step3: "Tippen Sie oben rechts auf \"Hinzufügen\""
+    benefits_title: "App-Vorteile:"
+    benefit_fast: "Schnellerer Zugriff vom Startbildschirm"
+    benefit_offline: "Funktioniert offline"
+    benefit_fullscreen: "Vollbild ohne Browser-Leiste"
+    got_it: "Verstanden"
+    desktop_title: "Auf dem Handy verfügbar"
+    desktop_subtitle: "Öffnen Sie diese Seite auf Ihrem Telefon, um die App zu installieren"
+
+  # Footer
+  footer:
+    tagline: "Entdecken Sie versteckte Juwelen und authentische Erlebnisse auf Ihrer Reise."
+    legal: "Rechtliches"
+    privacy: "Datenschutz"
+    terms: "Nutzungsbedingungen"
+    imprint: "Impressum"
+    about_us: "Über uns"
+    contact: "Kontakt"
+    faq: "FAQ"
+    rights: "Alle Rechte vorbehalten."
+    community: "Community"
+    become_curator: "Kurator werden"
+
+  # Cookie Consent
+  cookie_consent:
+    title: "Cookies & Datenschutz"
+    message: "Wir verwenden nur technisch notwendige Cookies für den Betrieb der Website (Sitzung, Theme). Wir verwenden keine Analysetools und verfolgen Ihre Aktivitäten nicht."
+    learn_more: "Mehr erfahren"
+    accept: "Akzeptieren"
+    decline: "Nur notwendige"
+
+  # Imprint
+  imprint:
+    title: "Impressum"
+    legal_info: "Betreiberinformationen"
+    legal_form: "Einzelunternehmer"
+    jurisdiction: "Sitz in Österreich"
+    contact: "Kontakt"
+    email: "E-Mail"
+    website: "Webseite"
+    legal_notice: "Rechtlicher Hinweis"
+    ecg_notice: "Informationen gemäß österreichischem E-Commerce-Gesetz (ECG) und Mediengesetz."
+    liability_content: "Der Inhalt dieser Website wurde mit größter Sorgfalt erstellt. Wir können jedoch keine Gewähr für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte übernehmen."
+    liability_links: "Unsere Website enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Daher können wir für diese fremden Inhalte keine Gewähr übernehmen."
+    made_by: "Erstellt von"
+    inspired_by: "Inspiriert von"
+    support: "Unterstützung"
+    support_description: "Wenn Ihnen dieses Projekt gefällt, können Sie mich durch einen Kaffee unterstützen!"
+
+  # Privacy Policy
+  privacy:
+    title: "Datenschutzerklärung"
+    last_updated: "Zuletzt aktualisiert"
+    intro:
+      title: "Einleitung"
+      text1: "Der Schutz Ihrer persönlichen Daten ist uns sehr wichtig. In diesem Dokument erklären wir, welche Daten wir erheben, wie wir sie verwenden und welche Rechte Sie diesbezüglich haben."
+      text2: "Diese Datenschutzerklärung entspricht der Datenschutz-Grundverordnung (DSGVO) der Europäischen Union und dem österreichischen Datenschutzgesetz (DSG)."
+    controller:
+      title: "Verantwortlicher"
+      form: "Einzelunternehmer"
+      country: "Österreich"
+      email: "E-Mail"
+    collection:
+      title: "Welche Daten wir erheben"
+      auto:
+        title: "Automatisch erhobene Daten"
+        ip: "IP-Adresse (anonymisiert)"
+        browser: "Browsertyp und -version"
+        os: "Betriebssystem"
+        time: "Datum und Uhrzeit des Zugriffs"
+        pages: "Besuchte Seiten"
+      voluntary:
+        title: "Freiwillig bereitgestellte Daten"
+        account: "Registrierungsdaten (Benutzername)"
+        profile: "Reiseprofil (Reisepräferenzen, besuchte Orte)"
+        reviews: "Bewertungen und Rezensionen"
+    purpose:
+      title: "Zweck der Datenverarbeitung"
+      service: "Bereitstellung und Verbesserung unserer Dienste"
+      personalization: "Personalisierung der Benutzererfahrung"
+      security: "Sicherheit und Missbrauchsprävention"
+      legal: "Erfüllung rechtlicher Verpflichtungen"
+    legal_basis:
+      title: "Rechtsgrundlage"
+      text: "Wir verarbeiten Ihre Daten auf Grundlage von:"
+      consent: "Einwilligung (Art. 6(1)(a) DSGVO)"
+      consent_desc: "für optionale Funktionen und Cookies"
+      contract: "Vertragserfüllung (Art. 6(1)(b) DSGVO)"
+      contract_desc: "für die Bereitstellung von Diensten"
+      legitimate: "Berechtigtes Interesse (Art. 6(1)(f) DSGVO)"
+      legitimate_desc: "für Sicherheit und Serviceverbesserung"
+    cookies:
+      title: "Cookies"
+      text: "Wir verwenden nur technisch notwendige Cookies und lokalen Speicher für:"
+      session: "Sitzungs-Cookies"
+      session_desc: "für die Benutzerauthentifizierung"
+      theme: "Theme-Einstellungen"
+      theme_desc: "zum Speichern des hellen/dunklen Designs"
+      consent: "Cookie-Einwilligung"
+      consent_desc: "zum Speichern Ihrer Präferenzen"
+      no_tracking: "Wir verwenden keine Cookies für Tracking oder Analysen von Drittanbietern."
+    retention:
+      title: "Datenspeicherung"
+      text: "Wir speichern Ihre Daten nur so lange, wie es für den Zweck erforderlich ist, für den sie erhoben wurden:"
+      account: "Benutzerkontodaten: bis zur Kontolöschung"
+      logs: "Server-Logs: 30 Tage"
+      local: "Lokal gespeicherte Daten: vom Benutzer kontrolliert"
+    rights:
+      title: "Ihre Rechte"
+      intro: "Gemäß DSGVO haben Sie folgende Rechte:"
+      access: "Auskunftsrecht"
+      access_desc: "Sie können eine Kopie Ihrer Daten anfordern"
+      rectification: "Recht auf Berichtigung"
+      rectification_desc: "Sie können unrichtige Daten korrigieren"
+      erasure: "Recht auf Löschung"
+      erasure_desc: "Sie können die Löschung Ihrer Daten verlangen"
+      portability: "Recht auf Datenübertragbarkeit"
+      portability_desc: "Sie können Ihre Daten in einem portablen Format erhalten"
+      objection: "Widerspruchsrecht"
+      objection_desc: "Sie können der Datenverarbeitung widersprechen"
+      complaint: "Beschwerderecht"
+      complaint_desc: "Sie können sich bei der Aufsichtsbehörde beschweren"
+    authority:
+      title: "Aufsichtsbehörde"
+    contact:
+      title: "Datenschutzkontakt"
+      text: "Bei Fragen zum Schutz Ihrer Daten kontaktieren Sie uns unter:"
+
+  # Terms of Service
+  terms:
+    title: "Nutzungsbedingungen"
+    last_updated: "Zuletzt aktualisiert"
+    intro:
+      title: "Allgemeine Bestimmungen"
+      text1: "Willkommen bei Usput. Durch die Nutzung dieser Website und Dienste akzeptieren Sie diese Nutzungsbedingungen vollständig."
+      text2: "Der Betreiber dieser Website ist Muhamed Isabegović, ein Einzelunternehmer mit Sitz in Österreich."
+      text3: "Wenn Sie mit diesen Bedingungen nicht einverstanden sind, nutzen Sie unsere Website bitte nicht."
+    service:
+      title: "Dienstbeschreibung"
+      text1: "Usput ist eine Plattform zur Reiseentdeckung und -planung, die Benutzern ermöglicht:"
+      feature1: "Erlebnisse und Orte zu durchsuchen"
+      feature2: "Personalisierte Reisepläne zu erstellen"
+      feature3: "Bewertungen und Rezensionen zu hinterlassen"
+      feature4: "Ein Benutzerkonto zur dauerhaften Profilspeicherung zu erstellen"
+      text2: "Der Service ist kostenlos. Wir behalten uns vor, in Zukunft Premium-Funktionen einzuführen."
+    registration:
+      title: "Benutzerregistrierung"
+      text1: "Für bestimmte Funktionen ist eine Registrierung erforderlich. Mit der Registrierung garantieren Sie, dass:"
+      req1: "Sie mindestens 16 Jahre alt sind"
+      req2: "Sie korrekte Informationen angeben"
+      req3: "Sie Ihre Zugangsdaten vertraulich behandeln"
+      req4: "Sie für alle Aktivitäten auf Ihrem Konto verantwortlich sind"
+    content:
+      title: "Benutzerinhalte"
+      text1: "Durch das Veröffentlichen von Inhalten (Bewertungen, Rezensionen) auf unserer Plattform:"
+      grant1: "Erteilen Sie uns eine nicht-exklusive Lizenz zur Nutzung, Anzeige und Verbreitung dieser Inhalte"
+      grant2: "Garantieren Sie, dass Sie das Recht haben, diese Inhalte zu veröffentlichen"
+      grant3: "Garantieren Sie, dass die Inhalte keine Rechte Dritter verletzen"
+      prohibited: "Es ist verboten, Inhalte zu veröffentlichen, die:"
+      prohibited1: "Illegal, beleidigend oder diskriminierend sind"
+      prohibited2: "Falsch oder irreführend sind"
+      prohibited3: "Spam oder unerwünschte Werbung sind"
+      prohibited4: "Urheberrechte verletzen"
+    ip:
+      title: "Geistiges Eigentum"
+      text1: "Alle Inhalte auf dieser Website (einschließlich Text, Grafiken, Logos, Symbole, Bilder und Software) sind Eigentum von Usput oder unseren Lizenzgebern und durch Urheberrechte geschützt."
+      text2: "Das Kopieren, Verbreiten, Modifizieren oder Erstellen abgeleiteter Werke ohne unsere ausdrückliche schriftliche Genehmigung ist nicht gestattet."
+    disclaimer:
+      title: "Haftungsausschluss"
+      text1: "Der Service wird \"wie besehen\" ohne jegliche Garantien, ausdrücklich oder stillschweigend, bereitgestellt."
+      text2: "Wir garantieren nicht:"
+      item1: "Ununterbrochene oder sichere Verfügbarkeit des Service"
+      item2: "Richtigkeit oder Vollständigkeit der Informationen über Orte und Erlebnisse"
+      item3: "Dass der Service Ihren spezifischen Bedürfnissen entspricht"
+      text3: "Nutzen Sie die Informationen auf eigenes Risiko. Überprüfen Sie Informationen immer bei offiziellen Quellen vor der Reise."
+    liability:
+      title: "Haftungsbeschränkung"
+      text1: "Im maximal gesetzlich zulässigen Umfang haften wir nicht für:"
+      item1: "Indirekte, zufällige oder Folgeschäden"
+      item2: "Verlust von Daten oder Gewinnen"
+      item3: "Schäden durch Nutzung oder Unmöglichkeit der Nutzung des Service"
+      text2: "Diese Haftungsbeschränkung berührt nicht Ihre gesetzlichen Verbraucherrechte nach österreichischem Recht."
+    termination:
+      title: "Beendigung"
+      text1: "Sie können die Nutzung des Service jederzeit durch Löschen Ihres Kontos beenden."
+      text2: "Wir behalten uns das Recht vor:"
+      item1: "Ihr Konto bei Verstoß gegen die Bedingungen zu sperren oder zu kündigen"
+      item2: "Den Service mit angemessener Vorankündigung zu ändern oder einzustellen"
+    changes:
+      title: "Änderungen der Bedingungen"
+      text1: "Wir behalten uns das Recht vor, diese Bedingungen jederzeit zu ändern. Wesentliche Änderungen werden auf der Website veröffentlicht."
+      text2: "Die fortgesetzte Nutzung des Service nach Änderungen gilt als Akzeptanz der neuen Bedingungen."
+    law:
+      title: "Anwendbares Recht"
+      text1: "Diese Nutzungsbedingungen unterliegen den Gesetzen der Republik Österreich."
+      text2: "Für die Beilegung von Streitigkeiten sind die Gerichte in Österreich zuständig, sofern zwingende Verbraucherschutzbestimmungen nichts anderes vorsehen."
+    contact:
+      title: "Kontakt"
+      text: "Bei Fragen zu diesen Nutzungsbedingungen kontaktieren Sie uns unter:"
+
+  # ActiveRecord
+  activerecord:
+    models:
+      plan:
+        one: "Plan"
+        other: "Pläne"
+      location:
+        one: "Ort"
+        other: "Orte"
+      experience:
+        one: "Erlebnis"
+        other: "Erlebnisse"
+      city:
+        one: "Ort"
+        other: "Orte"
+    attributes:
+      plan:
+        title: "Titel"
+        start_date: "Startdatum"
+        end_date: "Enddatum"
+        notes: "Notizen"
+        city: "Ort"
+      location:
+        name: "Name"
+        description: "Beschreibung"
+        historical_context: "Historischer Kontext"
+        budget: "Budget"
+        location_type: "Typ"
+        email: "E-Mail"
+        phone: "Telefon"
+        website: "Webseite"
+      experience:
+        title: "Titel"
+        description: "Beschreibung"
+        estimated_duration: "Geschätzte Dauer"
+      city:
+        name: "Name"
+        country_name: "Land"
+        region: "Region"
+
+  # Curator Dashboard
+  curator:
+    title: "Kurator-Dashboard"
+    nav:
+      dashboard: "Übersicht"
+      locations: "Orte"
+      experiences: "Erlebnisse"
+    dashboard:
+      welcome: "Willkommen, %{username}!"
+      total_locations: "Orte gesamt"
+      total_experiences: "Erlebnisse gesamt"
+      total_cities: "Orte gesamt"
+      quick_actions: "Schnellaktionen"
+      new_location: "Neuer Ort"
+      new_experience: "Neues Erlebnis"
+      recent_locations: "Neueste Orte"
+      recent_experiences: "Neueste Erlebnisse"
+      no_locations: "Noch keine Orte"
+      no_experiences: "Noch keine Erlebnisse"
+    locations:
+      title: "Orte"
+      new: "Neuer Ort"
+      edit: "Bearbeiten"
+      view: "Ansehen"
+      delete: "Löschen"
+      edit_title: "Bearbeiten: %{name}"
+      back_to_list: "Zurück zur Liste"
+      name: "Name"
+      city: "Ort"
+      type: "Typ"
+      budget: "Budget"
+      address: "Adresse"
+      description: "Beschreibung"
+      latitude: "Breitengrad"
+      longitude: "Längengrad"
+      coordinates: "Koordinaten"
+      phone: "Telefon"
+      email: "E-Mail"
+      website: "Webseite"
+      opening_hours: "Öffnungszeiten"
+      created_at: "Erstellt"
+      actions: "Aktionen"
+      select_city: "Ort auswählen..."
+      no_locations: "Keine Orte gefunden"
+      created: "Ort erfolgreich erstellt"
+      updated: "Ort erfolgreich aktualisiert"
+      deleted: "Ort erfolgreich gelöscht"
+      confirm_delete: "Möchten Sie %{name} wirklich löschen?"
+      filter:
+        all_cities: "Alle Orte"
+    experiences:
+      title: "Erlebnisse"
+      new: "Neues Erlebnis"
+      edit: "Bearbeiten"
+      view: "Ansehen"
+      delete: "Löschen"
+      edit_title: "Bearbeiten: %{name}"
+      back_to_list: "Zurück zur Liste"
+      name: "Name"
+      city: "Ort"
+      category: "Kategorie"
+      duration: "Dauer"
+      best_season: "Beste Jahreszeit"
+      difficulty: "Schwierigkeit"
+      description: "Beschreibung"
+      created_at: "Erstellt"
+      actions: "Aktionen"
+      select_city: "Ort auswählen..."
+      select_category: "Kategorie auswählen..."
+      no_experiences: "Keine Erlebnisse gefunden"
+      created: "Erlebnis erfolgreich erstellt"
+      updated: "Erlebnis erfolgreich aktualisiert"
+      deleted: "Erlebnis erfolgreich gelöscht"
+      confirm_delete: "Möchten Sie %{name} wirklich löschen?"
+      filter:
+        all_cities: "Alle Orte"
+      seasons:
+        all_year: "Ganzjährig"
+        spring: "Frühling"
+        summer: "Sommer"
+        autumn: "Herbst"
+        winter: "Winter"
+      difficulties:
+        easy: "Einfach"
+        moderate: "Mittel"
+        challenging: "Anspruchsvoll"
+
+  # Admin Dashboard
+  admin:
+    title: "Admin-Dashboard"
+    nav:
+      dashboard: "Übersicht"
+      users: "Benutzer"
+      applications: "Bewerbungen"
+      ai_generations: "KI-Generierungen"
+      admin_panel: "Admin-Panel"
+    dashboard:
+      welcome: "Willkommen, %{username}!"
+      total_users: "Benutzer gesamt"
+      basic_users: "Basis-Benutzer"
+      curator_users: "Kuratoren"
+      admin_users: "Administratoren"
+      total_locations: "Orte gesamt"
+      total_experiences: "Erlebnisse gesamt"
+      total_cities: "Orte gesamt"
+      recent_users: "Neueste Benutzer"
+      view_all_users: "Alle Benutzer anzeigen"
+    users:
+      title: "Benutzerverwaltung"
+      username: "Benutzername"
+      type: "Benutzertyp"
+      created_at: "Erstellt"
+      updated_at: "Aktualisiert"
+      actions: "Aktionen"
+      view: "Ansehen"
+      edit: "Bearbeiten"
+      delete: "Löschen"
+      back_to_list: "Zurück zur Liste"
+      edit_title: "Benutzer bearbeiten: %{username}"
+      type_help: "Basis-Benutzer können durchsuchen. Kuratoren können Inhalte verwalten. Administratoren haben vollen Zugriff."
+      no_users: "Keine Benutzer gefunden"
+      updated: "Benutzer erfolgreich aktualisiert"
+      deleted: "Benutzer erfolgreich gelöscht"
+      cannot_delete_self: "Sie können Ihr eigenes Konto nicht löschen"
+      confirm_delete: "Möchten Sie den Benutzer %{username} wirklich löschen?"
+      types:
+        basic: "Basis"
+        curator: "Kurator"
+        admin: "Administrator"
+      filter:
+        all: "Alle Typen"
+    curator_applications:
+      title: "Kurator-Bewerbungen"
+      user: "Benutzer"
+      status_label: "Status"
+      submitted: "Eingereicht"
+      actions: "Aktionen"
+      view: "Ansehen"
+      approve_btn: "Genehmigen"
+      reject_btn: "Ablehnen"
+      no_applications: "Keine Bewerbungen gefunden"
+      application_from: "Bewerbung von %{username}"
+      back_to_list: "Zurück zur Liste"
+      user_info: "Benutzerinformationen"
+      admin_notes: "Admin-Notizen"
+      rejection_reason: "Ablehnungsgrund (optional)"
+      reviewed_by: "Geprüft von %{admin} am %{date}"
+      approved: "Bewerbung von %{username} wurde genehmigt"
+      rejected: "Bewerbung von %{username} wurde abgelehnt"
+      already_reviewed: "Diese Bewerbung wurde bereits geprüft"
+      confirm_approve: "%{username} als Kurator genehmigen?"
+      confirm_reject: "Bewerbung von %{username} ablehnen?"
+      stats:
+        pending: "Ausstehend"
+        approved: "Genehmigt"
+        rejected: "Abgelehnt"
+
+  # Curator Applications (user-facing)
+  curator_applications:
+    created: "Ihre Bewerbung wurde erfolgreich eingereicht!"
+    status:
+      pending: "Ausstehend"
+      approved: "Genehmigt"
+      rejected: "Abgelehnt"
+    errors:
+      already_curator: "Sie haben bereits Kurator-Rechte"
+      pending_exists: "Sie haben bereits eine ausstehende Bewerbung"
+    new:
+      title: "Kurator werden"
+      subtitle: "Helfen Sie uns, den Inhalt zu verbessern, indem Sie Kurator werden"
+      benefits_title: "Als Kurator können Sie:"
+      benefit_1: "Neue Orte und Erlebnisse hinzufügen"
+      benefit_2: "Bestehende Inhalte bearbeiten, um die Genauigkeit zu verbessern"
+      benefit_3: "Reisenden helfen, versteckte Juwelen zu entdecken"
+    form:
+      motivation: "Warum möchten Sie Kurator werden?"
+      motivation_hint: "Erzählen Sie uns von Ihrer Leidenschaft für Reisen und Ihrem lokalen Wissen (min. 50 Zeichen)"
+      motivation_placeholder: "Ich möchte Kurator werden, weil..."
+      experience: "Relevante Erfahrung (optional)"
+      experience_hint: "Haben Sie Erfahrung im Tourismus, Content-Erstellung oder lokales Wissen?"
+      experience_placeholder: "Ich habe Erfahrung in..."
+      submit: "Bewerbung einreichen"
+    show:
+      title: "Ihre Kurator-Bewerbung"
+      pending_message: "Ihre Bewerbung wird geprüft. Wir benachrichtigen Sie, sobald eine Entscheidung getroffen wurde."
+      approved_message: "Herzlichen Glückwunsch! Ihre Bewerbung wurde genehmigt. Sie haben jetzt Zugang zum Kurator-Dashboard."
+      rejected_message: "Leider wurde Ihre Bewerbung diesmal nicht genehmigt."
+      go_to_dashboard: "Zum Kurator-Dashboard"
+      submitted_at: "Eingereicht"
+      reviewed_at: "Geprüft"
+      feedback: "Feedback"

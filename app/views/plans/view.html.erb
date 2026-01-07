@@ -1,0 +1,548 @@
+<div class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+  <%# Navigation %>
+  <%= render "new_design/header" %>
+
+  <%# Spacer for fixed/absolute header %>
+  <div class="h-20"></div>
+
+  <div class="flex-1 bg-gray-50 dark:bg-gray-900 transition-colors duration-300"
+     data-controller="plan-viewer"
+     data-plan-viewer-plans-key-value="visitumo_plans"
+     data-plan-viewer-active-plan-key-value="visitumo_active_plan"
+     data-plan-viewer-generate-url-value="/plans/generate"
+     data-plan-viewer-recommendations-url-value="/plans/recommendations">
+
+  <!-- Loading State -->
+  <div data-plan-viewer-target="loading" class="flex items-center justify-center min-h-[60vh]">
+    <div class="text-center">
+      <svg class="w-12 h-12 animate-spin text-amber-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <p class="text-gray-600 dark:text-gray-400"><%= t('common.loading', default: 'Učitavanje...') %></p>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div data-plan-viewer-target="empty" class="hidden flex items-center justify-center min-h-[60vh]">
+    <div class="text-center max-w-md mx-auto px-4">
+      <svg class="w-24 h-24 text-gray-300 dark:text-gray-600 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+      </svg>
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        <%= t('plans.view.no_plan', default: 'Nema spremljenog plana') %>
+      </h2>
+      <p class="text-gray-600 dark:text-gray-400 mb-6">
+        <%= t('plans.view.no_plan_description', default: 'Kreirajte novi personalizirani plan za vaše putovanje.') %>
+      </p>
+      <%= link_to plan_wizard_path, class: "inline-flex items-center btn-primary px-6 py-3" do %>
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        <%= t('home.cta.create_plan', default: 'Kreiraj Plan') %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Plan Content -->
+  <div data-plan-viewer-target="content" class="hidden">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-amber-500 to-orange-600 dark:from-amber-700 dark:to-orange-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex items-center justify-between mb-4">
+          <%= link_to explore_path(types: ["plan"]), class: "inline-flex items-center text-white/80 hover:text-white transition-colors" do %>
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+            </svg>
+            <%= t('plans.view.all_plans', default: 'Svi planovi') %>
+          <% end %>
+
+          <%= link_to plan_wizard_path, class: "inline-flex items-center text-white/80 hover:text-white transition-colors" do %>
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            <%= t('plans.view.create_new', default: 'Kreiraj novi') %>
+          <% end %>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-3">
+              <h1 class="text-3xl sm:text-4xl font-bold text-white">
+                <span data-plan-viewer-target="planTitle"><%= t('plans.view.your_plan', default: 'Vaš plan') %></span>
+              </h1>
+              <button type="button"
+                      data-action="click->plan-viewer#showEditTitleModal"
+                      class="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                      title="<%= t('plans.view.edit_title', default: 'Uredi naziv') %>">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+              </button>
+            </div>
+            <div class="flex items-center space-x-4 mt-3">
+              <span class="text-white/90 flex items-center" data-plan-viewer-target="duration">
+                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span data-plan-viewer-target="durationText"></span>
+              </span>
+              <span class="text-white/90 flex items-center">
+                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                <span data-plan-viewer-target="experiencesCount"></span> <%= t('nav.experiences', default: 'iskustava') %>
+              </span>
+            </div>
+            <p class="text-white/80 mt-2 text-sm">
+              <%= t('plans.view.generated', default: 'Generirano') %>: <span data-plan-viewer-target="generatedAt"></span>
+            </p>
+          </div>
+          <div class="flex space-x-2">
+            <a href="#"
+               data-plan-viewer-target="viewPublicButton"
+               class="hidden bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors text-sm">
+              <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+              <%= t('plans.view.view_public', default: 'Pogledaj javno') %>
+            </a>
+            <button type="button"
+                    data-action="click->plan-viewer#toggleVisibility"
+                    data-plan-viewer-target="visibilityButton"
+                    class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors text-sm">
+              <svg class="w-4 h-4 inline-block mr-1" data-plan-viewer-target="visibilityIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span data-plan-viewer-target="visibilityText"><%= t('plans.view.make_public', default: 'Učini javnim') %></span>
+            </button>
+            <button type="button"
+                    data-action="click->plan-viewer#deletePlan"
+                    class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors text-sm">
+              <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+              <%= t('common.delete', default: 'Obriši') %>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="grid gap-8 lg:grid-cols-3">
+        <!-- Main Content - Days -->
+        <div class="lg:col-span-2 space-y-6">
+          <div data-plan-viewer-target="days">
+            <!-- Days will be rendered here by JS -->
+          </div>
+
+          <!-- Recommendations Section -->
+          <div data-plan-viewer-target="recommendations" class="hidden mt-8">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+              <svg class="w-6 h-6 inline-block mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+              </svg>
+              <%= t('plans.view.discover_more', default: 'Otkrijte više') %>
+            </h2>
+
+            <!-- Recommended Experiences -->
+            <div data-plan-viewer-target="recommendedExperiences" class="hidden">
+              <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+                <%= t('plans.view.other_experiences', default: 'Druga iskustva u ovom gradu') %>
+              </h3>
+              <div class="grid gap-4 sm:grid-cols-2" data-plan-viewer-target="recommendedExperiencesList">
+                <!-- Experiences will be rendered here -->
+              </div>
+              <!-- Browse all link -->
+              <div class="mt-6 text-center">
+                <%= link_to explore_path(types: ["experience"]), class: "inline-flex items-center gap-2 text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium transition-colors" do %>
+                  <%= t('plans.view.browse_all_experiences', default: 'Pregledaj sva iskustva') %>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                  </svg>
+                <% end %>
+              </div>
+            </div>
+
+            <!-- Similar Plans -->
+            <div data-plan-viewer-target="similarPlans" class="hidden mt-8">
+              <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+                <%= t('plans.view.popular_plans', default: 'Popularni planovi') %>
+              </h3>
+              <div class="grid gap-4 sm:grid-cols-2" data-plan-viewer-target="similarPlansList">
+                <!-- Plans will be rendered here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+          <!-- Quick Info -->
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><%= t('plans.show.summary', default: 'Pregled') %></h3>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="text-gray-600 dark:text-gray-400"><%= t('plans.show.destination', default: 'Destinacija') %></span>
+                <span class="font-medium text-gray-900 dark:text-white" data-plan-viewer-target="sidebarCity"></span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-gray-600 dark:text-gray-400"><%= t('plans.show.duration', default: 'Trajanje') %></span>
+                <span class="font-medium text-gray-900 dark:text-white" data-plan-viewer-target="sidebarDuration"></span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-gray-600 dark:text-gray-400"><%= t('plans.show.experiences_count', default: 'Iskustva') %></span>
+                <span class="font-medium text-gray-900 dark:text-white" data-plan-viewer-target="sidebarExperiences"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Statistics (if available) -->
+          <div data-plan-viewer-target="statisticsCard" class="hidden bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+              <svg class="w-5 h-5 inline-block mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+              </svg>
+              <%= t('plans.view.statistics', default: 'Statistika') %>
+            </h3>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="text-gray-600 dark:text-gray-400"><%= t('plans.view.total_time', default: 'Ukupno vrijeme') %></span>
+                <span class="font-medium text-gray-900 dark:text-white" data-plan-viewer-target="statsTotalDuration"></span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-gray-600 dark:text-gray-400"><%= t('plans.view.avg_daily', default: 'Prosjek dnevno') %></span>
+                <span class="font-medium text-gray-900 dark:text-white" data-plan-viewer-target="statsAvgDaily"></span>
+              </div>
+              <!-- Daily breakdown -->
+              <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
+                <span class="text-sm text-gray-500 dark:text-gray-400 block mb-2"><%= t('plans.view.daily_breakdown', default: 'Po danima') %></span>
+                <div data-plan-viewer-target="statsDailyBreakdown" class="space-y-2">
+                  <!-- Rendered by JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div data-plan-viewer-target="notesCard" class="hidden bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                <svg class="w-5 h-5 inline-block mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                <%= t('plans.view.notes', default: 'Bilješke') %>
+              </h3>
+              <button type="button"
+                      data-action="click->plan-viewer#showEditNotesModal"
+                      class="p-2 text-gray-400 hover:text-amber-500 dark:hover:text-amber-400 rounded-lg transition-colors"
+                      title="<%= t('plans.view.edit_notes', default: 'Uredi bilješke') %>">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+              </button>
+            </div>
+            <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap" data-plan-viewer-target="notesContent">
+              <!-- Notes will be rendered here -->
+            </p>
+          </div>
+
+          <!-- Add Notes Button (shown when no notes) -->
+          <button type="button"
+                  data-plan-viewer-target="addNotesButton"
+                  data-action="click->plan-viewer#showEditNotesModal"
+                  class="hidden w-full bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-amber-500 dark:hover:border-amber-400 transition-colors group">
+            <div class="flex items-center justify-center gap-3 text-gray-500 dark:text-gray-400 group-hover:text-amber-500 dark:group-hover:text-amber-400">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              <span class="font-medium"><%= t('plans.view.add_notes', default: 'Dodaj bilješke') %></span>
+            </div>
+          </button>
+
+          <!-- Preferences -->
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg" data-plan-viewer-target="preferences">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><%= t('plans.view.preferences', default: 'Vaše preference') %></h3>
+            <div class="space-y-3" data-plan-viewer-target="preferencesList">
+              <!-- Preferences will be rendered here -->
+            </div>
+          </div>
+
+          <!-- CTA -->
+          <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-6 text-white text-center">
+            <h3 class="font-bold text-lg mb-2"><%= t('plans.view.not_satisfied', default: 'Nije ono što tražite?') %></h3>
+            <p class="text-white/80 text-sm mb-4"><%= t('plans.view.try_again', default: 'Generirajte novi plan s istim preferencama ili kreirajte potpuno novi') %></p>
+            <div class="space-y-3">
+              <button type="button"
+                      data-action="click->plan-viewer#regeneratePlan"
+                      data-plan-viewer-target="regenerateButton"
+                      class="w-full inline-flex items-center justify-center bg-white text-amber-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <%= t('plans.view.regenerate', default: 'Generiraj ponovo') %>
+              </button>
+              <%= link_to plan_wizard_path, class: "w-full inline-flex items-center justify-center bg-white/20 text-white px-6 py-3 rounded-lg font-medium hover:bg-white/30 transition-colors" do %>
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                <%= t('plans.view.create_new_plan', default: 'Kreiraj novi plan') %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div data-plan-viewer-target="confirmModal"
+       class="hidden fixed inset-0 z-50 overflow-y-auto"
+       aria-labelledby="modal-title"
+       role="dialog"
+       aria-modal="true">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 transition-opacity"
+         data-action="click->plan-viewer#closeModal"></div>
+
+    <!-- Modal -->
+    <div class="flex min-h-full items-center justify-center p-4">
+      <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-xl transition-all w-full max-w-md">
+        <div class="p-6">
+          <!-- Icon -->
+          <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
+            <svg class="h-7 w-7 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+          </div>
+
+          <!-- Title -->
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white text-center mb-2" id="modal-title">
+            <%= t('plans.view.remove_experience', default: 'Ukloni iskustvo') %>
+          </h3>
+
+          <!-- Message -->
+          <p class="text-gray-600 dark:text-gray-400 text-center mb-6">
+            <%= t('plans.view.remove_experience_confirm', default: 'Želite li ukloniti') %>
+            <span data-plan-viewer-target="confirmModalTitle" class="font-medium text-gray-900 dark:text-white"></span>
+            <%= t('plans.view.from_plan', default: 'iz plana?') %>
+          </p>
+
+          <!-- Buttons -->
+          <div class="flex gap-3">
+            <button type="button"
+                    data-action="click->plan-viewer#closeModal"
+                    class="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <%= t('common.cancel', default: 'Odustani') %>
+            </button>
+            <button type="button"
+                    data-action="click->plan-viewer#confirmRemove"
+                    class="flex-1 px-4 py-3 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition-colors">
+              <%= t('common.remove', default: 'Ukloni') %>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Visibility Toggle Modal -->
+  <div data-plan-viewer-target="visibilityModal"
+       class="hidden fixed inset-0 z-50 overflow-y-auto"
+       aria-labelledby="visibility-modal-title"
+       role="dialog"
+       aria-modal="true">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 transition-opacity"
+         data-action="click->plan-viewer#closeVisibilityModal"></div>
+
+    <!-- Modal -->
+    <div class="flex min-h-full items-center justify-center p-4">
+      <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-xl transition-all w-full max-w-md">
+        <div class="p-6">
+          <!-- Icon - changes based on action -->
+          <div data-plan-viewer-target="visibilityModalIconContainer" class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 mb-4">
+            <svg data-plan-viewer-target="visibilityModalIcon" class="h-7 w-7 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+
+          <!-- Title -->
+          <h3 data-plan-viewer-target="visibilityModalTitle" class="text-lg font-bold text-gray-900 dark:text-white text-center mb-2" id="visibility-modal-title">
+            <%= t('plans.view.make_public_title', default: 'Učini plan javnim') %>
+          </h3>
+
+          <!-- Message -->
+          <p data-plan-viewer-target="visibilityModalMessage" class="text-gray-600 dark:text-gray-400 text-center mb-6">
+            <%= t('plans.view.make_public_description', default: 'Tvoj plan će biti vidljiv svim korisnicima i pomoći će drugima da otkriju nova mjesta.') %>
+          </p>
+
+          <!-- Login required message (shown when not logged in) -->
+          <div data-plan-viewer-target="visibilityLoginRequired" class="hidden mb-6">
+            <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+              <div class="flex">
+                <svg class="w-5 h-5 text-amber-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+                <div class="ml-3">
+                  <p class="text-sm text-amber-700 dark:text-amber-400">
+                    <%= t('plans.view.login_required_to_change_visibility', default: 'Moraš biti prijavljen da bi promijenio vidljivost plana.') %>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex gap-3">
+            <button type="button"
+                    data-action="click->plan-viewer#closeVisibilityModal"
+                    class="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <%= t('common.cancel', default: 'Odustani') %>
+            </button>
+            <!-- Login button (shown when not logged in) -->
+            <%= link_to login_path,
+                        class: "hidden flex-1 px-4 py-3 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors text-center",
+                        data: { plan_viewer_target: "visibilityLoginButton" } do %>
+              <%= t('auth.login_link', default: 'Prijavi se') %>
+            <% end %>
+            <!-- Confirm button (shown when logged in) -->
+            <button type="button"
+                    data-action="click->plan-viewer#confirmVisibilityToggle"
+                    data-plan-viewer-target="confirmVisibilityButton"
+                    class="flex-1 px-4 py-3 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors">
+              <%= t('plans.view.confirm', default: 'Potvrdi') %>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Title Modal -->
+  <div data-plan-viewer-target="editTitleModal"
+       class="hidden fixed inset-0 z-50 overflow-y-auto"
+       aria-labelledby="edit-title-modal-title"
+       role="dialog"
+       aria-modal="true">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 transition-opacity"
+         data-action="click->plan-viewer#closeEditTitleModal"></div>
+
+    <!-- Modal -->
+    <div class="flex min-h-full items-center justify-center p-4">
+      <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-xl transition-all w-full max-w-md">
+        <div class="p-6">
+          <!-- Icon -->
+          <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30 mb-4">
+            <svg class="h-7 w-7 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+          </div>
+
+          <!-- Title -->
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white text-center mb-4" id="edit-title-modal-title">
+            <%= t('plans.view.edit_plan_title', default: 'Uredi naziv plana') %>
+          </h3>
+
+          <!-- Input -->
+          <div class="mb-6">
+            <label for="plan-title-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <%= t('plans.view.plan_title_label', default: 'Naziv plana') %>
+            </label>
+            <input type="text"
+                   id="plan-title-input"
+                   data-plan-viewer-target="titleInput"
+                   class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                   placeholder="<%= t('plans.view.plan_title_placeholder', default: 'npr. Ljetni odmor u Splitu') %>"
+                   maxlength="100"
+                   data-action="keydown.enter->plan-viewer#saveTitle">
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              <%= t('plans.view.plan_title_hint', default: 'Ostavite prazno za automatski naziv') %>
+            </p>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex gap-3">
+            <button type="button"
+                    data-action="click->plan-viewer#closeEditTitleModal"
+                    class="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <%= t('common.cancel', default: 'Odustani') %>
+            </button>
+            <button type="button"
+                    data-action="click->plan-viewer#saveTitle"
+                    class="flex-1 px-4 py-3 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 transition-colors">
+              <%= t('common.save', default: 'Spremi') %>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Notes Modal -->
+  <div data-plan-viewer-target="editNotesModal"
+       class="hidden fixed inset-0 z-50 overflow-y-auto"
+       aria-labelledby="edit-notes-modal-title"
+       role="dialog"
+       aria-modal="true">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 transition-opacity"
+         data-action="click->plan-viewer#closeEditNotesModal"></div>
+
+    <!-- Modal -->
+    <div class="flex min-h-full items-center justify-center p-4">
+      <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-xl transition-all w-full max-w-lg">
+        <div class="p-6">
+          <!-- Icon -->
+          <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30 mb-4">
+            <svg class="h-7 w-7 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+          </div>
+
+          <!-- Title -->
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white text-center mb-4" id="edit-notes-modal-title">
+            <%= t('plans.view.edit_notes_title', default: 'Uredi bilješke') %>
+          </h3>
+
+          <!-- Textarea -->
+          <div class="mb-6">
+            <label for="plan-notes-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <%= t('plans.view.notes_label', default: 'Bilješke za plan') %>
+            </label>
+            <textarea id="plan-notes-input"
+                      data-plan-viewer-target="notesInput"
+                      rows="5"
+                      class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors resize-none"
+                      placeholder="<%= t('plans.view.notes_placeholder', default: 'npr. Ne zaboravi rezervaciju za restoran, ponijeti kišobran...') %>"
+                      maxlength="2000"></textarea>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              <%= t('plans.view.notes_hint', default: 'Dodajte lične bilješke, podsjetinke ili važne informacije za putovanje') %>
+            </p>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex gap-3">
+            <button type="button"
+                    data-action="click->plan-viewer#closeEditNotesModal"
+                    class="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <%= t('common.cancel', default: 'Odustani') %>
+            </button>
+            <button type="button"
+                    data-action="click->plan-viewer#saveNotes"
+                    class="flex-1 px-4 py-3 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 transition-colors">
+              <%= t('common.save', default: 'Spremi') %>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <%# Footer %>
+  <%= render "new_design/footer" %>
+</div>

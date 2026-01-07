@@ -1,0 +1,290 @@
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">AI Content Generator</h1>
+    <%= link_to admin_ai_audio_tours_path, class: "text-sm text-purple-600 hover:text-purple-800" do %>
+      Audio Tours Generator &rarr;
+    <% end %>
+  </div>
+
+  <!-- Generation Status Banner (manual refresh, no polling) -->
+  <div data-controller="generation-status" data-generation-status-url-value="<%= admin_status_admin_ai_path %>">
+    <div data-generation-status-target="container">
+      <%= render partial: "status", locals: { status: @generation_status } %>
+    </div>
+  </div>
+
+  <!-- Main Action Card -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <div class="max-w-2xl mx-auto text-center">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Autonomous Content Generation</h2>
+
+      <p class="text-gray-600 mb-6">
+        AI will automatically analyze what's missing and generate:
+      </p>
+
+      <ul class="text-left text-gray-600 mb-6 space-y-2 max-w-md mx-auto">
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span>New locations for cities with insufficient content</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span>Descriptions and translations for all locations</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span>Curated experiences that connect locations</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span>Travel plans for different tourist profiles</span>
+        </li>
+      </ul>
+
+      <%= form_with url: admin_generate_admin_ai_path, method: :post, class: "space-y-4" do |f| %>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div class="flex items-center gap-2">
+            <label for="max_experiences" class="text-sm text-gray-600">Max experiences:</label>
+            <select name="max_experiences" id="max_experiences" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+              <option value="">Unlimited</option>
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+            </select>
+          </div>
+
+          <button type="submit"
+                  class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  <%= "disabled" if @generation_status[:status] == "in_progress" %>>
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            Generate Content
+          </button>
+        </div>
+      <% end %>
+
+      <p class="text-xs text-gray-400 mt-4">
+        Audio tours are generated separately due to API costs.
+      </p>
+    </div>
+  </div>
+
+  <!-- Fix Location Cities Card -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <div class="max-w-2xl mx-auto">
+      <h2 class="text-lg font-semibold text-gray-900 mb-2 text-center">Fix Location Cities</h2>
+
+      <p class="text-gray-600 mb-4 text-center text-sm">
+        Use reverse geocoding to fix incorrectly assigned city names for locations.
+      </p>
+
+      <!-- Fix Cities Status -->
+      <div class="mb-4">
+        <%= render partial: "fix_cities_status", locals: { status: @fix_cities_status } %>
+      </div>
+
+      <ul class="text-left text-gray-600 mb-6 space-y-2 max-w-md mx-auto text-sm">
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-orange-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          <span>Checks all locations using reverse geocoding (Nominatim)</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-orange-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+          </svg>
+          <span>Corrects city names that were incorrectly assigned by AI</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-orange-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          <span>Optionally regenerates descriptions with correct city context</span>
+        </li>
+      </ul>
+
+      <%= form_with url: admin_fix_cities_admin_ai_path, method: :post, class: "space-y-4" do |f| %>
+        <div class="flex flex-col items-center gap-4">
+          <div class="flex flex-wrap items-center justify-center gap-4">
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="regenerate_content" value="1" class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
+              <span>Regenerate descriptions</span>
+            </label>
+
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="dry_run" value="1" class="rounded border-gray-300 text-gray-600 focus:ring-gray-500">
+              <span>Preview only (no changes)</span>
+            </label>
+
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="clear_cache" value="1" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+              <span>Clear geocoder cache (fetch fresh data)</span>
+            </label>
+          </div>
+
+          <button type="submit"
+                  class="inline-flex items-center gap-2 px-6 py-3 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  <%= "disabled" if @fix_cities_status[:status] == "in_progress" %>>
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Fix City Names
+          </button>
+        </div>
+      <% end %>
+
+      <p class="text-xs text-gray-400 mt-4 text-center">
+        Note: This process is rate-limited (1 req/sec) to respect Nominatim usage policy.
+      </p>
+    </div>
+  </div>
+
+  <!-- Current State Stats -->
+  <div class="bg-white shadow rounded-lg overflow-hidden">
+    <h2 class="text-lg font-semibold p-4 sm:p-6 border-b text-gray-900">Current Content State</h2>
+
+    <!-- Summary Stats -->
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-px bg-gray-200">
+      <div class="bg-white p-4 text-center">
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900"><%= @stats[:totals][:locations] %></div>
+        <div class="text-xs sm:text-sm text-gray-500">Locations</div>
+      </div>
+      <div class="bg-white p-4 text-center">
+        <div class="text-2xl sm:text-3xl font-bold text-teal-600"><%= @stats[:totals][:experiences] %></div>
+        <div class="text-xs sm:text-sm text-gray-500">Experiences</div>
+      </div>
+      <div class="bg-white p-4 text-center">
+        <div class="text-2xl sm:text-3xl font-bold text-indigo-600"><%= @stats[:totals][:plans] %></div>
+        <div class="text-xs sm:text-sm text-gray-500">Plans</div>
+      </div>
+      <div class="bg-white p-4 text-center">
+        <div class="text-2xl sm:text-3xl font-bold text-purple-600"><%= @stats[:totals][:ai_plans] %></div>
+        <div class="text-xs sm:text-sm text-gray-500">AI Plans</div>
+      </div>
+      <div class="bg-white p-4 text-center col-span-2 sm:col-span-1">
+        <div class="text-2xl sm:text-3xl font-bold text-amber-600"><%= @stats[:totals][:audio] %></div>
+        <div class="text-xs sm:text-sm text-gray-500">Audio Tours</div>
+      </div>
+    </div>
+
+    <!-- City Breakdown Table -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City</th>
+            <th class="px-4 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Locations</th>
+            <th class="px-4 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Experiences</th>
+            <th class="px-4 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Plans</th>
+            <th class="px-4 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Audio</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @stats[:cities].each do |city_stat| %>
+            <tr class="<%= city_stat[:locations] < 10 ? 'bg-yellow-50' : '' %>">
+              <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                <div class="font-medium text-gray-900"><%= city_stat[:city] %></div>
+                <% if city_stat[:locations] < 10 %>
+                  <span class="text-xs text-yellow-600">Needs more content</span>
+                <% end %>
+              </td>
+              <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
+                <%= city_stat[:locations] %>
+              </td>
+              <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
+                <%= city_stat[:experiences] %>
+              </td>
+              <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
+                <%= city_stat[:plans] %>
+                <% if city_stat[:ai_plans] > 0 %>
+                  <span class="text-xs text-purple-600">(<%= city_stat[:ai_plans] %> AI)</span>
+                <% end %>
+              </td>
+              <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-center text-sm">
+                <span class="<%= city_stat[:audio_coverage] >= 80 ? 'text-green-600' : city_stat[:audio_coverage] >= 50 ? 'text-yellow-600' : 'text-red-600' %>">
+                  <%= city_stat[:audio] %>/<%= city_stat[:locations] %>
+                </span>
+                <span class="text-xs text-gray-400">(<%= city_stat[:audio_coverage] %>%)</span>
+              </td>
+            </tr>
+          <% end %>
+
+          <% if @stats[:cities].empty? %>
+            <tr>
+              <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                No content yet. Click "Generate Content" to start.
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Last Generation Report -->
+  <% if @last_generation.present? %>
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Last Generation</h2>
+
+      <div class="flex flex-wrap items-center gap-4 text-sm mb-4">
+        <div class="flex items-center gap-2">
+          <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span class="text-gray-600"><%= @last_generation[:started_at].strftime("%Y-%m-%d %H:%M") %></span>
+        </div>
+
+        <% case @last_generation[:status] %>
+        <% when "completed" %>
+          <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800"><%= t("admin.ai.status.completed") %></span>
+        <% when "in_progress" %>
+          <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800"><%= t("admin.ai.status.in_progress") %></span>
+        <% when "cancelled" %>
+          <span class="px-2 py-1 text-xs rounded-full bg-amber-100 text-amber-800"><%= t("admin.ai.status.cancelled") %></span>
+        <% when "failed" %>
+          <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800"><%= t("admin.ai.status.failed") %></span>
+        <% end %>
+      </div>
+
+      <% if @last_generation[:results].present? %>
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <div class="text-2xl font-bold text-gray-900"><%= @last_generation[:results]["locations_created"] || 0 %></div>
+            <div class="text-xs text-gray-500">Locations Created</div>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-teal-600"><%= @last_generation[:results]["experiences_created"] || 0 %></div>
+            <div class="text-xs text-gray-500">Experiences Created</div>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-indigo-600"><%= @last_generation[:results]["plans_created"] || 0 %></div>
+            <div class="text-xs text-gray-500">Plans Created</div>
+          </div>
+        </div>
+
+        <% if @last_generation[:plan].present? && @last_generation[:plan]["analysis"].present? %>
+          <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+            <p class="text-sm text-gray-600">
+              <strong>AI Analysis:</strong> <%= @last_generation[:plan]["analysis"] %>
+            </p>
+          </div>
+        <% end %>
+      <% end %>
+
+      <%= link_to "View Full Report", admin_report_admin_ai_path, class: "text-sm text-indigo-600 hover:text-indigo-800 mt-4 inline-block" %>
+    </div>
+  <% end %>
+</div>

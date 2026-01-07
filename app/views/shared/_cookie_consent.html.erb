@@ -1,0 +1,65 @@
+<%# Cookie Consent Banner - GDPR Compliant %>
+<div data-controller="cookie-consent"
+     data-cookie-consent-storage-key-value="cookie_consent">
+  <div data-cookie-consent-target="banner"
+       class="hidden fixed bottom-0 inset-x-0 z-50 p-4 sm:p-6 transition-all duration-300 transform translate-y-full opacity-0 cookie-consent-banner">
+    <div class="max-w-4xl mx-auto">
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="p-6">
+          <div class="flex flex-col sm:flex-row sm:items-start gap-4">
+            <%# Cookie Icon %>
+            <div class="flex-shrink-0 hidden sm:block">
+              <div class="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+            </div>
+
+            <%# Content %>
+            <div class="flex-grow">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                <%= t("cookie_consent.title", default: "Kolačići i privatnost") %>
+              </h3>
+              <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                <%= t("cookie_consent.message", default: "Koristimo samo tehički neophodne kolačiće za funkcionisanje stranice (sesija, tema). Ne koristimo analitiku niti pratimo vaše aktivnosti.") %>
+                <%= link_to t("cookie_consent.learn_more", default: "Saznaj više"), privacy_path, class: "text-emerald-600 dark:text-emerald-400 hover:underline font-medium" %>.
+              </p>
+
+              <%# Buttons %>
+              <div class="flex flex-col sm:flex-row gap-3">
+                <button data-action="click->cookie-consent#accept"
+                        class="inline-flex items-center justify-center px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-medium rounded-lg hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  <%= t("cookie_consent.accept", default: "Prihvatam") %>
+                </button>
+                <button data-action="click->cookie-consent#decline"
+                        class="inline-flex items-center justify-center px-6 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                  <%= t("cookie_consent.decline", default: "Samo neophodni") %>
+                </button>
+              </div>
+            </div>
+
+            <%# Close button %>
+            <button data-action="click->cookie-consent#decline"
+                    class="absolute top-4 right-4 sm:relative sm:top-auto sm:right-auto p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                    aria-label="<%= t('common.close', default: 'Zatvori') %>">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .cookie-consent-banner.cookie-consent-visible {
+    transform: translateY(0);
+    opacity: 1;
+  }
+</style>

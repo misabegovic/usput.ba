@@ -1,0 +1,65 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
+  <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+      <div class="px-6 py-8 sm:p-10">
+        <div class="text-center mb-8">
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+            <%= t("curator_applications.new.title") %>
+          </h1>
+          <p class="mt-2 text-gray-600 dark:text-gray-400">
+            <%= t("curator_applications.new.subtitle") %>
+          </p>
+        </div>
+
+        <!-- Benefits -->
+        <div class="mb-8 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+          <h3 class="font-semibold text-emerald-800 dark:text-emerald-300 mb-2">
+            <%= t("curator_applications.new.benefits_title") %>
+          </h3>
+          <ul class="text-sm text-emerald-700 dark:text-emerald-400 space-y-1">
+            <li>• <%= t("curator_applications.new.benefit_1") %></li>
+            <li>• <%= t("curator_applications.new.benefit_2") %></li>
+            <li>• <%= t("curator_applications.new.benefit_3") %></li>
+          </ul>
+        </div>
+
+        <%= form_with model: @application, url: curator_applications_path, class: "space-y-6" do |f| %>
+          <% if @application.errors.any? %>
+            <div class="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
+              <div class="text-sm text-red-700 dark:text-red-400">
+                <ul class="list-disc pl-5 space-y-1">
+                  <% @application.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+          <% end %>
+
+          <div>
+            <%= f.label :motivation, t("curator_applications.form.motivation"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400"><%= t("curator_applications.form.motivation_hint") %></p>
+            <%= f.text_area :motivation, rows: 6,
+                class: "mt-2 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm",
+                placeholder: t("curator_applications.form.motivation_placeholder") %>
+          </div>
+
+          <div>
+            <%= f.label :experience, t("curator_applications.form.experience"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400"><%= t("curator_applications.form.experience_hint") %></p>
+            <%= f.text_area :experience, rows: 4,
+                class: "mt-2 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm",
+                placeholder: t("curator_applications.form.experience_placeholder") %>
+          </div>
+
+          <div class="flex items-center justify-between pt-4">
+            <%= link_to t("common.cancel"), root_path,
+                class: "text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" %>
+            <%= f.submit t("curator_applications.form.submit"),
+                class: "inline-flex justify-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 cursor-pointer" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

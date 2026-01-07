@@ -1,0 +1,21 @@
+<div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-5">
+  <div class="flex items-start justify-between mb-3">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-white font-bold">
+        <%= review.author_name.present? ? review.author_name[0].upcase : "?" %>
+      </div>
+      <div>
+        <p class="font-medium text-gray-900 dark:text-white">
+          <%= review.author_name.presence || t("reviews.anonymous", default: "Anonimno") %>
+        </p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          <%= l(review.created_at, format: :short) rescue review.created_at.strftime("%d.%m.%Y") %>
+        </p>
+      </div>
+    </div>
+    <%= render "shared/star_rating", rating: review.rating %>
+  </div>
+  <% if review.comment.present? %>
+    <p class="text-gray-700 dark:text-gray-300"><%= simple_format(h(review.comment), {}, wrapper_tag: "span") %></p>
+  <% end %>
+</div>

@@ -1,0 +1,645 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300"
+     data-controller="travel-profile"
+     data-travel-profile-item-id-value="<%= @location.uuid %>"
+     data-travel-profile-item-type-value="location"
+     data-travel-profile-item-name-value="<%= @location.translate(:name, I18n.locale) %>"
+     data-travel-profile-logged-in-value="<%= logged_in? %>"
+     data-travel-profile-translations-value="<%= travel_profile_translations_json %>"
+     <% if @location.geocoded? %>
+     data-travel-profile-location-lat-value="<%= @location.lat %>"
+     data-travel-profile-location-lng-value="<%= @location.lng %>"
+     <% end %>>
+  <%# Navigation %>
+  <%= render "new_design/header" %>
+
+  <%# Spacer for fixed header %>
+  <div class="h-20"></div>
+
+  <%# Hero Section - Styled like homepage %>
+  <div class="relative isolate bg-white dark:bg-gray-900 overflow-hidden">
+    <%# SVG Pattern Background %>
+    <svg aria-hidden="true" class="absolute inset-x-0 top-0 -z-10 h-full w-full [mask-image:radial-gradient(32rem_32rem_at_center,white,transparent)] stroke-gray-200 dark:stroke-white/10">
+      <defs>
+        <pattern id="location-hero-pattern" width="200" height="200" x="50%" y="-1" patternUnits="userSpaceOnUse">
+          <path d="M.5 200V.5H200" fill="none" />
+        </pattern>
+      </defs>
+      <svg x="50%" y="-1" class="overflow-visible fill-gray-50 dark:fill-gray-800">
+        <path d="M-200 0h201v201h-201Z M600 0h201v201h-201Z M-400 600h201v201h-201Z M200 800h201v201h-201Z" stroke-width="0" />
+      </svg>
+      <rect width="100%" height="100%" fill="url(#location-hero-pattern)" stroke-width="0" />
+    </svg>
+
+    <%# Blur gradient accent %>
+    <div aria-hidden="true" class="absolute top-0 right-0 left-1/2 -z-10 -ml-24 transform-gpu overflow-hidden blur-3xl lg:ml-24 xl:ml-48">
+      <div style="clip-path: polygon(63.1% 29.5%, 100% 17.1%, 76.6% 3%, 48.4% 0%, 44.6% 4.7%, 54.5% 25.3%, 59.8% 49%, 55.2% 57.8%, 44.4% 57.2%, 27.8% 47.9%, 35.1% 81.5%, 0% 97.7%, 39.2% 100%, 35.2% 81.4%, 97.2% 52.8%, 63.1% 29.5%); aspect-ratio: 801/1036;" class="w-[50rem] bg-gradient-to-tr from-emerald-400/30 to-blue-400/30 dark:from-emerald-600/20 dark:to-blue-500/20 opacity-70"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+      <%# Back link %>
+      <%= link_to smart_back_path, class: "inline-flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6 transition-colors" do %>
+        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        <%= t("common.back") %>
+      <% end %>
+
+      <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
+        <%# Left side - Title and basic info %>
+        <div class="flex-1">
+          <span class="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/30 rounded-full text-xs font-semibold text-blue-600 dark:text-blue-400 mb-4">
+            <%= t("locations.types.#{@location.location_type}") %>
+          </span>
+          <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+            <%= @location.translate(:name, I18n.locale) %>
+          </h1>
+          <% if @location.city %>
+            <p class="text-gray-600 dark:text-gray-400 mt-3 flex items-center text-lg">
+              <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              </svg>
+              <%= @location.city %>
+            </p>
+          <% end %>
+
+          <%# Rating inline on mobile %>
+          <div class="flex items-center gap-3 mt-4">
+            <div class="flex items-center">
+              <%= render "shared/star_rating", rating: @location.average_rating %>
+            </div>
+            <span class="text-2xl font-bold text-gray-900 dark:text-white"><%= number_with_precision(@location.average_rating, precision: 1) %></span>
+            <span class="text-gray-500 dark:text-gray-400">(<%= @location.reviews_count %> <%= t("reviews.count", count: @location.reviews_count) %>)</span>
+          </div>
+        </div>
+
+        <%# Right side - Action buttons %>
+        <div class="flex flex-wrap gap-3 lg:flex-col lg:w-auto">
+          <%# Action buttons %>
+          <div class="flex gap-2 flex-wrap">
+            <%# Share Button %>
+            <div data-controller="share" data-share-success-message-value="<%= t('common.link_copied', default: 'Link kopiran!') %>">
+              <button data-share-target="button"
+                      data-action="click->share#copy"
+                      class="inline-flex items-center space-x-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                      aria-label="<%= t('common.share', default: 'Podijeli') %>">
+                <svg data-share-target="icon" class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                </svg>
+                <svg data-share-target="checkIcon" class="w-5 h-5 text-emerald-500 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span data-share-target="text" class="text-sm font-medium text-gray-700 dark:text-gray-300"><%= t('common.share', default: 'Podijeli') %></span>
+              </button>
+            </div>
+
+            <%# Favorite Button %>
+            <button data-action="click->travel-profile#toggleFavorite"
+                    data-travel-profile-target="favoriteButton"
+                    class="inline-flex items-center space-x-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors group"
+                    aria-label="<%= t('profile.add_favorite', default: 'Dodaj u omiljene') %>"
+                    title="<%= t('profile.add_favorite', default: 'Dodaj u omiljene') %>">
+              <svg class="w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-red-500 heart-empty transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+              </svg>
+              <svg class="w-5 h-5 text-red-500 heart-filled hidden" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+              </svg>
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-red-500 transition-colors"><%= t('profile.add_favorite', default: 'Spremi') %></span>
+            </button>
+
+            <%# Visited Button %>
+            <button data-action="click->travel-profile#markVisited"
+                    data-travel-profile-target="visitedButton"
+                    data-city="<%= @location.city %>"
+                    data-tags="<%= @location.suitable_experiences.join(',') %>"
+                    class="inline-flex items-center space-x-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors group"
+                    aria-label="<%= t('profile.mark_visited', default: 'Označi kao posjećeno') %>"
+                    title="<%= t('profile.mark_visited', default: 'Označi kao posjećeno') %>">
+              <svg class="w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-emerald-500 check-empty transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <svg class="w-5 h-5 text-emerald-500 check-filled hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-emerald-500 transition-colors"><%= t('profile.mark_visited', default: 'Posjećeno') %></span>
+            </button>
+          </div>
+
+          <%# Feedback message area %>
+          <div data-travel-profile-target="feedbackMessage"
+               class="hidden mt-3 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Photo Gallery Section - Horizontal Slider %>
+  <% if @location.photos.attached? %>
+    <div class="bg-gray-100 dark:bg-gray-800 py-6"
+         data-controller="photo-gallery"
+         data-photo-gallery-index-value="0">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+            <svg class="w-5 h-5 mr-2 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <%= t("locations.show.photos", default: "Fotografije") %>
+            <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">(<%= @location.photos.count %>)</span>
+          </h2>
+          <button data-action="click->photo-gallery#openLightbox"
+                  data-index="0"
+                  class="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium flex items-center">
+            <%= t("locations.show.view_all", default: "Pogledaj sve") %>
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+            </svg>
+          </button>
+        </div>
+
+        <%# Horizontal slider %>
+        <div class="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
+             data-photo-gallery-target="slider">
+          <% @location.photos.each_with_index do |photo, index| %>
+            <button data-action="click->photo-gallery#openLightbox"
+                    data-index="<%= index %>"
+                    data-photo-gallery-target="thumbnail"
+                    class="flex-shrink-0 snap-start rounded-xl overflow-hidden ring-2 transition-all hover:ring-emerald-400 focus:outline-none focus:ring-emerald-500 <%= index == 0 ? 'ring-emerald-500' : 'ring-transparent' %>"
+                    aria-label="<%= t('locations.show.view_photo', number: index + 1, default: 'Pogledaj fotografiju %{number}') %>">
+              <%= image_tag photo.variant(resize_to_fill: [400, 300]), class: "w-48 h-36 sm:w-56 sm:h-40 object-cover", alt: "#{@location.translate(:name, I18n.locale)} - #{index + 1}" %>
+            </button>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Lightbox Modal %>
+      <div data-photo-gallery-target="lightbox"
+           data-action="click->photo-gallery#closeLightboxOnBackground"
+           class="hidden fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
+        <%# Close button %>
+        <button data-action="click->photo-gallery#closeLightbox"
+                class="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
+                aria-label="<%= t('common.close', default: 'Zatvori') %>">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+
+        <%# Counter %>
+        <div data-photo-gallery-target="lightboxCounter"
+             class="absolute top-4 left-4 px-3 py-1.5 bg-black/60 rounded-full text-white text-sm font-medium">
+          1 / <%= @location.photos.count %>
+        </div>
+
+        <%# Navigation arrows %>
+        <% if @location.photos.count > 1 %>
+          <button data-action="click->photo-gallery#previous"
+                  class="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                  aria-label="<%= t('common.previous', default: 'Prethodna') %>">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <button data-action="click->photo-gallery#next"
+                  class="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                  aria-label="<%= t('common.next', default: 'Sljedeća') %>">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        <% end %>
+
+        <%# Main image %>
+        <div class="max-w-6xl max-h-[85vh] mx-4">
+          <img data-photo-gallery-target="lightboxImage"
+               src=""
+               alt=""
+               class="max-w-full max-h-[85vh] object-contain rounded-lg">
+        </div>
+
+        <%# Thumbnail strip at bottom %>
+        <div class="absolute bottom-4 left-0 right-0 px-4">
+          <div class="max-w-4xl mx-auto flex gap-2 justify-center overflow-x-auto pb-2">
+            <% @location.photos.each_with_index do |photo, index| %>
+              <button data-action="click->photo-gallery#goTo"
+                      data-index="<%= index %>"
+                      data-photo-gallery-target="lightboxThumbnail"
+                      class="flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden ring-2 transition-all hover:opacity-100 <%= index == 0 ? 'ring-emerald-500 opacity-100' : 'ring-transparent opacity-60' %>"
+                      aria-label="<%= t('locations.show.go_to_photo', number: index + 1, default: 'Idi na fotografiju %{number}') %>">
+                <%= image_tag photo.variant(resize_to_fill: [128, 96]), class: "w-full h-full object-cover", alt: "Thumbnail #{index + 1}" %>
+              </button>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Content %>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid gap-8 lg:grid-cols-3">
+      <%# Main Content %>
+      <div class="lg:col-span-2 space-y-8">
+        <%# Video %>
+        <% if @location.video_url.present? %>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center mr-4">
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path>
+                </svg>
+              </div>
+              <div>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white"><%= t("locations.show.video", default: "Video") %></h2>
+                <p class="text-gray-600 dark:text-gray-400 text-sm"><%= t("locations.show.video_subtitle", default: "Pogledaj video o ovoj lokaciji") %></p>
+              </div>
+            </div>
+            <div class="aspect-video rounded-xl overflow-hidden">
+              <% youtube_id = @location.video_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/)&.[](1) %>
+              <% if youtube_id %>
+                <iframe
+                  src="https://www.youtube.com/embed/<%= youtube_id %>"
+                  class="w-full h-full"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen>
+                </iframe>
+              <% else %>
+                <a href="<%= @location.video_url %>" target="_blank" class="flex items-center justify-center w-full h-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                  <span class="text-gray-600 dark:text-gray-300"><%= t("locations.show.watch_video", default: "Pogledaj video") %> →</span>
+                </a>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <%# Audio Tour - Multilingual %>
+        <% if @location.has_audio_tours? %>
+          <% available_tours = @location.audio_tours.with_audio %>
+          <% current_tour = @location.audio_tour_with_fallback(I18n.locale) %>
+          <% if current_tour %>
+            <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 shadow-lg text-white"
+                 data-controller="audio-tour"
+                 data-audio-tour-current-locale-value="<%= current_tour.locale %>"
+                 data-audio-tour-audio-urls-value="<%= available_tours.each_with_object({}) { |t, h| h[t.locale] = rails_blob_path(t.audio_file, only_path: true) }.to_json %>">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                  <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold"><%= t("locations.show.audio_tour", default: "Audio Tura") %></h2>
+                    <p class="text-white/80 text-sm"><%= t("locations.show.audio_tour_subtitle", default: "Slušaj priču o ovoj lokaciji") %></p>
+                  </div>
+                </div>
+
+                <%# Language Selector %>
+                <% if available_tours.count > 1 %>
+                  <div class="relative">
+                    <button type="button"
+                            data-action="click->audio-tour#toggleMenu"
+                            class="flex items-center space-x-2 bg-white/20 hover:bg-white/30 rounded-lg px-3 py-2 transition-colors">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                      </svg>
+                      <span data-audio-tour-target="currentLanguage"><%= current_tour.language_name %></span>
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                      </svg>
+                    </button>
+
+                    <%# Language dropdown menu %>
+                    <div data-audio-tour-target="languageMenu"
+                         class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden z-10">
+                      <% available_tours.each do |tour| %>
+                        <button type="button"
+                                data-action="click->audio-tour#selectLanguage"
+                                data-audio-tour-target="languageButton"
+                                data-locale="<%= tour.locale %>"
+                                data-language-name="<%= tour.language_name %>"
+                                data-audio-url="<%= rails_blob_path(tour.audio_file, only_path: true) %>"
+                                class="w-full text-left px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-between <%= tour.locale == current_tour.locale ? 'bg-emerald-50 dark:bg-emerald-900/20' : '' %>">
+                          <span><%= tour.language_name %></span>
+                          <% if tour.estimated_duration %>
+                            <span class="text-xs text-gray-500 dark:text-gray-400"><%= tour.estimated_duration %></span>
+                          <% end %>
+                        </button>
+                      <% end %>
+                    </div>
+                  </div>
+                <% else %>
+                  <%# Show single language badge when only one language available %>
+                  <span class="bg-white/20 rounded-lg px-3 py-2 text-sm">
+                    <%= current_tour.language_name %>
+                  </span>
+                <% end %>
+              </div>
+
+              <%# Audio Player %>
+              <audio controls
+                     class="w-full"
+                     preload="metadata"
+                     data-audio-tour-target="player">
+                <source src="<%= rails_blob_path(current_tour.audio_file) %>" type="<%= current_tour.audio_file.content_type %>">
+                <%= t("locations.show.audio_not_supported", default: "Tvoj preglednik ne podržava audio player.") %>
+              </audio>
+
+              <%# Duration, languages info and fullscreen link %>
+              <div class="flex items-center justify-between mt-3 text-white/70 text-sm">
+                <div class="flex items-center space-x-4">
+                  <% if current_tour.estimated_duration %>
+                    <span class="flex items-center">
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      <span data-audio-tour-target="duration"><%= current_tour.estimated_duration %></span>
+                    </span>
+                  <% end %>
+                  <span class="flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                    </svg>
+                    <%= t("locations.show.languages_available", count: available_tours.count, default: "%{count} jezika") %>
+                  </span>
+                </div>
+                <%# Fullscreen mode link %>
+                <%= link_to audio_tour_location_path(@location),
+                            class: "flex items-center space-x-1 bg-white/20 hover:bg-white/30 rounded-lg px-3 py-1.5 transition-colors",
+                            title: t("locations.show.open_fullscreen", default: "Otvori u punom ekranu") do %>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                  </svg>
+                  <span class="hidden sm:inline"><%= t("locations.show.fullscreen", default: "Puni ekran") %></span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+
+        <%# Description %>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4"><%= t("locations.show.about", default: "O lokaciji") %></h2>
+          <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+            <%= @location.translate(:description, I18n.locale) %>
+          </p>
+          <% if @location.historical_context.present? %>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mt-6 mb-3"><%= t("locations.show.history", default: "Povijesni kontekst") %></h3>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              <%= @location.translate(:historical_context, I18n.locale) %>
+            </p>
+          <% end %>
+        </div>
+
+        <%# Reviews Section %>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+          <%= render "reviews/reviews_section", reviewable: @location %>
+        </div>
+      </div>
+
+      <%# Sidebar %>
+      <div class="space-y-6">
+        <%# Quick Info %>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><%= t("locations.show.info", default: "Informacije") %></h3>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600 dark:text-gray-400"><%= t("locations.show.budget", default: "Budzet") %></span>
+              <span class="font-medium text-gray-900 dark:text-white"><%= t("locations.budget.#{@location.budget}") %></span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600 dark:text-gray-400"><%= t("locations.show.type", default: "Tip") %></span>
+              <span class="font-medium text-gray-900 dark:text-white"><%= t("locations.types.#{@location.location_type}") %></span>
+            </div>
+          </div>
+        </div>
+
+        <%# Location / Google Maps %>
+        <% if @location.geocoded? %>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+              <svg class="w-5 h-5 mr-2 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <%= t("locations.show.location", default: "Lokacija") %>
+            </h3>
+            <div class="space-y-4">
+              <%# Coordinates %>
+              <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-sm text-gray-500 dark:text-gray-400"><%= t("locations.show.coordinates", default: "Koordinate") %></span>
+                </div>
+                <div class="font-mono text-sm text-gray-900 dark:text-white">
+                  <%= number_with_precision(@location.lat, precision: 6) %>, <%= number_with_precision(@location.lng, precision: 6) %>
+                </div>
+              </div>
+
+              <%# Google Maps Button %>
+              <a href="https://www.google.com/maps/search/?api=1&query=<%= @location.lat %>,<%= @location.lng %>"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="flex items-center justify-center w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 rounded-xl text-white font-medium transition-all shadow-md hover:shadow-lg">
+                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+                <%= t("locations.show.view_in_google_maps", default: "Otvori u Google Maps") %>
+              </a>
+
+              <%# Get Directions Button %>
+              <a href="https://www.google.com/maps/dir/?api=1&destination=<%= @location.lat %>,<%= @location.lng %>"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="flex items-center justify-center w-full py-3 px-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl text-gray-700 dark:text-gray-300 font-medium transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                </svg>
+                <%= t("locations.show.get_directions", default: "Dobij upute") %>
+              </a>
+            </div>
+          </div>
+        <% end %>
+
+        <%# Contact Info %>
+        <% if @location.has_contact_info? %>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><%= t("locations.show.contact", default: "Kontakt") %></h3>
+            <div class="space-y-3">
+              <% if @location.phone.present? %>
+                <a href="tel:<%= @location.phone %>" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">
+                  <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                  </svg>
+                  <%= @location.phone %>
+                </a>
+              <% end %>
+              <% if @location.email.present? %>
+                <a href="mailto:<%= @location.email %>" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">
+                  <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                  </svg>
+                  <%= @location.email %>
+                </a>
+              <% end %>
+              <% if @location.website.present? %>
+                <a href="<%= @location.website %>" target="_blank" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">
+                  <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                  </svg>
+                  <%= t("locations.show.website", default: "Web stranica") %>
+                </a>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <%# Nearby Locations %>
+        <% if @nearby_locations.any? %>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><%= t("locations.show.nearby_locations", default: "Lokacije u blizini") %></h3>
+            <div class="space-y-4">
+              <% @nearby_locations.each do |nearby| %>
+                <%= link_to location_path(nearby), class: "block group" do %>
+                  <div class="flex items-start space-x-3">
+                    <% if nearby.photos.attached? %>
+                      <%= image_tag nearby.photos.first, class: "w-16 h-16 rounded-lg object-cover flex-shrink-0", alt: nearby.translate(:name, I18n.locale) %>
+                    <% else %>
+                      <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        </svg>
+                      </div>
+                    <% end %>
+                    <div class="flex-1 min-w-0">
+                      <p class="font-medium text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate">
+                        <%= nearby.translate(:name, I18n.locale) %>
+                      </p>
+                      <div class="flex items-center mt-1">
+                        <%= render "shared/star_rating", rating: nearby.average_rating, size: "sm" %>
+                        <span class="ml-1 text-xs text-gray-500 dark:text-gray-400"><%= number_with_precision(nearby.average_rating, precision: 1) %></span>
+                      </div>
+                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"><%= t("locations.types.#{nearby.location_type}") %></p>
+                    </div>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+            <%# Link to explore all locations in this city %>
+            <% if @location.city.present? %>
+              <%= link_to explore_path(city: @location.city), class: "mt-4 flex items-center justify-center w-full py-2.5 px-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors" do %>
+                <%= t("locations.show.see_all_locations", default: "Pogledaj sve lokacije") %>
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+
+        <%# Related Experiences %>
+        <% if @related_experiences.any? %>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+              <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                </svg>
+                <%= t("locations.show.related_experiences", default: "Iskustva s ovom lokacijom") %>
+              </div>
+            </h3>
+            <div class="space-y-4">
+              <% @related_experiences.first(3).each do |experience| %>
+                <%= link_to experience_path(experience), class: "block group" do %>
+                  <div class="flex items-start space-x-3">
+                    <% if experience.cover_photo.attached? %>
+                      <%= image_tag experience.cover_photo, class: "w-16 h-16 rounded-lg object-cover flex-shrink-0", alt: experience.title %>
+                    <% else %>
+                      <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                        </svg>
+                      </div>
+                    <% end %>
+                    <div class="flex-1 min-w-0">
+                      <p class="font-medium text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate">
+                        <%= experience.title %>
+                      </p>
+                      <div class="flex items-center mt-1">
+                        <%= render "shared/star_rating", rating: experience.average_rating, size: "sm" %>
+                        <span class="ml-1 text-xs text-gray-500 dark:text-gray-400"><%= number_with_precision(experience.average_rating || 0, precision: 1) %></span>
+                      </div>
+                      <% if experience.experience_category %>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"><%= experience.experience_category.name %></p>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+            <% if @total_experiences_count > 3 %>
+              <%= link_to explore_path(types: ["experience"], q: @location.name), class: "mt-4 flex items-center justify-center w-full py-2.5 px-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors" do %>
+                <%= t("locations.show.see_all_experiences", default: "Pogledaj sva iskustva") %> (<%= @total_experiences_count %>)
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+
+        <%# Related Plans %>
+        <% if @related_plans.any? %>
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+              <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                </svg>
+                <%= t("locations.show.related_plans", default: "Planovi s ovom lokacijom") %>
+              </div>
+            </h3>
+            <div class="space-y-4">
+              <% @related_plans.first(3).each do |plan| %>
+                <%= link_to plan_path(plan), class: "block group" do %>
+                  <div class="flex items-start space-x-3">
+                    <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0">
+                      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                      </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="font-medium text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate">
+                        <%= plan.display_title %>
+                      </p>
+                      <div class="flex items-center mt-1">
+                        <%= render "shared/star_rating", rating: plan.average_rating, size: "sm" %>
+                        <span class="ml-1 text-xs text-gray-500 dark:text-gray-400"><%= number_with_precision(plan.average_rating || 0, precision: 1) %></span>
+                      </div>
+                      <% if plan.start_date.present? && plan.end_date.present? %>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                          <%= t("plans.duration_days", count: (plan.end_date - plan.start_date).to_i + 1, default: "%{count} dana") %>
+                        </p>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+            <% if @total_plans_count > 3 %>
+              <%= link_to explore_path(types: ["plan"], q: @location.name), class: "mt-4 flex items-center justify-center w-full py-2.5 px-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors" do %>
+                <%= t("locations.show.see_all_plans", default: "Pogledaj sve planove") %> (<%= @total_plans_count %>)
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%= render "new_design/footer" %>
+</div>

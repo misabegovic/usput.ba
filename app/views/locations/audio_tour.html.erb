@@ -1,0 +1,184 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col items-center justify-center p-4">
+  <div class="w-full max-w-md">
+    <%# Back link %>
+    <%= link_to location_path(@location), class: "inline-flex items-center text-white/70 hover:text-white mb-8 transition-colors" do %>
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+      </svg>
+      <%= t("locations.audio_tour.back_to_location", default: "Nazad na lokaciju") %>
+    <% end %>
+
+    <%# Main card %>
+    <% available_tours = @location.audio_tours.with_audio.order(:locale) %>
+    <% current_tour = @location.audio_tour_with_fallback(I18n.locale) %>
+
+    <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20">
+      <%# Location info %>
+      <div class="text-center mb-8">
+        <div class="w-20 h-20 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold text-white mb-2">
+          <%= @location.translate(:name, I18n.locale) %>
+        </h1>
+        <p class="text-white/60 text-sm">
+          <%= t("locations.audio_tour.title", default: "Audio Tura") %>
+        </p>
+      </div>
+
+      <% if current_tour&.audio_file&.attached? %>
+        <%# Audio player with language selector %>
+        <div class="space-y-6" data-controller="audio-tour"
+             data-audio-tour-current-locale-value="<%= current_tour.locale %>">
+
+          <%# Language Selector - show if multiple languages available %>
+          <% if available_tours.count > 1 %>
+            <div class="flex justify-center mb-4">
+              <div class="relative">
+                <button type="button"
+                        data-action="click->audio-tour#toggleMenu"
+                        class="flex items-center space-x-2 bg-white/20 hover:bg-white/30 rounded-full px-4 py-2 transition-colors">
+                  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                  </svg>
+                  <span class="text-white font-medium" data-audio-tour-target="currentLanguage"><%= current_tour.language_name %></span>
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+
+                <%# Language dropdown menu %>
+                <div data-audio-tour-target="languageMenu"
+                     class="hidden absolute left-1/2 -translate-x-1/2 mt-2 w-48 bg-gray-800 rounded-xl shadow-lg overflow-hidden z-10 border border-white/10">
+                  <% available_tours.each do |tour| %>
+                    <button type="button"
+                            data-action="click->audio-tour#selectLanguage"
+                            data-audio-tour-target="languageButton"
+                            data-locale="<%= tour.locale %>"
+                            data-language-name="<%= tour.language_name %>"
+                            data-audio-url="<%= rails_blob_path(tour.audio_file, only_path: true) %>"
+                            class="w-full text-left px-4 py-3 text-white hover:bg-white/10 transition-colors flex items-center justify-between <%= tour.locale == current_tour.locale ? 'bg-emerald-600/30' : '' %>">
+                      <span><%= tour.language_name %></span>
+                      <% if tour.estimated_duration %>
+                        <span class="text-xs text-white/60"><%= tour.estimated_duration %></span>
+                      <% end %>
+                    </button>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% else %>
+            <%# Show single language badge when only one language available %>
+            <div class="flex justify-center mb-4">
+              <span class="bg-white/20 rounded-full px-4 py-2 text-white text-sm">
+                <%= current_tour.language_name %>
+              </span>
+            </div>
+          <% end %>
+
+          <audio
+            id="audio-tour-player"
+            class="w-full hidden"
+            preload="auto"
+            data-audio-tour-target="player"
+            data-action="ended->audio-tour#onEnded"
+          >
+            <source src="<%= rails_blob_path(current_tour.audio_file) %>" type="<%= current_tour.audio_file.content_type %>">
+            <%= t("locations.show.audio_not_supported", default: "Tvoj preglednik ne podržava audio player.") %>
+          </audio>
+
+          <%# Custom controls %>
+          <div class="flex items-center justify-center space-x-6">
+            <%# Rewind 10s %>
+            <button
+              type="button"
+              class="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+              data-action="click->audio-tour#rewind"
+              title="<%= t('locations.audio_tour.rewind', default: '-10s') %>"
+            >
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"></path>
+              </svg>
+            </button>
+
+            <%# Play/Pause %>
+            <button
+              type="button"
+              class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 flex items-center justify-center shadow-lg transition-all transform hover:scale-105"
+              data-action="click->audio-tour#togglePlay"
+              data-audio-tour-target="playButton"
+            >
+              <svg class="w-8 h-8 text-white" data-audio-tour-target="playIcon" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"></path>
+              </svg>
+              <svg class="w-8 h-8 text-white hidden" data-audio-tour-target="pauseIcon" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path>
+              </svg>
+            </button>
+
+            <%# Forward 10s %>
+            <button
+              type="button"
+              class="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+              data-action="click->audio-tour#forward"
+              title="<%= t('locations.audio_tour.forward', default: '+10s') %>"
+            >
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z"></path>
+              </svg>
+            </button>
+          </div>
+
+          <%# Progress bar %>
+          <div class="space-y-2">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value="0"
+              class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-emerald-400"
+              data-audio-tour-target="progress"
+              data-action="input->audio-tour#seek"
+            >
+            <div class="flex justify-between text-sm text-white/60">
+              <span data-audio-tour-target="currentTime">0:00</span>
+              <span data-audio-tour-target="duration">0:00</span>
+            </div>
+          </div>
+
+          <%# Available languages info %>
+          <% if available_tours.count > 1 %>
+            <div class="text-center text-white/50 text-xs">
+              <%= t("locations.audio_tour.languages_hint", count: available_tours.count, default: "Dostupno na %{count} jezika") %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <%# No audio available %>
+        <div class="text-center py-8">
+          <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
+            </svg>
+          </div>
+          <p class="text-white/60 text-lg">
+            <%= t("locations.audio_tour.not_available", default: "Audio tura za ovu lokaciju jos nije dostupna.") %>
+          </p>
+          <p class="text-white/40 text-sm mt-2">
+            <%= t("locations.audio_tour.coming_soon", default: "Uskoro dolazi!") %>
+          </p>
+        </div>
+      <% end %>
+    </div>
+
+    <%# Footer link %>
+    <div class="text-center mt-8">
+      <%= link_to location_path(@location), class: "text-white/50 hover:text-white text-sm transition-colors" do %>
+        <%= t("locations.audio_tour.view_full_page", default: "Pogledaj sve informacije o lokaciji") %> &rarr;
+      <% end %>
+    </div>
+  </div>
+</div>

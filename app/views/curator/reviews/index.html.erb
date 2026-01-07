@@ -1,0 +1,126 @@
+<div class="space-y-4 sm:space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900"><%= t("curator.reviews.title") %></h1>
+  </div>
+
+  <!-- Stats Overview -->
+  <div class="grid grid-cols-2 gap-3 sm:gap-5 sm:grid-cols-4">
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-4 shadow">
+      <dt class="truncate text-sm font-medium text-gray-500"><%= t("curator.reviews.total") %></dt>
+      <dd class="mt-1 text-2xl font-semibold tracking-tight text-gray-900"><%= @stats[:total] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-4 shadow">
+      <dt class="truncate text-sm font-medium text-gray-500"><%= t("curator.reviews.average_rating") %></dt>
+      <dd class="mt-1 text-2xl font-semibold tracking-tight text-gray-900"><%= @stats[:average_rating] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-4 shadow">
+      <dt class="truncate text-sm font-medium text-gray-500"><%= t("curator.reviews.with_comments") %></dt>
+      <dd class="mt-1 text-2xl font-semibold tracking-tight text-gray-900"><%= @stats[:with_comments] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-4 shadow">
+      <dt class="truncate text-sm font-medium text-gray-500"><%= t("curator.reviews.by_type") %></dt>
+      <dd class="mt-1 text-sm text-gray-900">
+        <% @stats[:by_type].each do |type, count| %>
+          <span class="block"><%= type %>: <%= count %></span>
+        <% end %>
+      </dd>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="rounded-lg bg-white shadow px-4 py-4">
+    <%= form_with url: curator_reviews_path, method: :get, class: "flex flex-col sm:flex-row flex-wrap gap-3" do |f| %>
+      <div class="flex-1 min-w-0 sm:max-w-xs">
+        <%= f.text_field :search,
+            value: params[:search],
+            placeholder: t("curator.reviews.search_placeholder"),
+            class: "block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500" %>
+      </div>
+      <div class="w-full sm:w-auto">
+        <%= f.select :type,
+            options_for_select([
+              [t("curator.reviews.all_types"), ""],
+              ["Location", "Location"],
+              ["Experience", "Experience"],
+              ["Plan", "Plan"]
+            ], params[:type]),
+            {},
+            class: "block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500" %>
+      </div>
+      <div class="w-full sm:w-auto">
+        <%= f.select :rating,
+            options_for_select([
+              [t("curator.reviews.all_ratings"), ""],
+              ["5", "5"],
+              ["4", "4"],
+              ["3", "3"],
+              ["2", "2"],
+              ["1", "1"]
+            ], params[:rating]),
+            {},
+            class: "block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500" %>
+      </div>
+      <div class="w-full sm:w-auto">
+        <%= f.submit t("common.search"), class: "w-full sm:w-auto inline-flex justify-center items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Reviews List -->
+  <div class="space-y-4">
+    <% @reviews.each do |review| %>
+      <div class="rounded-lg bg-white shadow p-4">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="flex items-center">
+                <% review.rating.times do %>
+                  <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                <% end %>
+                <% (5 - review.rating).times do %>
+                  <svg class="h-4 w-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                <% end %>
+              </div>
+              <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">
+                <%= review.reviewable_type %>
+              </span>
+            </div>
+            <p class="text-sm text-gray-600 mb-2"><%= review.comment.presence || t("curator.reviews.no_comment") %></p>
+            <div class="text-xs text-gray-500">
+              <span><%= review.author_name.presence || review.user&.username || t("reviews.anonymous") %></span>
+              <span class="mx-1">&middot;</span>
+              <span><%= review.created_at.strftime("%d.%m.%Y %H:%M") %></span>
+              <span class="mx-1">&middot;</span>
+              <% if review.reviewable %>
+                <span><%= review.reviewable.try(:name) || review.reviewable.try(:title) %></span>
+              <% else %>
+                <span class="text-red-500"><%= t("curator.reviews.deleted_item") %></span>
+              <% end %>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 ml-4">
+            <%= link_to curator_review_path(review), class: "text-emerald-600 hover:text-emerald-900 text-sm" do %>
+              <%= t("common.view_all") %>
+            <% end %>
+            <%= button_to curator_review_path(review),
+                method: :delete,
+                class: "text-red-600 hover:text-red-900 text-sm",
+                data: { turbo_confirm: t("curator.reviews.confirm_delete") } do %>
+              <%= t("common.delete") %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @reviews.empty? %>
+      <div class="rounded-lg bg-white shadow p-8 text-center text-gray-500">
+        <%= t("curator.reviews.no_reviews") %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,195 @@
+<div class="space-y-4 sm:space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900"><%= @experience.title %></h1>
+    <div class="flex flex-col sm:flex-row gap-2">
+      <%= link_to experience_path(@experience),
+          target: "_blank",
+          class: "inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500" do %>
+        <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+        </svg>
+        <%= t("curator.experiences.view_in_app", default: "View in App") %>
+      <% end %>
+      <%= link_to edit_curator_experience_path(@experience),
+          class: "inline-flex items-center justify-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500" do %>
+        <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+        </svg>
+        <%= t("curator.experiences.edit") %>
+      <% end %>
+      <%= link_to curator_experiences_path,
+          class: "inline-flex items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" do %>
+        <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+        </svg>
+        <%= t("curator.experiences.back_to_list") %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Cover Photo %>
+  <% if @experience.cover_photo.attached? %>
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+      <div class="px-4 py-4 sm:py-5 sm:px-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.experiences.sections.cover_photo", default: "Cover Photo") %></h3>
+        <%= image_tag rails_blob_path(@experience.cover_photo, disposition: "inline"), class: "w-full max-w-2xl h-auto rounded-lg" %>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Basic Information %>
+  <div class="overflow-hidden rounded-lg bg-white shadow">
+    <div class="px-4 py-4 sm:py-5 sm:px-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.experiences.sections.basic_info", default: "Basic Information") %></h3>
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-6 sm:grid-cols-2">
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.experiences.name") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @experience.title %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.experiences.city") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @experience.city.presence || "-" %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.experiences.category") %></dt>
+          <dd class="mt-1">
+            <% if @experience.experience_category %>
+              <span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+                <%= @experience.experience_category.name %>
+              </span>
+            <% else %>
+              <span class="text-sm text-gray-500">-</span>
+            <% end %>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.experiences.duration") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @experience.formatted_duration || "-" %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.experiences.seasons", default: "Best Seasons") %></dt>
+          <dd class="mt-1">
+            <% if @experience.year_round? %>
+              <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                <%= t("seasons.year_round", default: "Year-round") %>
+              </span>
+            <% else %>
+              <div class="flex flex-wrap gap-1">
+                <% @experience.seasons.each do |season| %>
+                  <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                    <%= t("seasons.#{season}", default: season.titleize) %>
+                  </span>
+                <% end %>
+              </div>
+            <% end %>
+          </dd>
+        </div>
+        <div class="sm:col-span-2">
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.experiences.description") %></dt>
+          <dd class="mt-1 text-sm text-gray-900 prose prose-sm max-w-none"><%= simple_format(@experience.description) if @experience.description.present? %></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <%# Locations %>
+  <% if @experience.locations.any? %>
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+      <div class="px-4 py-4 sm:py-5 sm:px-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.experiences.sections.locations", default: "Locations") %> (<%= @experience.locations.count %>)</h3>
+        <div class="space-y-3">
+          <% @experience.experience_locations.includes(:location).order(:position).each_with_index do |exp_loc, idx| %>
+            <% loc = exp_loc.location %>
+            <div class="flex items-center gap-4 bg-gray-50 rounded-lg p-3">
+              <div class="flex-shrink-0 w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                <span class="text-sm font-semibold text-emerald-700"><%= idx + 1 %></span>
+              </div>
+              <div class="flex-grow">
+                <div class="flex items-center gap-2">
+                  <%= link_to loc.name, curator_location_path(loc), class: "text-sm font-medium text-gray-900 hover:text-emerald-600" %>
+                  <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+                    <%= t("locations.types.#{loc.location_type}", default: loc.location_type&.humanize) %>
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500"><%= loc.city %></p>
+              </div>
+              <% if loc.photos.attached? %>
+                <%= image_tag rails_blob_path(loc.photos.first, disposition: "inline"), class: "w-16 h-12 object-cover rounded" %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Contact Information %>
+  <% if @experience.has_contact_info? %>
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+      <div class="px-4 py-4 sm:py-5 sm:px-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.experiences.sections.contact", default: "Contact Information") %></h3>
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-6 sm:grid-cols-2">
+          <% if @experience.contact_name.present? %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500"><%= t("curator.experiences.contact_name", default: "Contact Name") %></dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= @experience.contact_name %></dd>
+            </div>
+          <% end %>
+          <% if @experience.contact_email.present? %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500"><%= t("curator.experiences.contact_email", default: "Contact Email") %></dt>
+              <dd class="mt-1 text-sm text-gray-900">
+                <%= link_to @experience.contact_email, "mailto:#{@experience.contact_email}", class: "text-emerald-600 hover:text-emerald-900" %>
+              </dd>
+            </div>
+          <% end %>
+          <% if @experience.contact_phone.present? %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500"><%= t("curator.experiences.contact_phone", default: "Contact Phone") %></dt>
+              <dd class="mt-1 text-sm text-gray-900">
+                <%= link_to @experience.contact_phone, "tel:#{@experience.contact_phone}", class: "text-emerald-600 hover:text-emerald-900" %>
+              </dd>
+            </div>
+          <% end %>
+          <% if @experience.contact_website.present? %>
+            <div class="sm:col-span-2">
+              <dt class="text-sm font-medium text-gray-500"><%= t("curator.experiences.contact_website", default: "Contact Website") %></dt>
+              <dd class="mt-1 text-sm text-gray-900 truncate">
+                <%= link_to @experience.contact_website, @experience.contact_website, target: "_blank", rel: "noopener", class: "text-emerald-600 hover:text-emerald-900" %>
+              </dd>
+            </div>
+          <% end %>
+        </dl>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Metadata %>
+  <div class="overflow-hidden rounded-lg bg-white shadow">
+    <div class="px-4 py-4 sm:py-5 sm:px-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.experiences.sections.metadata", default: "Metadata") %></h3>
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-6 sm:grid-cols-2">
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.experiences.created_at") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @experience.created_at.strftime("%d.%m.%Y %H:%M") %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.experiences.updated_at", default: "Updated") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @experience.updated_at.strftime("%d.%m.%Y %H:%M") %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.experiences.average_rating", default: "Average Rating") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @experience.average_rating.present? && @experience.average_rating > 0 ? "#{@experience.average_rating} / 5" : "-" %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.experiences.reviews_count", default: "Reviews") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @experience.reviews_count %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("curator.experiences.locations_count", default: "Locations") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @experience.locations.count %></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,48 @@
+<%# My Plans section for Profile page %>
+<%# For logged-in users: loads from database via Turbo Frame %>
+<%# For guests: loads from localStorage via Stimulus controller %>
+
+<div class="mt-8 bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
+  <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+    <span class="w-10 h-10 bg-teal-100 dark:bg-teal-900/30 rounded-xl flex items-center justify-center mr-3 flex-shrink-0">
+      <svg class="w-5 h-5 text-teal-600 dark:text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+      </svg>
+    </span>
+    <%= t('profile.my_plans.title', default: 'Moji Planovi') %>
+  </h2>
+
+  <% if logged_in? %>
+    <%# Logged-in users: Load from database via Turbo Frame %>
+    <turbo-frame id="my-plans-frame" src="<%= profile_plans_path %>" loading="lazy">
+      <div class="flex items-center justify-center py-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+      </div>
+    </turbo-frame>
+  <% else %>
+    <%# Guests: Load from localStorage via Stimulus controller %>
+    <div data-controller="my-plans">
+      <%# Plans list (rendered by JavaScript) %>
+      <div data-my-plans-target="list" class="grid gap-4 sm:grid-cols-2">
+      </div>
+
+      <%# Empty state %>
+      <div data-my-plans-target="empty" class="hidden text-center py-8">
+        <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+          <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+          </svg>
+        </div>
+        <p class="text-gray-500 dark:text-gray-400 mb-4">
+          <%= t('profile.my_plans.empty', default: 'Nemas nijedan sacuvan plan') %>
+        </p>
+        <a href="<%= plan_wizard_path %>" class="inline-flex items-center px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-colors">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          <%= t('profile.my_plans.create', default: 'Kreiraj prvi plan') %>
+        </a>
+      </div>
+    </div>
+  <% end %>
+</div>

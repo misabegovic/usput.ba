@@ -1,0 +1,656 @@
+# frozen_string_literal: true
+
+module Ai
+  # Glavni orkestratar za autonomno AI generiranje sadržaja
+  # Admin samo klikne jedan gumb - AI odlučuje SVE:
+  # - Koje gradove obraditi
+  # - Koje kategorije lokacija dohvatiti
+  # - Kako grupirati lokacije u Experience-e
+  # - Koje planove kreirati za koje profile turista
+  #
+  # NAPOMENA: Audio ture se NE generišu ovdje - pokreću se odvojeno
+  # zbog troškova ElevenLabs API-ja
+  class ContentOrchestrator
+    include Concerns::ErrorReporting
+
+    class GenerationError < StandardError; end
+    class CancellationError < StandardError; end
+
+    def initialize(max_experiences: nil)
+      @chat = RubyLLM.chat
+      @geoapify = GeoapifyService.new
+      @max_experiences = max_experiences
+      @results = {
+        started_at: Time.current,
+        locations_created: 0,
+        locations_enriched: 0,
+        experiences_created: 0,
+        plans_created: 0,
+        errors: [],
+        cities_processed: []
+      }
+    end
+
+    # JEDINA METODA KOJU ADMIN POZIVA
+    # AI autonomno odlučuje sve i generira sadržaj
+    # @return [Hash] Rezultati generiranja
+    def generate
+      log_info "Starting autonomous content generation"
+      self.class.clear_cancellation!
+      save_generation_status("in_progress", "AI reasoning phase")
+
+      begin
+        # Faza 1: AI reasoning - šta treba uraditi?
+        check_cancellation!
+        plan = analyze_and_plan
+        log_info "AI plan: #{plan[:analysis]}"
+        save_generation_status("in_progress", "Executing plan", plan: plan)
+
+        # Faza 2-5: Izvršavanje plana
+        execute_plan(plan)
+
+        # Završeno
+        @results[:finished_at] = Time.current
+        @results[:status] = "completed"
+        save_generation_status("completed", "Generation complete", results: @results)
+
+        log_info "Generation complete: #{@results[:locations_created]} locations, " \
+                 "#{@results[:experiences_created]} experiences, #{@results[:plans_created]} plans"
+
+        @results
+      rescue CancellationError
+        @results[:finished_at] = Time.current
+        @results[:status] = "cancelled"
+        save_generation_status("cancelled", "Generation was stopped by user", results: @results)
+        log_info "Generation cancelled by user"
+        @results
+      rescue StandardError => e
+        @results[:status] = "failed"
+        @results[:error] = e.message
+        save_generation_status("failed", e.message)
+        log_error "Generation failed: #{e.message}"
+        raise GenerationError, e.message
+      end
+    end
+
+    # Vraća trenutni status generiranja
+    def self.current_status
+      {
+        status: Setting.get("ai.generation.status", default: "idle"),
+        message: Setting.get("ai.generation.message", default: nil),
+        started_at: Setting.get("ai.generation.started_at", default: nil),
+        plan: JSON.parse(Setting.get("ai.generation.plan", default: "{}") || "{}"),
+        results: JSON.parse(Setting.get("ai.generation.results", default: "{}") || "{}")
+      }
+    rescue JSON::ParserError
+      { status: "idle", message: nil, started_at: nil, plan: {}, results: {} }
+    end
+
+    # Označava generiranje kao otkazano
+    # Koristi odvojeni ključ da se izbjegne race condition sa save_generation_status
+    def self.cancel_generation!
+      Setting.set("ai.generation.cancelled", "true")
+      Setting.set("ai.generation.message", "Generation was stopped by user")
+    end
+
+    # Provjerava da li je generiranje otkazano
+    # Koristi odvojeni ključ koji se ne prepisuje od strane save_generation_status
+    def self.cancelled?
+      Setting.get("ai.generation.cancelled", default: "false") == "true"
+    end
+
+    # Briše zastavicu otkazivanja (pozvati prije novog generiranja)
+    def self.clear_cancellation!
+      Setting.set("ai.generation.cancelled", "false")
+    end
+
+    # Force-resets generation status to idle (use when job is stuck)
+    def self.force_reset!
+      Setting.set("ai.generation.status", "idle")
+      Setting.set("ai.generation.cancelled", "false")
+      Setting.set("ai.generation.message", nil)
+    end
+
+    # Vraća statistiku sadržaja - optimizirano sa grupisanim upitima
+    def self.content_stats
+      # Jedan upit za sve lokacije po gradu
+      locations_by_city = Location.group(:city).count
+
+      # Jedan upit za sve experience-e po gradu
+      experiences_by_city = Experience.joins(:locations)
+                                      .group("locations.city")
+                                      .distinct
+                                      .count("experiences.id")
+
+      # Jedan upit za sve planove po gradu
+      plans_by_city = Plan.group(:city_name).count
+
+      # Jedan upit za AI planove po gradu
+      ai_plans_by_city = Plan.where("preferences->>'generated_by_ai' = 'true'")
+                             .group(:city_name).count
+
+      # Jedan upit za audio ture po gradu
+      audio_by_city = Location.joins(audio_tours: :audio_file_attachment)
+                              .group(:city)
+                              .distinct
+                              .count("locations.id")
+
+      # Konstruiši statistiku iz grupisanih rezultata
+      cities = locations_by_city.keys.compact
+      stats = cities.map do |city|
+        locations_count = locations_by_city[city] || 0
+        audio_count = audio_by_city[city] || 0
+
+        {
+          city: city,
+          locations: locations_count,
+          experiences: experiences_by_city[city] || 0,
+          plans: plans_by_city[city] || 0,
+          ai_plans: ai_plans_by_city[city] || 0,
+          audio: audio_count,
+          audio_coverage: locations_count > 0 ? (audio_count.to_f / locations_count * 100).round(1) : 0
+        }
+      end
+
+      {
+        cities: stats.sort_by { |s| -s[:locations] },
+        totals: {
+          locations: stats.sum { |s| s[:locations] },
+          experiences: stats.sum { |s| s[:experiences] },
+          plans: stats.sum { |s| s[:plans] },
+          ai_plans: stats.sum { |s| s[:ai_plans] },
+          audio: stats.sum { |s| s[:audio] }
+        }
+      }
+    end
+
+    private
+
+    # ═══════════════════════════════════════════════════════════
+    # FAZA 1: AI REASONING
+    # ═══════════════════════════════════════════════════════════
+    def analyze_and_plan
+      current_state = gather_current_state
+      prompt = build_reasoning_prompt(current_state)
+      response = @chat.ask(prompt)
+      parse_ai_json_response(response.content)
+    rescue StandardError => e
+      log_error "AI reasoning failed: #{e.message}"
+      # Fallback plan ako AI reasoning ne uspije
+      create_fallback_plan(current_state)
+    end
+
+    def gather_current_state
+      existing_cities = Location.distinct.pluck(:city).compact
+
+      {
+        existing_cities: existing_cities,
+        locations_per_city: Location.group(:city).count,
+        experiences_per_city: Experience.joins(:locations)
+                                        .group("locations.city").count,
+        plans_per_city: Plan.where("preferences->>'generated_by_ai' = 'true'")
+                            .group(:city_name).count,
+        target_country: Setting.get("ai.target_country", default: "Bosnia and Herzegovina"),
+        target_country_code: Setting.get("ai.target_country_code", default: "ba"),
+        max_experiences: @max_experiences
+      }
+    end
+
+    def build_reasoning_prompt(state)
+      <<~PROMPT
+        #{cultural_context}
+
+        ---
+
+        TASK: Analyze the current state of tourism content and create an action plan.
+
+        TARGET COUNTRY: #{state[:target_country]} (#{state[:target_country_code]})
+
+        CURRENT STATE:
+        - Existing cities: #{state[:existing_cities].presence&.join(", ") || "None"}
+        - Locations per city: #{state[:locations_per_city]}
+        - Experiences per city: #{state[:experiences_per_city]}
+        - AI plans per city: #{state[:plans_per_city]}
+        #{state[:max_experiences] ? "- Maximum experiences to create: #{state[:max_experiences]}" : ""}
+
+        YOUR TASK:
+        1. Analyze which cities have insufficient content (less than 10 locations)
+        2. Suggest new cities that should be covered (major tourist destinations in #{state[:target_country]})
+        3. Decide which location categories are needed
+        4. Suggest tourist profiles for plans
+
+        GEOAPIFY CATEGORIES (choose relevant ones for tourism):
+        tourism.attraction, tourism.sights, tourism.sights.castle, tourism.sights.fort,
+        tourism.sights.monastery, tourism.sights.memorial, tourism.viewpoint,
+        catering.restaurant, catering.cafe, catering.bar,
+        entertainment.museum, entertainment.culture.theatre, entertainment.culture.gallery,
+        religion.place_of_worship.mosque, religion.place_of_worship.church,
+        natural.water.waterfall, natural.water.river, natural.water.spring,
+        heritage.unesco, heritage.national,
+        leisure.park, leisure.spa,
+        accommodation.hotel, accommodation.hostel
+
+        IMPORTANT:
+        - Prioritize cities with UNESCO sites: Mostar (Stari Most), Višegrad (Mehmed-paša Sokolović Bridge)
+        - Include major tourist cities: Sarajevo, Mostar, Jajce, Travnik, Banja Luka
+        - Consider natural attractions: Una National Park, Sutjeska, Blidinje
+        - Balance between cultural and natural content
+
+        Return ONLY valid JSON:
+        {
+          "analysis": "Brief analysis of current state (2-3 sentences)...",
+          "target_cities": [
+            {
+              "city": "City Name",
+              "country": "#{state[:target_country]}",
+              "coordinates": {"lat": 43.8563, "lng": 18.4131},
+              "locations_to_fetch": 30,
+              "categories": ["tourism.attraction", "catering.restaurant", "heritage"],
+              "reasoning": "Why this city needs more content..."
+            }
+          ],
+          "tourist_profiles_to_generate": ["family", "couple", "culture", "adventure"],
+          "estimated_new_content": {
+            "locations": 50,
+            "experiences": 10,
+            "plans": 16
+          }
+        }
+      PROMPT
+    end
+
+    def create_fallback_plan(state)
+      # Ako AI reasoning ne uspije, koristi osnovni plan
+      target_cities = []
+
+      # Dodaj gradove koji nemaju dovoljno lokacija
+      state[:existing_cities].each do |city|
+        count = state[:locations_per_city][city] || 0
+        if count < 10
+          target_cities << {
+            city: city,
+            locations_to_fetch: 20,
+            categories: default_categories,
+            reasoning: "Existing city with insufficient content"
+          }
+        end
+      end
+
+      # Dodaj default gradove ako nema postojećih
+      if target_cities.empty?
+        target_cities = default_target_cities
+      end
+
+      {
+        analysis: "Fallback plan - using default configuration",
+        target_cities: target_cities.first(3),
+        tourist_profiles_to_generate: %w[family couple culture],
+        estimated_new_content: { locations: 60, experiences: 10, plans: 12 }
+      }
+    end
+
+    def default_categories
+      %w[
+        tourism.attraction
+        tourism.sights
+        catering.restaurant
+        catering.cafe
+        entertainment.museum
+        heritage
+        religion.place_of_worship
+        natural
+      ]
+    end
+
+    def default_target_cities
+      [
+        {
+          city: "Sarajevo",
+          coordinates: { lat: 43.8563, lng: 18.4131 },
+          locations_to_fetch: 30,
+          categories: default_categories,
+          reasoning: "Capital city, main tourist destination"
+        },
+        {
+          city: "Mostar",
+          coordinates: { lat: 43.3438, lng: 17.8078 },
+          locations_to_fetch: 25,
+          categories: default_categories,
+          reasoning: "UNESCO World Heritage Site - Stari Most"
+        },
+        {
+          city: "Jajce",
+          coordinates: { lat: 44.3422, lng: 17.2703 },
+          locations_to_fetch: 15,
+          categories: default_categories,
+          reasoning: "Historic town with waterfall"
+        }
+      ]
+    end
+
+    # ═══════════════════════════════════════════════════════════
+    # FAZA 2-5: IZVRŠAVANJE
+    # ═══════════════════════════════════════════════════════════
+    def execute_plan(plan)
+      target_cities = plan[:target_cities] || []
+      profiles = plan[:tourist_profiles_to_generate] || %w[family couple culture]
+
+      target_cities.each do |city_plan|
+        check_cancellation!
+        process_city(city_plan, profiles)
+      end
+
+      check_cancellation!
+      # Kreiraj cross-city tematske Experience-e
+      create_cross_city_experiences
+
+      check_cancellation!
+      # Kreiraj multi-city planove
+      create_multi_city_plans(profiles)
+    end
+
+    def process_city(city_plan, profiles)
+      city = city_plan[:city]
+      log_info "Processing city: #{city}"
+      save_generation_status("in_progress", "Processing #{city}")
+
+      begin
+        # Faza 2: Prikupljanje lokacija
+        raw_places = fetch_locations(city_plan)
+        log_info "Fetched #{raw_places.count} places for #{city}"
+
+        # Faza 3: Obogaćivanje i spremanje lokacija
+        new_locations = enrich_and_save_locations(raw_places, city)
+        @results[:locations_created] += new_locations.count
+        log_info "Created #{new_locations.count} new locations in #{city}"
+
+        # Faza 4: Kreiranje lokalnih Experience-a
+        experiences = create_local_experiences(city)
+        @results[:experiences_created] += experiences.count
+        log_info "Created #{experiences.count} experiences for #{city}"
+
+        # Faza 5: Kreiranje Plan-ova za ovaj grad
+        plans = create_city_plans(city, profiles)
+        @results[:plans_created] += plans.count
+        log_info "Created #{plans.count} plans for #{city}"
+
+        @results[:cities_processed] << {
+          city: city,
+          locations: new_locations.count,
+          experiences: experiences.count,
+          plans: plans.count
+        }
+      rescue StandardError => e
+        log_error "Error processing #{city}: #{e.message}"
+        @results[:errors] << { city: city, error: e.message }
+      end
+    end
+
+    def fetch_locations(city_plan)
+      categories = city_plan[:categories] || default_categories
+      coordinates = city_plan[:coordinates]
+      locations_to_fetch = city_plan[:locations_to_fetch] || 20
+      country_code = Setting.get("ai.target_country_code", default: "ba")
+
+      all_places = []
+
+      # Rate limiting za Geoapify (5 req/sec)
+      RateLimiter.with_geoapify_limit(categories) do |batch|
+        batch.each do |category|
+          break if all_places.count >= locations_to_fetch
+
+          begin
+            places = if coordinates
+              @geoapify.search_nearby(
+                lat: coordinates[:lat],
+                lng: coordinates[:lng],
+                radius: 15_000, # 15km radius
+                types: [category],
+                max_results: (locations_to_fetch / categories.count.to_f).ceil + 5
+              )
+            else
+              @geoapify.text_search(
+                query: "#{category.split('.').last} #{city_plan[:city]}",
+                max_results: (locations_to_fetch / categories.count.to_f).ceil + 5
+              )
+            end
+
+            # Filtriraj samo lokacije iz ciljane države
+            filtered = places.select do |place|
+              valid_location_for_country?(place, country_code, city_plan[:city])
+            end
+
+            all_places.concat(filtered)
+          rescue GeoapifyService::ApiError => e
+            log_warn "Geoapify error for category #{category}: #{e.message}"
+          end
+        end
+      end
+
+      all_places.uniq { |p| p[:place_id] }.first(locations_to_fetch)
+    end
+
+    def valid_location_for_country?(place, country_code, city_name)
+      # Provjeri da li adresa sadrži naziv grada ili države
+      address = place[:address].to_s.downcase
+      city_match = address.include?(city_name.to_s.downcase)
+      country_match = address.include?(country_code) ||
+                      address.include?("bosnia") ||
+                      address.include?("herzegovina") ||
+                      address.include?("bih")
+
+      city_match || country_match
+    end
+
+    def enrich_and_save_locations(places, city)
+      enricher = LocationEnricher.new
+      created = []
+
+      places.each do |place|
+        next if place[:name].blank? || place[:lat].blank?
+
+        location = enricher.create_and_enrich(place, city: city)
+        created << location if location
+      end
+
+      created
+    end
+
+    def create_local_experiences(city)
+      return [] if experiences_limit_reached?
+
+      creator = ExperienceCreator.new(max_experiences: remaining_experience_slots)
+      creator.create_local_experiences(city: city)
+    end
+
+    def create_cross_city_experiences
+      return if experiences_limit_reached?
+
+      log_info "Creating cross-city thematic experiences"
+      save_generation_status("in_progress", "Creating thematic experiences")
+
+      creator = ExperienceCreator.new(max_experiences: remaining_experience_slots)
+      experiences = creator.create_thematic_experiences
+      @results[:experiences_created] += experiences.count
+    end
+
+    def create_city_plans(city, profiles)
+      creator = PlanCreator.new
+      created = []
+
+      profiles.each do |profile|
+        plan = creator.create_for_profile(profile: profile, city: city)
+        created << plan if plan
+      end
+
+      created
+    end
+
+    def create_multi_city_plans(profiles)
+      log_info "Creating multi-city plans"
+      save_generation_status("in_progress", "Creating multi-city plans")
+
+      creator = PlanCreator.new
+      created = []
+
+      # Samo 2-3 profila za multi-city planove
+      profiles.first(3).each do |profile|
+        plan = creator.create_for_profile(profile: profile, city: nil)
+        if plan
+          created << plan
+          @results[:plans_created] += 1
+        end
+      end
+
+      created
+    end
+
+    def experiences_limit_reached?
+      return false unless @max_experiences
+      @results[:experiences_created] >= @max_experiences
+    end
+
+    def remaining_experience_slots
+      return nil unless @max_experiences
+      [@max_experiences - @results[:experiences_created], 0].max
+    end
+
+    def save_generation_status(status, message, plan: nil, results: nil)
+      Setting.set("ai.generation.status", status)
+      Setting.set("ai.generation.message", message)
+      Setting.set("ai.generation.started_at", @results[:started_at].iso8601) if @results[:started_at]
+      Setting.set("ai.generation.plan", plan.to_json) if plan
+      Setting.set("ai.generation.results", results.to_json) if results
+    rescue StandardError => e
+      log_warn "Could not save generation status: #{e.message}"
+    end
+
+    def cultural_context
+      Ai::ExperienceGenerator::BIH_CULTURAL_CONTEXT
+    end
+
+    def parse_ai_json_response(content)
+      json_match = content.match(/```(?:json)?\s*([\s\S]*?)```/) ||
+                   content.match(/(\{[\s\S]*\})/)
+      json_str = json_match ? json_match[1] : content
+      json_str = sanitize_ai_json(json_str)
+      JSON.parse(json_str, symbolize_names: true)
+    rescue JSON::ParserError => e
+      log_error "Failed to parse AI response: #{e.message}"
+      {}
+    end
+
+    def sanitize_ai_json(json_str)
+      json_str = json_str.dup
+      # Replace smart/curly quotes with straight quotes
+      json_str.gsub!(/[""]/, '"')
+      json_str.gsub!(/['']/, "'")
+      # Remove trailing commas (invalid JSON but common in AI output)
+      json_str.gsub!(/,(\s*[\}\]])/, '\1')
+      # Escape control characters and fix structural issues within JSON strings
+      json_str = escape_chars_in_json_strings(json_str)
+      json_str
+    end
+
+    # Escapes problematic characters that appear within JSON string values
+    # This handles cases where the AI includes literal newlines, unescaped
+    # quotes, or other control characters in text content
+    def escape_chars_in_json_strings(json_str)
+      result = []
+      in_string = false
+      escape_next = false
+      i = 0
+
+      while i < json_str.length
+        char = json_str[i]
+        next_char = json_str[i + 1]
+
+        if escape_next
+          result << char
+          escape_next = false
+        elsif char == '\\'
+          if in_string
+            # Check if this backslash is followed by a valid JSON escape character
+            if next_char && '"\\/bfnrtu'.include?(next_char)
+              result << char
+              escape_next = true
+            else
+              # Invalid escape sequence - escape the backslash itself
+              result << '\\\\'
+            end
+          else
+            result << char
+            escape_next = true
+          end
+        elsif char == '"'
+          if in_string
+            # Check if this quote might be inside a string value (not ending it)
+            # Look ahead to see if this looks like a premature string end
+            if looks_like_embedded_quote?(json_str, i)
+              result << '\\"'
+            else
+              result << char
+              in_string = false
+            end
+          else
+            result << char
+            in_string = true
+          end
+        elsif in_string
+          # Handle control characters within strings
+          case char
+          when "\n"
+            result << '\\n'
+          when "\r"
+            result << '\\r'
+          when "\t"
+            result << '\\t'
+          when "\f"
+            result << '\\f'
+          when "\b"
+            result << '\\b'
+          else
+            # Escape any other control characters (0x00-0x1F)
+            if char.ord < 32
+              result << format('\\u%04x', char.ord)
+            else
+              result << char
+            end
+          end
+        else
+          result << char
+        end
+
+        i += 1
+      end
+
+      result.join
+    end
+
+    # Heuristic to detect if a quote inside a string is likely an embedded quote
+    # rather than the actual end of the string value
+    def looks_like_embedded_quote?(json_str, pos)
+      return false if pos + 1 >= json_str.length
+
+      remaining = json_str[(pos + 1)..-1]
+
+      # If immediately followed by valid JSON structure, it's probably a real end quote
+      return false if remaining.match?(/\A\s*[,\}\]:]/m)
+
+      # If followed by a key pattern like `"key":`, it's probably a real end quote
+      return false if remaining.match?(/\A\s*,?\s*"[^"]+"\s*:/m)
+
+      # If followed by array/object closing, it's probably a real end quote
+      return false if remaining.match?(/\A\s*[\}\]]/m)
+
+      # Otherwise, this quote is likely embedded in text content
+      # Look for patterns that suggest continuation of text
+      remaining.match?(/\A[a-zA-Z0-9\s,.'!?;:\-]/m)
+    end
+
+    def check_cancellation!
+      raise CancellationError, "Generation cancelled by user" if self.class.cancelled?
+    end
+
+  end
+end

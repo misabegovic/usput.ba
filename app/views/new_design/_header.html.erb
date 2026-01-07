@@ -1,0 +1,131 @@
+<header class="absolute inset-x-0 top-0 z-50"
+        data-controller="navigation"
+        data-action="keydown.escape@window->navigation#close click@window->navigation#clickOutside">
+  <nav aria-label="Global" class="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">
+    <%# Logo %>
+    <div class="flex lg:flex-1">
+      <%= link_to root_path, class: "-m-1.5 p-1.5 flex items-center gap-2" do %>
+        <span class="sr-only">Usput.ba</span>
+        <img src="/usput-logo.png" alt="" class="h-8 w-auto" />
+        <span class="text-lg font-bold text-gray-900 dark:text-white">Usput.ba</span>
+      <% end %>
+    </div>
+
+    <%# Mobile menu button %>
+    <div class="flex items-center gap-2 lg:hidden">
+      <%# Theme Toggle - Mobile %>
+      <div data-controller="theme">
+        <button data-action="click->theme#toggle"
+                class="p-2.5 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5"
+                aria-label="Toggle theme">
+          <span data-theme-target="icon">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+          </span>
+        </button>
+      </div>
+      <button type="button"
+              data-action="click->navigation#toggle"
+              class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700 dark:text-gray-200">
+        <span class="sr-only">Open main menu</span>
+        <span data-navigation-target="openIcon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" class="h-6 w-6">
+            <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
+        <span data-navigation-target="closeIcon" class="hidden">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" class="h-6 w-6">
+            <path d="M6 18 18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
+      </button>
+    </div>
+
+    <%# Desktop Navigation - all items in one container like original %>
+    <div class="hidden lg:flex items-center space-x-6">
+      <%= link_to t("nav.experiences"), explore_path(types: ["experience"]), class: "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-yellow-400 font-medium transition-colors" %>
+      <%= link_to t("nav.locations"), explore_path(types: ["location"]), class: "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-yellow-400 font-medium transition-colors" %>
+      <%= link_to t("nav.plans"), explore_path(types: ["plan"]), class: "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-yellow-400 font-medium transition-colors" %>
+
+      <%= render "shared/language_selector" %>
+
+      <%= render "shared/travel_profile" %>
+
+      <div data-controller="theme">
+        <button data-action="click->theme#toggle"
+                class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                aria-label="Toggle theme">
+          <span data-theme-target="icon">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+          </span>
+        </button>
+      </div>
+
+      <%= link_to plan_wizard_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all shadow-md hover:shadow-lg" do %>
+        <%= t("home.cta.start") %>
+      <% end %>
+    </div>
+  </nav>
+
+  <%# Mobile menu %>
+  <div data-navigation-target="menu" class="hidden lg:hidden bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
+    <div class="px-4 py-4 space-y-3">
+      <%= link_to t("nav.experiences"), explore_path(types: ["experience"]), class: "block px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-colors" %>
+      <%= link_to t("nav.locations"), explore_path(types: ["location"]), class: "block px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-colors" %>
+      <%= link_to t("nav.plans"), explore_path(types: ["plan"]), class: "block px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-colors" %>
+      <%= link_to profile_page_path, class: "flex items-center px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-colors" do %>
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
+        <%= t("profile.title", default: "Moj Profil") %>
+        <% if logged_in? %>
+          <span class="ml-2 w-2 h-2 bg-yellow-500 rounded-full"></span>
+        <% end %>
+      <% end %>
+
+      <%# Mobile Language Selector %>
+      <div class="px-4 py-3" data-controller="dropdown">
+        <button type="button"
+                class="flex items-center justify-between w-full px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 font-medium transition-colors"
+                data-action="click->dropdown#toggle"
+                data-dropdown-target="button">
+          <span class="flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+            </svg>
+            <%= locale_name(I18n.locale) %>
+          </span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        <div class="hidden mt-2 rounded-lg bg-gray-50 dark:bg-gray-700 overflow-hidden" data-dropdown-target="menu">
+          <div class="max-h-48 overflow-y-auto">
+            <% available_locales.each do |locale| %>
+              <%= link_to url_for(locale: locale),
+                  class: "flex items-center gap-2 px-4 py-2 text-sm #{locale == I18n.locale ? 'text-blue-600 dark:text-yellow-400 bg-blue-50 dark:bg-blue-900/20' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600'}" do %>
+                <% if locale == I18n.locale %>
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                <% else %>
+                  <span class="w-4"></span>
+                <% end %>
+                <%= locale_name(locale) %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <%= link_to plan_wizard_path, class: "block w-full text-center bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors" do %>
+          <%= t("home.cta.start") %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</header>

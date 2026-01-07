@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html class="h-full" lang="<%= I18n.locale %>">
+  <head>
+    <title><%= content_for(:title) || "Usput.ba - Experience Bosnia & Herzegovina" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%# PWA Manifest %>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#002868">
+
+    <%# Icons %>
+    <link rel="icon" href="/pwa-icon-192.png?v=2" type="image/png">
+    <link rel="apple-touch-icon" href="/pwa-icon-192.png?v=2">
+
+    <%# Inline script to prevent flash of wrong theme %>
+    <script nonce="<%= content_security_policy_nonce %>" data-turbo-eval="false">
+      (function() {
+        try {
+          var theme = localStorage.getItem('theme');
+          if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+
+    <%# Includes Tailwind CSS compiled stylesheet %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="h-full">
+    <% if notice %>
+      <div class="fixed top-20 left-1/2 -translate-x-1/2 z-[100] max-w-md w-full px-4 flash-message" data-controller="flash">
+        <div class="rounded-lg bg-green-50 dark:bg-green-900/50 p-4 shadow-lg border border-green-200 dark:border-green-800 text-center">
+          <p class="text-sm font-medium text-green-800 dark:text-green-200"><%= notice %></p>
+        </div>
+      </div>
+    <% end %>
+    <% if alert %>
+      <div class="fixed top-20 left-1/2 -translate-x-1/2 z-[100] max-w-md w-full px-4 flash-message" data-controller="flash">
+        <div class="rounded-lg bg-red-50 dark:bg-red-900/50 p-4 shadow-lg border border-red-200 dark:border-red-800 text-center">
+          <p class="text-sm font-medium text-red-800 dark:text-red-200"><%= alert %></p>
+        </div>
+      </div>
+    <% end %>
+    <%= yield %>
+  </body>
+</html>

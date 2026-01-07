@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usput Icon Generator</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+    h1 { color: #059669; }
+    .icon-preview { display: flex; flex-wrap: wrap; gap: 20px; margin: 20px 0; }
+    .icon-item { text-align: center; }
+    .icon-item canvas { border: 1px solid #e5e7eb; border-radius: 8px; }
+    .icon-item p { margin: 8px 0 0; font-size: 14px; color: #6b7280; }
+    button { background: #059669; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 5px; }
+    button:hover { background: #047857; }
+    .instructions { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 16px; border-radius: 8px; margin: 20px 0; }
+  </style>
+</head>
+<body>
+  <h1>🗺️ Usput Icon Generator</h1>
+  <p>Generiši PWA ikone za Usput aplikaciju. Klikni na dugme ispod da preuzmete sve ikone.</p>
+
+  <div class="instructions">
+    <strong>Upute:</strong>
+    <ol>
+      <li>Klikni "Download All Icons" da preuzmete sve ikone</li>
+      <li>Kopiraj preuzete fajlove u <code>public/</code> folder</li>
+      <li>Pokreni aplikaciju - PWA će automatski koristiti ikone</li>
+    </ol>
+  </div>
+
+  <div class="icon-preview" id="preview"></div>
+
+  <button onclick="downloadAll()">📥 Download All Icons</button>
+  <button onclick="downloadZip()">📦 Download as ZIP</button>
+
+  <script>
+    const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+
+    function drawIcon(ctx, size) {
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#10b981');
+      gradient.addColorStop(1, '#14b8a6');
+
+      // Rounded rectangle background
+      const radius = size * 0.2;
+      ctx.beginPath();
+      ctx.moveTo(radius, 0);
+      ctx.lineTo(size - radius, 0);
+      ctx.quadraticCurveTo(size, 0, size, radius);
+      ctx.lineTo(size, size - radius);
+      ctx.quadraticCurveTo(size, size, size - radius, size);
+      ctx.lineTo(radius, size);
+      ctx.quadraticCurveTo(0, size, 0, size - radius);
+      ctx.lineTo(0, radius);
+      ctx.quadraticCurveTo(0, 0, radius, 0);
+      ctx.closePath();
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      // Location pin
+      ctx.fillStyle = 'white';
+      const scale = size / 512;
+      ctx.save();
+      ctx.scale(scale, scale);
+
+      // Pin body
+      ctx.beginPath();
+      ctx.arc(256, 216, 120, Math.PI, 0, false);
+      ctx.quadraticCurveTo(376, 316, 256, 416);
+      ctx.quadraticCurveTo(136, 316, 136, 216);
+      ctx.closePath();
+      ctx.fill();
+
+      // Inner circle (hole)
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(256, 216, 42, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function generateIcon(size) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      drawIcon(ctx, size);
+      return canvas;
+    }
+
+    function showPreviews() {
+      const preview = document.getElementById('preview');
+      sizes.forEach(size => {
+        const canvas = generateIcon(size);
+        const item = document.createElement('div');
+        item.className = 'icon-item';
+
+        const displaySize = Math.min(size, 128);
+        canvas.style.width = displaySize + 'px';
+        canvas.style.height = displaySize + 'px';
+
+        item.appendChild(canvas);
+        item.innerHTML += `<p>icon-${size}.png</p>`;
+        preview.appendChild(item);
+      });
+    }
+
+    function downloadIcon(size) {
+      const canvas = generateIcon(size);
+      const link = document.createElement('a');
+      link.download = `icon-${size}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function downloadAll() {
+      sizes.forEach((size, i) => {
+        setTimeout(() => downloadIcon(size), i * 200);
+      });
+    }
+
+    async function downloadZip() {
+      // Simple approach - download individually with delay
+      alert('Downloading icons individually. Save them to public/ folder.');
+      downloadAll();
+    }
+
+    showPreviews();
+  </script>
+</body>
+</html>

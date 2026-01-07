@@ -1,0 +1,1039 @@
+sk:
+  # Application
+  app:
+    name: "Usput.ba"
+    tagline: "Objavte krásy Bosny a Hercegoviny"
+
+  # Common
+  common:
+    save: "Uložiť"
+    cancel: "Zrušiť"
+    delete: "Vymazať"
+    edit: "Upraviť"
+    back: "Späť"
+    next: "Ďalej"
+    previous: "Predchádzajúci"
+    search: "Hľadať"
+    loading: "Načítavanie..."
+    confirm: "Potvrdiť"
+    close: "Zavrieť"
+    yes: "Áno"
+    no: "Nie"
+    or: "alebo"
+    and: "a"
+    all: "Všetko"
+    none: "Nič"
+    select: "Vybrať"
+    required: "Povinné"
+    optional: "Voliteľné"
+    share: "Zdieľať"
+    link_copied: "Odkaz skopírovaný!"
+    view_all: "Zobraziť všetko"
+
+  # Navigation
+  nav:
+    home: "Domov"
+    plans: "Plány"
+    experiences: "Zážitky"
+    locations: "Miesta"
+    explore: "Preskúmajte"
+    about: "O nás"
+    contact: "Kontakt"
+    language: "Jazyk"
+    back_to_site: "Späť na web"
+    logout: "Odhlásiť sa"
+
+  # Explore Page
+  explore:
+    title: "Preskúmajte"
+    subtitle: "Nájdite dokonalé miesto, zážitok alebo plán pre vaše ďalšie dobrodružstvo."
+    search_placeholder: "Hľadať miesta, zážitky, plány..."
+    search_button: "Hľadať"
+    types:
+      location: "Miesta"
+      experience: "Zážitky"
+      plan: "Plány"
+    nearby: "V okolí"
+    more_filters: "Viac filtrov"
+    clear_filters: "Vymazať"
+    filters:
+      season: "Sezóna"
+      budget: "Rozpočet"
+      duration: "Dĺžka"
+      rating: "Minimálne hodnotenie"
+      sort: "Zoradiť podľa"
+      audio_support: "Audio prehliadky"
+    seasons:
+      spring: "Jar"
+      summer: "Leto"
+      autumn: "Jeseň"
+      winter: "Zima"
+    budgets:
+      low: "Nízky"
+      medium: "Stredný"
+      high: "Vysoký"
+    durations:
+      short: "Do 1 hod."
+      medium: "1-3 hod."
+      long: "3+ hod."
+    sorts:
+      relevance: "Relevancia"
+      rating: "Hodnotenie"
+      newest: "Najnovšie"
+      name: "Názov"
+    cities:
+      any: "Všetky mestá"
+    loading: "Načítavanie..."
+    results_count: "%{count} výsledkov nájdených"
+    sections:
+      locations: "Miesta"
+      experiences: "Zážitky"
+      plans: "Plány"
+    empty:
+      title: "Žiadne výsledky"
+      with_filters: "Skúste zmeniť filtre alebo hľadať niečo iné."
+      no_filters: "Zadajte hľadaný výraz alebo vyberte typ zdroja."
+
+  # Homepage
+  home:
+    hero:
+      title: "Vytvorte Dnes Niečo Úžasné"
+      title_part1: "Objavte"
+      title_part2: "Krásy Bosny a Hercegoviny"
+      subtitle: "Nájdite skryté skvosty, autentické zážitky a nezabudnuteľné miesta. Vaše dobrodružstvo začína tu."
+    cta:
+      start: "Začať Plánovať"
+      explore: "Preskúmajte Destinácie"
+      create_plan: "Vytvorte Svoj Plán"
+      explore_short: "Preskúmajte"
+    trending_experiences:
+      title: "Populárne Zážitky"
+      subtitle: "Čo cestovatelia práve milujú"
+      none: "Zážitky čoskoro!"
+    trending_locations:
+      title: "Populárne Miesta"
+      subtitle: "Miesta, ktoré tento mesiac dobývajú srdcia"
+      none: "Miesta čoskoro!"
+    audio_tours:
+      title: "Objavte Audio Prehliadky"
+      subtitle: "Počúvajte príbehy o fascinujúcich miestach počas ich prehliadky"
+    seasonal:
+      title: "Sezónne Odporúčania"
+      subtitle: "Najlepšie zážitky pre toto ročné obdobie"
+      winter:
+        title: "Zimné Kúzlo"
+        subtitle: "Objavte kúzlo zimných destinácií"
+        description: "Od zasnežených hôr po útulné kaviarne, zima v BiH ponúka nezabudnuteľné zážitky. Lyžovanie na olympijských svahoch, prechádzky zimnou krajinou a teplé nápoje."
+        cta: "Preskúmajte zimné miesta"
+      spring:
+        title: "Jarné Prebudenie"
+        subtitle: "Príroda sa prebúdza v plnej kráse"
+        description: "Jar prináša divé kvety, bujné zelené krajiny a dokonalé počasie na turistiku. Objavte skryté vodopády a užite si svieži horský vzduch."
+        cta: "Preskúmajte jarné miesta"
+      summer:
+        title: "Letné Dobrodružstvo"
+        subtitle: "Čas na nezabudnuteľné dobrodružstvá"
+        description: "Leto je ideálne na prieskum riek, jazier a kaňonov. Rafting na Neretve, kúpanie v Une alebo prechádzky starobylými mestami - možnosti sú nekonečné."
+        cta: "Preskúmajte letné miesta"
+      fall:
+        title: "Jesenné Farby"
+        subtitle: "Zlatá sezóna cestovania"
+        description: "Jeseň sfarbí BiH teplými odtieňmi zlata a červenej. Dokonalý čas na vinárske trasy, zber ovocia a gastronomické špeciality bez davov."
+        cta: "Preskúmajte jesenné miesta"
+    explore:
+      title: "Preskúmajte Svojím Spôsobom"
+      subtitle: "Vyberte si, ako chcete preskúmavať - podľa miest, zážitkov alebo hotových plánov"
+      locations:
+        title: "Všetky Miesta"
+        description: "Prechádzajte všetky dostupné miesta a nájdite to dokonalé"
+      experiences:
+        title: "Všetky Zážitky"
+        description: "Objavte jedinečné zážitky čakajúce na prežitie"
+      plans:
+        title: "Všetky Plány"
+        description: "Prezrite si hotové plány alebo sa inšpirujte pre vlastný"
+    cta_section:
+      title: "Pripravení na Dobrodružstvo?"
+      description: "Vytvorte si vlastný personalizovaný cestovný plán v niekoľkých krokoch. Vyberte destináciu, dĺžku a záujmy - navrhneme vám dokonalé zážitky!"
+      button: "Začať Vytvárať Plán"
+      view_plans: "Zobraziť Existujúce Plány"
+    reviews:
+      title: "Recenzie"
+      subtitle: "Dojmy našich hostí"
+      empty_title: "Zatiaľ žiadne recenzie"
+      empty_description: "Buďte prvý, kto zdieľa svoju skúsenosť!"
+    reviews_slider:
+      title: "Čo hovoria návštevníci"
+    support:
+      title: "Podporte Tento Projekt"
+      description: "Ak sa vám tento projekt páči a chcete mu pomôcť rásť, môžete ma podporiť kúpou kávy!"
+    bento:
+      section_title: "Prečo Usput.ba"
+      section_subtitle: "Všetko, čo potrebujete na dokonalú cestu"
+      hidden_locations:
+        title: "Skryté Miesta"
+        description: "Objavte čarovné miesta, ktoré nie sú v sprievodcoch. Od skrytých vodopádov po autentické dediny."
+        cta: "Preskúmajte všetky miesta"
+      experiences:
+        title: "Autentické Zážitky"
+        description: "Miestni sprievodcovia, tradičná kuchyňa a kultúrne aktivity spájajúce vás s dušou BiH."
+        cta: "Preskúmajte všetky zážitky"
+        culture: "Kultúra"
+        food: "Jedlo"
+        adventure: "Dobrodružstvo"
+      audio_tours:
+        title: "Audio Prehliadky"
+        description: "Počúvajte príbehy o miestach počas ich návštevy. Váš osobný sprievodca vo vrecku."
+        cta: "Preskúmajte všetky audio prehliadky"
+        welcome: "Vitajte v Usput"
+      travel_plans:
+        title: "Cestovné Plány"
+        description: "Vytvorte si vlastný cestovný plán s naším sprievodcom alebo preskúmajte plány vytvorené inými cestovateľmi."
+        cta: "Vytvorte svoj plán"
+        days: "%{count} dní"
+        day: "Deň %{number}"
+    trending:
+      section_title: "Teraz populárne"
+      section_subtitle: "Objavte, čo ostatní milujú"
+      location: "Miesto"
+      experience: "Zážitok"
+      coming_soon: "Čoskoro"
+      new_experience: "Nový zážitok prichádza"
+      follow_us: "Sledujte nás pre nové vzrušujúce objavy."
+    plan_preview:
+      title: "Sarajevo a okolie"
+      duration: "3 dni"
+      day1:
+        title: "Prechádzka starým mestom"
+        items:
+          - "Baščaršija"
+          - "Sebilj"
+          - "Gazi Husrev-begova mešita"
+      day2:
+        title: "Útek do prírody"
+        items:
+          - "Vrelo Bosne"
+          - "Ilidža"
+          - "Tunel nádeje"
+      day3:
+        title: "História a kultúra"
+        items:
+          - "Radnica"
+          - "Latinský most"
+          - "Historické múzeum"
+
+  # Reviews
+  reviews:
+    title: "Hodnotenia"
+    anonymous: "Anonymný návštevník"
+    load_more: "Načítať ďalšie hodnotenia"
+    remaining: "zostáva"
+    none: "Zatiaľ žiadne hodnotenia. Buď prvý!"
+    count:
+      one: "hodnotenie"
+      other: "hodnotenia"
+    form:
+      title: "Zanechať hodnotenie"
+      rating: "Hodnotenie"
+      comment: "Komentár"
+      comment_placeholder: "Podeľte sa o svoje skúsenosti..."
+      author_name: "Vaše meno"
+      author_name_placeholder: "Ako sa voláte?"
+      submit: "Odoslať hodnotenie"
+
+  # Slider
+  slider:
+    go_to_slide: "Prejsť na snímok"
+
+  # Plan Wizard
+  wizard:
+    title: "Vytvorte Svoj Plán"
+    steps:
+      location: "Poloha"
+      dates: "Dátumy"
+      interests: "Záujmy"
+      generate: "Generovať"
+    location:
+      title: "Kde sa nachádzate?"
+      subtitle: "Nájdeme zážitky vo vašej blízkosti"
+      detect: "Zistiť moju polohu"
+      search_placeholder: "Hľadať mesto..."
+      searching: "Hľadanie..."
+      no_results: "Žiadne mestá nenájdené"
+    errors:
+      geolocation_not_supported: "Váš prehliadač nepodporuje geolokáciu"
+      location_failed: "Nepodarilo sa získať polohu. Vyberte mesto ručne."
+      permission_denied: "Prístup k polohe bol zamietnutý. Povoľte prístup alebo vyberte mesto ručne."
+      location_unavailable: "Informácie o polohe nie sú dostupné"
+      location_timeout: "Získavanie polohy trvá príliš dlho..."
+      no_city_found: "Nenašli sme mesto vo vašej blízkosti. Vyberte ručne."
+      city_lookup_error: "Chyba pri vyhľadávaní mesta"
+      enable_location: "Povoľte prístup k polohe"
+      no_search_results: "Žiadne výsledky. Skúste iný výraz."
+      server_error: "Chyba pri pripojení k serveru"
+    dates:
+      title: "Ako dlho zostávate?"
+      start_date: "Dátum začiatku"
+      end_date: "Dátum konca"
+      duration: "Dĺžka"
+      days: "dní"
+    interests:
+      title: "Aké sú vaše záujmy?"
+      subtitle: "Vyberte všetky, ktoré platia"
+      culture: "Kultúra"
+      history: "História"
+      sport: "Šport"
+      vegan: "Vegánske"
+      vegetarian: "Vegetariánske"
+      meat: "Mäso"
+      food: "Jedlo"
+      nature: "Príroda"
+      woods: "Lesy"
+      mountains: "Hory"
+    preferences:
+      daily_hours: "Koľko hodín denne chcete objavovať?"
+      daily_hours_hint: "To ovplyvňuje počet zážitkov denne"
+      relaxed: "Uvoľnene"
+      balanced: "Vyvážený"
+      active: "Aktívny"
+      intensive: "Intenzívny"
+      food: "Jedlo"
+      meat_lover: "Milovník mäsa"
+      vegetarian: "Vegetariánska možnosť"
+    generate:
+      title: "Vygenerujte Svoj Plán"
+      subtitle: "Vytvoríme pre vás personalizovaný itinerár"
+      button: "Vygenerovať Plán"
+      generating: "Generovanie plánu..."
+
+  # Plans
+  plans:
+    auto_title: "%{city} - %{days} dní"
+    day_singular: "deň"
+    day_plural: "dní"
+    duration_days:
+      one: "%{count} deň"
+      few: "%{count} dni"
+      other: "%{count} dní"
+    errors:
+      experience_not_found: "Zážitok s ID %{id} nebol nájdený"
+      experiences_skipped: "%{count} zážitkov bolo preskočených, pretože už neexistujú"
+      city_not_found: "Mesto nebolo nájdené"
+      invalid_plan_data: "Poskytnuté neplatné údaje plánu"
+    index:
+      title: "Cestovné Plány"
+      subtitle: "Nájdite inšpiráciu alebo vytvorte vlastný plán"
+      my_plans: "Moje Plány"
+      public_plans: "Verejné Plány"
+      no_plans: "Zatiaľ žiadne verejné plány"
+      no_plans_description: "Používatelia ešte nezdieľali svoje plány s komunitou"
+      no_my_plans: "Zatiaľ nemáte žiadne plány"
+      no_my_plans_description: "Vytvorte personalizovaný cestovný plán pomocou nášho sprievodcu"
+      create_new: "Vytvoriť Nový Plán"
+      create_first: "Vytvoriť prvý plán"
+    show:
+      day: "Deň %{number}"
+      experiences: "Zážitky"
+      locations: "Miesta"
+      duration: "Dĺžka"
+      notes: "Poznámky"
+      save_favorite: "Uložiť"
+      summary: "Prehľad"
+      destination: "Cieľ"
+      experiences_count: "Zážitky"
+      no_experiences: "Žiadne zážitky pre tento deň"
+      cta_title: "Inšpirujte sa!"
+      cta_description: "Vytvorte vlastný personalizovaný plán"
+    view:
+      share: "Zdieľať"
+      share_plan: "Zdieľať plán s komunitou"
+      share_plan_description: "Váš plán bude viditeľný pre všetkých používateľov a pomôže ostatným objavovať nové miesta."
+      share_button: "Zdieľať"
+      login_required_to_share: "Pre zdieľanie plánu musíte byť prihlásení."
+      statistics: "Štatistiky"
+      total_time: "Celkový čas"
+      avg_daily: "Denný priemer"
+      daily_breakdown: "Podľa dní"
+      preferences: "Preferencie"
+    form:
+      title_label: "Názov"
+      notes_label: "Poznámky"
+      city_label: "Mesto"
+    search:
+      title: "Nájdite plány v okolí"
+      subtitle: "Hľadajte verejné plány na základe miest a zážitkov"
+      placeholder: "Hľadať podľa názvu, miesta, zážitku..."
+      nearby_active: "Zobrazujem plány v okolí"
+      use_location: "Použiť moju polohu"
+      clear_location: "Odstrániť polohu"
+      radius: "Polomer:"
+      getting_location: "Získavam polohu..."
+      any_duration: "Ľubovoľná dĺžka"
+      duration_short: "Krátky (1-2 dni)"
+      duration_medium: "Stredný (3-5 dní)"
+      duration_long: "Dlhý (6+ dní)"
+      within_radius: "V okruhu %{radius} km"
+      results_count:
+        one: "Nájdený %{count} plán"
+        few: "Nájdené %{count} plány"
+        other: "Nájdených %{count} plánov"
+      no_results: "Žiadne výsledky"
+      no_results_description: "Skúste iný výraz alebo zmeňte filtre"
+      clear_filters: "Vymazať filtre"
+      create_plan: "Vytvorte vlastný plán"
+
+  # Experiences
+  experiences:
+    duration:
+      hours: "%{count} hodina"
+      hours_plural: "%{count} hodín"
+      minutes: "%{count} minúta"
+      minutes_plural: "%{count} minút"
+    locations_count:
+      one: "1 miesto"
+      other: "%{count} miest"
+    show:
+      about: "O zážitku"
+      locations: "Miesta v zážitku"
+      info: "Informácie"
+      duration: "Dĺžka"
+      locations_count: "Počet miest"
+      contact: "Kontakt"
+      save_favorite: "Uložiť"
+      nearby_experiences: "Zážitky v okolí"
+      see_all_experiences: "Zobraziť všetky zážitky"
+      related_plans: "Plány s týmto zážitkom"
+      see_all_plans: "Zobraziť všetky plány"
+      cta_title: "Pridať do plánu"
+      cta_description: "Vytvorte si vlastný cestovný plán"
+      add_to_existing: "Pridať do existujúceho plánu"
+      add_to_existing_desc: "Máte aktívny plán. Pridajte tento zážitok."
+      add_button: "Pridať do plánu"
+      view_plan: "Zobraziť plán"
+
+  # Filters
+  filters:
+    nearby: "V okolí"
+    all_cities: "Všetky mestá"
+    all_types: "Všetky typy"
+    all_budgets: "Všetky rozpočty"
+    all_categories: "Všetky kategórie"
+    any_duration: "Ľubovoľná dĺžka"
+    any_rating: "Ľubovoľné hodnotenie"
+    duration_short: "Krátky (< 1h)"
+    duration_medium: "Stredný (1-3h)"
+    duration_long: "Dlhý (3h+)"
+    has_audio: "Audio prehliadka"
+    clear_all: "Vymazať všetko"
+    active: "Aktívne filtre:"
+
+  # Locations
+  locations:
+    types:
+      place: "Miesto"
+      guide: "Sprievodca"
+      business: "Firma"
+      restaurant: "Reštaurácia"
+      artisan: "Remeselník"
+      accommodation: "Ubytovanie"
+    budget:
+      low: "Cenovo dostupné"
+      medium: "Stredné"
+      high: "Premium"
+    contact:
+      email: "E-mail"
+      phone: "Telefón"
+      website: "Webová stránka"
+    show:
+      audio_tour: "Audio prehliadka"
+      audio_tour_subtitle: "Vypočujte si príbeh tohto miesta"
+      audio_not_supported: "Váš prehliadač nepodporuje audio prehrávač."
+      languages_available:
+        one: "1 jazyk"
+        few: "%{count} jazyky"
+        other: "%{count} jazykov"
+      select_language: "Vybrať jazyk"
+      about: "O mieste"
+      history: "Historický kontext"
+      info: "Informácie"
+      budget: "Rozpočet"
+      type: "Typ"
+      contact: "Kontakt"
+      website: "Webová stránka"
+      video: "Video"
+      video_subtitle: "Pozrite si video o tomto mieste"
+      watch_video: "Sledovať video"
+      nearby_locations: "Miesta v okolí"
+      see_all_locations: "Zobraziť všetky miesta"
+      related_experiences: "Zážitky s týmto miestom"
+      see_all_experiences: "Zobraziť všetky zážitky"
+      related_plans: "Plány s týmto miestom"
+      see_all_plans: "Zobraziť všetky plány"
+      go_to_photo: "Prejsť na foto %{number}"
+      open_fullscreen: "Otvoriť na celú obrazovku"
+      fullscreen: "Celá obrazovka"
+    social:
+      facebook: "Facebook"
+      instagram: "Instagram"
+      twitter: "Twitter"
+      linkedin: "LinkedIn"
+      youtube: "YouTube"
+      tiktok: "TikTok"
+      whatsapp: "WhatsApp"
+      viber: "Viber"
+
+  # Date and time
+  date:
+    formats:
+      default: "%d.%m.%Y"
+      short: "%d. %b"
+      long: "%d. %B %Y"
+  time:
+    formats:
+      default: "%H:%M"
+      short: "%H:%M"
+      long: "%d. %B %Y %H:%M"
+
+  # Errors
+  errors:
+    messages:
+      not_found: "Nenájdené"
+      unauthorized: "Neautorizované"
+      server_error: "Niečo sa pokazilo"
+    models:
+      plan:
+        blank_title: "Názov nemôže byť prázdny"
+        invalid_dates: "Dátum konca musí byť po dátume začiatku"
+      location:
+        blank_name: "Názov nemôže byť prázdny"
+      experience:
+        blank_title: "Názov nemôže byť prázdny"
+
+  # Flash messages
+  flash:
+    plan:
+      created: "Plán bol úspešne vytvorený"
+      updated: "Plán bol úspešne aktualizovaný"
+      deleted: "Plán bol úspešne vymazaný"
+    location:
+      created: "Miesto bolo úspešne vytvorené"
+      updated: "Miesto bolo úspešne aktualizované"
+      deleted: "Miesto bolo úspešne vymazané"
+    experience:
+      created: "Zážitok bol úspešne vytvorený"
+      updated: "Zážitok bol úspešne aktualizovaný"
+      deleted: "Zážitok bol úspešne vymazaný"
+
+  # Authentication
+  auth:
+    register_title: "Registrácia - Usput"
+    register_heading: "Vytvoriť účet"
+    register_subheading: "Uložte si svoj cestovný profil natrvalo"
+    register_button: "Zaregistrovať sa"
+    register_link: "Zaregistrovať sa"
+    login_title: "Prihlásenie - Usput"
+    login_heading: "Prihlásiť sa"
+    login_subheading: "Získajte prístup k svojmu cestovnému profilu"
+    login_button: "Prihlásiť sa"
+    login_link: "Prihlásiť sa"
+    logout: "Odhlásiť sa"
+    username: "Používateľské meno"
+    username_placeholder: "napr. cestovateľ123"
+    username_hint: "Iba písmená, čísla a podčiarknutia (_). Min. 3 znaky."
+    password: "Heslo"
+    password_hint: "Minimálne 6 znakov"
+    password_confirmation: "Potvrďte heslo"
+    have_account: "Už máte účet?"
+    no_account: "Nemáte účet?"
+    profile_sync_info: "Váš súčasný cestovný profil (navštívené miesta, obľúbené, odznaky) bude uložený do vášho účtu."
+    profile_merge_info: "Ak máte lokálny profil, bude zlúčený s vaším uloženým profilom."
+    registration_success: "Účet bol úspešne vytvorený! Váš cestovný profil je teraz trvalo uložený."
+    login_success: "Úspešne prihlásený!"
+    logout_success: "Úspešne odhlásený."
+    login_required: "Pre prístup k tejto stránke musíte byť prihlásení."
+    invalid_credentials: "Neplatné používateľské meno alebo heslo."
+    curator_required: "Pre prístup k tejto stránke potrebujete oprávnenia kurátora."
+    admin_required: "Pre prístup k tejto stránke potrebujete oprávnenia administrátora."
+
+  # Profile
+  profile:
+    title: "Môj Cestovný Profil"
+    subtitle: "Vaše cesty na jednom mieste"
+    logged_in_subtitle: "Profil je trvalo uložený"
+    save_title: "Uložte svoj profil"
+    save_warning: "Váš profil je uložený iba v tomto prehliadači."
+    save_warning_extended: "Zaregistrujte sa pre trvalé uloženie svojich údajov."
+    visited: "Navštívené"
+    favorites: "Obľúbené"
+    badges: "Odznaky"
+    visited_places: "Navštívené Miesta"
+    no_visited: "Zatiaľ ste nenavštívili žiadne miesto"
+    no_favorites: "Zatiaľ nemáte obľúbené miesta"
+    my_badges: "Moje Odznaky"
+    no_badges: "Zatiaľ nemáte žiadne odznaky"
+    recently_viewed: "Nedávno Zobrazené"
+    no_recent: "Žiadne nedávno zobrazené položky"
+    show_more: "Zobraziť viac"
+    actions: "Akcie"
+    export_json: "Exportovať (JSON)"
+    export_pdf: "Tlač / PDF"
+    import: "Importovať Profil"
+    add_favorite: "Pridať do obľúbených"
+    remove_favorite: "Odstrániť z obľúbených"
+    mark_visited: "Označiť ako navštívené"
+    avatar:
+      remove: "Odstrániť obrázok"
+      remove_confirm: "Ste si istí, že chcete odstrániť profilový obrázok?"
+    curator:
+      title: "Staňte sa Kurátorom"
+      description: "Kurátori môžu pridávať nové miesta, zážitky a obsah na platformu. Pomôžte nám objaviť skryté poklady Bosny a Hercegoviny!"
+      apply: "Prihlásiť sa ako Kurátor"
+      you_are_curator: "Ste Kurátor"
+      manage_content: "Spravujte miesta a zážitky"
+      open_dashboard: "Otvoriť Dashboard"
+    my_plans:
+      title: "Moje Plány"
+      empty: "Nemáte žiadne uložené plány"
+      create: "Vytvorte svoj prvý plán"
+
+  # PWA Install
+  pwa:
+    install_title: "Nainštalovať aplikáciu Usput"
+    install_subtitle: "Rýchlejší prístup a offline podpora"
+    install_button: "Nainštalovať"
+    ios_title: "Pridať na plochu"
+    ios_step1: "Ťuknite na"
+    ios_share_button: "tlačidlo (Zdieľať) v prehliadači"
+    ios_step2: "Posuňte sa a vyberte"
+    ios_add_home: "Pridať na plochu"
+    ios_step3: "Ťuknite na \"Pridať\" vpravo hore"
+    benefits_title: "Výhody aplikácie:"
+    benefit_fast: "Rýchlejší prístup z plochy"
+    benefit_offline: "Funguje offline"
+    benefit_fullscreen: "Celá obrazovka bez lišty prehliadača"
+    got_it: "Rozumiem"
+    desktop_title: "K dispozícii na mobile"
+    desktop_subtitle: "Otvorte túto stránku na telefóne a nainštalujte aplikáciu"
+
+  # Footer
+  footer:
+    tagline: "Objavujte skryté klenoty a autentické zážitky na vašej ceste."
+    legal: "Právne"
+    privacy: "Zásady Ochrany Osobných Údajov"
+    terms: "Podmienky Služby"
+    imprint: "Právne Informácie"
+    about_us: "O Nás"
+    contact: "Kontakt"
+    faq: "Časté Otázky"
+    rights: "Všetky práva vyhradené."
+    community: "Komunita"
+    become_curator: "Staňte sa kurátorom"
+
+  # Cookie Consent
+  cookie_consent:
+    title: "Cookies a Ochrana Súkromia"
+    message: "Používame iba technicky nutné cookies pre fungovanie webu (relácia, téma). Nepoužívame analytiku ani nesledujeme vaše aktivity."
+    learn_more: "Zistiť viac"
+    accept: "Prijať"
+    decline: "Iba nevyhnutné"
+
+  # Imprint
+  imprint:
+    title: "Právne Informácie"
+    legal_info: "Informácie o Prevádzkovateľovi"
+    legal_form: "Samostatný Podnikateľ (Einzelunternehmer)"
+    jurisdiction: "Sídlo v Rakúsku"
+    contact: "Kontakt"
+    email: "E-mail"
+    website: "Webová stránka"
+    legal_notice: "Právne Upozornenie"
+    ecg_notice: "Informácie podľa rakúskeho zákona o elektronickom obchode (ECG) a mediálneho zákona."
+    liability_content: "Obsah tejto webovej stránky bol vytvorený s najväčšou starostlivosťou. Nemôžeme však zaručiť presnosť, úplnosť a aktuálnosť obsahu."
+    liability_links: "Naša webová stránka obsahuje odkazy na externé webové stránky tretích strán, nad ktorých obsahom nemáme kontrolu. Preto nemôžeme prevziať žiadnu zodpovednosť za tento externý obsah."
+    made_by: "Vytvoril"
+    inspired_by: "Inšpirované"
+    support: "Podpora"
+    support_description: "Ak sa vám tento projekt páči, môžete ma podporiť kúpou kávy!"
+
+  # Privacy Policy
+  privacy:
+    title: "Zásady Ochrany Osobných Údajov"
+    last_updated: "Posledná aktualizácia"
+    intro:
+      title: "Úvod"
+      text1: "Ochrana vašich osobných údajov je pre nás veľmi dôležitá. V tomto dokumente vysvetľujeme, aké údaje zhromažďujeme, ako ich používame a aké máte práva."
+      text2: "Tieto zásady ochrany osobných údajov sú v súlade s Všeobecným nariadením o ochrane osobných údajov (GDPR) Európskej únie a rakúskym zákonom o ochrane údajov (DSG)."
+    controller:
+      title: "Správca Údajov"
+      form: "Samostatný Podnikateľ (Einzelunternehmer)"
+      country: "Rakúsko"
+      email: "E-mail"
+    collection:
+      title: "Aké Údaje Zhromažďujeme"
+      auto:
+        title: "Automaticky Zhromažďované Údaje"
+        ip: "IP adresa (anonymizovaná)"
+        browser: "Typ a verzia prehliadača"
+        os: "Operačný systém"
+        time: "Dátum a čas prístupu"
+        pages: "Navštívené stránky"
+      voluntary:
+        title: "Dobrovoľne Poskytnuté Údaje"
+        account: "Registračné údaje (používateľské meno)"
+        profile: "Cestovný profil (cestovné preferencie, navštívené miesta)"
+        reviews: "Recenzie a hodnotenia"
+    purpose:
+      title: "Účel Spracovania Údajov"
+      service: "Poskytovanie a zlepšovanie našich služieb"
+      personalization: "Personalizácia používateľského zážitku"
+      security: "Bezpečnosť a prevencia zneužitia"
+      legal: "Plnenie zákonných povinností"
+    legal_basis:
+      title: "Právny Základ"
+      text: "Vaše údaje spracovávame na základe:"
+      consent: "Súhlas (čl. 6 ods. 1 písm. a) GDPR)"
+      consent_desc: "pre voliteľné funkcie a cookies"
+      contract: "Plnenie zmluvy (čl. 6 ods. 1 písm. b) GDPR)"
+      contract_desc: "pre poskytovanie služieb"
+      legitimate: "Oprávnený záujem (čl. 6 ods. 1 písm. f) GDPR)"
+      legitimate_desc: "pre bezpečnosť a zlepšovanie služieb"
+    cookies:
+      title: "Cookies"
+      text: "Používame iba technicky nutné cookies a lokálne úložisko pre:"
+      session: "Cookies relácie"
+      session_desc: "pre autentifikáciu používateľa"
+      theme: "Nastavenia témy"
+      theme_desc: "pre zapamätanie svetlej/tmavej témy"
+      consent: "Súhlas s cookies"
+      consent_desc: "pre zapamätanie vašich preferencií"
+      no_tracking: "Cookies nepoužívame na sledovanie ani analýzu tretích strán."
+    retention:
+      title: "Uchovávanie Údajov"
+      text: "Vaše údaje uchovávame iba po dobu potrebnú na účel, na ktorý boli zhromaždené:"
+      account: "Údaje používateľského účtu: do vymazania účtu"
+      logs: "Serverové logy: 30 dní"
+      local: "Lokálne uložené údaje: kontrolované používateľom"
+    rights:
+      title: "Vaše Práva"
+      intro: "Podľa GDPR máte nasledujúce práva:"
+      access: "Právo na prístup"
+      access_desc: "Môžete požiadať o kópiu vašich údajov"
+      rectification: "Právo na opravu"
+      rectification_desc: "Môžete opraviť nepresné údaje"
+      erasure: "Právo na vymazanie"
+      erasure_desc: "Môžete požiadať o vymazanie vašich údajov"
+      portability: "Právo na prenosnosť"
+      portability_desc: "Môžete získať svoje údaje v prenosnom formáte"
+      objection: "Právo vzniesť námietku"
+      objection_desc: "Môžete vzniesť námietku proti spracovaniu údajov"
+      complaint: "Právo podať sťažnosť"
+      complaint_desc: "Môžete podať sťažnosť u dozorného úradu"
+    authority:
+      title: "Dozorný Úrad"
+    contact:
+      title: "Kontakt pre Ochranu Súkromia"
+      text: "V prípade akýchkoľvek otázok týkajúcich sa ochrany vašich údajov nás kontaktujte na:"
+
+  # Terms of Service
+  terms:
+    title: "Podmienky Služby"
+    last_updated: "Posledná aktualizácia"
+    intro:
+      title: "Všeobecné Ustanovenia"
+      text1: "Vitajte na Usput. Používaním tejto webovej stránky a služieb súhlasíte s týmito podmienkami služby v plnom rozsahu."
+      text2: "Prevádzkovateľom tejto webovej stránky je Muhamed Isabegović, samostatný podnikateľ so sídlom v Rakúsku."
+      text3: "Ak s týmito podmienkami nesúhlasíte, prosím nepoužívajte našu webovú stránku."
+    service:
+      title: "Popis Služby"
+      text1: "Usput je platforma pre objavovanie a plánovanie ciest, ktorá používateľom umožňuje:"
+      feature1: "Prechádzať zážitky a miesta"
+      feature2: "Vytvárať personalizované cestovné plány"
+      feature3: "Zanechávať recenzie a hodnotenia"
+      feature4: "Vytvoriť používateľský účet pre trvalé uloženie ich profilu"
+      text2: "Služba je bezplatná na používanie. Vyhradzujeme si právo zaviesť prémiové funkcie v budúcnosti."
+    registration:
+      title: "Registrácia Používateľa"
+      text1: "Pre určité funkcie je vyžadovaná registrácia. Registráciou zaručujete, že:"
+      req1: "Máte aspoň 16 rokov"
+      req2: "Poskytujete presné informácie"
+      req3: "Udržiavate svoje prihlasovacie údaje v tajnosti"
+      req4: "Ste zodpovední za všetky aktivity na vašom účte"
+    content:
+      title: "Používateľský Obsah"
+      text1: "Zverejňovaním obsahu (recenzie, hodnotenia) na našej platforme:"
+      grant1: "Nám poskytujete nevýhradnú licenciu na použitie, zobrazenie a distribúciu tohto obsahu"
+      grant2: "Zaručujete, že máte právo tento obsah zverejniť"
+      grant3: "Zaručujete, že obsah neporušuje práva tretích strán"
+      prohibited: "Je zakázané zverejňovať obsah, ktorý je:"
+      prohibited1: "Nezákonný, urážlivý alebo diskriminačný"
+      prohibited2: "Nepravdivý alebo zavádzajúci"
+      prohibited3: "Spam alebo nevyžiadaná reklama"
+      prohibited4: "Obsah porušujúci autorské práva"
+    ip:
+      title: "Duševné Vlastníctvo"
+      text1: "Všetok obsah na tejto webovej stránke (vrátane textu, grafiky, lôg, ikon, obrázkov a softvéru) je vlastníctvom Usput alebo našich poskytovateľov licencií a je chránený autorskými zákonmi."
+      text2: "Kopírovanie, distribúcia, úpravy alebo vytváranie odvodených diel bez nášho výslovného písomného súhlasu nie je povolené."
+    disclaimer:
+      title: "Odmietnutie Zodpovednosti"
+      text1: "Služba je poskytovaná \"tak ako je\" bez akýchkoľvek záruk, výslovných alebo predpokladaných."
+      text2: "Nezaručujeme:"
+      item1: "Neprerušenú alebo bezpečnú dostupnosť služby"
+      item2: "Presnosť alebo úplnosť informácií o miestach a zážitkoch"
+      item3: "Že služba splní vaše špecifické potreby"
+      text3: "Používajte informácie na vlastné riziko. Pred cestovaním vždy overte informácie z oficiálnych zdrojov."
+    liability:
+      title: "Obmedzenie Zodpovednosti"
+      text1: "V maximálnom rozsahu povolenom zákonom nie sme zodpovední za:"
+      item1: "Nepriame, náhodné alebo následné škody"
+      item2: "Stratu údajov alebo zisku"
+      item3: "Škody vyplývajúce z použitia alebo nemožnosti použitia služby"
+      text2: "Toto obmedzenie zodpovednosti nemá vplyv na vaše zákonné práva ako spotrebiteľa podľa rakúskeho práva."
+    termination:
+      title: "Ukončenie Služby"
+      text1: "Môžete kedykoľvek prestať používať službu vymazaním svojho účtu."
+      text2: "Vyhradzujeme si právo:"
+      item1: "Pozastaviť alebo ukončiť váš účet za porušenie podmienok"
+      item2: "Upraviť alebo ukončiť službu s primeraným predchádzajúcim upozornením"
+    changes:
+      title: "Zmeny Podmienok"
+      text1: "Vyhradzujeme si právo kedykoľvek upraviť tieto podmienky. Významné zmeny budú zverejnené na webovej stránke."
+      text2: "Pokračujúce používanie služby po zmenách bude považované za prijatie nových podmienok."
+    law:
+      title: "Rozhodné Právo"
+      text1: "Tieto podmienky služby sa riadia zákonmi Rakúskej republiky."
+      text2: "Súdy v Rakúsku majú jurisdikciu pre riešenie sporov, pokiaľ záväzné ustanovenia o ochrane spotrebiteľa nestanoví inak."
+    contact:
+      title: "Kontakt"
+      text: "V prípade otázok ohľadom týchto podmienok služby nás kontaktujte na:"
+
+  # ActiveRecord
+  activerecord:
+    models:
+      plan:
+        one: "Plán"
+        other: "Plány"
+      location:
+        one: "Miesto"
+        other: "Miesta"
+      experience:
+        one: "Zážitok"
+        other: "Zážitky"
+      city:
+        one: "Mesto"
+        other: "Mestá"
+    attributes:
+      plan:
+        title: "Názov"
+        start_date: "Dátum začiatku"
+        end_date: "Dátum konca"
+        notes: "Poznámky"
+        city: "Mesto"
+      location:
+        name: "Názov"
+        description: "Popis"
+        historical_context: "Historický kontext"
+        budget: "Rozpočet"
+        location_type: "Typ"
+        email: "E-mail"
+        phone: "Telefón"
+        website: "Webová stránka"
+      experience:
+        title: "Názov"
+        description: "Popis"
+        estimated_duration: "Odhadovaná dĺžka"
+      city:
+        name: "Názov"
+        country_name: "Krajina"
+        region: "Región"
+
+  # Curator Dashboard
+  curator:
+    title: "Panel Kurátora"
+    nav:
+      dashboard: "Panel"
+      locations: "Miesta"
+      experiences: "Zážitky"
+    dashboard:
+      welcome: "Vitajte, %{username}!"
+      total_locations: "Celkový Počet Miest"
+      total_experiences: "Celkový Počet Zážitkov"
+      total_cities: "Celkový Počet Miest"
+      quick_actions: "Rýchle Akcie"
+      new_location: "Nové Miesto"
+      new_experience: "Nový Zážitok"
+      recent_locations: "Nedávne Miesta"
+      recent_experiences: "Nedávne Zážitky"
+      no_locations: "Zatiaľ žiadne miesta"
+      no_experiences: "Zatiaľ žiadne zážitky"
+    locations:
+      title: "Miesta"
+      new: "Nové Miesto"
+      edit: "Upraviť"
+      view: "Zobraziť"
+      delete: "Vymazať"
+      edit_title: "Úprava: %{name}"
+      back_to_list: "Späť na zoznam"
+      name: "Názov"
+      city: "Mesto"
+      type: "Typ"
+      budget: "Rozpočet"
+      address: "Adresa"
+      description: "Popis"
+      latitude: "Zemepisná šírka"
+      longitude: "Zemepisná dĺžka"
+      coordinates: "Súradnice"
+      phone: "Telefón"
+      email: "E-mail"
+      website: "Webová stránka"
+      opening_hours: "Otváracie hodiny"
+      created_at: "Vytvorené"
+      actions: "Akcie"
+      select_city: "Vyberte mesto..."
+      no_locations: "Neboli nájdené žiadne miesta"
+      created: "Miesto bolo úspešne vytvorené"
+      updated: "Miesto bolo úspešne aktualizované"
+      deleted: "Miesto bolo úspešne vymazané"
+      confirm_delete: "Ste si istí, že chcete vymazať %{name}?"
+      filter:
+        all_cities: "Všetky mestá"
+    experiences:
+      title: "Zážitky"
+      new: "Nový Zážitok"
+      edit: "Upraviť"
+      view: "Zobraziť"
+      delete: "Vymazať"
+      edit_title: "Úprava: %{name}"
+      back_to_list: "Späť na zoznam"
+      name: "Názov"
+      city: "Mesto"
+      category: "Kategória"
+      duration: "Dĺžka"
+      best_season: "Najlepšia Sezóna"
+      difficulty: "Obtiažnosť"
+      description: "Popis"
+      created_at: "Vytvorené"
+      actions: "Akcie"
+      select_city: "Vyberte mesto..."
+      select_category: "Vyberte kategóriu..."
+      no_experiences: "Neboli nájdené žiadne zážitky"
+      created: "Zážitok bol úspešne vytvorený"
+      updated: "Zážitok bol úspešne aktualizovaný"
+      deleted: "Zážitok bol úspešne vymazaný"
+      confirm_delete: "Ste si istí, že chcete vymazať %{name}?"
+      filter:
+        all_cities: "Všetky mestá"
+      seasons:
+        all_year: "Celý rok"
+        spring: "Jar"
+        summer: "Leto"
+        autumn: "Jeseň"
+        winter: "Zima"
+      difficulties:
+        easy: "Ľahké"
+        moderate: "Stredne náročné"
+        challenging: "Náročné"
+
+  # Admin Dashboard
+  admin:
+    title: "Panel Administrátora"
+    nav:
+      dashboard: "Panel"
+      users: "Používatelia"
+      applications: "Žiadosti"
+      ai_generations: "AI Generácie"
+      admin_panel: "Admin Panel"
+    dashboard:
+      welcome: "Vitajte, %{username}!"
+      total_users: "Celkový Počet Používateľov"
+      basic_users: "Základní Používatelia"
+      curator_users: "Kurátori"
+      admin_users: "Administrátori"
+      total_locations: "Celkový Počet Miest"
+      total_experiences: "Celkový Počet Zážitkov"
+      total_cities: "Celkový Počet Miest"
+      recent_users: "Nedávni Používatelia"
+      view_all_users: "Zobraziť všetkých používateľov"
+    users:
+      title: "Správa Používateľov"
+      username: "Používateľské meno"
+      type: "Typ používateľa"
+      created_at: "Vytvorené"
+      updated_at: "Aktualizované"
+      actions: "Akcie"
+      view: "Zobraziť"
+      edit: "Upraviť"
+      delete: "Vymazať"
+      back_to_list: "Späť na zoznam"
+      edit_title: "Úprava používateľa: %{username}"
+      type_help: "Základní používatelia môžu prechádzať. Kurátori môžu spravovať obsah. Administrátori majú plný prístup."
+      no_users: "Neboli nájdení žiadni používatelia"
+      updated: "Používateľ bol úspešne aktualizovaný"
+      deleted: "Používateľ bol úspešne vymazaný"
+      cannot_delete_self: "Nemôžete vymazať svoj vlastný účet"
+      confirm_delete: "Ste si istí, že chcete vymazať používateľa %{username}?"
+      types:
+        basic: "Základný"
+        curator: "Kurátor"
+        admin: "Administrátor"
+      filter:
+        all: "Všetky typy"
+    curator_applications:
+      title: "Žiadosti Kurátorov"
+      user: "Používateľ"
+      status_label: "Stav"
+      submitted: "Podané"
+      actions: "Akcie"
+      view: "Zobraziť"
+      approve_btn: "Schváliť"
+      reject_btn: "Zamietnuť"
+      no_applications: "Neboli nájdené žiadne žiadosti"
+      application_from: "Žiadosť od %{username}"
+      back_to_list: "Späť na zoznam"
+      user_info: "Informácie o Používateľovi"
+      admin_notes: "Poznámky Administrátora"
+      rejection_reason: "Dôvod zamietnutia (voliteľné)"
+      reviewed_by: "Posúdené %{admin} dňa %{date}"
+      approved: "Žiadosť od %{username} bola schválená"
+      rejected: "Žiadosť od %{username} bola zamietnutá"
+      already_reviewed: "Táto žiadosť už bola posúdená"
+      confirm_approve: "Schváliť %{username} ako kurátora?"
+      confirm_reject: "Zamietnuť žiadosť od %{username}?"
+      stats:
+        pending: "Čakajúce"
+        approved: "Schválené"
+        rejected: "Zamietnuté"
+
+  # Curator Applications (user-facing)
+  curator_applications:
+    created: "Vaša žiadosť bola úspešne podaná!"
+    status:
+      pending: "Čakajúca"
+      approved: "Schválená"
+      rejected: "Zamietnutá"
+    errors:
+      already_curator: "Už máte oprávnenia kurátora"
+      pending_exists: "Už máte čakajúcu žiadosť"
+    new:
+      title: "Staňte Sa Kurátorom"
+      subtitle: "Pomôžte nám zlepšiť obsah tým, že sa stanete kurátorom"
+      benefits_title: "Ako kurátor môžete:"
+      benefit_1: "Pridávať nové miesta a zážitky"
+      benefit_2: "Upravovať existujúci obsah pre zlepšenie presnosti"
+      benefit_3: "Pomáhať cestovateľom objavovať skryté klenoty"
+    form:
+      motivation: "Prečo sa chcete stať kurátorom?"
+      motivation_hint: "Povedzte nám o vašej vášni pre cestovanie a miestne znalosti (min. 50 znakov)"
+      motivation_placeholder: "Chcem sa stať kurátorom, pretože..."
+      experience: "Relevantné skúsenosti (voliteľné)"
+      experience_hint: "Máte skúsenosti v cestovnom ruchu, tvorbe obsahu alebo miestne znalosti?"
+      experience_placeholder: "Mám skúsenosti v..."
+      submit: "Podať Žiadosť"
+    show:
+      title: "Vaša Žiadosť o Kurátorstvo"
+      pending_message: "Vaša žiadosť je posudzovaná. Dáme vám vedieť, akonáhle bude učinené rozhodnutie."
+      approved_message: "Gratulujeme! Vaša žiadosť bola schválená. Teraz máte prístup k Panelu Kurátora."
+      rejected_message: "Bohužiaľ, vaša žiadosť nebola v tejto chvíli schválená."
+      go_to_dashboard: "Prejsť do Panelu Kurátora"
+      submitted_at: "Podané"
+      reviewed_at: "Posúdené"
+      feedback: "Spätná väzba"

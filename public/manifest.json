@@ -1,0 +1,78 @@
+{
+  "name": "Usput.ba - Experience Bosnia & Herzegovina",
+  "short_name": "Usput.ba",
+  "description": "Discover hidden gems, authentic experiences and unforgettable places in Bosnia and Herzegovina",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#002868",
+  "theme_color": "#002868",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["travel", "tourism", "lifestyle"],
+  "icons": [
+    {
+      "src": "/pwa-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/pwa-icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshot-narrow.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Create Plan",
+      "short_name": "Plan",
+      "description": "Create a new travel plan",
+      "url": "/plans/wizard",
+      "icons": [{ "src": "/pwa-icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Explore Experiences",
+      "short_name": "Experiences",
+      "description": "Browse all experiences",
+      "url": "/experiences",
+      "icons": [{ "src": "/pwa-icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Browse Locations",
+      "short_name": "Locations",
+      "description": "Find interesting locations",
+      "url": "/locations",
+      "icons": [{ "src": "/pwa-icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

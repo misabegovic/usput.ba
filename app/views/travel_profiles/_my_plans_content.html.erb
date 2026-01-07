@@ -1,0 +1,91 @@
+<%# Content for My Plans Turbo Frame %>
+<turbo-frame id="my-plans-frame">
+  <% if plans.present? %>
+    <%# Plans grid - responsive for mobile %>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <% plans.each do |plan| %>
+        <%= render "travel_profiles/my_plan_card", plan: plan %>
+      <% end %>
+    </div>
+
+    <%# Pagination %>
+    <% if plans.total_pages > 1 %>
+      <nav aria-label="<%= t('pagination.aria_label', default: 'Pagination') %>" class="mt-6">
+        <div class="flex flex-col items-center gap-3">
+          <%# Mobile: Touch-friendly prev/next buttons %>
+          <div class="flex items-center justify-between w-full">
+            <%# Previous button %>
+            <% if plans.first_page? %>
+              <span class="inline-flex items-center px-4 py-2.5 text-sm font-medium text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-700 rounded-xl cursor-not-allowed">
+                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                <%= t('pagination.previous_short', default: 'Nazad') %>
+              </span>
+            <% else %>
+              <%= link_to profile_plans_path(page: plans.prev_page),
+                  data: { turbo_frame: "my-plans-frame" },
+                  class: "inline-flex items-center px-4 py-2.5 text-sm font-medium text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-900/30 hover:bg-teal-100 dark:hover:bg-teal-900/50 rounded-xl transition-colors" do %>
+                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                <%= t('pagination.previous_short', default: 'Nazad') %>
+              <% end %>
+            <% end %>
+
+            <%# Page indicator %>
+            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <%= plans.current_page %> / <%= plans.total_pages %>
+            </span>
+
+            <%# Next button %>
+            <% if plans.last_page? %>
+              <span class="inline-flex items-center px-4 py-2.5 text-sm font-medium text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-700 rounded-xl cursor-not-allowed">
+                <%= t('pagination.next_short', default: 'Dalje') %>
+                <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </span>
+            <% else %>
+              <%= link_to profile_plans_path(page: plans.next_page),
+                  data: { turbo_frame: "my-plans-frame" },
+                  class: "inline-flex items-center px-4 py-2.5 text-sm font-medium text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-900/30 hover:bg-teal-100 dark:hover:bg-teal-900/50 rounded-xl transition-colors" do %>
+                <%= t('pagination.next_short', default: 'Dalje') %>
+                <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              <% end %>
+            <% end %>
+          </div>
+
+          <%# Results info %>
+          <div class="text-xs text-gray-500 dark:text-gray-400">
+            <%= t('pagination.showing_plans',
+                  from: plans.offset_value + 1,
+                  to: [plans.offset_value + plans.limit_value, plans.total_count].min,
+                  total: plans.total_count,
+                  default: "#{plans.offset_value + 1}-#{[plans.offset_value + plans.limit_value, plans.total_count].min} od #{plans.total_count} planova") %>
+          </div>
+        </div>
+      </nav>
+    <% end %>
+  <% else %>
+    <%# Empty state %>
+    <div class="text-center py-8">
+      <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+        <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
+      </div>
+      <p class="text-gray-500 dark:text-gray-400 mb-4">
+        <%= t('profile.my_plans.empty', default: 'Nemas nijedan sacuvan plan') %>
+      </p>
+      <a href="<%= plan_wizard_path %>" data-turbo-frame="_top" class="inline-flex items-center px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-colors">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        <%= t('profile.my_plans.create', default: 'Kreiraj prvi plan') %>
+      </a>
+    </div>
+  <% end %>
+</turbo-frame>
