@@ -25,9 +25,6 @@
 /config/master.key
 /config/credentials/*.key
 
-# Ignore database files
-/db/*.sqlite3
-/db/*.sqlite3-*
 
 # Ignore node modules
 /node_modules
