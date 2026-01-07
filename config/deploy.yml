@@ -45,10 +45,6 @@ env:
     - QUEUE_DATABASE_URL
     # Error monitoring
     - ROLLBAR_ACCESS_TOKEN
-    # Litestream replication (optional - remove if not using)
-    - LITESTREAM_REPLICA_URL
-    - LITESTREAM_ACCESS_KEY_ID
-    - LITESTREAM_SECRET_ACCESS_KEY
   clear:
     # Set number of processes dedicated to Solid Queue (default: 2 in production)
     # JOB_CONCURRENCY: 3

@@ -1,49 +1,8 @@
 #!/bin/bash -e
 
-# Litestream configuration
-LITESTREAM_CONFIG="/rails/config/litestream.yml"
-DATABASE_PATH="/rails/storage/production.sqlite3"
-
-# Function to restore database from Litestream replica
-restore_database() {
-  if [ -n "$LITESTREAM_REPLICA_URL" ]; then
-    echo "Litestream: Checking for existing database..."
-
-    if [ -f "$DATABASE_PATH" ]; then
-      echo "Litestream: Database already exists, skipping restore."
-    else
-      echo "Litestream: No database found, attempting restore from replica..."
-
-      # Try to restore from replica, but don't fail if no backup exists yet
-      if litestream restore -config "$LITESTREAM_CONFIG" -if-replica-exists -o "$DATABASE_PATH" "$DATABASE_PATH"; then
-        echo "Litestream: Database restored successfully."
-      else
-        echo "Litestream: No replica found, starting with fresh database."
-      fi
-    fi
-  fi
-}
-
-# Function to run command with or without Litestream
-run_with_litestream() {
-  if [ -n "$LITESTREAM_REPLICA_URL" ]; then
-    echo "Litestream: Starting replication..."
-    exec litestream replicate -config "$LITESTREAM_CONFIG" -exec "$@"
-  else
-    exec "$@"
-  fi
-}
-
-# If running the rails server then prepare database and optionally use Litestream
+# If running the rails server then prepare database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
-  # Restore from Litestream replica if available
-  restore_database
-
-  # Prepare database (create or migrate)
   ./bin/rails db:prepare
-
-  # Run with Litestream replication (or without if not configured)
-  run_with_litestream "$@"
-else
-  exec "$@"
 fi
+
+exec "$@"
