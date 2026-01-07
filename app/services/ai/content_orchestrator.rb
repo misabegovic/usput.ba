@@ -435,12 +435,18 @@ module Ai
     end
 
     def fetch_locations(city_plan)
-      categories = city_plan[:categories] || default_categories
+      categories = city_plan[:categories].presence || default_categories
       coordinates = city_plan[:coordinates]
       locations_to_fetch = city_plan[:locations_to_fetch] || 20
       country_code = Setting.get("ai.target_country_code", default: "ba")
 
       all_places = []
+
+      # Guard against empty categories to avoid division by zero (Infinity)
+      return all_places if categories.empty?
+
+      # Calculate max results per category safely
+      results_per_category = (locations_to_fetch.to_f / categories.count).ceil + 5
 
       # Rate limiting za Geoapify (5 req/sec)
       RateLimiter.with_geoapify_limit(categories) do |batch|
@@ -454,12 +460,12 @@ module Ai
                 lng: coordinates[:lng],
                 radius: 15_000, # 15km radius
                 types: [category],
-                max_results: (locations_to_fetch / categories.count.to_f).ceil + 5
+                max_results: results_per_category
               )
             else
               @geoapify.text_search(
                 query: "#{category.split('.').last} #{city_plan[:city]}",
-                max_results: (locations_to_fetch / categories.count.to_f).ceil + 5
+                max_results: results_per_category
               )
             end
 
