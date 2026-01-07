@@ -507,12 +507,26 @@ module Ai
     end
 
     # JSON Schema for country/cross-region experience generation
+    # Note: OpenAI structured output requires additionalProperties: false at all levels
+    # and all properties must be listed in required array
     def country_experience_schema
+      locale_properties = supported_locales.to_h { |loc| [loc, { type: "string" }] }
+
       {
         type: "object",
         properties: {
-          titles: { type: "object", additionalProperties: { type: "string" } },
-          descriptions: { type: "object", additionalProperties: { type: "string" } },
+          titles: {
+            type: "object",
+            properties: locale_properties,
+            required: supported_locales,
+            additionalProperties: false
+          },
+          descriptions: {
+            type: "object",
+            properties: locale_properties,
+            required: supported_locales,
+            additionalProperties: false
+          },
           location_ids: { type: "array", items: { type: "integer" } }
         },
         required: %w[titles descriptions location_ids],
@@ -743,6 +757,8 @@ module Ai
     end
 
     # JSON Schema for location suggestions
+    # Note: OpenAI structured output requires additionalProperties: false at all levels
+    # and all properties must be listed in required array
     def location_suggestions_schema
       {
         type: "object",
@@ -763,7 +779,8 @@ module Ai
                 why_notable: { type: "string" },
                 estimated_visit_duration: { type: "integer" }
               },
-              required: %w[name lat lng city_name]
+              required: %w[name name_local lat lng city_name location_type category experience_types why_notable estimated_visit_duration],
+              additionalProperties: false
             }
           }
         },
@@ -1293,18 +1310,26 @@ module Ai
     end
 
     # JSON Schema for location enrichment content
+    # Note: OpenAI structured output requires additionalProperties: false at all levels
+    # and all properties must be listed in required array
     def location_enrichment_schema
+      locale_properties = supported_locales.to_h { |loc| [loc, { type: "string" }] }
+
       {
         type: "object",
         properties: {
           descriptions: {
             type: "object",
-            additionalProperties: { type: "string" },
+            properties: locale_properties,
+            required: supported_locales,
+            additionalProperties: false,
             description: "Localized descriptions keyed by locale code"
           },
           historical_context: {
             type: "object",
-            additionalProperties: { type: "string" },
+            properties: locale_properties,
+            required: supported_locales,
+            additionalProperties: false,
             description: "Localized historical context for audio narration"
           }
         },

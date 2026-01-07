@@ -138,7 +138,11 @@ module Ai
     end
 
     # JSON Schema for location enrichment - ensures structured output from AI
+    # Note: OpenAI structured output requires additionalProperties: false at all levels
+    # and all properties must be listed in required array
     def location_enrichment_schema
+      locale_properties = supported_locales.to_h { |loc| [loc, { type: "string" }] }
+
       {
         type: "object",
         properties: {
@@ -149,12 +153,16 @@ module Ai
           },
           descriptions: {
             type: "object",
-            additionalProperties: { type: "string" },
+            properties: locale_properties,
+            required: supported_locales,
+            additionalProperties: false,
             description: "Localized descriptions keyed by locale code"
           },
           historical_context: {
             type: "object",
-            additionalProperties: { type: "string" },
+            properties: locale_properties,
+            required: supported_locales,
+            additionalProperties: false,
             description: "Localized historical context for audio narration"
           }
         },

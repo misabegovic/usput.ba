@@ -183,6 +183,8 @@ module Ai
     end
 
     # JSON Schema for orchestration plan - ensures structured output from AI
+    # Note: OpenAI structured output requires additionalProperties: false at all levels
+    # and all properties must be listed in required array
     def orchestration_plan_schema
       {
         type: "object",
@@ -198,13 +200,15 @@ module Ai
                 coordinates: {
                   type: "object",
                   properties: { lat: { type: "number" }, lng: { type: "number" } },
-                  required: %w[lat lng]
+                  required: %w[lat lng],
+                  additionalProperties: false
                 },
                 locations_to_fetch: { type: "integer" },
                 categories: { type: "array", items: { type: "string" } },
                 reasoning: { type: "string" }
               },
-              required: %w[city coordinates categories]
+              required: %w[city country coordinates locations_to_fetch categories reasoning],
+              additionalProperties: false
             }
           },
           tourist_profiles_to_generate: { type: "array", items: { type: "string" } },
@@ -214,10 +218,12 @@ module Ai
               locations: { type: "integer" },
               experiences: { type: "integer" },
               plans: { type: "integer" }
-            }
+            },
+            required: %w[locations experiences plans],
+            additionalProperties: false
           }
         },
-        required: %w[analysis target_cities tourist_profiles_to_generate],
+        required: %w[analysis target_cities tourist_profiles_to_generate estimated_new_content],
         additionalProperties: false
       }
     end
