@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_06_140237) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_07_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -299,6 +299,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_06_140237) do
     t.index ["average_rating"], name: "index_locations_on_average_rating"
     t.index ["budget"], name: "index_locations_on_budget"
     t.index ["city"], name: "index_locations_on_city"
+    t.index ["lat", "lng"], name: "index_locations_on_coordinates_unique", unique: true, where: "((lat IS NOT NULL) AND (lng IS NOT NULL))"
     t.index ["location_type"], name: "index_locations_on_location_type"
     t.index ["name"], name: "index_locations_on_name"
     t.index ["reviews_count"], name: "index_locations_on_reviews_count"
