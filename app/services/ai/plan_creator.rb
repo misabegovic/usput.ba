@@ -301,19 +301,20 @@ module Ai
         }
       )
 
-      # Postavi prijevode
+      # Save plan first so it has an ID for translations
+      unless plan.save
+        log_error "Failed to create plan: #{plan.errors.full_messages.join(', ')}"
+        return nil
+      end
+
+      # Postavi prijevode (plan must be persisted first)
       set_plan_translations(plan, proposal, profile, city)
 
-      if plan.save
-        # Dodaj Experience-e po danima
-        add_experiences_to_plan(plan, proposal[:days], experiences)
+      # Dodaj Experience-e po danima
+      add_experiences_to_plan(plan, proposal[:days], experiences)
 
-        log_info "Created plan: #{plan.title} (#{plan.plan_experiences.count} experiences, #{duration_days} days)"
-        plan
-      else
-        log_error "Failed to create plan: #{plan.errors.full_messages.join(', ')}"
-        nil
-      end
+      log_info "Created plan: #{plan.title} (#{plan.plan_experiences.count} experiences, #{duration_days} days)"
+      plan
     rescue StandardError => e
       log_error "Error creating plan: #{e.message}"
       nil
