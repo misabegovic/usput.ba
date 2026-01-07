@@ -49,7 +49,7 @@ module Admin
       # Generiše audio ture za odabrane lokacije
       def generate
         location_ids = params[:location_ids] || []
-        locale = params[:locale] || "bs"
+        locales = params[:locales].presence || ["bs"]
         force = params[:force] == "1"
 
         if location_ids.empty?
@@ -59,10 +59,11 @@ module Admin
 
         locations = Location.where(id: location_ids)
 
-        # Pokreni job za generiranje
+        # Pokreni job za generiranje u batch_multilingual modu
         AudioTourGenerationJob.perform_later(
+          mode: "batch_multilingual",
+          locales: locales,
           location_ids: locations.pluck(:id),
-          locale: locale,
           force: force
         )
 

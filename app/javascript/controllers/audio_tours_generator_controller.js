@@ -9,21 +9,27 @@ export default class extends Controller {
 
   updateCostEstimate() {
     const locationCheckboxes = this.element.querySelectorAll('.location-checkbox')
+    const languageCheckboxes = this.element.querySelectorAll('input[name="locales[]"]:checked')
+    const languageCount = Math.max(languageCheckboxes.length, 1)
+
     let count = 0
-    let chars = 0
+    let baseChars = 0
 
     locationCheckboxes.forEach(cb => {
       if (cb.checked) {
         count++
-        chars += parseInt(cb.dataset.chars || 2000)
+        baseChars += parseInt(cb.dataset.chars || 2000)
       }
     })
 
-    if (count > 0) {
+    // Multiply characters by number of languages selected
+    const totalChars = baseChars * languageCount
+
+    if (count > 0 && languageCount > 0) {
       this.costEstimateTarget.classList.remove('hidden')
-      this.selectedCountTarget.textContent = count
-      this.estCharsTarget.textContent = chars.toLocaleString()
-      const cost = (chars / 1000 * 0.30).toFixed(2)
+      this.selectedCountTarget.textContent = `${count} locations × ${languageCount} languages`
+      this.estCharsTarget.textContent = totalChars.toLocaleString()
+      const cost = (totalChars / 1000 * 0.30).toFixed(2)
       this.estCostTarget.textContent = '$' + cost
       this.generateBtnTarget.disabled = false
     } else {
