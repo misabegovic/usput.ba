@@ -252,17 +252,24 @@ module Ai
            - Best times to visit certain experiences
            - Recommended pacing and breaks
 
+        ⚠️ KRITIČNO ZA BOSANSKI JEZIK ("bs"):
+        - OBAVEZNO koristiti IJEKAVICU: "lijepo", "vrijeme", "mjesto", "vidjeti", "bijelo"
+        - NIKAD ekavicu: NE "lepo", "vreme", "mesto", "videti", "belo"
+        - Koristiti "historija" (NE "istorija"), "hiljada" (NE "tisuća")
+        - Primjer ispravno: "Lijepo vrijeme za obilazak historijskih mjesta"
+        - Primjer POGREŠNO: "Lepo vreme za obilazak istorijskih mesta" ← NIKAD OVAKO!
+
         Return ONLY valid JSON:
         {
           "duration_days": 3,
           "titles": {
             "en": "English plan title...",
-            "bs": "Bosanski naslov plana...",
+            "bs": "Bosanski naslov plana (IJEKAVICA!)...",
             ...
           },
           "notes": {
             "en": "Practical travel notes in English...",
-            "bs": "Praktične bilješke na bosanskom...",
+            "bs": "Praktične bilješke na bosanskom - koristiti LIJEPO, VRIJEME, MJESTO (ijekavica)...",
             ...
           },
           "days": [
@@ -281,6 +288,8 @@ module Ai
         }
 
         Languages to include: #{supported_locales.join(', ')}
+        REMINDER: For "bs" (Bosnian) use IJEKAVICA (lijepo, rijeka, vrijeme), NOT ekavica!
+        FALLBACK: If unsure about Bosnian, use Croatian (hr) as a model - both use ijekavica. NEVER use Serbian patterns for Bosnian!
       PROMPT
     end
 

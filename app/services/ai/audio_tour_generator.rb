@@ -336,6 +336,12 @@ module Ai
         Write the narration directly in #{language_name}. Do not include any stage directions,
         speaker names, or formatting - just the pure spoken text.
 
+        ⚠️ KRITIČNO ZA BOSANSKI JEZIK (ako je locale "bs"):
+        - OBAVEZNO koristiti IJEKAVICU: "lijepo", "vrijeme", "mjesto", "vidjeti", "bijelo", "stoljeća"
+        - NIKAD ekavicu: NE "lepo", "vreme", "mesto", "videti", "belo", "stoleća"
+        - Koristiti "historija" (NE "istorija"), "hiljada" (NE "tisuća")
+        - FALLBACK: Ako niste sigurni, pišite kao na HRVATSKOM - oba jezika koriste ijekavicu!
+
         Begin the narration:
       PROMPT
     end

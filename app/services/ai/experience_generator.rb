@@ -68,30 +68,65 @@ module Ai
       - Be respectful of all religious and ethnic communities
       - Emphasize the blend of East and West that defines BiH
 
-      CRITICAL LANGUAGE REQUIREMENTS:
-      When writing in South Slavic languages, you MUST use these distinct variants:
+      ⚠️ KRITIČNO - JEZIČKI ZAHTJEVI (CRITICAL LANGUAGE REQUIREMENTS):
 
-      - "bs" = BOSNIAN (bosanski jezik):
-        * MUST use LATIN script (latinica), NEVER Cyrillic
-        * MUST use IJEKAVIAN pronunciation: "rijeka", "mlijeko", "lijepo", "historija"
-        * Use Bosnian-specific words: "hiljada" (not "tisuća"), "historija" (not "povijest")
-        * Use "h" in words: "lahko", "mehko", "kahva"
-        * Common phrases: "Dobro došli", "Hvala lijepa", "Može li...?"
+      BOSANSKI JEZIK ("bs") - OBAVEZNA PRAVILA:
+      ═══════════════════════════════════════════════════════════════════
+      Bosanski jezik MORA koristiti IJEKAVICU, a NE ekavicu!
+      Ovo je NAJVAŽNIJE pravilo - prekršenje ovog pravila je NEPRIHVATLJIVO.
 
-      - "hr" = CROATIAN (hrvatski jezik):
-        * Use LATIN script (latinica)
-        * Use IJEKAVIAN pronunciation: "rijeka", "mlijeko", "lijepo"
-        * Use Croatian-specific words: "tisuća", "povijest", "kazalište", "kolodvor"
-        * Common phrases: "Dobrodošli", "Hvala lijepo"
+      ✅ ISPRAVNO (ijekavica):          ❌ POGREŠNO (ekavica - NIKAD ne koristiti):
+      ─────────────────────────────────────────────────────────────────────────────
+      • rijeka                           • reka
+      • mlijeko                          • mleko
+      • lijepo, lijep, lijepa           • lepo, lep, lepa
+      • bijelo, bijel, bijela           • belo, bel, bela
+      • vrijeme                          • vreme
+      • djeca                            • deca
+      • dijete                           • dete
+      • vidjeti                          • videti
+      • htjeti                           • hteti
+      • mjera                            • mera
+      • mjesto                           • mesto
+      • sjesti                           • sesti
+      • sjećanje                         • sećanje
+      • pjevati                          • pevati
+      • cvjetovi, cvijet                • cvetovi, cvet
+      • zvijezda                         • zvezda
+      • svijet                           • svet
+      • ljudski                          • ljudski (isto)
+      • tjeskoba                         • teskoba
+      • pjesma                           • pesma
+      • vjera                            • vera
+      • vjetar                           • vetar
+      • snijeg                           • sneg
 
-      - "sr" = SERBIAN (srpski jezik):
-        * Use LATIN script (latinica) for this platform
-        * Use EKAVIAN pronunciation: "reka", "mleko", "lepo", "istorija"
-        * Use Serbian-specific words: "hiljada", "istorija", "pozorište"
-        * Common phrases: "Dobrodošli", "Hvala lepo"
+      DODATNA PRAVILA ZA BOSANSKI:
+      • Koristiti "historija" (NE "istorija" kao u srpskom)
+      • Koristiti "hiljada" (NE "tisuća" kao u hrvatskom)
+      • Koristiti slovo "h" u riječima: "lahko", "mehko", "kahva", "sahrana"
+      • Pisati latiničnim pismom (NIKAD ćirilicom)
+      • Čuvati karakteristična slova: č, ć, đ, š, ž
 
-      DO NOT mix these languages! Each has distinct vocabulary and pronunciation.
-      For "bs" (Bosnian): ALWAYS ijekavica + latinica + Bosnian vocabulary.
+      TIPIČNE BOSANSKE FRAZE:
+      • "Dobro došli" (NE "Dobrodošli")
+      • "Hvala lijepa" (NE "Hvala lepo")
+      • "Može li...?"
+      • "Izvolite"
+      • "Prijatno"
+
+      ═══════════════════════════════════════════════════════════════════
+      UPOZORENJE: Ako napišete "lepo", "reka", "mleko", "vreme", "deca",
+      "pesma", "svet" ili bilo koju drugu ekavsku varijantu u bosanskom
+      tekstu - to je GREŠKA koju morate ispraviti na ijekavicu!
+      ═══════════════════════════════════════════════════════════════════
+
+      ⚠️ FALLBACK PRAVILO: Ako niste sigurni kako napisati nešto na bosanskom,
+      UVIJEK koristite HRVATSKI (hr) kao model - oba jezika koriste IJEKAVICU.
+      NIKAD ne koristite srpski (ekavicu) za bosanski sadržaj!
+
+      Za "hr" (HRVATSKI): Koristiti ijekavicu + hrvatske riječi (tisuća, povijest, kazalište)
+      Za "sr" (SRPSKI): Koristiti ekavicu + srpske riječi (reka, mleko, lepo, istorija)
     CONTEXT
 
     # @param city_name [String] The city name
@@ -415,17 +450,22 @@ module Ai
         - Even for modern places (restaurants, shops), include historical context about the building, neighborhood, or tradition
         - Add personal touches and anecdotes that bring the history to life
 
+        ⚠️ KRITIČNO ZA BOSANSKI JEZIK ("bs"):
+        - OBAVEZNO koristiti IJEKAVICU: "lijepo", "vrijeme", "mjesto", "vidjeti", "bijelo", "stoljeća"
+        - NIKAD ekavicu: NE "lepo", "vreme", "mesto", "videti", "belo", "stoleća"
+        - Koristiti "historija" (NE "istorija"), "hiljada" (NE "tisuća")
+
         Return ONLY valid JSON, no markdown or explanation:
         {
           "suitable_experiences": ["culture", "history"],
           "descriptions": {
             "en": "Rich English description (1-2 paragraphs, 100-200 words)...",
-            "bs": "Bogat bosanski opis (1-2 pasusa, 100-200 riječi)...",
+            "bs": "Bogat bosanski opis na IJEKAVICI (1-2 pasusa, 100-200 RIJEČI). Koristiti: LIJEPO, VRIJEME, MJESTO, VIDJETI...",
             ...
           },
           "historical_context": {
             "en": "Essay-style historical context for audio narration (2-4 paragraphs, 200-400 words)...",
-            "bs": "Esej o historijskom kontekstu za audio naraciju (2-4 pasusa, 200-400 riječi)...",
+            "bs": "Esej o HISTORIJSKOM kontekstu za audio naraciju (2-4 pasusa, 200-400 RIJEČI). OBAVEZNO IJEKAVICA: STOLJEĆA, VRIJEME, MJESTO...",
             ...
           }
         }
@@ -784,6 +824,11 @@ module Ai
            - Create anticipation and emotional connection
            - Tell a mini-story about what awaits the traveler
 
+        ⚠️ KRITIČNO ZA BOSANSKI JEZIK ("bs"):
+        - OBAVEZNO koristiti IJEKAVICU: "lijepo", "vrijeme", "mjesto", "vidjeti", "bijelo"
+        - NIKAD ekavicu: NE "lepo", "vreme", "mesto", "videti", "belo"
+        - Koristiti "historija" (NE "istorija"), "hiljada" (NE "tisuća")
+
         Return ONLY valid JSON:
         {
           "titles": {
@@ -791,7 +836,7 @@ module Ai
           },
           "descriptions": {
             "en": "Engaging description that captures the essence of this Bosnian experience...",
-            "bs": "Opis koji hvata suštinu ovog bosanskog iskustva...",
+            "bs": "Opis koji hvata suštinu ovog bosanskog ISKUSTVA (IJEKAVICA: LIJEPO, VRIJEME, MJESTO)...",
             ...
           },
           "location_ids": [1, 2, 3],
@@ -799,6 +844,8 @@ module Ai
         }
 
         Write naturally in each language - not just translations. Each language should feel native.
+        REMINDER: For "bs" (Bosnian) use IJEKAVICA (lijepo, rijeka, vrijeme), NOT ekavica!
+        FALLBACK: If unsure about Bosnian, use Croatian (hr) as a model - both use ijekavica. NEVER use Serbian patterns for Bosnian!
       PROMPT
     end
 
