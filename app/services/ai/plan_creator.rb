@@ -128,11 +128,59 @@ module Ai
 
     def ai_propose_plan(experiences, profile, profile_data, city, duration_days)
       prompt = build_plan_prompt(experiences, profile, profile_data, city, duration_days)
-      response = @chat.ask(prompt)
-      parse_ai_json_response(response.content)
+      response = @chat.with_schema(plan_proposal_schema).ask(prompt)
+
+      # with_schema automatically parses JSON, but content might still be string on error
+      result = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
+      result
     rescue StandardError => e
       log_warn "AI plan proposal failed: #{e.message}"
       nil
+    end
+
+    # JSON Schema for plan proposal - ensures structured output from AI
+    def plan_proposal_schema
+      {
+        type: "object",
+        properties: {
+          duration_days: {
+            type: "integer",
+            description: "Number of days for the plan"
+          },
+          titles: {
+            type: "object",
+            additionalProperties: { type: "string" },
+            description: "Localized plan titles keyed by locale code (en, bs, hr, etc.)"
+          },
+          notes: {
+            type: "object",
+            additionalProperties: { type: "string" },
+            description: "Localized travel notes keyed by locale code"
+          },
+          days: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                day_number: { type: "integer" },
+                theme: { type: "string" },
+                experience_ids: {
+                  type: "array",
+                  items: { type: "integer" }
+                }
+              },
+              required: %w[day_number theme experience_ids]
+            },
+            description: "Array of day plans with experience IDs"
+          },
+          reasoning: {
+            type: "string",
+            description: "Explanation of why this plan works for the tourist profile"
+          }
+        },
+        required: %w[duration_days titles notes days reasoning],
+        additionalProperties: false
+      }
     end
 
     def build_plan_prompt(experiences, profile, profile_data, city, duration_days)

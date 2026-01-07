@@ -172,12 +172,54 @@ module Ai
     def analyze_and_plan
       current_state = gather_current_state
       prompt = build_reasoning_prompt(current_state)
-      response = @chat.ask(prompt)
-      parse_ai_json_response(response.content)
+      response = @chat.with_schema(orchestration_plan_schema).ask(prompt)
+
+      # with_schema automatically parses JSON
+      response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
     rescue StandardError => e
       log_error "AI reasoning failed: #{e.message}"
       # Fallback plan ako AI reasoning ne uspije
       create_fallback_plan(current_state)
+    end
+
+    # JSON Schema for orchestration plan - ensures structured output from AI
+    def orchestration_plan_schema
+      {
+        type: "object",
+        properties: {
+          analysis: { type: "string", description: "Brief analysis of current state" },
+          target_cities: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                city: { type: "string" },
+                country: { type: "string" },
+                coordinates: {
+                  type: "object",
+                  properties: { lat: { type: "number" }, lng: { type: "number" } },
+                  required: %w[lat lng]
+                },
+                locations_to_fetch: { type: "integer" },
+                categories: { type: "array", items: { type: "string" } },
+                reasoning: { type: "string" }
+              },
+              required: %w[city coordinates categories]
+            }
+          },
+          tourist_profiles_to_generate: { type: "array", items: { type: "string" } },
+          estimated_new_content: {
+            type: "object",
+            properties: {
+              locations: { type: "integer" },
+              experiences: { type: "integer" },
+              plans: { type: "integer" }
+            }
+          }
+        },
+        required: %w[analysis target_cities tourist_profiles_to_generate],
+        additionalProperties: false
+      }
     end
 
     def gather_current_state
