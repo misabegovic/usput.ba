@@ -2,6 +2,8 @@
 
 A tourism platform for Bosnia and Herzegovina featuring AI-generated content, audio tours, and travel planning.
 
+Discord link: https://discord.gg/kKuc5mnYkc
+
 ## Tech Stack
 
 - **Framework**: Ruby on Rails 8.1.1
@@ -252,7 +254,7 @@ Location ←──N:M──→ Experience ←──N:M──→ Plan
 1. Run the full CI pipeline before submitting PRs: `bin/ci`
 2. Follow Rails Omakase Ruby style guide
 3. Add tests for new functionality
-4. Update this README for significant changes test
+4. Update this README for significant changes
 
 ## License
 
