@@ -296,7 +296,14 @@ module Ai
     def create_plan_from_proposal(proposal, experiences, profile, city)
       duration_days = proposal[:duration_days] || proposal[:days]&.count || 1
 
+      # Set initial title from proposal or generate default
+      # This is required because Plan validates :title, presence: true
+      initial_title = proposal.dig(:titles, :en) ||
+                      proposal.dig(:titles, "en") ||
+                      generate_default_title(profile, city, "en")
+
       plan = Plan.new(
+        title: initial_title,
         city_name: city || determine_primary_city(proposal, experiences),
         visibility: :public_plan,
         preferences: {
