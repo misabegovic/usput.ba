@@ -143,7 +143,11 @@ module Ai
     end
 
     # JSON Schema for experience proposals - ensures structured output from AI
+    # Note: OpenAI structured output requires additionalProperties: false at all levels
+    # and all properties must be listed in required array
     def experiences_proposal_schema
+      locale_properties = supported_locales.to_h { |loc| [loc, { type: "string" }] }
+
       {
         type: "object",
         properties: {
@@ -157,11 +161,22 @@ module Ai
                 category_key: { type: "string" },
                 estimated_duration: { type: "integer" },
                 seasons: { type: "array", items: { type: "string" } },
-                titles: { type: "object", additionalProperties: { type: "string" } },
-                descriptions: { type: "object", additionalProperties: { type: "string" } },
+                titles: {
+                  type: "object",
+                  properties: locale_properties,
+                  required: supported_locales,
+                  additionalProperties: false
+                },
+                descriptions: {
+                  type: "object",
+                  properties: locale_properties,
+                  required: supported_locales,
+                  additionalProperties: false
+                },
                 theme_reasoning: { type: "string" }
               },
-              required: %w[location_ids location_names category_key titles descriptions]
+              required: %w[location_ids location_names category_key estimated_duration seasons titles descriptions theme_reasoning],
+              additionalProperties: false
             }
           }
         },

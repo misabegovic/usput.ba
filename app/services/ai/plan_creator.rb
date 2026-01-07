@@ -139,7 +139,11 @@ module Ai
     end
 
     # JSON Schema for plan proposal - ensures structured output from AI
+    # Note: OpenAI structured output requires additionalProperties: false at all levels
+    # and all properties must be listed in required array
     def plan_proposal_schema
+      locale_properties = supported_locales.to_h { |loc| [loc, { type: "string" }] }
+
       {
         type: "object",
         properties: {
@@ -149,12 +153,16 @@ module Ai
           },
           titles: {
             type: "object",
-            additionalProperties: { type: "string" },
+            properties: locale_properties,
+            required: supported_locales,
+            additionalProperties: false,
             description: "Localized plan titles keyed by locale code (en, bs, hr, etc.)"
           },
           notes: {
             type: "object",
-            additionalProperties: { type: "string" },
+            properties: locale_properties,
+            required: supported_locales,
+            additionalProperties: false,
             description: "Localized travel notes keyed by locale code"
           },
           days: {
@@ -169,7 +177,8 @@ module Ai
                   items: { type: "integer" }
                 }
               },
-              required: %w[day_number theme experience_ids]
+              required: %w[day_number theme experience_ids],
+              additionalProperties: false
             },
             description: "Array of day plans with experience IDs"
           },
