@@ -489,8 +489,8 @@ module Ai
     def generate_country_experience_with_ai(category_data, locations, scope:, region: nil)
       prompt = build_country_experience_prompt(category_data, locations, scope, region)
 
-      response = @chat.ask(prompt)
-      parse_ai_json_response(response.content)
+      response = @chat.with_schema(country_experience_schema).ask(prompt)
+      response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
     rescue StandardError => e
       Rails.logger.warn "[AI::CountryWideLocationGenerator] AI experience generation failed: #{e.message}"
       { titles: {}, descriptions: {}, location_ids: [] }
@@ -499,11 +499,25 @@ module Ai
     def generate_cross_region_experience_with_ai(theme, locations)
       prompt = build_cross_region_experience_prompt(theme, locations)
 
-      response = @chat.ask(prompt)
-      parse_ai_json_response(response.content)
+      response = @chat.with_schema(country_experience_schema).ask(prompt)
+      response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
     rescue StandardError => e
       Rails.logger.warn "[AI::CountryWideLocationGenerator] AI cross-region experience generation failed: #{e.message}"
       { titles: {}, descriptions: {}, location_ids: [] }
+    end
+
+    # JSON Schema for country/cross-region experience generation
+    def country_experience_schema
+      {
+        type: "object",
+        properties: {
+          titles: { type: "object", additionalProperties: { type: "string" } },
+          descriptions: { type: "object", additionalProperties: { type: "string" } },
+          location_ids: { type: "array", items: { type: "integer" } }
+        },
+        required: %w[titles descriptions location_ids],
+        additionalProperties: false
+      }
     end
 
     def build_country_experience_prompt(category_data, locations, scope, region)
@@ -695,8 +709,8 @@ module Ai
     def get_ai_location_suggestions(region_name, region_data)
       prompt = build_region_suggestions_prompt(region_name, region_data)
 
-      response = @chat.ask(prompt)
-      suggestions = parse_ai_json_response(response.content)
+      response = @chat.with_schema(location_suggestions_schema).ask(prompt)
+      suggestions = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
 
       suggestions[:locations] || []
     rescue StandardError => e
@@ -707,8 +721,8 @@ module Ai
     def get_ai_category_suggestions(category)
       prompt = build_category_suggestions_prompt(category)
 
-      response = @chat.ask(prompt)
-      suggestions = parse_ai_json_response(response.content)
+      response = @chat.with_schema(location_suggestions_schema).ask(prompt)
+      suggestions = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
 
       suggestions[:locations] || []
     rescue StandardError => e
@@ -719,13 +733,43 @@ module Ai
     def get_ai_hidden_gems(count)
       prompt = build_hidden_gems_prompt(count)
 
-      response = @chat.ask(prompt)
-      suggestions = parse_ai_json_response(response.content)
+      response = @chat.with_schema(location_suggestions_schema).ask(prompt)
+      suggestions = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
 
       suggestions[:locations] || []
     rescue StandardError => e
       Rails.logger.error "[AI::CountryWideLocationGenerator] AI hidden gems failed: #{e.message}"
       []
+    end
+
+    # JSON Schema for location suggestions
+    def location_suggestions_schema
+      {
+        type: "object",
+        properties: {
+          locations: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                name_local: { type: "string" },
+                lat: { type: "number" },
+                lng: { type: "number" },
+                city_name: { type: "string" },
+                location_type: { type: "string" },
+                category: { type: "string" },
+                experience_types: { type: "array", items: { type: "string" } },
+                why_notable: { type: "string" },
+                estimated_visit_duration: { type: "integer" }
+              },
+              required: %w[name lat lng city_name]
+            }
+          }
+        },
+        required: ["locations"],
+        additionalProperties: false
+      }
     end
 
     def build_region_suggestions_prompt(region_name, region_data)
@@ -903,6 +947,14 @@ module Ai
         lng.to_f.between?(BIH_BOUNDS[:west], BIH_BOUNDS[:east])
     end
 
+    # Known coordinate overrides for areas where geocoding services return incorrect data
+    # These are manually verified corrections for problem areas
+    COORDINATE_OVERRIDES = [
+      # Zvornik area coordinates incorrectly mapped to Srebrenica by some services
+      { lat_range: (44.38..44.42), lng_range: (19.08..19.14), city: "Zvornik" }
+      # Add more overrides here as needed
+    ].freeze
+
     # Use reverse geocoding to get the actual city name from coordinates
     # This corrects AI-suggested city names that may be incorrect
     # @param lat [Float] Latitude
@@ -914,6 +966,13 @@ module Ai
       lat_f = lat.to_f
       lng_f = lng.to_f
 
+      # Check for known coordinate overrides first (manually verified corrections)
+      override_city = check_coordinate_overrides(lat_f, lng_f)
+      if override_city
+        Rails.logger.info "[AI::CountryWideLocationGenerator] Using coordinate override for #{lat}, #{lng}: #{override_city}"
+        return override_city
+      end
+
       # Try Geoapify first (more reliable for Balkan regions)
       city_name = get_city_from_geoapify(lat_f, lng_f)
       return city_name if city_name.present?
@@ -922,12 +981,30 @@ module Ai
       get_city_from_nominatim(lat_f, lng_f)
     end
 
+    # Check if coordinates fall within a known problematic area with manual override
+    def check_coordinate_overrides(lat, lng)
+      COORDINATE_OVERRIDES.each do |override|
+        if override[:lat_range].cover?(lat) && override[:lng_range].cover?(lng)
+          return override[:city]
+        end
+      end
+      nil
+    end
+
     # Use Geoapify reverse geocoding API (primary method)
     def get_city_from_geoapify(lat, lng)
       geoapify = GeoapifyService.new
-      geoapify.get_city_from_coordinates(lat, lng)
-    rescue GeoapifyService::ConfigurationError
-      # Geoapify not configured, skip silently
+      city = geoapify.get_city_from_coordinates(lat, lng)
+
+      if city.present?
+        Rails.logger.info "[AI::CountryWideLocationGenerator] Geoapify returned city '#{city}' for #{lat}, #{lng}"
+      else
+        Rails.logger.debug "[AI::CountryWideLocationGenerator] Geoapify returned no city for #{lat}, #{lng}"
+      end
+
+      city
+    rescue GeoapifyService::ConfigurationError => e
+      Rails.logger.warn "[AI::CountryWideLocationGenerator] Geoapify not configured: #{e.message}. Falling back to Nominatim."
       nil
     rescue StandardError => e
       Rails.logger.warn "[AI::CountryWideLocationGenerator] Geoapify geocoding failed for #{lat}, #{lng}: #{e.message}"
@@ -936,8 +1013,14 @@ module Ai
 
     # Fallback to Nominatim via Geocoder gem
     def get_city_from_nominatim(lat, lng)
+      # Rate limit to avoid overwhelming Nominatim (max 1 req/sec)
+      sleep(1.1)
+
       results = Geocoder.search([lat, lng])
-      return nil if results.blank?
+      if results.blank?
+        Rails.logger.debug "[AI::CountryWideLocationGenerator] Nominatim returned empty results for #{lat}, #{lng}"
+        return nil
+      end
 
       result = results.first
       return nil unless result
@@ -947,11 +1030,17 @@ module Ai
       # Fallback: Try to extract from display_name
       if city_name.blank?
         city_name = extract_city_from_display_name(result.data["display_name"])
+        Rails.logger.debug "[AI::CountryWideLocationGenerator] Extracted city from display_name: #{city_name}" if city_name.present?
       end
 
-      return nil if city_name.blank?
+      if city_name.blank?
+        Rails.logger.debug "[AI::CountryWideLocationGenerator] Nominatim could not determine city for #{lat}, #{lng}"
+        return nil
+      end
 
-      clean_city_name(city_name)
+      cleaned = clean_city_name(city_name)
+      Rails.logger.info "[AI::CountryWideLocationGenerator] Nominatim returned city '#{cleaned}' for #{lat}, #{lng}"
+      cleaned
     rescue StandardError => e
       Rails.logger.warn "[AI::CountryWideLocationGenerator] Nominatim geocoding failed for #{lat}, #{lng}: #{e.message}"
       nil
@@ -1058,10 +1147,15 @@ module Ai
       # Get the correct city name from coordinates using reverse geocoding
       # This fixes issues where AI suggests incorrect city names
       verified_city = get_city_from_coordinates(suggestion[:lat], suggestion[:lng])
-      city_name = verified_city.presence || suggestion[:city_name]
 
-      if verified_city.present? && verified_city != suggestion[:city_name]
-        Rails.logger.info "[AI::CountryWideLocationGenerator] City corrected: AI suggested '#{suggestion[:city_name]}', geocoding returned '#{verified_city}'"
+      if verified_city.present?
+        city_name = verified_city
+        if verified_city != suggestion[:city_name]
+          Rails.logger.info "[AI::CountryWideLocationGenerator] City corrected: AI suggested '#{suggestion[:city_name]}', geocoding returned '#{verified_city}'"
+        end
+      else
+        city_name = suggestion[:city_name]
+        Rails.logger.warn "[AI::CountryWideLocationGenerator] Geocoding failed for #{suggestion[:name]} (#{suggestion[:lat]}, #{suggestion[:lng]}). Using AI suggestion: '#{city_name}' - THIS MAY BE INCORRECT!"
       end
 
       # Merge AI suggestion with Geoapify data
@@ -1184,11 +1278,32 @@ module Ai
         }
       PROMPT
 
-      response = @chat.ask(prompt)
-      parse_ai_json_response(response.content)
+      response = @chat.with_schema(location_enrichment_schema).ask(prompt)
+      response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
     rescue StandardError => e
       Rails.logger.warn "[AI::CountryWideLocationGenerator] AI enrichment failed: #{e.message}"
       { descriptions: {}, historical_context: {} }
+    end
+
+    # JSON Schema for location enrichment content
+    def location_enrichment_schema
+      {
+        type: "object",
+        properties: {
+          descriptions: {
+            type: "object",
+            additionalProperties: { type: "string" },
+            description: "Localized descriptions keyed by locale code"
+          },
+          historical_context: {
+            type: "object",
+            additionalProperties: { type: "string" },
+            description: "Localized historical context for audio narration"
+          }
+        },
+        required: %w[descriptions historical_context],
+        additionalProperties: false
+      }
     end
 
     def set_location_translations(location, suggestion, enrichment)

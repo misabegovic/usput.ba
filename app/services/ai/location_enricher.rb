@@ -120,13 +120,40 @@ module Ai
 
     def generate_enrichment(location, place_data)
       prompt = build_enrichment_prompt(location, place_data)
-      response = request_with_retry(location.name) { @chat.ask(prompt) }
+      response = request_with_retry(location.name) { @chat.with_schema(location_enrichment_schema).ask(prompt) }
       return {} if response.nil?
 
-      parse_ai_json_response(response.content)
+      # with_schema automatically parses JSON
+      response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
     rescue StandardError => e
       log_warn "AI enrichment failed for #{location.name}: #{e.message}"
       {}
+    end
+
+    # JSON Schema for location enrichment - ensures structured output from AI
+    def location_enrichment_schema
+      {
+        type: "object",
+        properties: {
+          suitable_experiences: {
+            type: "array",
+            items: { type: "string" },
+            description: "Experience types this location is suitable for"
+          },
+          descriptions: {
+            type: "object",
+            additionalProperties: { type: "string" },
+            description: "Localized descriptions keyed by locale code"
+          },
+          historical_context: {
+            type: "object",
+            additionalProperties: { type: "string" },
+            description: "Localized historical context for audio narration"
+          }
+        },
+        required: %w[suitable_experiences descriptions historical_context],
+        additionalProperties: false
+      }
     end
 
     def request_with_retry(context_name, &block)

@@ -122,8 +122,9 @@ module Ai
 
     def ai_propose_local_experiences(locations, city)
       prompt = build_local_experiences_prompt(locations, city)
-      response = @chat.ask(prompt)
-      result = parse_ai_json_response(response.content)
+      response = @chat.with_schema(experiences_proposal_schema).ask(prompt)
+
+      result = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
       result[:experiences] || []
     rescue StandardError => e
       log_warn "AI proposal failed for #{city}: #{e.message}"
@@ -132,12 +133,41 @@ module Ai
 
     def ai_propose_thematic_experiences(locations)
       prompt = build_thematic_experiences_prompt(locations)
-      response = @chat.ask(prompt)
-      result = parse_ai_json_response(response.content)
+      response = @chat.with_schema(experiences_proposal_schema).ask(prompt)
+
+      result = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
       result[:experiences] || []
     rescue StandardError => e
       log_warn "AI thematic proposal failed: #{e.message}"
       []
+    end
+
+    # JSON Schema for experience proposals - ensures structured output from AI
+    def experiences_proposal_schema
+      {
+        type: "object",
+        properties: {
+          experiences: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                location_ids: { type: "array", items: { type: "integer" } },
+                location_names: { type: "array", items: { type: "string" } },
+                category_key: { type: "string" },
+                estimated_duration: { type: "integer" },
+                seasons: { type: "array", items: { type: "string" } },
+                titles: { type: "object", additionalProperties: { type: "string" } },
+                descriptions: { type: "object", additionalProperties: { type: "string" } },
+                theme_reasoning: { type: "string" }
+              },
+              required: %w[location_ids location_names category_key titles descriptions]
+            }
+          }
+        },
+        required: ["experiences"],
+        additionalProperties: false
+      }
     end
 
     def build_local_experiences_prompt(locations, city)

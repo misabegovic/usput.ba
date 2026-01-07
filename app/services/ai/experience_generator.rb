@@ -328,11 +328,40 @@ module Ai
     def enrich_location_with_ai(place)
       prompt = build_location_enrichment_prompt(place)
 
-      response = @chat.ask(prompt)
-      parse_ai_json_response(response.content)
+      response = @chat.with_schema(location_enrichment_schema).ask(prompt)
+
+      # with_schema automatically parses JSON, but content might still be string on error
+      result = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
+      result
     rescue StandardError => e
       log_error("AI enrichment failed for #{place[:name]}: #{e.message}", exception: e, place: place[:name])
       { suitable_experiences: [], descriptions: {} }
+    end
+
+    # JSON Schema for location enrichment - ensures structured output from AI
+    def location_enrichment_schema
+      {
+        type: "object",
+        properties: {
+          suitable_experiences: {
+            type: "array",
+            items: { type: "string" },
+            description: "Experience types this location is suitable for"
+          },
+          descriptions: {
+            type: "object",
+            additionalProperties: { type: "string" },
+            description: "Localized descriptions keyed by locale code (en, bs, hr, etc.)"
+          },
+          historical_context: {
+            type: "object",
+            additionalProperties: { type: "string" },
+            description: "Localized historical context for audio narration keyed by locale code"
+          }
+        },
+        required: %w[suitable_experiences descriptions historical_context],
+        additionalProperties: false
+      }
     end
 
     def build_location_enrichment_prompt(place)
@@ -641,11 +670,44 @@ module Ai
     def generate_experience_with_ai(category_data, locations)
       prompt = build_experience_prompt(category_data, locations)
 
-      response = @chat.ask(prompt)
-      parse_ai_json_response(response.content)
+      response = @chat.with_schema(experience_generation_schema).ask(prompt)
+
+      # with_schema automatically parses JSON, but content might still be string on error
+      result = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
+      result
     rescue StandardError => e
       log_error("AI experience generation failed: #{e.message}", exception: e)
       { titles: {}, descriptions: {}, location_ids: [] }
+    end
+
+    # JSON Schema for experience generation - ensures structured output from AI
+    def experience_generation_schema
+      {
+        type: "object",
+        properties: {
+          titles: {
+            type: "object",
+            additionalProperties: { type: "string" },
+            description: "Localized experience titles keyed by locale code (en, bs, hr, etc.)"
+          },
+          descriptions: {
+            type: "object",
+            additionalProperties: { type: "string" },
+            description: "Localized experience descriptions keyed by locale code"
+          },
+          location_ids: {
+            type: "array",
+            items: { type: "integer" },
+            description: "Array of location IDs to include in the experience"
+          },
+          route_narrative: {
+            type: "string",
+            description: "Brief explanation of how the locations connect thematically and geographically"
+          }
+        },
+        required: %w[titles descriptions location_ids route_narrative],
+        additionalProperties: false
+      }
     end
 
     def build_experience_prompt(category_data, locations)
