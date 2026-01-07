@@ -401,22 +401,22 @@ Rails.application.config.geoapify.tourism_categories = %w[
 
   religion
   religion.place_of_worship
-  religion.place_of_worship.christian
-  religion.place_of_worship.church
-  religion.place_of_worship.chapel
-  religion.place_of_worship.cathedral
-  religion.place_of_worship.basilica
-  religion.place_of_worship.monastery
-  religion.place_of_worship.muslim
-  religion.place_of_worship.mosque
-  religion.place_of_worship.jewish
-  religion.place_of_worship.synagogue
-  religion.place_of_worship.buddhist
-  religion.place_of_worship.temple
-  religion.place_of_worship.hindu
+  religion.place_of_worship.christianity
+  religion.place_of_worship.islam
+  religion.place_of_worship.judaism
+  religion.place_of_worship.buddhism
+  religion.place_of_worship.hinduism
   religion.place_of_worship.shinto
-  religion.place_of_worship.shrine
-  religion.place_of_worship.taoist
+  religion.place_of_worship.sikhism
+  religion.place_of_worship.multifaith
+  tourism.sights.place_of_worship
+  tourism.sights.place_of_worship.mosque
+  tourism.sights.place_of_worship.church
+  tourism.sights.place_of_worship.chapel
+  tourism.sights.place_of_worship.cathedral
+  tourism.sights.place_of_worship.synagogue
+  tourism.sights.place_of_worship.temple
+  tourism.sights.place_of_worship.shrine
 
   service
   service.financial

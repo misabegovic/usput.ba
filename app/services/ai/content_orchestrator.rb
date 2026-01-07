@@ -272,7 +272,7 @@ module Ai
         tourism.sights.monastery, tourism.sights.memorial, tourism.viewpoint,
         catering.restaurant, catering.cafe, catering.bar,
         entertainment.museum, entertainment.culture.theatre, entertainment.culture.gallery,
-        religion.place_of_worship.mosque, religion.place_of_worship.church,
+        tourism.sights.place_of_worship.mosque, tourism.sights.place_of_worship.church,
         natural.water.waterfall, natural.water.river, natural.water.spring,
         heritage.unesco, heritage.national,
         leisure.park, leisure.spa,

@@ -108,21 +108,22 @@ class GeoapifyService
     public_transport.airport
     religion
     religion.place_of_worship
-    religion.place_of_worship.christian
-    religion.place_of_worship.church
-    religion.place_of_worship.chapel
-    religion.place_of_worship.cathedral
-    religion.place_of_worship.basilica
-    religion.place_of_worship.monastery
-    religion.place_of_worship.muslim
-    religion.place_of_worship.mosque
-    religion.place_of_worship.jewish
-    religion.place_of_worship.synagogue
-    religion.place_of_worship.buddhist
-    religion.place_of_worship.temple
-    religion.place_of_worship.hindu
+    religion.place_of_worship.christianity
+    religion.place_of_worship.islam
+    religion.place_of_worship.judaism
+    religion.place_of_worship.buddhism
+    religion.place_of_worship.hinduism
     religion.place_of_worship.shinto
-    religion.place_of_worship.shrine
+    religion.place_of_worship.sikhism
+    religion.place_of_worship.multifaith
+    tourism.sights.place_of_worship
+    tourism.sights.place_of_worship.mosque
+    tourism.sights.place_of_worship.church
+    tourism.sights.place_of_worship.chapel
+    tourism.sights.place_of_worship.cathedral
+    tourism.sights.place_of_worship.synagogue
+    tourism.sights.place_of_worship.temple
+    tourism.sights.place_of_worship.shrine
     service.townhall
     service.embassy
     ski
@@ -392,25 +393,27 @@ class GeoapifyService
     "rental.car" => "car_rental",
     "rental.boat" => "boat_rental",
 
-    # Religion
+    # Religion (by religion name - valid Geoapify categories)
     "religion" => "place_of_worship",
     "religion.place_of_worship" => "place_of_worship",
-    "religion.place_of_worship.christian" => "church",
-    "religion.place_of_worship.church" => "church",
-    "religion.place_of_worship.chapel" => "chapel",
-    "religion.place_of_worship.cathedral" => "cathedral",
-    "religion.place_of_worship.basilica" => "basilica",
-    "religion.place_of_worship.monastery" => "monastery",
-    "religion.place_of_worship.muslim" => "mosque",
-    "religion.place_of_worship.mosque" => "mosque",
-    "religion.place_of_worship.jewish" => "synagogue",
-    "religion.place_of_worship.synagogue" => "synagogue",
-    "religion.place_of_worship.buddhist" => "buddhist_temple",
-    "religion.place_of_worship.temple" => "temple",
-    "religion.place_of_worship.hindu" => "hindu_temple",
+    "religion.place_of_worship.christianity" => "church",
+    "religion.place_of_worship.islam" => "mosque",
+    "religion.place_of_worship.judaism" => "synagogue",
+    "religion.place_of_worship.buddhism" => "buddhist_temple",
+    "religion.place_of_worship.hinduism" => "hindu_temple",
     "religion.place_of_worship.shinto" => "shinto_shrine",
-    "religion.place_of_worship.shrine" => "shrine",
-    "religion.place_of_worship.taoist" => "taoist_temple",
+    "religion.place_of_worship.sikhism" => "sikh_temple",
+    "religion.place_of_worship.multifaith" => "place_of_worship",
+
+    # Tourism sights - places of worship (by building type - valid Geoapify categories)
+    "tourism.sights.place_of_worship" => "place_of_worship",
+    "tourism.sights.place_of_worship.mosque" => "mosque",
+    "tourism.sights.place_of_worship.church" => "church",
+    "tourism.sights.place_of_worship.chapel" => "chapel",
+    "tourism.sights.place_of_worship.cathedral" => "cathedral",
+    "tourism.sights.place_of_worship.synagogue" => "synagogue",
+    "tourism.sights.place_of_worship.temple" => "temple",
+    "tourism.sights.place_of_worship.shrine" => "shrine",
 
     # Service
     "service" => "service",
@@ -766,10 +769,10 @@ class GeoapifyService
     when /bar/ then "catering.bar"
     when /museum/ then "entertainment.museum"
     when /park/ then "leisure.park"
-    when /church|chapel|cathedral/ then "religion.place_of_worship.church"
-    when /mosque/ then "religion.place_of_worship.mosque"
-    when /synagogue/ then "religion.place_of_worship.synagogue"
-    when /temple/ then "religion.place_of_worship.temple"
+    when /church|chapel|cathedral/ then "tourism.sights.place_of_worship.church"
+    when /mosque/ then "tourism.sights.place_of_worship.mosque"
+    when /synagogue/ then "tourism.sights.place_of_worship.synagogue"
+    when /temple/ then "tourism.sights.place_of_worship.temple"
     when /theater|theatre/ then "entertainment.culture.theatre"
     when /zoo/ then "entertainment.zoo"
     when /aquarium/ then "entertainment.aquarium"
