@@ -22,6 +22,9 @@ export default class extends Controller {
     "budgetOption",
     "dailyHoursOption",
     "interestTag",
+    "interestsContainer",
+    "loadMoreContainer",
+    "loadMoreButton",
     "toast"
   ]
 
@@ -516,6 +519,26 @@ export default class extends Controller {
       this.formData.interests.splice(index, 1)
       event.currentTarget.classList.add("bg-gray-100", "dark:bg-gray-700", "text-gray-700", "dark:text-gray-300")
       event.currentTarget.classList.remove("bg-primary-500", "text-white")
+    }
+  }
+
+  // Load more interests (show hidden interests)
+  loadMoreInterests(event) {
+    const button = event.currentTarget
+    const initialCount = parseInt(button.dataset.initialCount) || 8
+
+    // Show all hidden interest tags
+    this.interestTagTargets.forEach((tag, index) => {
+      if (index >= initialCount) {
+        tag.classList.remove("hidden")
+        // Add animation
+        tag.classList.add("animate-fade-in")
+      }
+    })
+
+    // Hide the load more button container
+    if (this.hasLoadMoreContainerTarget) {
+      this.loadMoreContainerTarget.classList.add("hidden")
     }
   }
 

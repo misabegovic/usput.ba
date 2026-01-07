@@ -187,10 +187,21 @@ class Location < ApplicationRecord
   end
 
   # Helper to add an experience type
+  # Creates the ExperienceType if it doesn't exist (find_or_create)
   def add_experience_type(experience_type_or_key)
-    exp_type = experience_type_or_key.is_a?(ExperienceType) ?
-      experience_type_or_key :
-      ExperienceType.find_by_key(experience_type_or_key)
+    exp_type = if experience_type_or_key.is_a?(ExperienceType)
+      experience_type_or_key
+    else
+      key = experience_type_or_key.to_s.downcase.strip
+      return if key.blank?
+
+      # Find or create the experience type
+      ExperienceType.find_or_create_by!(key: key) do |et|
+        et.name = key.titleize
+        et.active = true
+        et.position = ExperienceType.maximum(:position).to_i + 1
+      end
+    end
 
     return unless exp_type
 

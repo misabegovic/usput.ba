@@ -323,20 +323,39 @@
           </p>
         </div>
 
-        <!-- Horizontal scrollable tags -->
-        <div class="overflow-x-auto pb-4 -mx-4 sm:-mx-6 px-4 sm:px-6 scrollbar-hide">
-          <div class="flex flex-wrap gap-2 sm:gap-3 justify-center">
-            <% @supported_interests.each do |interest| %>
+        <!-- Interest tags with load more -->
+        <div class="pb-4">
+          <div class="flex flex-wrap gap-2 sm:gap-3 justify-center" data-plan-wizard-target="interestsContainer">
+            <% initial_count = 8 %>
+            <% @supported_interests.each_with_index do |interest, index| %>
               <button type="button"
-                      class="px-3 sm:px-5 py-2 sm:py-3 rounded-full border-2 border-transparent bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors cursor-pointer font-medium text-sm sm:text-base"
+                      class="px-3 sm:px-5 py-2 sm:py-3 rounded-full border-2 border-transparent bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors cursor-pointer font-medium text-sm sm:text-base <%= index >= initial_count ? 'hidden' : '' %>"
                       data-plan-wizard-target="interestTag"
                       data-tag="<%= interest %>"
-                      data-action="click->plan-wizard#toggleInterest">
+                      data-action="click->plan-wizard#toggleInterest"
+                      data-interest-index="<%= index %>">
                 <%= interest_icon(interest) %>
                 <%= interest_label(interest) %>
               </button>
             <% end %>
           </div>
+
+          <% if @supported_interests.size > initial_count %>
+            <div class="text-center mt-4" data-plan-wizard-target="loadMoreContainer">
+              <button type="button"
+                      class="inline-flex items-center gap-2 px-4 py-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
+                      data-action="click->plan-wizard#loadMoreInterests"
+                      data-plan-wizard-target="loadMoreButton"
+                      data-initial-count="<%= initial_count %>"
+                      data-total-count="<%= @supported_interests.size %>">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+                <%= t('common.show_more', default: 'Prikaži više') %>
+                <span class="text-gray-400">(<%= @supported_interests.size - initial_count %>)</span>
+              </button>
+            </div>
+          <% end %>
         </div>
 
         <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">

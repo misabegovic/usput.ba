@@ -122,6 +122,11 @@ Rails.application.routes.draw do
     get "ai/fix_cities_status", to: "ai#fix_cities_status", as: :fix_cities_status_admin_ai
     post "ai/force_reset_city_fix", to: "ai#force_reset_city_fix", as: :force_reset_city_fix_admin_ai
 
+    # Experience Type Sync
+    post "ai/sync_experience_types", to: "ai#sync_experience_types", as: :sync_experience_types_admin_ai
+    get "ai/sync_experience_types_status", to: "ai#sync_experience_types_status", as: :sync_experience_types_status_admin_ai
+    post "ai/force_reset_experience_type_sync", to: "ai#force_reset_experience_type_sync", as: :force_reset_experience_type_sync_admin_ai
+
     # Audio Tours Generator (odvojeno od glavnog AI generatora)
     get "ai/audio_tours", to: "ai/audio_tours#index", as: :ai_audio_tours
     post "ai/audio_tours/generate", to: "ai/audio_tours#generate", as: :generate_admin_ai_audio_tours
