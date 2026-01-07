@@ -193,7 +193,7 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <% @stats[:cities].each do |city_stat| %>
+          <% @paginated_cities.each do |city_stat| %>
             <tr class="<%= city_stat[:locations] < 10 ? 'bg-yellow-50' : '' %>">
               <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
                 <div class="font-medium text-gray-900"><%= city_stat[:city] %></div>
@@ -222,7 +222,7 @@
             </tr>
           <% end %>
 
-          <% if @stats[:cities].empty? %>
+          <% if @paginated_cities.empty? %>
             <tr>
               <td colspan="5" class="px-6 py-8 text-center text-gray-500">
                 No content yet. Click "Generate Content" to start.
@@ -232,6 +232,40 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Pagination -->
+    <% if @cities_total_pages > 1 %>
+      <div class="px-4 sm:px-6 py-4 border-t bg-gray-50">
+        <div class="flex items-center justify-between">
+          <div class="text-sm text-gray-500">
+            Page <%= @cities_page %> of <%= @cities_total_pages %> (<%= @stats[:cities].count %> cities)
+          </div>
+          <div class="flex items-center gap-2">
+            <% if @cities_page > 1 %>
+              <%= link_to admin_ai_path(page: @cities_page - 1), class: "px-3 py-1 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50" do %>
+                &larr; Previous
+              <% end %>
+            <% end %>
+
+            <% (1..@cities_total_pages).each do |page_num| %>
+              <% if page_num == @cities_page %>
+                <span class="px-3 py-1 text-sm bg-indigo-600 text-white rounded-md"><%= page_num %></span>
+              <% elsif (page_num - @cities_page).abs <= 2 || page_num == 1 || page_num == @cities_total_pages %>
+                <%= link_to page_num, admin_ai_path(page: page_num), class: "px-3 py-1 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50" %>
+              <% elsif (page_num - @cities_page).abs == 3 %>
+                <span class="px-2 text-gray-400">...</span>
+              <% end %>
+            <% end %>
+
+            <% if @cities_page < @cities_total_pages %>
+              <%= link_to admin_ai_path(page: @cities_page + 1), class: "px-3 py-1 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50" do %>
+                Next &rarr;
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
   </div>
 
   <!-- Last Generation Report -->

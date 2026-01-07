@@ -11,6 +11,16 @@ module Admin
       @generation_status = ::Ai::ContentOrchestrator.current_status
       @fix_cities_status = LocationCityFixJob.current_status
       @last_generation = parse_last_generation
+
+      # Paginate cities for the table
+      all_cities = @stats[:cities] || []
+      @cities_page = params[:page].to_i
+      @cities_page = 1 if @cities_page < 1
+      @cities_per_page = 15
+      @cities_total_pages = (all_cities.count.to_f / @cities_per_page).ceil
+      @cities_total_pages = 1 if @cities_total_pages < 1
+      start_index = (@cities_page - 1) * @cities_per_page
+      @paginated_cities = all_cities[start_index, @cities_per_page] || []
     end
 
     # POST /admin/ai/generate

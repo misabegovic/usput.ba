@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-6" data-controller="audio-tours-generator">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div class="flex items-center gap-4">
       <%= link_to admin_ai_path, class: "text-gray-500 hover:text-gray-700" do %>
@@ -47,10 +47,9 @@
 
   <!-- Main Form -->
   <%= form_with url: admin_generate_admin_ai_audio_tours_path, method: :post, class: "bg-white shadow rounded-lg" do |f| %>
-    <div class="p-4 sm:p-6 border-b">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 class="text-lg font-semibold text-gray-900">Locations Without Audio Tours</h2>
-
+    <!-- Generation Controls - TOP -->
+    <div class="p-4 sm:p-6 border-b bg-gray-50">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div class="flex items-center gap-2">
             <label for="locale" class="text-sm text-gray-600">Language:</label>
@@ -67,32 +66,68 @@
             <input type="checkbox" name="force" value="1" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
             Force regenerate
           </label>
+
+          <div class="text-sm text-gray-500">
+            <button type="button" data-action="audio-tours-generator#selectAll" class="text-indigo-600 hover:text-indigo-800">Select all</button>
+            |
+            <button type="button" data-action="audio-tours-generator#deselectAll" class="text-indigo-600 hover:text-indigo-800">Deselect all</button>
+          </div>
         </div>
+
+        <button type="submit"
+                data-audio-tours-generator-target="generateBtn"
+                disabled
+                class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+          </svg>
+          Generate Audio Tours
+        </button>
       </div>
     </div>
 
     <!-- Cost Estimate Bar -->
-    <div id="cost-estimate" class="hidden px-4 sm:px-6 py-3 bg-indigo-50 border-b border-indigo-100">
+    <div data-audio-tours-generator-target="costEstimate" class="hidden px-4 sm:px-6 py-3 bg-indigo-50 border-b border-indigo-100">
       <div class="flex items-center justify-between">
         <div class="text-sm text-indigo-800">
-          Selected: <span id="selected-count">0</span> locations |
-          Est. characters: <span id="est-chars">0</span>
+          Selected: <span data-audio-tours-generator-target="selectedCount">0</span> locations |
+          Est. characters: <span data-audio-tours-generator-target="estChars">0</span>
         </div>
         <div class="text-sm font-medium text-indigo-900">
-          Estimated cost: <span id="est-cost">$0.00</span>
+          Estimated cost: <span data-audio-tours-generator-target="estCost">$0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="p-4 sm:p-6 border-b">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h2 class="text-lg font-semibold text-gray-900">Locations (<%= @locations.total_count %>)</h2>
+        <div class="relative">
+          <input type="text"
+                 data-audio-tours-generator-target="search"
+                 data-action="input->audio-tours-generator#search keydown->audio-tours-generator#search"
+                 data-url="<%= admin_ai_audio_tours_path %>"
+                 value="<%= params[:q] %>"
+                 placeholder="Search locations..."
+                 class="w-full sm:w-64 pl-10 pr-4 py-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
         </div>
       </div>
     </div>
 
     <!-- Locations List -->
     <div class="divide-y divide-gray-200">
-      <% if @locations_by_city.any? %>
-        <% @locations_by_city.each do |city, locations| %>
+      <% if @locations.any? %>
+        <% @locations.group_by(&:city).each do |city, locations| %>
           <div class="p-4">
             <div class="flex items-center gap-3 mb-3">
               <label class="flex items-center gap-2">
                 <input type="checkbox"
                        class="city-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                       data-action="change->audio-tours-generator#toggleCity"
                        data-city="<%= city %>">
                 <span class="font-medium text-gray-900"><%= city || "Unknown City" %></span>
               </label>
@@ -106,6 +141,7 @@
                          name="location_ids[]"
                          value="<%= location.id %>"
                          class="location-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                         data-action="change->audio-tours-generator#updateCostEstimate"
                          data-city="<%= city %>"
                          data-chars="2000">
                   <div class="flex-1 min-w-0">
@@ -122,109 +158,30 @@
         <% end %>
       <% else %>
         <div class="p-8 text-center">
-          <svg class="mx-auto h-12 w-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <h3 class="mt-2 text-sm font-medium text-gray-900">All locations have audio tours!</h3>
-          <p class="mt-1 text-sm text-gray-500">There are no locations without audio tours.</p>
+          <% if params[:q].present? %>
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No locations found</h3>
+            <p class="mt-1 text-sm text-gray-500">Try a different search term.</p>
+          <% else %>
+            <svg class="mx-auto h-12 w-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">All locations have audio tours!</h3>
+            <p class="mt-1 text-sm text-gray-500">There are no locations without audio tours.</p>
+          <% end %>
         </div>
       <% end %>
     </div>
 
-    <!-- Submit Button -->
-    <% if @locations_by_city.any? %>
+    <!-- Pagination -->
+    <% if @locations.total_pages > 1 %>
       <div class="p-4 sm:p-6 border-t bg-gray-50">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div class="text-sm text-gray-500">
-            <button type="button" id="select-all" class="text-indigo-600 hover:text-indigo-800">Select all</button>
-            |
-            <button type="button" id="deselect-all" class="text-indigo-600 hover:text-indigo-800">Deselect all</button>
-          </div>
-
-          <button type="submit"
-                  id="generate-btn"
-                  disabled
-                  class="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
-            </svg>
-            Generate Audio Tours
-          </button>
+        <div class="flex items-center justify-center">
+          <%= paginate @locations, theme: 'tailwind' %>
         </div>
       </div>
     <% end %>
   <% end %>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const locationCheckboxes = document.querySelectorAll('.location-checkbox');
-  const cityCheckboxes = document.querySelectorAll('.city-checkbox');
-  const costEstimate = document.getElementById('cost-estimate');
-  const selectedCount = document.getElementById('selected-count');
-  const estChars = document.getElementById('est-chars');
-  const estCost = document.getElementById('est-cost');
-  const generateBtn = document.getElementById('generate-btn');
-  const selectAllBtn = document.getElementById('select-all');
-  const deselectAllBtn = document.getElementById('deselect-all');
-
-  function updateCostEstimate() {
-    let count = 0;
-    let chars = 0;
-
-    locationCheckboxes.forEach(cb => {
-      if (cb.checked) {
-        count++;
-        chars += parseInt(cb.dataset.chars || 2000);
-      }
-    });
-
-    if (count > 0) {
-      costEstimate.classList.remove('hidden');
-      selectedCount.textContent = count;
-      estChars.textContent = chars.toLocaleString();
-      // $0.30 per 1000 chars
-      const cost = (chars / 1000 * 0.30).toFixed(2);
-      estCost.textContent = '$' + cost;
-      generateBtn.disabled = false;
-    } else {
-      costEstimate.classList.add('hidden');
-      generateBtn.disabled = true;
-    }
-  }
-
-  // Location checkbox change
-  locationCheckboxes.forEach(cb => {
-    cb.addEventListener('change', updateCostEstimate);
-  });
-
-  // City checkbox change - toggle all locations in that city
-  cityCheckboxes.forEach(cb => {
-    cb.addEventListener('change', function() {
-      const city = this.dataset.city;
-      document.querySelectorAll(`.location-checkbox[data-city="${city}"]`).forEach(lcb => {
-        lcb.checked = this.checked;
-      });
-      updateCostEstimate();
-    });
-  });
-
-  // Select all
-  if (selectAllBtn) {
-    selectAllBtn.addEventListener('click', function() {
-      locationCheckboxes.forEach(cb => cb.checked = true);
-      cityCheckboxes.forEach(cb => cb.checked = true);
-      updateCostEstimate();
-    });
-  }
-
-  // Deselect all
-  if (deselectAllBtn) {
-    deselectAllBtn.addEventListener('click', function() {
-      locationCheckboxes.forEach(cb => cb.checked = false);
-      cityCheckboxes.forEach(cb => cb.checked = false);
-      updateCostEstimate();
-    });
-  }
-});
-</script>

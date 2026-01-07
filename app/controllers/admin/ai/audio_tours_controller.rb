@@ -12,13 +12,21 @@ module Admin
         # Active Storage koristi audio_file_attachment tabelu
         locations_with_complete_audio = Location.joins(audio_tours: :audio_file_attachment).distinct
 
-        @locations_without_audio = Location.with_coordinates
-                                           .where.not(id: locations_with_complete_audio)
-                                           .distinct
-                                           .order(:city, :name)
+        locations_without_audio = Location.with_coordinates
+                                          .where.not(id: locations_with_complete_audio)
+                                          .distinct
 
-        # Grupiši po gradu
-        @locations_by_city = @locations_without_audio.group_by(&:city)
+        # Search filter
+        if params[:q].present?
+          search_term = "%#{params[:q].downcase}%"
+          locations_without_audio = locations_without_audio.where(
+            "LOWER(name) LIKE :q OR LOWER(city) LIKE :q",
+            q: search_term
+          )
+        end
+
+        # Order and paginate
+        @locations = locations_without_audio.order(:city, :name).page(params[:page]).per(20)
 
         # Statistika
         total_locations = Location.count
@@ -34,7 +42,7 @@ module Admin
         }
 
         # Procjena troška (ElevenLabs: ~$0.30 per 1000 characters)
-        @cost_estimate = estimate_cost(@locations_without_audio)
+        @cost_estimate = estimate_cost(@locations)
       end
 
       # POST /admin/ai/audio_tours/generate
