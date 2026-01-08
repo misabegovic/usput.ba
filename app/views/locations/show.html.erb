@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300"
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 overflow-x-hidden"
      data-controller="travel-profile"
      data-travel-profile-item-id-value="<%= @location.uuid %>"
      data-travel-profile-item-type-value="location"
@@ -382,12 +382,12 @@
         <%# Description %>
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
           <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4"><%= t("locations.show.about", default: "O lokaciji") %></h2>
-          <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+          <p class="text-gray-700 dark:text-gray-300 leading-relaxed break-words">
             <%= @location.translate(:description, I18n.locale) %>
           </p>
           <% if @location.historical_context.present? %>
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mt-6 mb-3"><%= t("locations.show.history", default: "Povijesni kontekst") %></h3>
-            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed break-words">
               <%= @location.translate(:historical_context, I18n.locale) %>
             </p>
           <% end %>

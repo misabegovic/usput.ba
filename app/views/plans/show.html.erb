@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300"
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 overflow-x-hidden"
      data-controller="travel-profile"
      data-travel-profile-item-id-value="<%= @plan.uuid %>"
      data-travel-profile-item-type-value="plan"
@@ -348,7 +348,7 @@
         <% if @plan.notes.present? %>
           <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
             <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4"><%= t("plans.show.notes") %></h2>
-            <p class="text-gray-700 dark:text-gray-300"><%= @plan.translate(:notes, I18n.locale) %></p>
+            <p class="text-gray-700 dark:text-gray-300 break-words"><%= @plan.translate(:notes, I18n.locale) %></p>
           </div>
         <% end %>
 
