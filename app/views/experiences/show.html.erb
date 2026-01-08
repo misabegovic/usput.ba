@@ -42,26 +42,26 @@
 
       <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
         <%# Left side - Title and basic info %>
-        <div class="flex-1">
+        <div class="flex-1 min-w-0">
           <span class="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 rounded-full text-xs font-semibold text-purple-600 dark:text-purple-400 mb-4">
             <%= t("experiences.badge", default: "Iskustvo") %>
           </span>
-          <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+          <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white break-words">
             <%= @experience.translate(:title, I18n.locale) %>
           </h1>
 
           <%# Duration and locations count %>
-          <div class="flex items-center gap-4 mt-4 text-gray-600 dark:text-gray-400">
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mt-4 text-gray-600 dark:text-gray-400">
             <% if @experience.formatted_duration %>
               <span class="flex items-center">
-                <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 mr-2 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 <%= @experience.formatted_duration %>
               </span>
             <% end %>
             <span class="flex items-center">
-              <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 mr-2 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
               </svg>
               <%= t("experiences.locations_count", count: @experience.locations_count) %>
@@ -69,12 +69,12 @@
           </div>
 
           <%# Rating inline %>
-          <div class="flex items-center gap-3 mt-4">
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mt-4">
             <div class="flex items-center">
               <%= render "shared/star_rating", rating: @experience.average_rating %>
             </div>
             <span class="text-2xl font-bold text-gray-900 dark:text-white"><%= number_with_precision(@experience.average_rating, precision: 1) %></span>
-            <span class="text-gray-500 dark:text-gray-400">(<%= @experience.reviews_count %> <%= t("reviews.count", count: @experience.reviews_count) %>)</span>
+            <span class="text-gray-500 dark:text-gray-400 text-sm sm:text-base">(<%= @experience.reviews_count %> <%= t("reviews.count", count: @experience.reviews_count) %>)</span>
           </div>
         </div>
 
@@ -300,7 +300,7 @@
                             </div>
                           </div>
                           <%# Step number on the right %>
-                          <div class="text-right text-sm whitespace-nowrap text-gray-400 dark:text-gray-500">
+                          <div class="text-right text-sm whitespace-nowrap text-gray-400 dark:text-gray-500 flex-shrink-0 ml-2">
                             <%= idx + 1 %>/<%= @experience.locations.length %>
                           </div>
                         </div>

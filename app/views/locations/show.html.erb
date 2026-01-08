@@ -63,12 +63,12 @@
           <% end %>
 
           <%# Rating inline on mobile %>
-          <div class="flex items-center gap-3 mt-4">
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mt-4">
             <div class="flex items-center">
               <%= render "shared/star_rating", rating: @location.average_rating %>
             </div>
             <span class="text-2xl font-bold text-gray-900 dark:text-white"><%= number_with_precision(@location.average_rating, precision: 1) %></span>
-            <span class="text-gray-500 dark:text-gray-400">(<%= @location.reviews_count %> <%= t("reviews.count", count: @location.reviews_count) %>)</span>
+            <span class="text-gray-500 dark:text-gray-400 text-sm sm:text-base">(<%= @location.reviews_count %> <%= t("reviews.count", count: @location.reviews_count) %>)</span>
           </div>
         </div>
 

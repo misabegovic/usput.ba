@@ -42,24 +42,24 @@
 
       <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
         <%# Left side - Title and basic info %>
-        <div class="flex-1">
+        <div class="flex-1 min-w-0">
           <span class="inline-block px-3 py-1 bg-amber-100 dark:bg-amber-900/30 rounded-full text-xs font-semibold text-amber-600 dark:text-amber-400 mb-4">
             <%= t("plans.badge", default: "Plan putovanja") %>
           </span>
-          <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+          <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white break-words">
             <%= @plan.display_title %>
           </h1>
 
           <%# Location and duration %>
-          <div class="flex items-center gap-4 mt-4 text-gray-600 dark:text-gray-400">
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mt-4 text-gray-600 dark:text-gray-400">
             <span class="flex items-center">
-              <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 mr-2 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
               </svg>
               <%= @plan.city_name %>
             </span>
             <span class="flex items-center">
-              <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 mr-2 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
               </svg>
               <%= @plan.duration_in_days %> <%= t("wizard.dates.days") %>
@@ -74,12 +74,12 @@
           <% end %>
 
           <%# Rating inline %>
-          <div class="flex items-center gap-3 mt-4">
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mt-4">
             <div class="flex items-center">
               <%= render "shared/star_rating", rating: @plan.average_rating %>
             </div>
             <span class="text-2xl font-bold text-gray-900 dark:text-white"><%= number_with_precision(@plan.average_rating, precision: 1) %></span>
-            <span class="text-gray-500 dark:text-gray-400">(<%= @plan.reviews_count %> <%= t("reviews.count", count: @plan.reviews_count) %>)</span>
+            <span class="text-gray-500 dark:text-gray-400 text-sm sm:text-base">(<%= @plan.reviews_count %> <%= t("reviews.count", count: @plan.reviews_count) %>)</span>
           </div>
         </div>
 
@@ -240,14 +240,14 @@
       <div class="lg:col-span-2 space-y-6">
         <% @plan.days_with_experiences.each do |day| %>
           <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
-            <div class="flex items-center justify-between mb-4">
-              <div class="flex items-center gap-3">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+              <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white">
                   <%= t("plans.show.day", number: day[:day_number]) %>
                 </h2>
                 <% if day[:total_duration] > 0 %>
                   <span class="text-sm text-gray-500 dark:text-gray-400 flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <%= @plan.formatted_duration_for_day(day[:day_number]) %>
@@ -322,8 +322,8 @@
                             </div>
                             <%# Duration on the right %>
                             <% if experience.formatted_duration %>
-                              <div class="text-right text-sm whitespace-nowrap text-gray-500 dark:text-gray-400 flex items-center">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <div class="text-right text-sm whitespace-nowrap text-gray-500 dark:text-gray-400 flex items-center flex-shrink-0 ml-2">
+                                <svg class="w-4 h-4 mr-1 flex-shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 <%= experience.formatted_duration %>
