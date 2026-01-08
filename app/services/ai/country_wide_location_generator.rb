@@ -65,8 +65,8 @@ module Ai
     }.freeze
 
     # Maximum locales per batch to avoid token limit errors
-    # With 4 locales per batch, we stay well under the 128K token limit
-    LOCALES_PER_BATCH = 4
+    # With 7 locales per batch, we stay under the 128K token limit
+    LOCALES_PER_BATCH = 7
 
     def initialize(options = {})
       @chat = RubyLLM.chat
