@@ -18,6 +18,15 @@ module Ai
     # Required locales for complete translations
     REQUIRED_LOCALES = %w[en bs].freeze
 
+    # Location types that shouldn't be in experiences
+    EXCLUDED_LOCATION_TYPES = %i[accommodation].freeze
+
+    # Category keys that indicate accommodation (shouldn't be in experiences)
+    ACCOMMODATION_CATEGORY_KEYS = %w[
+      hotel hostel motel guest_house apartment lodging accommodation
+      dom_penzionera retirement_home nursing_home
+    ].freeze
+
     def initialize
       @issues_by_type = Hash.new { |h, k| h[k] = [] }
     end
@@ -39,6 +48,9 @@ module Ai
 
       # Check location count
       issues.concat(check_locations(experience))
+
+      # Check for accommodation locations (shouldn't be in experiences)
+      issues.concat(check_accommodation_locations(experience))
 
       # Check category assignment
       issues.concat(check_category(experience))
@@ -268,6 +280,69 @@ module Ai
       end
 
       issues
+    end
+
+    # Check if experience has too many accommodation locations
+    # Some accommodation is OK (if it has special value), but too much indicates poor curation
+    def check_accommodation_locations(experience)
+      issues = []
+
+      total_locations = experience.locations.count
+      return issues if total_locations == 0
+
+      accommodation_locations = experience.locations.select do |location|
+        accommodation_location?(location)
+      end
+
+      accommodation_count = accommodation_locations.count
+      accommodation_ratio = accommodation_count.to_f / total_locations
+
+      # Flag if more than 50% of locations are accommodation - that's too much
+      if accommodation_ratio > 0.5 && accommodation_count > 1
+        issues << {
+          type: :too_many_accommodation_locations,
+          severity: :high,
+          message: "Experience has too many accommodation locations (#{accommodation_count}/#{total_locations} = #{(accommodation_ratio * 100).round}%)",
+          location_ids: accommodation_locations.map(&:id),
+          location_names: accommodation_locations.map(&:name),
+          accommodation_ratio: accommodation_ratio.round(2)
+        }
+      # Also flag if the only location is accommodation
+      elsif total_locations == 1 && accommodation_count == 1
+        issues << {
+          type: :only_accommodation_location,
+          severity: :medium,
+          message: "Experience only contains accommodation location '#{accommodation_locations.first&.name}'",
+          location_ids: accommodation_locations.map(&:id),
+          location_names: accommodation_locations.map(&:name)
+        }
+      end
+
+      issues
+    end
+
+    # Check if a location is an accommodation type
+    def accommodation_location?(location)
+      # Check location_type enum
+      return true if location.location_type.present? && EXCLUDED_LOCATION_TYPES.include?(location.location_type.to_sym)
+
+      # Check location categories
+      if location.respond_to?(:location_categories) && location.location_categories.loaded?
+        category_keys = location.location_categories.map { |c| c.key.to_s.downcase }
+        return true if category_keys.any? { |key| ACCOMMODATION_CATEGORY_KEYS.any? { |exc| key.include?(exc) } }
+      elsif location.respond_to?(:location_categories)
+        category_keys = location.location_categories.pluck(:key).map(&:to_s).map(&:downcase)
+        return true if category_keys.any? { |key| ACCOMMODATION_CATEGORY_KEYS.any? { |exc| key.include?(exc) } }
+      end
+
+      # Check tags for accommodation-related keywords
+      if location.tags.present?
+        tags_downcase = location.tags.map(&:to_s).map(&:downcase)
+        accommodation_tags = %w[hotel hostel motel lodging accommodation smještaj smjestaj]
+        return true if (tags_downcase & accommodation_tags).any?
+      end
+
+      false
     end
 
     def check_category(experience)

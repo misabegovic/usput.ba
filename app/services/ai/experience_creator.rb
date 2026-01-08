@@ -22,6 +22,12 @@ module Ai
       @existing_experiences_cache = nil
     end
 
+    # Categories to completely exclude from experiences (retirement homes, nursing homes)
+    # Note: Regular accommodations (hotels, hostels) can be included if they have special value
+    EXCLUDED_CATEGORY_KEYS = %w[
+      dom_penzionera retirement_home nursing_home gerontološki starački
+    ].freeze
+
     # Kreira lokalne Experience-e za grad (lokacije samo iz tog grada)
     # @param city [String] Naziv grada
     # @return [Array<Experience>] Kreirani Experience-i
@@ -30,7 +36,9 @@ module Ai
 
       log_info "Creating local experiences for #{city}"
 
-      city_locations = Location.where(city: city).with_coordinates.includes(:experience_types)
+      city_locations = Location.where(city: city).with_coordinates.includes(:experience_types, :location_categories)
+      # Filter out retirement homes but keep accommodations with special value
+      city_locations = filter_retirement_homes(city_locations)
       return [] if city_locations.count < min_locations_per_experience
 
       proposals = ai_propose_local_experiences(city_locations, city)
@@ -46,6 +54,8 @@ module Ai
       log_info "Creating thematic cross-city experiences"
 
       all_locations = Location.with_coordinates.includes(:experience_types, :location_categories)
+      # Filter out retirement homes but keep accommodations with special value
+      all_locations = filter_retirement_homes(all_locations)
       return [] if all_locations.count < min_locations_per_experience
 
       proposals = ai_propose_thematic_experiences(all_locations)
@@ -233,6 +243,14 @@ module Ai
         3. Consider walking distance and logical route flow
         4. One location CAN appear in multiple experiences if it fits
         5. Create diverse experiences for different types of tourists
+        6. IMPORTANT FOR ACCOMMODATION (hotels, hostels, etc.):
+           - Do NOT include accommodation just as "a place to stay"
+           - ONLY include accommodation if it has SPECIAL VALUE:
+             * Historical significance (e.g., historic hotel, Ottoman han)
+             * Exceptional gastronomy/restaurant worth visiting
+             * Unique architecture or cultural experience
+             * As a meaningful rest point on a long journey
+           - When in doubt, prefer cultural/historical locations over accommodation
 
         TITLES:
         - Use authentic Bosnian names where appropriate
@@ -310,6 +328,13 @@ module Ai
         3. 4-6 locations per experience (balanced across cities)
         4. Consider practical multi-day itinerary flow
         5. Highlight what makes BiH unique as a whole
+        6. IMPORTANT FOR ACCOMMODATION (hotels, hostels, etc.):
+           - Do NOT include accommodation just as "a place to stay"
+           - ONLY include accommodation if it has SPECIAL VALUE:
+             * Historical significance (e.g., historic hotel, Ottoman han)
+             * Exceptional gastronomy worth the detour
+             * As a meaningful rest/pause point between distant cities
+           - When in doubt, prefer cultural/historical locations over accommodation
 
         ⚠️ KRITIČNO ZA BOSANSKI JEZIK ("bs"):
         - OBAVEZNO koristiti IJEKAVICU: "lijepo", "vrijeme", "mjesto", "vidjeti", "bijelo", "stoljeća"
@@ -436,6 +461,40 @@ module Ai
 
     def min_locations_per_experience
       @min_locations ||= Setting.get("experience.min_locations", default: 1).to_i
+    end
+
+    # Filter out only retirement homes and similar facilities - these should never be in experiences
+    # Regular accommodations (hotels, hostels) can be included if they have special value
+    # @param locations [ActiveRecord::Relation] Locations to filter
+    # @return [Array<Location>] Filtered locations suitable for experiences
+    def filter_retirement_homes(locations)
+      locations.to_a.reject do |location|
+        retirement_home_location?(location)
+      end
+    end
+
+    # Check if a location is a retirement home or similar facility that should always be excluded
+    # @param location [Location] The location to check
+    # @return [Boolean] true if location is a retirement home
+    def retirement_home_location?(location)
+      # Check location name for retirement home keywords
+      name_downcase = location.name.to_s.downcase
+      retirement_keywords = %w[penzioner retirement nursing starački gerontološki gerontoloski]
+      return true if retirement_keywords.any? { |keyword| name_downcase.include?(keyword) }
+
+      # Check location categories
+      if location.location_categories.any?
+        category_keys = location.location_categories.pluck(:key).map(&:to_s).map(&:downcase)
+        return true if category_keys.any? { |key| EXCLUDED_CATEGORY_KEYS.any? { |exc| key.include?(exc) } }
+      end
+
+      # Check tags
+      if location.tags.present?
+        tags_downcase = location.tags.map(&:to_s).map(&:downcase)
+        return true if retirement_keywords.any? { |keyword| tags_downcase.any? { |tag| tag.include?(keyword) } }
+      end
+
+      false
     end
 
     def cultural_context

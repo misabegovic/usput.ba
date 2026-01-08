@@ -7,20 +7,38 @@ class GeoapifyService
   BASE_URL = "https://api.geoapify.com/v2".freeze
   PLACE_DETAILS_URL = "https://api.geoapify.com/v2/place-details".freeze
 
+  # Categories to EXCLUDE from search results
+  # Includes retirement homes and social facilities not relevant for tourism
+  EXCLUDED_CATEGORIES = %w[
+    service.social_facility
+    healthcare.nursing_home
+    healthcare.assisted_living
+    healthcare.retirement_home
+    building.residential
+  ].freeze
+
+  # Keywords in place names/descriptions to exclude (case-insensitive)
+  EXCLUDED_NAME_KEYWORDS = %w[
+    penzioner
+    retirement
+    nursing
+    starački
+    gerontološki
+    gerontoloski
+    dom za stare
+    dom za starije
+    elderly
+    seniorski
+    aged care
+  ].freeze
+
   # Default tourism categories (fallback if database is empty)
   # Complete list of all Geoapify categories
+  # NOTE: Accommodation categories significantly reduced per user request
   DEFAULT_TOURISM_CATEGORIES = %w[
-    accommodation
     accommodation.hotel
-    accommodation.hut
-    accommodation.apartment
-    accommodation.chalet
-    accommodation.guest_house
-    accommodation.hostel
-    accommodation.motel
     camping
     camping.camp_site
-    camping.caravan_site
     activity
     activity.community_center
     building.historic
@@ -535,7 +553,9 @@ class GeoapifyService
       end
     end
 
-    places.uniq { |p| p[:place_id] }.first(max_results)
+    # Filter out excluded places (retirement homes, social facilities, etc.)
+    filtered_places = places.reject { |place| excluded_place?(place) }
+    filtered_places.uniq { |p| p[:place_id] }.first(max_results)
   end
 
   # Search for places by text query
@@ -573,7 +593,9 @@ class GeoapifyService
 
     return [] unless response.body["features"]
 
-    response.body["features"].map { |feature| parse_geocode_result(feature) }
+    places = response.body["features"].map { |feature| parse_geocode_result(feature) }
+    # Filter out excluded places (retirement homes, social facilities, etc.)
+    places.reject { |place| excluded_place?(place) }
   end
 
   # Get detailed information about a place
@@ -705,6 +727,33 @@ class GeoapifyService
   # Note: GeoapifyCategory model doesn't exist, using DEFAULT_CATEGORY_TYPE_MAPPING
   def category_type_mapping
     @category_type_mapping ||= DEFAULT_CATEGORY_TYPE_MAPPING
+  end
+
+  # Check if a place should be excluded from results
+  # Excludes retirement homes, social facilities, and similar non-tourism places
+  # @param place [Hash] Parsed place data
+  # @return [Boolean] true if place should be excluded
+  def excluded_place?(place)
+    return false if place.blank?
+
+    # Check if any of the place's categories are in the excluded list
+    place_categories = place[:types] || []
+    if place_categories.any? { |cat| EXCLUDED_CATEGORIES.any? { |exc| cat.to_s.include?(exc) } }
+      Rails.logger.debug "[GeoapifyService] Excluding place by category: #{place[:name]}"
+      return true
+    end
+
+    # Check if the place name contains excluded keywords
+    place_name = place[:name].to_s.downcase
+    place_address = place[:address].to_s.downcase
+    combined_text = "#{place_name} #{place_address}"
+
+    if EXCLUDED_NAME_KEYWORDS.any? { |keyword| combined_text.include?(keyword.downcase) }
+      Rails.logger.debug "[GeoapifyService] Excluding place by name keyword: #{place[:name]}"
+      return true
+    end
+
+    false
   end
 
   # Configurable settings

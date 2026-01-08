@@ -19,7 +19,7 @@ class RebuildExperiencesJob < ApplicationJob
   discard_on Ai::OpenaiQueue::ConfigurationError if defined?(Ai::OpenaiQueue::ConfigurationError)
 
   # Rebuild modes
-  MODES = %w[all quality similar].freeze
+  MODES = %w[all quality similar accommodations].freeze
 
   def perform(dry_run: false, rebuild_mode: "all", max_rebuilds: nil, delete_similar: false)
     Rails.logger.info "[RebuildExperiencesJob] Starting (dry_run: #{dry_run}, mode: #{rebuild_mode}, max_rebuilds: #{max_rebuilds})"
@@ -36,6 +36,7 @@ class RebuildExperiencesJob < ApplicationJob
       similar_pairs_found: 0,
       experiences_rebuilt: 0,
       experiences_deleted: 0,
+      accommodation_locations_removed: 0,
       errors: [],
       analysis_report: nil
     }
@@ -155,12 +156,19 @@ class RebuildExperiencesJob < ApplicationJob
         end
       end
 
+      # Phase 4: Remove accommodation locations from experiences
+      if rebuild_mode == "all" || rebuild_mode == "accommodations"
+        save_status("in_progress", "Removing accommodation locations from experiences...")
+        accommodation_removal_count = remove_accommodation_locations_from_experiences(dry_run: dry_run)
+        results[:accommodation_locations_removed] = accommodation_removal_count
+      end
+
       results[:status] = "completed"
       results[:finished_at] = Time.current
 
       save_status(
         "completed",
-        "Completed: #{results[:experiences_rebuilt]} rebuilt, #{results[:experiences_deleted]} deleted, #{results[:errors].count} errors",
+        "Completed: #{results[:experiences_rebuilt]} rebuilt, #{results[:experiences_deleted]} deleted, #{results[:accommodation_locations_removed]} accommodation locations removed, #{results[:errors].count} errors",
         results: results
       )
 
@@ -313,6 +321,67 @@ class RebuildExperiencesJob < ApplicationJob
 
     Rails.logger.info "[RebuildExperiencesJob] Deleting duplicate experience #{exp_to_delete.id}: #{exp_to_delete.title}"
     exp_to_delete.destroy!
+  end
+
+  # Remove EXCESS accommodation locations from experiences
+  # Some accommodation is OK (if it has special value), but too much indicates poor curation
+  # This only removes accommodation from experiences where more than 50% of locations are accommodation
+  # @param dry_run [Boolean] If true, just count but don't actually remove
+  # @return [Integer] Number of accommodation locations removed
+  def remove_accommodation_locations_from_experiences(dry_run: false)
+    analyzer = Ai::ExperienceAnalyzer.new
+    removed_count = 0
+
+    Experience.includes(locations: :location_categories).find_each do |experience|
+      total_locations = experience.locations.count
+      next if total_locations == 0
+
+      accommodation_locations = experience.locations.select do |location|
+        analyzer.send(:accommodation_location?, location)
+      end
+
+      accommodation_count = accommodation_locations.count
+      next if accommodation_count == 0
+
+      accommodation_ratio = accommodation_count.to_f / total_locations
+
+      # Only process experiences with too many accommodations (>50%) or only-accommodation experiences
+      next unless accommodation_ratio > 0.5 || (total_locations == 1 && accommodation_count == 1)
+
+      # For experiences with excess accommodation, remove enough to get below 50%
+      # Keep at least one accommodation if the experience would otherwise be empty
+      non_accommodation_count = total_locations - accommodation_count
+      target_accommodation_count = if non_accommodation_count == 0
+                                     1 # Keep one if there are no other locations
+                                   else
+                                     # Keep at most 1 accommodation, or enough to stay under 50%
+                                     [1, (non_accommodation_count * 0.5).floor].max
+                                   end
+
+      accommodations_to_remove = accommodation_count - target_accommodation_count
+      next if accommodations_to_remove <= 0
+
+      # Remove excess accommodations (keep the first one in case it has special value)
+      accommodation_locations.drop(target_accommodation_count).each do |location|
+        if dry_run
+          Rails.logger.info "[RebuildExperiencesJob] Would remove excess accommodation '#{location.name}' from experience '#{experience.title}'"
+        else
+          Rails.logger.info "[RebuildExperiencesJob] Removing excess accommodation '#{location.name}' from experience '#{experience.title}'"
+          experience.experience_locations.find_by(location: location)&.destroy
+        end
+        removed_count += 1
+      end
+
+      # If experience has no locations left after removal, delete the experience
+      experience.reload unless dry_run
+      if !dry_run && experience.locations.count == 0
+        Rails.logger.info "[RebuildExperiencesJob] Deleting experience '#{experience.title}' - no locations left after accommodation removal"
+        experience.destroy
+      end
+    end
+
+    Rails.logger.info "[RebuildExperiencesJob] #{dry_run ? 'Would remove' : 'Removed'} #{removed_count} excess accommodation locations from experiences"
+    removed_count
   end
 
   def build_regeneration_prompt(experience, locations, issues)
