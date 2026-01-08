@@ -411,7 +411,7 @@ class RebuildExperiencesJob < ApplicationJob
         },
         estimated_duration: { type: "integer" }
       },
-      required: %w[titles descriptions],
+      required: %w[titles descriptions estimated_duration],
       additionalProperties: false
     }
   end
