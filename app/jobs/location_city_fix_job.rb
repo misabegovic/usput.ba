@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 # Background job for fixing location cities using reverse geocoding
-# and regenerating descriptions where city was corrected
+# and regenerating descriptions where city was corrected or quality is poor
 #
 # Usage:
 #   LocationCityFixJob.perform_later
 #   LocationCityFixJob.perform_later(regenerate_content: true)
+#   LocationCityFixJob.perform_later(analyze_descriptions: true) # Analyze and regenerate poor descriptions
 #   LocationCityFixJob.perform_later(dry_run: true) # Preview changes without saving
 #   LocationCityFixJob.perform_later(clear_cache: true) # Clear geocoder cache first
 class LocationCityFixJob < ApplicationJob
@@ -14,8 +15,8 @@ class LocationCityFixJob < ApplicationJob
   # Retry on transient failures
   retry_on StandardError, wait: :polynomially_longer, attempts: 3
 
-  def perform(regenerate_content: false, dry_run: false, clear_cache: false)
-    Rails.logger.info "[LocationCityFixJob] Starting location city fix (regenerate_content: #{regenerate_content}, dry_run: #{dry_run}, clear_cache: #{clear_cache})"
+  def perform(regenerate_content: false, analyze_descriptions: false, dry_run: false, clear_cache: false)
+    Rails.logger.info "[LocationCityFixJob] Starting location city fix (regenerate_content: #{regenerate_content}, analyze_descriptions: #{analyze_descriptions}, dry_run: #{dry_run}, clear_cache: #{clear_cache})"
 
     save_status("in_progress", "Starting location city fix...")
 
@@ -30,8 +31,11 @@ class LocationCityFixJob < ApplicationJob
       total_checked: 0,
       cities_corrected: 0,
       content_regenerated: 0,
+      descriptions_analyzed: 0,
+      descriptions_regenerated: 0,
       errors: [],
-      corrections: []
+      corrections: [],
+      description_issues: []
     }
 
     begin
@@ -41,9 +45,12 @@ class LocationCityFixJob < ApplicationJob
         results[:total_checked] += 1
 
         begin
-          process_location(location, results, regenerate_content: regenerate_content, dry_run: dry_run)
+          process_location(location, results,
+                           regenerate_content: regenerate_content,
+                           analyze_descriptions: analyze_descriptions,
+                           dry_run: dry_run)
 
-          # Rate limit to avoid overwhelming Nominatim
+          # Rate limit to avoid overwhelming Nominatim and AI APIs
           sleep(1.1) # Nominatim requires max 1 request per second
         rescue StandardError => e
           results[:errors] << { location_id: location.id, name: location.name, error: e.message }
@@ -52,14 +59,15 @@ class LocationCityFixJob < ApplicationJob
 
         # Update status periodically
         if results[:total_checked] % 10 == 0
-          save_status("in_progress", "Processed #{results[:total_checked]} locations... (#{results[:cities_corrected]} corrected)")
+          save_status("in_progress", "Processed #{results[:total_checked]} locations... (#{results[:cities_corrected]} corrected, #{results[:descriptions_regenerated]} descriptions regenerated)")
         end
       end
 
       results[:finished_at] = Time.current
       results[:status] = "completed"
 
-      save_status("completed", "Finished: #{results[:cities_corrected]} cities corrected, #{results[:content_regenerated]} descriptions regenerated", results: results)
+      summary = build_completion_summary(results)
+      save_status("completed", summary, results: results)
 
       Rails.logger.info "[LocationCityFixJob] Completed: #{results}"
       results
@@ -99,38 +107,73 @@ class LocationCityFixJob < ApplicationJob
 
   private
 
-  def process_location(location, results, regenerate_content:, dry_run:)
+  def process_location(location, results, regenerate_content:, analyze_descriptions:, dry_run:)
+    city_corrected = false
+    correct_city = location.city
+
     # Get the correct city from coordinates
     geocoded_city = get_city_from_coordinates(location.lat, location.lng)
 
-    return if geocoded_city.blank?
+    if geocoded_city.present?
+      # Compare with current city
+      current_city = location.city.to_s.strip
+      needs_correction = cities_different?(current_city, geocoded_city)
 
-    # Compare with current city
-    current_city = location.city.to_s.strip
-    needs_correction = cities_different?(current_city, geocoded_city)
+      if needs_correction
+        Rails.logger.info "[LocationCityFixJob] City correction needed for '#{location.name}': '#{current_city}' -> '#{geocoded_city}'"
 
-    return unless needs_correction
+        results[:corrections] << {
+          location_id: location.id,
+          name: location.name,
+          old_city: current_city,
+          new_city: geocoded_city
+        }
 
-    Rails.logger.info "[LocationCityFixJob] City correction needed for '#{location.name}': '#{current_city}' -> '#{geocoded_city}'"
+        unless dry_run
+          # Update the city
+          location.city = geocoded_city
+          location.save!
+          results[:cities_corrected] += 1
+          city_corrected = true
+          correct_city = geocoded_city
+        end
+      end
+    end
 
-    results[:corrections] << {
+    # Handle content regeneration based on city correction
+    if city_corrected && regenerate_content && !dry_run
+      regenerate_location_content(location, correct_city)
+      results[:content_regenerated] += 1
+    end
+
+    # Analyze descriptions if requested (independent of city correction)
+    if analyze_descriptions
+      analyze_and_regenerate_description(location, results, dry_run: dry_run, city: correct_city)
+    end
+  end
+
+  def analyze_and_regenerate_description(location, results, dry_run:, city:)
+    analyzer = Ai::LocationAnalyzer.new
+    analysis = analyzer.analyze(location)
+
+    results[:descriptions_analyzed] += 1
+
+    return unless analysis[:needs_regeneration]
+
+    Rails.logger.info "[LocationCityFixJob] Description regeneration needed for '#{location.name}' (score: #{analysis[:score]})"
+
+    results[:description_issues] << {
       location_id: location.id,
       name: location.name,
-      old_city: current_city,
-      new_city: geocoded_city
+      city: location.city,
+      score: analysis[:score],
+      issues: analysis[:issues].map { |i| { type: i[:type], message: i[:message], locale: i[:locale] } }
     }
 
     unless dry_run
-      # Update the city
-      location.city = geocoded_city
-      location.save!
-      results[:cities_corrected] += 1
-
-      # Regenerate content if requested
-      if regenerate_content
-        regenerate_location_content(location, geocoded_city)
-        results[:content_regenerated] += 1
-      end
+      regenerate_location_content(location, city)
+      results[:descriptions_regenerated] += 1
+      Rails.logger.info "[LocationCityFixJob] Regenerated description for '#{location.name}'"
     end
   end
 
@@ -330,6 +373,20 @@ class LocationCityFixJob < ApplicationJob
     enricher.enrich(location, place_data: { city: correct_city })
   rescue StandardError => e
     Rails.logger.warn "[LocationCityFixJob] Content regeneration failed for #{location.name}: #{e.message}"
+  end
+
+  def build_completion_summary(results)
+    parts = ["Finished:"]
+    parts << "#{results[:cities_corrected]} cities corrected" if results[:cities_corrected] > 0
+    parts << "#{results[:content_regenerated]} descriptions regenerated (city change)" if results[:content_regenerated] > 0
+    parts << "#{results[:descriptions_analyzed]} analyzed" if results[:descriptions_analyzed] > 0
+    parts << "#{results[:descriptions_regenerated]} descriptions regenerated (quality)" if results[:descriptions_regenerated] > 0
+
+    if parts.length == 1
+      "Finished: No changes needed"
+    else
+      parts.join(", ")
+    end
   end
 
   def save_status(status, message, results: nil)
