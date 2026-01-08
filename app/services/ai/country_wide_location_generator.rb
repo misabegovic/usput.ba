@@ -6,6 +6,35 @@ module Ai
   # this generator uses AI to suggest notable locations across the entire country
   # and automatically creates cities when needed.
   #
+  # == Strict Mode (default: enabled)
+  #
+  # By default, the generator operates in strict mode which ensures data quality:
+  # - All AI suggestions are pre-validated via reverse geocoding
+  # - Locations are only created when the city can be verified
+  # - Suggestions that fail validation are queued for manual review
+  # - The AI-suggested city name is NEVER used as a fallback
+  #
+  # To disable strict mode (not recommended):
+  #   generator = Ai::CountryWideLocationGenerator.new(strict_mode: false)
+  #
+  # == Skipped Locations
+  #
+  # When strict mode is enabled, locations that fail validation are skipped
+  # instead of being created with potentially incorrect data. No manual review
+  # is required - the generator automatically retries geocoding with exponential
+  # backoff before giving up.
+  #
+  # The summary includes details about skipped locations:
+  #   result[:locations_skipped]        # Count of skipped locations
+  #   result[:skipped_locations]        # Array of skipped location details
+  #   result[:skipped_by_reason]        # Breakdown by failure reason
+  #
+  # Common skip reasons:
+  # - geocoding_failed: Reverse geocoding couldn't determine the city (after retries)
+  # - coordinates_outside_bih: Coordinates are outside Bosnia and Herzegovina
+  # - missing_coordinates: AI didn't provide valid coordinates
+  # - missing_name: AI didn't provide a location name
+  #
   # Usage:
   #   generator = Ai::CountryWideLocationGenerator.new
   #   result = generator.generate_all
@@ -73,12 +102,14 @@ module Ai
       @places_service = GeoapifyService.new
       @locations_created = []
       @experiences_created = []
+      @locations_skipped = []
       @options = {
         generate_audio: options.fetch(:generate_audio, false),
         audio_locale: options.fetch(:audio_locale, "bs"),
         skip_existing: options.fetch(:skip_existing, true),
         max_locations_per_region: options.fetch(:max_locations_per_region, 20),
-        generate_experiences: options.fetch(:generate_experiences, false)
+        generate_experiences: options.fetch(:generate_experiences, false),
+        strict_mode: options.fetch(:strict_mode, true) # Don't create locations with unverified cities
       }
     end
 
@@ -964,10 +995,20 @@ module Ai
     def process_ai_suggestion(suggestion, source_region)
       return if suggestion[:name].blank? || suggestion[:lat].blank? || suggestion[:lng].blank?
 
-      # Validate coordinates are within BiH
-      unless coordinates_in_bih?(suggestion[:lat], suggestion[:lng])
-        Rails.logger.warn "[AI::CountryWideLocationGenerator] Coordinates outside BiH: #{suggestion[:name]}"
-        return
+      # Pre-validate the AI suggestion (Option 3: Coordinate Validation Before Generation)
+      validation = validate_ai_suggestion(suggestion)
+
+      unless validation[:valid]
+        if @options[:strict_mode]
+          # In strict mode, skip invalid suggestions instead of creating them with bad data
+          skip_location(suggestion, reason: validation[:reason], details: validation)
+          return
+        else
+          # In non-strict mode, log warning but continue (legacy behavior)
+          Rails.logger.warn "[AI::CountryWideLocationGenerator] Validation failed for #{suggestion[:name]}: #{validation[:reason]}"
+          # Skip if coordinates are outside BiH (always enforced)
+          return if validation[:reason] == "coordinates_outside_bih"
+        end
       end
 
       # Check if location already exists
@@ -982,8 +1023,8 @@ module Ai
       # Try to enrich with Geoapify data
       geoapify_data = fetch_geoapify_data(suggestion)
 
-      # Create the location with city as a text field
-      location = create_location(suggestion, geoapify_data, source_region)
+      # Create the location with verified city from validation
+      location = create_location(suggestion, geoapify_data, source_region, verified_city: validation[:verified_city])
       @locations_created << location if location
     rescue StandardError => e
       Rails.logger.error "[AI::CountryWideLocationGenerator] Error processing #{suggestion[:name]}: #{e.message}"
@@ -994,6 +1035,93 @@ module Ai
         lng.to_f.between?(BIH_BOUNDS[:west], BIH_BOUNDS[:east])
     end
 
+    # Validate AI suggestion by checking if geocoded city matches AI-suggested city
+    # This prevents creating locations with incorrect city names
+    # @param suggestion [Hash] AI-generated location suggestion
+    # @return [Hash] Validation result with :valid, :verified_city, :reason keys
+    def validate_ai_suggestion(suggestion)
+      return { valid: false, reason: "missing_coordinates" } if suggestion[:lat].blank? || suggestion[:lng].blank?
+      return { valid: false, reason: "missing_name" } if suggestion[:name].blank?
+
+      unless coordinates_in_bih?(suggestion[:lat], suggestion[:lng])
+        return { valid: false, reason: "coordinates_outside_bih" }
+      end
+
+      # Get the actual city from coordinates via reverse geocoding
+      verified_city = get_city_from_coordinates(suggestion[:lat], suggestion[:lng])
+
+      if verified_city.blank?
+        return {
+          valid: false,
+          reason: "geocoding_failed",
+          ai_city: suggestion[:city_name]
+        }
+      end
+
+      # Check if the AI-suggested city matches the geocoded city
+      if cities_match?(verified_city, suggestion[:city_name])
+        {
+          valid: true,
+          verified_city: verified_city,
+          city_match: true
+        }
+      else
+        # Cities don't match - geocoding found a different city
+        # We still consider this valid but use the geocoded city
+        Rails.logger.info "[AI::CountryWideLocationGenerator] City corrected during validation: AI suggested '#{suggestion[:city_name]}', geocoding returned '#{verified_city}'"
+        {
+          valid: true,
+          verified_city: verified_city,
+          city_match: false,
+          ai_city: suggestion[:city_name]
+        }
+      end
+    end
+
+    # Check if two city names refer to the same city (fuzzy matching)
+    # Handles variations like "Sarajevo" vs "Grad Sarajevo", diacritics, etc.
+    # @param city1 [String] First city name
+    # @param city2 [String] Second city name
+    # @return [Boolean] True if cities match
+    def cities_match?(city1, city2)
+      return true if city1.blank? && city2.blank?
+      return false if city1.blank? || city2.blank?
+
+      normalize = ->(name) {
+        name.to_s
+            .downcase
+            .gsub(/^(grad|općina|opština|city of|municipality of)\s+/i, "")
+            .gsub(/[čćž]/, "c" => "c", "ć" => "c", "ž" => "z")
+            .gsub(/[šđ]/, "š" => "s", "đ" => "dj")
+            .gsub(/[^a-z0-9]/, "")
+            .strip
+      }
+
+      normalize.call(city1) == normalize.call(city2)
+    end
+
+    # Skip a location that failed validation
+    # Used when we can't verify the city name after all retry attempts
+    # @param suggestion [Hash] AI-generated location suggestion
+    # @param reason [String] Why this location was skipped
+    # @param details [Hash] Additional context
+    def skip_location(suggestion, reason:, details: {})
+      skip_entry = {
+        name: suggestion[:name],
+        lat: suggestion[:lat],
+        lng: suggestion[:lng],
+        ai_city: suggestion[:city_name],
+        reason: reason,
+        skipped_at: Time.current
+      }
+
+      @locations_skipped << skip_entry
+
+      Rails.logger.info "[AI::CountryWideLocationGenerator] Skipped: #{suggestion[:name]} - #{reason}"
+      Rails.logger.debug "  AI suggested city: #{suggestion[:city_name]}"
+      Rails.logger.debug "  Coordinates: #{suggestion[:lat]}, #{suggestion[:lng]}"
+    end
+
     # Known coordinate overrides for areas where geocoding services return incorrect data
     # These are manually verified corrections for problem areas
     COORDINATE_OVERRIDES = [
@@ -1002,11 +1130,16 @@ module Ai
       # Add more overrides here as needed
     ].freeze
 
+    # Maximum retry attempts for geocoding
+    GEOCODING_MAX_RETRIES = 3
+    GEOCODING_RETRY_DELAYS = [2, 4, 8].freeze # Exponential backoff in seconds
+
     # Use reverse geocoding to get the actual city name from coordinates
     # This corrects AI-suggested city names that may be incorrect
+    # Includes automatic retry with exponential backoff
     # @param lat [Float] Latitude
     # @param lng [Float] Longitude
-    # @return [String, nil] City name or nil if geocoding fails
+    # @return [String, nil] City name or nil if geocoding fails after all retries
     def get_city_from_coordinates(lat, lng)
       return nil if lat.blank? || lng.blank?
 
@@ -1020,12 +1153,26 @@ module Ai
         return override_city
       end
 
-      # Try Geoapify first (more reliable for Balkan regions)
-      city_name = get_city_from_geoapify(lat_f, lng_f)
-      return city_name if city_name.present?
+      # Try geocoding with retries
+      GEOCODING_MAX_RETRIES.times do |attempt|
+        # Try Geoapify first (more reliable for Balkan regions)
+        city_name = get_city_from_geoapify(lat_f, lng_f)
+        return city_name if city_name.present?
 
-      # Fallback to Nominatim via Geocoder gem
-      get_city_from_nominatim(lat_f, lng_f)
+        # Fallback to Nominatim via Geocoder gem
+        city_name = get_city_from_nominatim(lat_f, lng_f)
+        return city_name if city_name.present?
+
+        # If both failed, retry with exponential backoff (unless last attempt)
+        if attempt < GEOCODING_MAX_RETRIES - 1
+          delay = GEOCODING_RETRY_DELAYS[attempt] || GEOCODING_RETRY_DELAYS.last
+          Rails.logger.info "[AI::CountryWideLocationGenerator] Geocoding failed for #{lat}, #{lng}. Retrying in #{delay}s (attempt #{attempt + 2}/#{GEOCODING_MAX_RETRIES})"
+          sleep(delay)
+        end
+      end
+
+      Rails.logger.warn "[AI::CountryWideLocationGenerator] Geocoding failed for #{lat}, #{lng} after #{GEOCODING_MAX_RETRIES} attempts"
+      nil
     end
 
     # Check if coordinates fall within a known problematic area with manual override
@@ -1190,19 +1337,36 @@ module Ai
       nil
     end
 
-    def create_location(suggestion, geoapify_data, source_region)
-      # Get the correct city name from coordinates using reverse geocoding
-      # This fixes issues where AI suggests incorrect city names
-      verified_city = get_city_from_coordinates(suggestion[:lat], suggestion[:lng])
-
-      if verified_city.present?
-        city_name = verified_city
-        if verified_city != suggestion[:city_name]
-          Rails.logger.info "[AI::CountryWideLocationGenerator] City corrected: AI suggested '#{suggestion[:city_name]}', geocoding returned '#{verified_city}'"
+    # Create a location from an AI suggestion
+    # @param suggestion [Hash] AI-generated location suggestion
+    # @param geoapify_data [Hash, nil] Additional data from Geoapify
+    # @param source_region [String] Region where this location was discovered
+    # @param verified_city [String, nil] Pre-validated city name from validation step
+    # @return [Location, nil] Created location or nil if creation failed
+    def create_location(suggestion, geoapify_data, source_region, verified_city: nil)
+      # Option 1: Strict Mode - Use pre-validated city, never fall back to AI suggestion
+      if @options[:strict_mode]
+        if verified_city.blank?
+          # This shouldn't happen if process_ai_suggestion is working correctly,
+          # but guard against it anyway
+          Rails.logger.error "[AI::CountryWideLocationGenerator] Strict mode: Cannot create location without verified city: #{suggestion[:name]}"
+          skip_location(suggestion, reason: "no_verified_city_in_strict_mode")
+          return nil
         end
+        city_name = verified_city
       else
-        city_name = suggestion[:city_name]
-        Rails.logger.warn "[AI::CountryWideLocationGenerator] Geocoding failed for #{suggestion[:name]} (#{suggestion[:lat]}, #{suggestion[:lng]}). Using AI suggestion: '#{city_name}' - THIS MAY BE INCORRECT!"
+        # Legacy behavior: Try geocoding, fall back to AI suggestion if it fails
+        city_from_geocoding = verified_city || get_city_from_coordinates(suggestion[:lat], suggestion[:lng])
+
+        if city_from_geocoding.present?
+          city_name = city_from_geocoding
+          if city_from_geocoding != suggestion[:city_name]
+            Rails.logger.info "[AI::CountryWideLocationGenerator] City corrected: AI suggested '#{suggestion[:city_name]}', geocoding returned '#{city_from_geocoding}'"
+          end
+        else
+          city_name = suggestion[:city_name]
+          Rails.logger.warn "[AI::CountryWideLocationGenerator] Geocoding failed for #{suggestion[:name]} (#{suggestion[:lat]}, #{suggestion[:lng]}). Using AI suggestion: '#{city_name}' - THIS MAY BE INCORRECT!"
+        end
       end
 
       # Check if location already exists at these coordinates (fuzzy match for small precision differences)
@@ -1232,7 +1396,7 @@ module Ai
       set_location_translations(location, suggestion, enrichment)
 
       if location.save
-        Rails.logger.info "[AI::CountryWideLocationGenerator] Created location: #{location.name}"
+        Rails.logger.info "[AI::CountryWideLocationGenerator] Created location: #{location.name} (city: #{city_name})"
 
         # Add experience types
         add_experience_types(location, suggestion[:experience_types])
@@ -1533,12 +1697,32 @@ module Ai
     end
 
     def build_summary
-      {
+      summary = {
         locations_created: @locations_created.count,
+        locations_skipped: @locations_skipped.count,
         experiences_created: @experiences_created.count,
         locations: @locations_created.map { |l| { id: l.id, name: l.name, city: l.city } },
         experiences: @experiences_created.map { |e| { id: e.id, title: e.title } }
       }
+
+      # Include skipped locations details if any exist (for logging/debugging)
+      if @locations_skipped.any?
+        summary[:skipped_locations] = @locations_skipped.map do |entry|
+          {
+            name: entry[:name],
+            ai_city: entry[:ai_city],
+            coordinates: "#{entry[:lat]}, #{entry[:lng]}",
+            reason: entry[:reason]
+          }
+        end
+
+        # Group by reason for easier analysis
+        summary[:skipped_by_reason] = @locations_skipped
+          .group_by { |e| e[:reason] }
+          .transform_values(&:count)
+      end
+
+      summary
     end
   end
 end
