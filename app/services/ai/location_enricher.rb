@@ -23,6 +23,10 @@ module Ai
     MAX_RETRIES = 3
     BASE_RETRY_DELAY = 2 # seconds
 
+    # Maximum locales per batch to avoid token limit errors
+    # With 4 locales per batch, we stay well under the 128K token limit
+    LOCALES_PER_BATCH = 4
+
     def initialize
       @chat = RubyLLM.chat
     end
@@ -126,12 +130,28 @@ module Ai
     private
 
     def generate_enrichment(location, place_data)
-      prompt = build_enrichment_prompt(location, place_data)
-      response = request_with_retry(location.name) { @chat.with_schema(location_enrichment_schema).ask(prompt) }
-      return {} if response.nil?
+      # Process locales in batches to avoid token limit errors
+      locale_batches = supported_locales.each_slice(LOCALES_PER_BATCH).to_a
+      combined_result = { suitable_experiences: [], descriptions: {}, historical_context: {} }
 
-      # with_schema automatically parses JSON
-      response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
+      locale_batches.each_with_index do |batch_locales, batch_index|
+        log_info "Processing locale batch #{batch_index + 1}/#{locale_batches.count} for #{location.name}: #{batch_locales.join(', ')}"
+
+        prompt = build_enrichment_prompt(location, place_data, locales: batch_locales)
+        response = request_with_retry(location.name) { @chat.with_schema(location_enrichment_schema(batch_locales)).ask(prompt) }
+        next if response.nil?
+
+        batch_result = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
+
+        # Merge batch results
+        if batch_result[:suitable_experiences].present? && combined_result[:suitable_experiences].empty?
+          combined_result[:suitable_experiences] = batch_result[:suitable_experiences]
+        end
+        combined_result[:descriptions].merge!(batch_result[:descriptions] || {})
+        combined_result[:historical_context].merge!(batch_result[:historical_context] || {})
+      end
+
+      combined_result
     rescue StandardError => e
       log_warn "AI enrichment failed for #{location.name}: #{e.message}"
       {}
@@ -140,8 +160,10 @@ module Ai
     # JSON Schema for location enrichment - ensures structured output from AI
     # Note: OpenAI structured output requires additionalProperties: false at all levels
     # and all properties must be listed in required array
-    def location_enrichment_schema
-      locale_properties = supported_locales.to_h { |loc| [loc, { type: "string" }] }
+    # @param locales [Array<String>] List of locale codes to include in schema (defaults to all)
+    def location_enrichment_schema(locales = nil)
+      locales ||= supported_locales
+      locale_properties = locales.to_h { |loc| [loc, { type: "string" }] }
 
       {
         type: "object",
@@ -154,14 +176,14 @@ module Ai
           descriptions: {
             type: "object",
             properties: locale_properties,
-            required: supported_locales,
+            required: locales,
             additionalProperties: false,
             description: "Localized descriptions keyed by locale code"
           },
           historical_context: {
             type: "object",
             properties: locale_properties,
-            required: supported_locales,
+            required: locales,
             additionalProperties: false,
             description: "Localized historical context for audio narration"
           }
@@ -190,7 +212,9 @@ module Ai
       end
     end
 
-    def build_enrichment_prompt(location, place_data)
+    def build_enrichment_prompt(location, place_data, locales: nil)
+      locales ||= supported_locales
+
       <<~PROMPT
         #{cultural_context}
 
@@ -208,7 +232,7 @@ module Ai
 
         Provide a JSON response with:
 
-        1. descriptions: Object with localized descriptions for: #{supported_locales.join(', ')}
+        1. descriptions: Object with localized descriptions for: #{locales.join(', ')}
            - Write a rich, engaging description (1-2 paragraphs, around 100-200 words)
            - Paint a vivid picture of what makes this place special
            - Connect to local culture and heritage where relevant

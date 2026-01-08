@@ -129,6 +129,10 @@ module Ai
       Za "sr" (SRPSKI): Koristiti ekavicu + srpske riječi (reka, mleko, lepo, istorija)
     CONTEXT
 
+    # Maximum locales per batch to avoid token limit errors
+    # With 4 locales per batch, we stay well under the 128K token limit
+    LOCALES_PER_BATCH = 4
+
     # @param city_name [String] The city name
     # @param coordinates [Hash] Hash with :lat and :lng keys for the city center
     # @param options [Hash] Additional options
@@ -361,13 +365,28 @@ module Ai
     end
 
     def enrich_location_with_ai(place)
-      prompt = build_location_enrichment_prompt(place)
+      # Process locales in batches to avoid token limit errors
+      locale_batches = supported_locales.each_slice(LOCALES_PER_BATCH).to_a
+      combined_result = { suitable_experiences: [], descriptions: {}, historical_context: {} }
 
-      response = @chat.with_schema(location_enrichment_schema).ask(prompt)
+      locale_batches.each_with_index do |batch_locales, batch_index|
+        Rails.logger.info "[AI::ExperienceGenerator] Processing locale batch #{batch_index + 1}/#{locale_batches.count} for #{place[:name]}: #{batch_locales.join(', ')}"
 
-      # with_schema automatically parses JSON, but content might still be string on error
-      result = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
-      result
+        prompt = build_location_enrichment_prompt(place, locales: batch_locales)
+        response = @chat.with_schema(location_enrichment_schema(batch_locales)).ask(prompt)
+        next if response.nil?
+
+        batch_result = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
+
+        # Merge batch results
+        if batch_result[:suitable_experiences].present? && combined_result[:suitable_experiences].empty?
+          combined_result[:suitable_experiences] = batch_result[:suitable_experiences]
+        end
+        combined_result[:descriptions].merge!(batch_result[:descriptions] || {})
+        combined_result[:historical_context].merge!(batch_result[:historical_context] || {})
+      end
+
+      combined_result
     rescue StandardError => e
       log_error("AI enrichment failed for #{place[:name]}: #{e.message}", exception: e, place: place[:name])
       { suitable_experiences: [], descriptions: {} }
@@ -376,8 +395,10 @@ module Ai
     # JSON Schema for location enrichment - ensures structured output from AI
     # Note: OpenAI structured output requires additionalProperties: false at all levels
     # and all properties must be listed in required array
-    def location_enrichment_schema
-      locale_properties = supported_locales.to_h { |loc| [loc, { type: "string" }] }
+    # @param locales [Array<String>] List of locale codes to include in schema (defaults to all)
+    def location_enrichment_schema(locales = nil)
+      locales ||= supported_locales
+      locale_properties = locales.to_h { |loc| [loc, { type: "string" }] }
 
       {
         type: "object",
@@ -390,14 +411,14 @@ module Ai
           descriptions: {
             type: "object",
             properties: locale_properties,
-            required: supported_locales,
+            required: locales,
             additionalProperties: false,
             description: "Localized descriptions keyed by locale code (en, bs, hr, etc.)"
           },
           historical_context: {
             type: "object",
             properties: locale_properties,
-            required: supported_locales,
+            required: locales,
             additionalProperties: false,
             description: "Localized historical context for audio narration keyed by locale code"
           }
@@ -407,7 +428,9 @@ module Ai
       }
     end
 
-    def build_location_enrichment_prompt(place)
+    def build_location_enrichment_prompt(place, locales: nil)
+      locales ||= supported_locales
+
       <<~PROMPT
         #{BIH_CULTURAL_CONTEXT}
 
@@ -426,7 +449,7 @@ module Ai
 
         Provide a JSON response with:
         1. suitable_experiences: Array of experience types this place is good for. Choose from: #{supported_experience_types.join(", ")}
-        2. descriptions: Object with localized descriptions for these languages: #{supported_locales.join(", ")}
+        2. descriptions: Object with localized descriptions for these languages: #{locales.join(", ")}
         3. historical_context: Object with localized historical/cultural context for the same languages
 
         IMPORTANT FOR DESCRIPTIONS (write rich, engaging content - 1-2 paragraphs, 100-200 words):
