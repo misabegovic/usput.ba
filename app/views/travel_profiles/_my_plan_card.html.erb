@@ -18,13 +18,18 @@
         <%= plan.display_title.presence || t('profile.my_plans.untitled', default: 'Plan bez naziva') %>
       </h3>
 
-      <%# City name %>
+      <%# City name(s) %>
+      <% cities = plan.cities.presence || [plan.city_name].compact %>
       <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-0.5 truncate">
         <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 inline mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
         </svg>
-        <%= plan.city_name.presence || t('profile.my_plans.unknown_city', default: 'Nepoznat grad') %>
+        <% if cities.any? %>
+          <%= cities.first(2).join(", ") %><% if cities.size > 2 %> <span class="text-gray-400 dark:text-gray-500">+<%= cities.size - 2 %></span><% end %>
+        <% else %>
+          <%= t('profile.my_plans.unknown_city', default: 'Nepoznat grad') %>
+        <% end %>
       </p>
 
       <%# Meta info row - wrap on mobile %>
