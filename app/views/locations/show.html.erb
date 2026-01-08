@@ -283,14 +283,14 @@
                  data-controller="audio-tour"
                  data-audio-tour-current-locale-value="<%= current_tour.locale %>"
                  data-audio-tour-audio-urls-value="<%= available_tours.each_with_object({}) { |t, h| h[t.locale] = rails_blob_path(t.audio_file, only_path: true) }.to_json %>">
-              <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center">
-                  <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+              <div class="flex items-center justify-between mb-4 flex-wrap gap-y-3">
+                <div class="flex items-center min-w-0">
+                  <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
                     </svg>
                   </div>
-                  <div>
+                  <div class="min-w-0">
                     <h2 class="text-xl font-bold"><%= t("locations.show.audio_tour", default: "Audio Tura") %></h2>
                     <p class="text-white/80 text-sm"><%= t("locations.show.audio_tour_subtitle", default: "Slušaj priču o ovoj lokaciji") %></p>
                   </div>
@@ -348,8 +348,8 @@
               </audio>
 
               <%# Duration, languages info and fullscreen link %>
-              <div class="flex items-center justify-between mt-3 text-white/70 text-sm">
-                <div class="flex items-center space-x-4">
+              <div class="flex items-center justify-between mt-3 text-white/70 text-sm flex-wrap gap-y-2">
+                <div class="flex items-center space-x-4 flex-wrap gap-y-1">
                   <% if current_tour.estimated_duration %>
                     <span class="flex items-center">
                       <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
