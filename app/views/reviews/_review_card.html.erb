@@ -16,6 +16,6 @@
     <%= render "shared/star_rating", rating: review.rating %>
   </div>
   <% if review.comment.present? %>
-    <p class="text-gray-700 dark:text-gray-300"><%= simple_format(h(review.comment), {}, wrapper_tag: "span") %></p>
+    <p class="text-gray-700 dark:text-gray-300 break-words"><%= simple_format(h(review.comment), {}, wrapper_tag: "span") %></p>
   <% end %>
 </div>
