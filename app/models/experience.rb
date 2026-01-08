@@ -141,6 +141,11 @@ class Experience < ApplicationRecord
     locations.first&.city
   end
 
+  # Get all unique cities from all locations (for multi-city display)
+  def cities
+    locations.map(&:city).compact.uniq
+  end
+
   # Check if experience has any contact information
   def has_contact_info?
     contact_name.present? || contact_email.present? || contact_phone.present? || contact_website.present?

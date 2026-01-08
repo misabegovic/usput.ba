@@ -16,12 +16,15 @@
       <%= plan.display_title.presence || t('profile.my_plans.untitled', default: 'Plan bez naziva') %>
     </h3>
 
-    <% if plan.city_name.present? %>
+    <% cities = plan.cities.presence || [plan.city_name].compact %>
+    <% if cities.any? %>
       <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 flex items-center">
-        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-3.5 h-3.5 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
         </svg>
-        <%= plan.city_name %>
+        <span class="truncate">
+          <%= cities.first(2).join(", ") %><% if cities.size > 2 %> <span class="text-gray-400 dark:text-gray-500">+<%= cities.size - 2 %></span><% end %>
+        </span>
       </p>
     <% end %>
 

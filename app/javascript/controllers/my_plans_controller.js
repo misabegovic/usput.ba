@@ -47,6 +47,41 @@ export default class extends Controller {
     }
   }
 
+  // Extract all unique cities from a plan's experiences
+  extractCities(plan) {
+    const cities = new Set()
+
+    // Try to get cities from experiences' locations
+    if (plan.days && Array.isArray(plan.days)) {
+      plan.days.forEach(day => {
+        if (day.experiences && Array.isArray(day.experiences)) {
+          day.experiences.forEach(exp => {
+            if (exp.locations && Array.isArray(exp.locations)) {
+              exp.locations.forEach(loc => {
+                if (loc.city) cities.add(loc.city)
+              })
+            }
+          })
+        }
+      })
+    }
+
+    // Fallback to plan's city_name if no cities found from experiences
+    if (cities.size === 0) {
+      const fallbackCity = plan.city_name || plan.city?.display_name || plan.city?.name
+      if (fallbackCity) cities.add(fallbackCity)
+    }
+
+    return Array.from(cities)
+  }
+
+  // Format cities for display (show first 2, then +N)
+  formatCities(cities) {
+    if (cities.length === 0) return 'Nepoznat grad'
+    if (cities.length <= 2) return cities.join(', ')
+    return `${cities.slice(0, 2).join(', ')} <span class="text-gray-400 dark:text-gray-500">+${cities.length - 2}</span>`
+  }
+
   renderPlans(plans) {
     if (!this.hasListTarget) return
 
@@ -54,13 +89,15 @@ export default class extends Controller {
 
     this.listTarget.innerHTML = plans.map(plan => {
       const isActive = plan.id === activePlanId
-      const cityName = plan.city_name || plan.city?.display_name || plan.city?.name || 'Nepoznat grad'
+      const cities = this.extractCities(plan)
+      const citiesDisplay = this.formatCities(cities)
+      const primaryCity = cities[0] || 'Nepoznat grad'
       const daysWord = plan.duration_days === 1 ? 'dan' : 'dana'
       const expCount = plan.total_experiences || 0
       // Use custom_title if available, otherwise default to city - days format
       const displayTitle = plan.custom_title && plan.custom_title.trim()
         ? plan.custom_title
-        : `${cityName} - ${plan.duration_days} ${daysWord}`
+        : `${primaryCity} - ${plan.duration_days} ${daysWord}`
 
       return `
         <a href="/plans/view?id=${plan.id}"
@@ -82,13 +119,13 @@ export default class extends Controller {
                 ${displayTitle}
               </h3>
 
-              <!-- City name -->
-              <p class="text-sm text-gray-600 dark:text-gray-300 mt-0.5">
-                <svg class="w-3.5 h-3.5 inline mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <!-- City name(s) -->
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-0.5 truncate">
+                <svg class="w-3.5 h-3.5 inline mr-1 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 </svg>
-                ${cityName}
+                ${citiesDisplay}
               </p>
 
               <!-- Meta info row -->

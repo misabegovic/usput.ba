@@ -233,6 +233,11 @@ class Plan < ApplicationRecord
     user_id.present?
   end
 
+  # Get all unique cities from all experiences' locations (for multi-city display)
+  def cities
+    experiences.includes(:locations).flat_map(&:cities).uniq
+  end
+
   # Duration in days for user plans (from actual experiences, then preferences)
   # Prioritizes actual experience data over preferences
   def calculated_duration_days
@@ -427,7 +432,8 @@ class Plan < ApplicationRecord
                 location_type: loc.location_type,
                 budget: loc.budget,
                 lat: loc.lat,
-                lng: loc.lng
+                lng: loc.lng,
+                city: loc.city
               }
             end
           }
