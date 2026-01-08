@@ -49,9 +49,10 @@ class RebuildExperiencesJob < ApplicationJob
       results[:total_analyzed] = report[:total_experiences]
       results[:issues_found] = report[:experiences_with_issues]
       results[:similar_pairs_found] = report[:similar_experience_pairs]
+      results[:experiences_to_delete_count] = report[:experiences_to_delete]
       results[:analysis_report] = report
 
-      save_status("in_progress", "Found #{results[:issues_found]} experiences with issues, #{results[:similar_pairs_found]} similar pairs")
+      save_status("in_progress", "Found #{results[:issues_found]} experiences with issues, #{results[:similar_pairs_found]} similar pairs, #{report[:experiences_to_delete]} to delete")
 
       if dry_run
         # In dry run mode, just return the analysis without making changes
@@ -61,7 +62,32 @@ class RebuildExperiencesJob < ApplicationJob
         return results
       end
 
-      # Phase 2: Handle experiences based on mode
+      # Phase 2: Delete experiences that don't make sense to regenerate
+      experiences_to_delete = report[:deletable_experiences] || []
+      if experiences_to_delete.any?
+        save_status("in_progress", "Deleting #{experiences_to_delete.count} unsalvageable experiences...")
+
+        experiences_to_delete.each do |exp_result|
+          begin
+            experience = Experience.find_by(id: exp_result[:experience_id])
+            if experience
+              Rails.logger.info "[RebuildExperiencesJob] Deleting unsalvageable experience #{experience.id}: #{experience.title} (reason: #{exp_result[:delete_reason]})"
+              experience.destroy!
+              results[:experiences_deleted] += 1
+            end
+          rescue StandardError => e
+            results[:errors] << {
+              experience_id: exp_result[:experience_id],
+              title: exp_result[:title],
+              action: "delete",
+              error: e.message
+            }
+            Rails.logger.warn "[RebuildExperiencesJob] Error deleting #{exp_result[:title]}: #{e.message}"
+          end
+        end
+      end
+
+      # Phase 3: Handle experiences based on mode
       rebuild_count = 0
       max_to_rebuild = max_rebuilds || Float::INFINITY
 
@@ -85,6 +111,7 @@ class RebuildExperiencesJob < ApplicationJob
             results[:errors] << {
               experience_id: exp_result[:experience_id],
               title: exp_result[:title],
+              action: "rebuild",
               error: e.message
             }
             Rails.logger.warn "[RebuildExperiencesJob] Error rebuilding #{exp_result[:title]}: #{e.message}"

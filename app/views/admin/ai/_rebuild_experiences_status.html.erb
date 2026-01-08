@@ -41,11 +41,17 @@
               <span class="text-green-700">Similar pairs:</span>
               <span class="font-medium text-green-900"><%= status[:results]["similar_pairs_found"] || 0 %></span>
             </div>
+            <% if status[:results]["experiences_to_delete_count"].to_i > 0 || status[:results]["dry_run"] %>
+              <div class="bg-red-100 rounded px-2 py-1">
+                <span class="text-red-700">To delete:</span>
+                <span class="font-medium text-red-900"><%= status[:results]["experiences_to_delete_count"] || 0 %></span>
+              </div>
+            <% end %>
             <div class="bg-green-100 rounded px-2 py-1">
               <span class="text-green-700">Rebuilt:</span>
               <span class="font-medium text-green-900"><%= status[:results]["experiences_rebuilt"] || 0 %></span>
             </div>
-            <% if status[:results]["experiences_deleted"].to_i > 0 %>
+            <% if status[:results]["experiences_deleted"].to_i > 0 && !status[:results]["dry_run"] %>
               <div class="bg-red-100 rounded px-2 py-1">
                 <span class="text-red-700">Deleted:</span>
                 <span class="font-medium text-red-900"><%= status[:results]["experiences_deleted"] %></span>
@@ -88,9 +94,23 @@
                   </div>
                 <% end %>
 
+                <% if report["deletable_experiences"].present? && report["deletable_experiences"].any? %>
+                  <div class="mb-3">
+                    <strong class="text-red-700">Experiences to delete (unsalvageable):</strong>
+                    <ul class="mt-1 space-y-1 max-h-40 overflow-y-auto">
+                      <% report["deletable_experiences"].take(10).each do |exp| %>
+                        <li class="text-red-600">
+                          <span class="font-medium"><%= exp["title"] %></span>
+                          <span class="text-red-500 text-xs ml-1">(<%= exp["delete_reason"] %>)</span>
+                        </li>
+                      <% end %>
+                    </ul>
+                  </div>
+                <% end %>
+
                 <% if report["worst_experiences"].present? && report["worst_experiences"].any? %>
                   <div class="mb-3">
-                    <strong class="text-gray-700">Experiences needing attention:</strong>
+                    <strong class="text-gray-700">Experiences to rebuild:</strong>
                     <ul class="mt-1 space-y-1 max-h-40 overflow-y-auto">
                       <% report["worst_experiences"].take(10).each do |exp| %>
                         <li class="flex justify-between">

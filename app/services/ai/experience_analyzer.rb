@@ -9,8 +9,11 @@ module Ai
     # Quality thresholds
     MIN_DESCRIPTION_LENGTH = 100
     MIN_TITLE_LENGTH = 5
-    MIN_LOCATIONS_COUNT = 2
+    MIN_LOCATIONS_COUNT = 1
     SIMILARITY_THRESHOLD = 0.7 # 70% overlap considered too similar
+
+    # Score below which an experience should be deleted rather than regenerated
+    DELETE_THRESHOLD_SCORE = 20
 
     # Required locales for complete translations
     REQUIRED_LOCALES = %w[en bs].freeze
@@ -43,13 +46,18 @@ module Ai
       # Check estimated duration
       issues.concat(check_duration(experience))
 
+      score = calculate_quality_score(issues)
+      should_delete = determine_should_delete(experience, issues, score)
+
       {
         experience_id: experience.id,
         title: experience.title,
         city: experience.city,
         issues: issues,
-        score: calculate_quality_score(issues),
-        needs_rebuild: issues.any? { |i| i[:severity] == :critical || i[:severity] == :high }
+        score: score,
+        needs_rebuild: !should_delete && issues.any? { |i| i[:severity] == :critical || i[:severity] == :high },
+        should_delete: should_delete,
+        delete_reason: should_delete ? explain_delete_reason(experience, issues, score) : nil
       }
     end
 
@@ -103,14 +111,19 @@ module Ai
 
       similar_experiences = find_similar_experiences
 
+      experiences_to_delete = all_results.select { |r| r[:should_delete] }
+      experiences_to_rebuild = all_results.select { |r| r[:needs_rebuild] && !r[:should_delete] }
+
       {
         total_experiences: all_results.count,
         experiences_with_issues: all_results.count { |r| r[:issues].any? },
-        experiences_needing_rebuild: all_results.count { |r| r[:needs_rebuild] },
+        experiences_needing_rebuild: experiences_to_rebuild.count,
+        experiences_to_delete: experiences_to_delete.count,
         similar_experience_pairs: similar_experiences.count,
         issues_by_severity: group_issues_by_severity(all_results),
         issues_by_type: group_issues_by_type(all_results),
-        worst_experiences: all_results.select { |r| r[:needs_rebuild] }.take(20),
+        worst_experiences: experiences_to_rebuild.take(20),
+        deletable_experiences: experiences_to_delete.take(20),
         similar_experiences: similar_experiences.take(10)
       }
     end
@@ -444,6 +457,60 @@ module Ai
       all_issues = results.flat_map { |r| r[:issues] }
 
       all_issues.group_by { |i| i[:type] }.transform_values(&:count)
+    end
+
+    # Determine if an experience should be deleted rather than regenerated
+    # This is the case when the experience is fundamentally broken and
+    # regeneration would not make sense
+    def determine_should_delete(experience, issues, score)
+      # No locations = nothing to build an experience from
+      return true if experience.locations.count == 0
+
+      # Score too low - too many critical issues to salvage
+      return true if score <= DELETE_THRESHOLD_SCORE
+
+      # Missing both English title AND description - no base content at all
+      en_title = experience.translation_for(:title, :en).to_s
+      en_desc = experience.translation_for(:description, :en).to_s
+      return true if en_title.blank? && en_desc.blank?
+
+      # All locations have been deleted (orphaned experience)
+      return true if experience.experience_locations.count == 0
+
+      # Experience has only placeholder/test content AND no real translations
+      if generic_title?(experience.title.to_s)
+        has_any_real_content = REQUIRED_LOCALES.any? do |locale|
+          desc = experience.translation_for(:description, locale).to_s
+          desc.present? && desc.length >= MIN_DESCRIPTION_LENGTH
+        end
+        return true unless has_any_real_content
+      end
+
+      false
+    end
+
+    # Explain why an experience should be deleted
+    def explain_delete_reason(experience, issues, score)
+      reasons = []
+
+      reasons << "No locations attached" if experience.locations.count == 0
+      reasons << "Quality score too low (#{score}/100)" if score <= DELETE_THRESHOLD_SCORE
+
+      en_title = experience.translation_for(:title, :en).to_s
+      en_desc = experience.translation_for(:description, :en).to_s
+      reasons << "Missing all English content" if en_title.blank? && en_desc.blank?
+
+      reasons << "Orphaned experience (no location associations)" if experience.experience_locations.count == 0
+
+      if generic_title?(experience.title.to_s)
+        has_any_real_content = REQUIRED_LOCALES.any? do |locale|
+          desc = experience.translation_for(:description, locale).to_s
+          desc.present? && desc.length >= MIN_DESCRIPTION_LENGTH
+        end
+        reasons << "Generic/placeholder title with no substantial content" unless has_any_real_content
+      end
+
+      reasons.join("; ")
     end
   end
 end
