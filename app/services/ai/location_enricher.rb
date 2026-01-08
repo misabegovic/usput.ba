@@ -8,27 +8,14 @@ module Ai
 
     class EnrichmentError < StandardError; end
 
-    # Network errors that should trigger a retry
-    RETRYABLE_ERRORS = [
-      Net::ReadTimeout,
-      Net::OpenTimeout,
-      Faraday::TimeoutError,
-      Faraday::ConnectionFailed,
-      Errno::ECONNRESET,
-      Errno::ETIMEDOUT,
-      Errno::ECONNREFUSED,
-      OpenSSL::SSL::SSLError
-    ].freeze
-
-    MAX_RETRIES = 3
-    BASE_RETRY_DELAY = 2 # seconds
-
     # Maximum locales per batch to avoid token limit errors
-    # With 7 locales per batch, we stay under the 128K token limit
-    LOCALES_PER_BATCH = 7
+    # We split descriptions and historical_context into separate requests,
+    # and process locales in batches to stay well under 128K token limit
+    LOCALES_PER_DESCRIPTION_BATCH = 5  # ~150 words each = ~750 words output
+    LOCALES_PER_HISTORY_BATCH = 3      # ~300 words each = ~900 words output
 
     def initialize
-      @chat = RubyLLM.chat
+      # No longer using @chat directly - using OpenaiQueue for rate limiting
     end
 
     # Obogaćuje jednu lokaciju sa AI sadržajem
@@ -130,41 +117,81 @@ module Ai
     private
 
     def generate_enrichment(location, place_data)
-      # Process locales in batches to avoid token limit errors
-      locale_batches = supported_locales.each_slice(LOCALES_PER_BATCH).to_a
-      combined_result = { suitable_experiences: [], descriptions: {}, historical_context: {} }
+      combined_result = { suitable_experiences: [], descriptions: {}, historical_context: {}, tags: [], practical_info: {} }
 
-      locale_batches.each_with_index do |batch_locales, batch_index|
-        log_info "Processing locale batch #{batch_index + 1}/#{locale_batches.count} for #{location.name}: #{batch_locales.join(', ')}"
+      # Step 1: Generate metadata (suitable_experiences, tags, practical_info) - single request
+      log_info "Generating metadata for #{location.name}"
+      metadata = generate_metadata(location, place_data)
+      if metadata.present?
+        combined_result[:suitable_experiences] = metadata[:suitable_experiences] || []
+        combined_result[:tags] = metadata[:tags] || []
+        combined_result[:practical_info] = metadata[:practical_info] || {}
+      end
 
-        prompt = build_enrichment_prompt(location, place_data, locales: batch_locales)
-        response = request_with_retry(location.name) { @chat.with_schema(location_enrichment_schema(batch_locales)).ask(prompt) }
-        next if response.nil?
+      # Step 2: Generate descriptions in batches
+      description_batches = supported_locales.each_slice(LOCALES_PER_DESCRIPTION_BATCH).to_a
+      description_batches.each_with_index do |batch_locales, batch_index|
+        log_info "Generating descriptions batch #{batch_index + 1}/#{description_batches.count} for #{location.name}: #{batch_locales.join(', ')}"
 
-        batch_result = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
+        descriptions = generate_descriptions(location, place_data, batch_locales)
+        combined_result[:descriptions].merge!(descriptions) if descriptions.present?
+      end
 
-        # Merge batch results
-        if batch_result[:suitable_experiences].present? && combined_result[:suitable_experiences].empty?
-          combined_result[:suitable_experiences] = batch_result[:suitable_experiences]
-        end
-        combined_result[:descriptions].merge!(batch_result[:descriptions] || {})
-        combined_result[:historical_context].merge!(batch_result[:historical_context] || {})
+      # Step 3: Generate historical_context in batches
+      history_batches = supported_locales.each_slice(LOCALES_PER_HISTORY_BATCH).to_a
+      history_batches.each_with_index do |batch_locales, batch_index|
+        log_info "Generating historical context batch #{batch_index + 1}/#{history_batches.count} for #{location.name}: #{batch_locales.join(', ')}"
+
+        history = generate_historical_context(location, place_data, batch_locales)
+        combined_result[:historical_context].merge!(history) if history.present?
       end
 
       combined_result
-    rescue StandardError => e
+    rescue Ai::OpenaiQueue::RequestError => e
       log_warn "AI enrichment failed for #{location.name}: #{e.message}"
       {}
     end
 
-    # JSON Schema for location enrichment - ensures structured output from AI
-    # Note: OpenAI structured output requires additionalProperties: false at all levels
-    # and all properties must be listed in required array
-    # @param locales [Array<String>] List of locale codes to include in schema (defaults to all)
-    def location_enrichment_schema(locales = nil)
-      locales ||= supported_locales
-      locale_properties = locales.to_h { |loc| [loc, { type: "string" }] }
+    def generate_metadata(location, place_data)
+      prompt = build_metadata_prompt(location, place_data)
+      Ai::OpenaiQueue.request(
+        prompt: prompt,
+        schema: metadata_schema,
+        context: "LocationEnricher:metadata:#{location.name}"
+      )
+    rescue Ai::OpenaiQueue::RequestError => e
+      log_warn "Metadata generation failed for #{location.name}: #{e.message}"
+      {}
+    end
 
+    def generate_descriptions(location, place_data, locales)
+      prompt = build_descriptions_prompt(location, place_data, locales)
+      result = Ai::OpenaiQueue.request(
+        prompt: prompt,
+        schema: descriptions_schema(locales),
+        context: "LocationEnricher:descriptions:#{location.name}"
+      )
+      result&.dig(:descriptions) || {}
+    rescue Ai::OpenaiQueue::RequestError => e
+      log_warn "Descriptions generation failed for #{location.name}: #{e.message}"
+      {}
+    end
+
+    def generate_historical_context(location, place_data, locales)
+      prompt = build_historical_context_prompt(location, place_data, locales)
+      result = Ai::OpenaiQueue.request(
+        prompt: prompt,
+        schema: historical_context_schema(locales),
+        context: "LocationEnricher:history:#{location.name}"
+      )
+      result&.dig(:historical_context) || {}
+    rescue Ai::OpenaiQueue::RequestError => e
+      log_warn "Historical context generation failed for #{location.name}: #{e.message}"
+      {}
+    end
+
+    # Schema for metadata only (suitable_experiences, tags, practical_info)
+    def metadata_schema
       {
         type: "object",
         properties: {
@@ -173,55 +200,65 @@ module Ai
             items: { type: "string" },
             description: "Experience types this location is suitable for"
           },
-          descriptions: {
-            type: "object",
-            properties: locale_properties,
-            required: locales,
-            additionalProperties: false,
-            description: "Localized descriptions keyed by locale code"
+          tags: {
+            type: "array",
+            items: { type: "string" },
+            description: "Relevant tags in English (lowercase, hyphens instead of spaces)"
           },
-          historical_context: {
+          practical_info: {
             type: "object",
-            properties: locale_properties,
-            required: locales,
-            additionalProperties: false,
-            description: "Localized historical context for audio narration"
+            properties: {
+              best_time: { type: "string", description: "Best time to visit (morning, afternoon, evening, any)" },
+              duration_minutes: { type: "integer", description: "Suggested visit duration in minutes" },
+              tips: { type: "array", items: { type: "string" }, description: "Practical tips for visitors" }
+            },
+            required: %w[best_time duration_minutes tips],
+            additionalProperties: false
           }
         },
-        required: %w[suitable_experiences descriptions historical_context],
+        required: %w[suitable_experiences tags practical_info],
         additionalProperties: false
       }
     end
 
-    def request_with_retry(context_name, &block)
-      retries = 0
-
-      begin
-        yield
-      rescue *RETRYABLE_ERRORS => e
-        retries += 1
-        if retries <= MAX_RETRIES
-          delay = BASE_RETRY_DELAY * (2**(retries - 1)) # Exponential backoff: 2s, 4s, 8s
-          log_warn "Network error for #{context_name} (attempt #{retries}/#{MAX_RETRIES}): #{e.class.name}. Retrying in #{delay}s..."
-          sleep(delay)
-          retry
-        else
-          log_error "Network error for #{context_name} after #{MAX_RETRIES} retries: #{e.class.name} - #{e.message}"
-          nil
-        end
-      end
+    # Schema for descriptions only
+    def descriptions_schema(locales)
+      locale_properties = locales.to_h { |loc| [loc, { type: "string" }] }
+      {
+        type: "object",
+        properties: {
+          descriptions: {
+            type: "object",
+            properties: locale_properties,
+            required: locales,
+            additionalProperties: false
+          }
+        },
+        required: %w[descriptions],
+        additionalProperties: false
+      }
     end
 
-    def build_enrichment_prompt(location, place_data, locales: nil)
-      locales ||= supported_locales
+    # Schema for historical context only
+    def historical_context_schema(locales)
+      locale_properties = locales.to_h { |loc| [loc, { type: "string" }] }
+      {
+        type: "object",
+        properties: {
+          historical_context: {
+            type: "object",
+            properties: locale_properties,
+            required: locales,
+            additionalProperties: false
+          }
+        },
+        required: %w[historical_context],
+        additionalProperties: false
+      }
+    end
 
-      <<~PROMPT
-        #{cultural_context}
-
-        ---
-
-        TASK: Enrich this location in #{location.city} with detailed tourism content.
-
+    def location_info_block(location, place_data)
+      <<~INFO
         LOCATION INFORMATION:
         - Name: #{location.name}
         - City: #{location.city}
@@ -229,54 +266,78 @@ module Ai
         - Categories: #{place_data[:categories]&.join(', ')}
         - Address: #{place_data[:formatted] || place_data[:address_line1]}
         - Coordinates: #{location.lat}, #{location.lng}
+      INFO
+    end
+
+    def build_metadata_prompt(location, place_data)
+      <<~PROMPT
+        #{cultural_context}
+
+        ---
+
+        TASK: Provide metadata for this tourism location in #{location.city}.
+
+        #{location_info_block(location, place_data)}
 
         Provide a JSON response with:
 
-        1. descriptions: Object with localized descriptions for: #{locales.join(', ')}
-           - Write a rich, engaging description (1-2 paragraphs, around 100-200 words)
-           - Paint a vivid picture of what makes this place special
-           - Connect to local culture and heritage where relevant
-           - Use local terminology with brief explanations
-           - Include sensory details and atmosphere
-
-        2. historical_context: Object with localized historical/cultural context for audio narration
-           - Write an engaging essay-style narrative (2-4 paragraphs, around 200-400 words)
-           - Tell the complete story of this place with rich historical details
-           - Include interesting facts, legends, local stories, and anecdotes
-           - Mention specific dates, people, events, and their significance
-           - Describe how this place has evolved through different eras
-           - Make it engaging and captivating for audio narration
-
-        3. suitable_experiences: Array of experience types this place is good for
+        1. suitable_experiences: Array of experience types this place is good for
            Choose from: #{supported_experience_types.join(', ')}
 
-        4. tags: Array of 3-5 relevant tags in English (lowercase, no spaces - use hyphens)
+        2. tags: Array of 3-5 relevant tags in English (lowercase, no spaces - use hyphens)
+           Examples: historical-site, ottoman-heritage, local-cuisine, scenic-view
 
-        5. practical_info: Object with practical information for tourists
+        3. practical_info: Object with practical information for tourists
            - best_time: Best time to visit (morning, afternoon, evening, any)
            - duration_minutes: Suggested visit duration in minutes
-           - tips: Array of 3-5 practical tips for visitors (be detailed and helpful)
+           - tips: Array of 3-5 practical tips for visitors
+      PROMPT
+    end
 
-        Return ONLY valid JSON:
-        {
-          "descriptions": {
-            "en": "English description...",
-            "bs": "Bosanski opis...",
-            ...
-          },
-          "historical_context": {
-            "en": "Historical context for audio...",
-            "bs": "Historijski kontekst za audio...",
-            ...
-          },
-          "suitable_experiences": ["culture", "history"],
-          "tags": ["historical-site", "ottoman-heritage", "must-see"],
-          "practical_info": {
-            "best_time": "morning",
-            "duration_minutes": 45,
-            "tips": ["Tip 1", "Tip 2"]
-          }
-        }
+    def build_descriptions_prompt(location, place_data, locales)
+      <<~PROMPT
+        #{cultural_context}
+
+        ---
+
+        TASK: Write engaging descriptions for this tourism location in #{location.city}.
+
+        #{location_info_block(location, place_data)}
+
+        Write descriptions in these languages: #{locales.join(', ')}
+
+        For each language, write a rich, engaging description (1-2 paragraphs, around 100-150 words):
+        - Paint a vivid picture of what makes this place special
+        - Connect to local culture and heritage where relevant
+        - Use local terminology with brief explanations
+        - Include sensory details and atmosphere
+        - Write naturally in each target language (not just translations)
+
+        Return JSON with a "descriptions" object containing each locale code as a key.
+      PROMPT
+    end
+
+    def build_historical_context_prompt(location, place_data, locales)
+      <<~PROMPT
+        #{cultural_context}
+
+        ---
+
+        TASK: Write historical/cultural context for audio narration at this tourism location in #{location.city}.
+
+        #{location_info_block(location, place_data)}
+
+        Write historical context in these languages: #{locales.join(', ')}
+
+        For each language, write an engaging essay-style narrative (2-3 paragraphs, around 200-300 words):
+        - Tell the complete story of this place with rich historical details
+        - Include interesting facts, legends, local stories, and anecdotes
+        - Mention specific dates, people, events, and their significance
+        - Describe how this place has evolved through different eras
+        - Make it engaging and captivating for audio narration
+        - Write naturally in each target language (not just translations)
+
+        Return JSON with a "historical_context" object containing each locale code as a key.
       PROMPT
     end
 

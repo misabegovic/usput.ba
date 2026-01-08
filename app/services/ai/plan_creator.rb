@@ -46,7 +46,7 @@ module Ai
     }.freeze
 
     def initialize
-      @chat = RubyLLM.chat
+      # No longer using @chat directly - using OpenaiQueue for rate limiting
     end
 
     # Kreira Plan za specifičan profil i grad
@@ -128,12 +128,15 @@ module Ai
 
     def ai_propose_plan(experiences, profile, profile_data, city, duration_days)
       prompt = build_plan_prompt(experiences, profile, profile_data, city, duration_days)
-      response = @chat.with_schema(plan_proposal_schema).ask(prompt)
 
-      # with_schema automatically parses JSON, but content might still be string on error
-      result = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
+      # Use OpenaiQueue for rate-limited requests
+      result = Ai::OpenaiQueue.request(
+        prompt: prompt,
+        schema: plan_proposal_schema,
+        context: "PlanCreator"
+      )
       result
-    rescue StandardError => e
+    rescue Ai::OpenaiQueue::RequestError => e
       log_warn "AI plan proposal failed: #{e.message}"
       nil
     end

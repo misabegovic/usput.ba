@@ -140,7 +140,7 @@ module Ai
       @city_name = city_name
       @coordinates = coordinates
       @places_service = GeoapifyService.new
-      @chat = RubyLLM.chat
+      # No longer using @chat directly - using OpenaiQueue for rate limiting
       @locations_created = []
       @experiences_created = []
       @options = {
@@ -373,10 +373,14 @@ module Ai
         Rails.logger.info "[AI::ExperienceGenerator] Processing locale batch #{batch_index + 1}/#{locale_batches.count} for #{place[:name]}: #{batch_locales.join(', ')}"
 
         prompt = build_location_enrichment_prompt(place, locales: batch_locales)
-        response = @chat.with_schema(location_enrichment_schema(batch_locales)).ask(prompt)
-        next if response.nil?
 
-        batch_result = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
+        # Use OpenaiQueue for rate-limited requests
+        batch_result = Ai::OpenaiQueue.request(
+          prompt: prompt,
+          schema: location_enrichment_schema(batch_locales),
+          context: "ExperienceGenerator:#{place[:name]}"
+        )
+        next if batch_result.nil?
 
         # Merge batch results
         if batch_result[:suitable_experiences].present? && combined_result[:suitable_experiences].empty?
@@ -387,7 +391,7 @@ module Ai
       end
 
       combined_result
-    rescue StandardError => e
+    rescue Ai::OpenaiQueue::RequestError => e
       log_error("AI enrichment failed for #{place[:name]}: #{e.message}", exception: e, place: place[:name])
       { suitable_experiences: [], descriptions: {} }
     end
@@ -741,12 +745,14 @@ module Ai
     def generate_experience_with_ai(category_data, locations)
       prompt = build_experience_prompt(category_data, locations)
 
-      response = @chat.with_schema(experience_generation_schema).ask(prompt)
-
-      # with_schema automatically parses JSON, but content might still be string on error
-      result = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
-      result
-    rescue StandardError => e
+      # Use OpenaiQueue for rate-limited requests
+      result = Ai::OpenaiQueue.request(
+        prompt: prompt,
+        schema: experience_generation_schema,
+        context: "ExperienceGenerator:experience"
+      )
+      result || { titles: {}, descriptions: {}, location_ids: [] }
+    rescue Ai::OpenaiQueue::RequestError => e
       log_error("AI experience generation failed: #{e.message}", exception: e)
       { titles: {}, descriptions: {}, location_ids: [] }
     end

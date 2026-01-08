@@ -426,26 +426,6 @@
     background-clip: text;
   }
 
-  /* Gold button */
-  .btn-gold {
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    transition: all 0.3s;
-    background-color: var(--color-gold);
-    color: var(--color-primary-900);
-    box-shadow: var(--shadow-md);
-  }
-
-  .btn-gold:hover {
-    background-color: var(--color-gold-dark);
-    box-shadow: var(--shadow-lg);
-  }
-
-  .btn-gold:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px var(--color-gold);
-  }
 
   /* Animated elements */
   .hover-lift {
@@ -595,4 +575,14 @@
     border-top: 2px solid var(--color-amber-500);
     margin-top: -2px;
   }
+}
+
+/* Gold button - outside @layer to avoid tree-shaking */
+.btn-gold {
+  background-color: #facc15;
+  color: #001433;
+}
+
+.btn-gold:hover {
+  background-color: #eab308;
 }

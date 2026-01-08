@@ -1,7 +1,7 @@
 # Background job for country-wide AI location and experience generation
 # Uses the CountryWideLocationGenerator service
 class CountryWideGenerationJob < ApplicationJob
-  queue_as :default
+  queue_as :ai_generation
 
   # Retry on transient failures
   retry_on StandardError, wait: :polynomially_longer, attempts: 3

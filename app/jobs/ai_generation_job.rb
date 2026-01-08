@@ -1,7 +1,7 @@
 # Background job for AI-powered experience generation
 # Uses Solid Queue for job processing
 class AiGenerationJob < ApplicationJob
-  queue_as :default
+  queue_as :ai_generation
 
   # Retry on transient failures
   retry_on StandardError, wait: :polynomially_longer, attempts: 3

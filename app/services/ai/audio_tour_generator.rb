@@ -53,7 +53,7 @@ module Ai
 
     def initialize(location)
       @location = location
-      @chat = RubyLLM.chat
+      # No longer using @chat directly - using OpenaiQueue for rate limiting
     end
 
     # Check if audio tour already exists for this location and locale
@@ -261,10 +261,16 @@ module Ai
     # @return [String] The tour script
     def generate_tour_script(locale = "bs")
       prompt = build_script_prompt(locale)
-      response = @chat.ask(prompt)
 
-      # Clean up the response
-      script = response.content.strip
+      # Use OpenaiQueue for rate-limited requests (no schema for plain text)
+      result = Ai::OpenaiQueue.request(
+        prompt: prompt,
+        schema: nil,
+        context: "AudioTourGenerator:#{@location.name}"
+      )
+
+      # Clean up the response - result is a string when no schema is provided
+      script = result.to_s.strip
       script = script.gsub(/^```.*\n/, "").gsub(/```$/, "") # Remove markdown code blocks
 
       Rails.logger.info "[AI::AudioTourGenerator] Generated script: #{script.length} characters"

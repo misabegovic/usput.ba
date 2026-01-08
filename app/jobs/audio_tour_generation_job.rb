@@ -1,7 +1,7 @@
 # Background job for generating audio tours for locations
 # Supports multilingual audio tour generation
 class AudioTourGenerationJob < ApplicationJob
-  queue_as :default
+  queue_as :ai_generation
 
   # Retry on transient failures
   retry_on StandardError, wait: :polynomially_longer, attempts: 3
