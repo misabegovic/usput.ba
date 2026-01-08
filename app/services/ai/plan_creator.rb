@@ -23,6 +23,10 @@ module Ai
         description: "Adventure seekers and outdoor enthusiasts",
         preferences: { pace: "active", activities: %w[adventure sport nature], budget: "medium" }
       },
+      "nature" => {
+        description: "Nature lovers seeking parks, landscapes, and natural attractions",
+        preferences: { pace: "relaxed", activities: %w[nature relaxation], budget: "medium" }
+      },
       "culture" => {
         description: "History and culture enthusiasts",
         preferences: { pace: "moderate", activities: %w[culture history], budget: "medium" }
@@ -50,18 +54,15 @@ module Ai
     end
 
     # Kreira Plan za specifičan profil i grad
-    # @param profile [String] Profil turista (family, couple, adventure, etc.)
+    # @param profile [String] Profil turista - accepts any profile name
     # @param city [String, nil] Grad (nil za multi-city plan)
     # @param duration_days [Integer, nil] Broj dana (nil = AI odlučuje)
     # @return [Plan, nil] Kreirani Plan ili nil
     def create_for_profile(profile:, city: nil, duration_days: nil)
-      profile_data = TOURIST_PROFILES[profile.to_s]
-      unless profile_data
-        log_warn "Unknown profile: #{profile}"
-        return nil
-      end
+      profile_key = profile.to_s.downcase.strip
+      profile_data = TOURIST_PROFILES[profile_key] || generate_profile_data(profile_key)
 
-      log_info "Creating #{profile} plan for #{city || 'multi-city'}"
+      log_info "Creating #{profile_key} plan for #{city || 'multi-city'}"
 
       # Dohvati dostupne Experience-e
       experiences = fetch_available_experiences(city)
@@ -360,6 +361,7 @@ module Ai
           "family" => "Family Adventure",
           "couple" => "Romantic Getaway",
           "adventure" => "Adventure Experience",
+          "nature" => "Nature Escape",
           "culture" => "Cultural Discovery",
           "budget" => "Budget Explorer",
           "luxury" => "Luxury Escape",
@@ -370,6 +372,7 @@ module Ai
           "family" => "Porodična avantura",
           "couple" => "Romantični bijeg",
           "adventure" => "Avanturističko iskustvo",
+          "nature" => "Bijeg u prirodu",
           "culture" => "Kulturno otkriće",
           "budget" => "Budget putovanje",
           "luxury" => "Luksuzni odmor",
@@ -423,6 +426,15 @@ module Ai
 
     def min_experiences_per_plan
       @min_experiences ||= Setting.get("plan.min_experiences", default: 2).to_i
+    end
+
+    # Generates profile data for unknown profiles
+    # AI will use the profile name to infer appropriate experiences
+    def generate_profile_data(profile_name)
+      {
+        description: profile_name.gsub(/[_-]/, " ").titleize,
+        preferences: { pace: "moderate", activities: %w[culture nature food], budget: "medium" }
+      }
     end
 
     def cultural_context

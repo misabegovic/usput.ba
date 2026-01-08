@@ -269,7 +269,7 @@ module Ai
         1. Analyze which cities have insufficient content (less than 10 locations)
         2. Suggest new cities that should be covered (major tourist destinations in #{state[:target_country]})
         3. Decide which location categories are needed
-        4. Suggest tourist profiles for plans
+        4. Suggest tourist profiles for plans (e.g., family, couple, adventure, nature, culture, budget, luxury, foodie, solo)
 
         GEOAPIFY CATEGORIES (choose relevant ones for tourism):
         tourism.attraction, tourism.sights, tourism.sights.castle, tourism.sights.fort,
@@ -302,7 +302,7 @@ module Ai
               "reasoning": "Why this city needs more content..."
             }
           ],
-          "tourist_profiles_to_generate": ["family", "couple", "culture", "adventure"],
+          "tourist_profiles_to_generate": ["family", "couple", "culture", "adventure", "nature"],
           "estimated_new_content": {
             "locations": 50,
             "experiences": 10,
