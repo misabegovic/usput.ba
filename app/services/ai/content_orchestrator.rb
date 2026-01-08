@@ -269,7 +269,7 @@ module Ai
         1. Analyze which cities have insufficient content (less than 10 locations)
         2. Suggest new cities that should be covered (major tourist destinations in #{state[:target_country]})
         3. Decide which location categories are needed
-        4. Suggest tourist profiles for plans
+        4. Select tourist profiles for plans from this list ONLY: #{valid_profile_keys.join(', ')}
 
         GEOAPIFY CATEGORIES (choose relevant ones for tourism):
         tourism.attraction, tourism.sights, tourism.sights.castle, tourism.sights.fort,
@@ -302,7 +302,7 @@ module Ai
               "reasoning": "Why this city needs more content..."
             }
           ],
-          "tourist_profiles_to_generate": ["family", "couple", "culture", "adventure"],
+          "tourist_profiles_to_generate": ["family", "couple", "culture", "adventure", "nature"],
           "estimated_new_content": {
             "locations": 50,
             "experiences": 10,
@@ -386,7 +386,8 @@ module Ai
     # ═══════════════════════════════════════════════════════════
     def execute_plan(plan)
       target_cities = plan[:target_cities] || []
-      profiles = plan[:tourist_profiles_to_generate] || %w[family couple culture]
+      raw_profiles = plan[:tourist_profiles_to_generate] || %w[family couple culture]
+      profiles = normalize_profiles(raw_profiles)
 
       target_cities.each do |city_plan|
         check_cancellation!
@@ -588,6 +589,10 @@ module Ai
       Ai::ExperienceGenerator::BIH_CULTURAL_CONTEXT
     end
 
+    def valid_profile_keys
+      Ai::PlanCreator::TOURIST_PROFILES.keys
+    end
+
     def parse_ai_json_response(content)
       json_match = content.match(/```(?:json)?\s*([\s\S]*?)```/) ||
                    content.match(/(\{[\s\S]*\})/)
@@ -709,6 +714,21 @@ module Ai
 
     def check_cancellation!
       raise CancellationError, "Generation cancelled by user" if self.class.cancelled?
+    end
+
+    # Normalizes AI-generated profile names to valid PlanCreator profile keys
+    # Does minimal cleanup - PlanCreator handles unknown profiles gracefully
+    def normalize_profiles(raw_profiles)
+      valid_profiles = Ai::PlanCreator::TOURIST_PROFILES.keys
+
+      raw_profiles.map do |profile|
+        # Basic normalization: lowercase, remove extra words, convert spaces/underscores
+        key = profile.to_s.downcase.strip
+                     .gsub(/[_\s]+/, "_")           # normalize separators
+                     .gsub(/_?(lovers?|seekers?|travelers?|travellers?)$/, "") # remove common suffixes
+                     .gsub(/_+$/, "")               # clean trailing underscores
+        key
+      end.uniq.select { |p| valid_profiles.include?(p) }.presence || %w[family couple culture]
     end
 
   end

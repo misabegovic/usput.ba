@@ -23,6 +23,10 @@ module Ai
         description: "Adventure seekers and outdoor enthusiasts",
         preferences: { pace: "active", activities: %w[adventure sport nature], budget: "medium" }
       },
+      "nature" => {
+        description: "Nature lovers seeking parks, landscapes, and natural attractions",
+        preferences: { pace: "relaxed", activities: %w[nature relaxation], budget: "medium" }
+      },
       "culture" => {
         description: "History and culture enthusiasts",
         preferences: { pace: "moderate", activities: %w[culture history], budget: "medium" }
@@ -360,6 +364,7 @@ module Ai
           "family" => "Family Adventure",
           "couple" => "Romantic Getaway",
           "adventure" => "Adventure Experience",
+          "nature" => "Nature Escape",
           "culture" => "Cultural Discovery",
           "budget" => "Budget Explorer",
           "luxury" => "Luxury Escape",
@@ -370,6 +375,7 @@ module Ai
           "family" => "Porodična avantura",
           "couple" => "Romantični bijeg",
           "adventure" => "Avanturističko iskustvo",
+          "nature" => "Bijeg u prirodu",
           "culture" => "Kulturno otkriće",
           "budget" => "Budget putovanje",
           "luxury" => "Luksuzni odmor",
