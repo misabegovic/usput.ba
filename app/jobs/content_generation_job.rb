@@ -11,7 +11,7 @@
 #
 # NAPOMENA: Audio ture se NE generišu ovdje - pokreću se odvojeno
 class ContentGenerationJob < ApplicationJob
-  queue_as :default
+  queue_as :ai_generation
 
   # Retry na privremene greške
   retry_on StandardError, wait: :polynomially_longer, attempts: 3

@@ -58,3 +58,4 @@ tailwindcss-*
 
 # Byebug history
 .byebug_history
+tmp/cache/bootsnap/

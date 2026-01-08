@@ -201,7 +201,7 @@ settings_data = [
   { key: "ai.request_timeout", value: "120", type: "integer", category: "ai", description: "Request timeout for AI calls in seconds" },
   { key: "experience.min_locations", value: "1", type: "integer", category: "ai", description: "Minimum locations required for experience generation" },
   { key: "experience.max_locations", value: "5", type: "integer", category: "ai", description: "Maximum locations per experience" },
-  { key: "location.max_tags", value: "5", type: "integer", category: "ai", description: "Maximum tags per location" },
+  { key: "location.max_tags", value: "10", type: "integer", category: "ai", description: "Maximum tags per location" },
 
   # Photo settings
   { key: "photo.download_timeout", value: "10", type: "integer", category: "photo", description: "Download timeout for photos in seconds" },

@@ -10,7 +10,7 @@ module Ai
     class CreationError < StandardError; end
 
     def initialize(max_experiences: nil)
-      @chat = RubyLLM.chat
+      # No longer using @chat directly - using OpenaiQueue for rate limiting
       @max_experiences = max_experiences # nil = unlimited
       @created_count = 0
     end
@@ -125,22 +125,30 @@ module Ai
 
     def ai_propose_local_experiences(locations, city)
       prompt = build_local_experiences_prompt(locations, city)
-      response = @chat.with_schema(experiences_proposal_schema).ask(prompt)
 
-      result = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
-      result[:experiences] || []
-    rescue StandardError => e
+      # Use OpenaiQueue for rate-limited requests
+      result = Ai::OpenaiQueue.request(
+        prompt: prompt,
+        schema: experiences_proposal_schema,
+        context: "ExperienceCreator:#{city}"
+      )
+      result&.dig(:experiences) || []
+    rescue Ai::OpenaiQueue::RequestError => e
       log_warn "AI proposal failed for #{city}: #{e.message}"
       []
     end
 
     def ai_propose_thematic_experiences(locations)
       prompt = build_thematic_experiences_prompt(locations)
-      response = @chat.with_schema(experiences_proposal_schema).ask(prompt)
 
-      result = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
-      result[:experiences] || []
-    rescue StandardError => e
+      # Use OpenaiQueue for rate-limited requests
+      result = Ai::OpenaiQueue.request(
+        prompt: prompt,
+        schema: experiences_proposal_schema,
+        context: "ExperienceCreator:thematic"
+      )
+      result&.dig(:experiences) || []
+    rescue Ai::OpenaiQueue::RequestError => e
       log_warn "AI thematic proposal failed: #{e.message}"
       []
     end

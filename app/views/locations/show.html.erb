@@ -413,6 +413,32 @@
               <span class="text-gray-600 dark:text-gray-400"><%= t("locations.show.type", default: "Tip") %></span>
               <span class="font-medium text-gray-900 dark:text-white"><%= t("locations.types.#{@location.location_type}") %></span>
             </div>
+
+            <%# Suitable Experiences %>
+            <% if @location.suitable_experiences.any? %>
+              <div class="pt-3 border-t border-gray-100 dark:border-gray-700">
+                <div class="flex flex-wrap gap-1.5">
+                  <% @location.suitable_experiences.each do |experience| %>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                      <%= t("experience_types.#{experience}", default: experience.titleize) %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+
+            <%# Tags %>
+            <% if @location.tags.any? %>
+              <div class="pt-3 border-t border-gray-100 dark:border-gray-700">
+                <div class="flex flex-wrap gap-1.5">
+                  <% @location.tags.each do |tag| %>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                      <%= tag %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
           </div>
         </div>
 

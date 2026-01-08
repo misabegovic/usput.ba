@@ -17,7 +17,7 @@ module Ai
     class CancellationError < StandardError; end
 
     def initialize(max_experiences: nil)
-      @chat = RubyLLM.chat
+      # No longer using @chat directly - using OpenaiQueue for rate limiting
       @geoapify = GeoapifyService.new
       @max_experiences = max_experiences
       @results = {
@@ -172,11 +172,15 @@ module Ai
     def analyze_and_plan
       current_state = gather_current_state
       prompt = build_reasoning_prompt(current_state)
-      response = @chat.with_schema(orchestration_plan_schema).ask(prompt)
 
-      # with_schema automatically parses JSON
-      response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
-    rescue StandardError => e
+      # Use OpenaiQueue for rate-limited requests
+      result = Ai::OpenaiQueue.request(
+        prompt: prompt,
+        schema: orchestration_plan_schema,
+        context: "ContentOrchestrator:reasoning"
+      )
+      result || create_fallback_plan(current_state)
+    rescue Ai::OpenaiQueue::RequestError => e
       log_error "AI reasoning failed: #{e.message}"
       # Fallback plan ako AI reasoning ne uspije
       create_fallback_plan(current_state)

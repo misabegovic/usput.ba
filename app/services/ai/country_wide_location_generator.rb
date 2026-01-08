@@ -69,7 +69,7 @@ module Ai
     LOCALES_PER_BATCH = 7
 
     def initialize(options = {})
-      @chat = RubyLLM.chat
+      # No longer using @chat directly - using OpenaiQueue for rate limiting
       @places_service = GeoapifyService.new
       @locations_created = []
       @experiences_created = []
@@ -497,9 +497,14 @@ module Ai
     def generate_country_experience_with_ai(category_data, locations, scope:, region: nil)
       prompt = build_country_experience_prompt(category_data, locations, scope, region)
 
-      response = @chat.with_schema(country_experience_schema).ask(prompt)
-      response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
-    rescue StandardError => e
+      # Use OpenaiQueue for rate-limited requests
+      result = Ai::OpenaiQueue.request(
+        prompt: prompt,
+        schema: country_experience_schema,
+        context: "CountryWideLocationGenerator:experience:#{scope}"
+      )
+      result || { titles: {}, descriptions: {}, location_ids: [] }
+    rescue Ai::OpenaiQueue::RequestError => e
       Rails.logger.warn "[AI::CountryWideLocationGenerator] AI experience generation failed: #{e.message}"
       { titles: {}, descriptions: {}, location_ids: [] }
     end
@@ -507,9 +512,14 @@ module Ai
     def generate_cross_region_experience_with_ai(theme, locations)
       prompt = build_cross_region_experience_prompt(theme, locations)
 
-      response = @chat.with_schema(country_experience_schema).ask(prompt)
-      response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
-    rescue StandardError => e
+      # Use OpenaiQueue for rate-limited requests
+      result = Ai::OpenaiQueue.request(
+        prompt: prompt,
+        schema: country_experience_schema,
+        context: "CountryWideLocationGenerator:cross_region:#{theme}"
+      )
+      result || { titles: {}, descriptions: {}, location_ids: [] }
+    rescue Ai::OpenaiQueue::RequestError => e
       Rails.logger.warn "[AI::CountryWideLocationGenerator] AI cross-region experience generation failed: #{e.message}"
       { titles: {}, descriptions: {}, location_ids: [] }
     end
@@ -731,11 +741,15 @@ module Ai
     def get_ai_location_suggestions(region_name, region_data)
       prompt = build_region_suggestions_prompt(region_name, region_data)
 
-      response = @chat.with_schema(location_suggestions_schema).ask(prompt)
-      suggestions = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
+      # Use OpenaiQueue for rate-limited requests
+      suggestions = Ai::OpenaiQueue.request(
+        prompt: prompt,
+        schema: location_suggestions_schema,
+        context: "CountryWideLocationGenerator:suggestions:#{region_name}"
+      )
 
-      suggestions[:locations] || []
-    rescue StandardError => e
+      suggestions&.dig(:locations) || []
+    rescue Ai::OpenaiQueue::RequestError => e
       Rails.logger.error "[AI::CountryWideLocationGenerator] AI suggestion failed: #{e.message}"
       []
     end
@@ -743,11 +757,15 @@ module Ai
     def get_ai_category_suggestions(category)
       prompt = build_category_suggestions_prompt(category)
 
-      response = @chat.with_schema(location_suggestions_schema).ask(prompt)
-      suggestions = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
+      # Use OpenaiQueue for rate-limited requests
+      suggestions = Ai::OpenaiQueue.request(
+        prompt: prompt,
+        schema: location_suggestions_schema,
+        context: "CountryWideLocationGenerator:category:#{category}"
+      )
 
-      suggestions[:locations] || []
-    rescue StandardError => e
+      suggestions&.dig(:locations) || []
+    rescue Ai::OpenaiQueue::RequestError => e
       Rails.logger.error "[AI::CountryWideLocationGenerator] AI category suggestion failed: #{e.message}"
       []
     end
@@ -755,11 +773,15 @@ module Ai
     def get_ai_hidden_gems(count)
       prompt = build_hidden_gems_prompt(count)
 
-      response = @chat.with_schema(location_suggestions_schema).ask(prompt)
-      suggestions = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
+      # Use OpenaiQueue for rate-limited requests
+      suggestions = Ai::OpenaiQueue.request(
+        prompt: prompt,
+        schema: location_suggestions_schema,
+        context: "CountryWideLocationGenerator:hidden_gems"
+      )
 
-      suggestions[:locations] || []
-    rescue StandardError => e
+      suggestions&.dig(:locations) || []
+    rescue Ai::OpenaiQueue::RequestError => e
       Rails.logger.error "[AI::CountryWideLocationGenerator] AI hidden gems failed: #{e.message}"
       []
     end
@@ -1267,10 +1289,14 @@ module Ai
         Rails.logger.info "[AI::CountryWideLocationGenerator] Processing locale batch #{batch_index + 1}/#{locale_batches.count} for #{suggestion[:name]}: #{batch_locales.join(', ')}"
 
         prompt = build_enrichment_prompt(suggestion, city_name, batch_locales)
-        response = @chat.with_schema(location_enrichment_schema(batch_locales)).ask(prompt)
-        next if response.nil?
 
-        batch_result = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
+        # Use OpenaiQueue for rate-limited requests
+        batch_result = Ai::OpenaiQueue.request(
+          prompt: prompt,
+          schema: location_enrichment_schema(batch_locales),
+          context: "CountryWideLocationGenerator:enrich:#{suggestion[:name]}"
+        )
+        next if batch_result.nil?
 
         # Merge batch results
         combined_result[:descriptions].merge!(batch_result[:descriptions] || {})
@@ -1278,7 +1304,7 @@ module Ai
       end
 
       combined_result
-    rescue StandardError => e
+    rescue Ai::OpenaiQueue::RequestError => e
       Rails.logger.warn "[AI::CountryWideLocationGenerator] AI enrichment failed: #{e.message}"
       { descriptions: {}, historical_context: {} }
     end

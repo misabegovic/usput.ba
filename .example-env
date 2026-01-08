@@ -1,0 +1,28 @@
+# Database
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+
+# Rails
+RAILS_MAX_THREADS=5
+RAILS_LOG_LEVEL=debug
+
+# AI/LLM APIs (add your keys here)
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+GEMINI_API_KEY=
+LLM_DEFAULT_MODEL=gpt-4o-mini
+
+# Geoapify (for location data)
+GEOAPIFY_API_KEY=
+
+# AWS S3 (only needed for production storage)
+# AWS_ACCESS_KEY_ID=
+# AWS_SECRET_ACCESS_KEY=
+# AWS_REGION=eu-central-1
+# AWS_BUCKET=
+
+# Error tracking (optional)
+# ROLLBAR_ACCESS_TOKEN=
+# ROLLBAR_ENV=development
