@@ -219,7 +219,7 @@ class RebuildExperiencesJob < ApplicationJob
     return false if locations.empty?
 
     # Determine what needs to be regenerated
-    needs_new_content = issues.any? { |i| [:missing_description, :short_description, :ekavica_violation, :missing_translation].include?(i[:type]) }
+    needs_new_content = issues.any? { |i| [:missing_description, :short_description, :ekavica_violation, :missing_translation, :multi_city_locations].include?(i[:type]) }
 
     if needs_new_content
       regenerate_experience_content(experience, locations, issues)
@@ -391,6 +391,23 @@ class RebuildExperiencesJob < ApplicationJob
 
     issue_descriptions = issues.map { |i| "- #{i[:message]}" }.join("\n")
 
+    # Check if this is a multi-city issue
+    multi_city_issue = issues.find { |i| i[:type] == :multi_city_locations }
+    multi_city_guidance = if multi_city_issue
+      cities = multi_city_issue[:cities] || locations.map(&:city).compact.uniq
+      <<~GUIDANCE
+
+        ⚠️ MULTI-CITY EXPERIENCE:
+        This experience currently has locations from multiple cities: #{cities.join(', ')}.
+        Create content that either:
+        - Frames this as a regional/multi-city experience connecting these places, OR
+        - Focuses on the thematic connection between these locations regardless of city
+        The title and description should make sense for ALL locations listed.
+      GUIDANCE
+    else
+      ""
+    end
+
     <<~PROMPT
       #{cultural_context}
 
@@ -408,7 +425,7 @@ class RebuildExperiencesJob < ApplicationJob
 
       QUALITY ISSUES TO FIX:
       #{issue_descriptions}
-
+      #{multi_city_guidance}
       REQUIREMENTS:
       1. Create NEW, high-quality titles and descriptions for all languages
       2. Titles should be evocative and specific to this experience, NOT generic

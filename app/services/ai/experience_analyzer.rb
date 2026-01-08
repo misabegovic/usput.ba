@@ -52,6 +52,9 @@ module Ai
       # Check for accommodation locations (shouldn't be in experiences)
       issues.concat(check_accommodation_locations(experience))
 
+      # Check for multi-city locations (experience should be regenerated if locations span multiple cities)
+      issues.concat(check_multi_city_locations(experience))
+
       # Check category assignment
       issues.concat(check_category(experience))
 
@@ -343,6 +346,28 @@ module Ai
       end
 
       false
+    end
+
+    # Check if experience has locations from multiple cities
+    # This can happen when locations are "fixed" (city corrected) by LocationCityFixJob
+    # If the experience is intended for a single city but now has multi-city locations,
+    # it should be regenerated to either focus on one city or become a proper multi-city experience
+    def check_multi_city_locations(experience)
+      issues = []
+
+      cities = experience.locations.map(&:city).compact.uniq
+      return issues if cities.count <= 1
+
+      # Experience has locations from multiple cities - this likely indicates stale/fixed locations
+      issues << {
+        type: :multi_city_locations,
+        severity: :high,
+        message: "Experience has locations from #{cities.count} different cities (#{cities.join(', ')}). May contain stale or corrected locations that need regeneration.",
+        cities: cities,
+        city_count: cities.count
+      }
+
+      issues
     end
 
     def check_category(experience)
