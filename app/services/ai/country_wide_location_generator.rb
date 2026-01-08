@@ -64,6 +64,10 @@ module Ai
       "accommodation" => 7 # Hotels and lodging - lowest priority
     }.freeze
 
+    # Maximum locales per batch to avoid token limit errors
+    # With 7 locales per batch, we stay under the 128K token limit
+    LOCALES_PER_BATCH = 7
+
     def initialize(options = {})
       @chat = RubyLLM.chat
       @places_service = GeoapifyService.new
@@ -1255,7 +1259,32 @@ module Ai
     def enrich_location_with_ai(suggestion, verified_city: nil)
       city_name = verified_city.presence || suggestion[:city_name] || "Bosnia and Herzegovina"
 
-      prompt = <<~PROMPT
+      # Process locales in batches to avoid token limit errors
+      locale_batches = supported_locales.each_slice(LOCALES_PER_BATCH).to_a
+      combined_result = { descriptions: {}, historical_context: {} }
+
+      locale_batches.each_with_index do |batch_locales, batch_index|
+        Rails.logger.info "[AI::CountryWideLocationGenerator] Processing locale batch #{batch_index + 1}/#{locale_batches.count} for #{suggestion[:name]}: #{batch_locales.join(', ')}"
+
+        prompt = build_enrichment_prompt(suggestion, city_name, batch_locales)
+        response = @chat.with_schema(location_enrichment_schema(batch_locales)).ask(prompt)
+        next if response.nil?
+
+        batch_result = response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
+
+        # Merge batch results
+        combined_result[:descriptions].merge!(batch_result[:descriptions] || {})
+        combined_result[:historical_context].merge!(batch_result[:historical_context] || {})
+      end
+
+      combined_result
+    rescue StandardError => e
+      Rails.logger.warn "[AI::CountryWideLocationGenerator] AI enrichment failed: #{e.message}"
+      { descriptions: {}, historical_context: {} }
+    end
+
+    def build_enrichment_prompt(suggestion, city_name, locales)
+      <<~PROMPT
         #{BIH_CULTURAL_CONTEXT}
 
         ---
@@ -1271,7 +1300,7 @@ module Ai
         #{suggestion[:insider_tip] ? "- Insider tip: #{suggestion[:insider_tip]}" : ""}
 
         Provide a JSON response with:
-        1. descriptions: Object with localized descriptions (1-2 paragraphs, 100-200 words) for these languages: #{supported_locales.join(", ")}
+        1. descriptions: Object with localized descriptions (1-2 paragraphs, 100-200 words) for these languages: #{locales.join(", ")}
         2. historical_context: Object with localized historical/cultural context (2-4 paragraphs, 200-400 words for audio narration) for the same languages
 
         IMPORTANT FOR DESCRIPTIONS (1-2 paragraphs, 100-200 words):
@@ -1305,19 +1334,15 @@ module Ai
           }
         }
       PROMPT
-
-      response = @chat.with_schema(location_enrichment_schema).ask(prompt)
-      response.content.is_a?(Hash) ? response.content.deep_symbolize_keys : parse_ai_json_response(response.content)
-    rescue StandardError => e
-      Rails.logger.warn "[AI::CountryWideLocationGenerator] AI enrichment failed: #{e.message}"
-      { descriptions: {}, historical_context: {} }
     end
 
     # JSON Schema for location enrichment content
     # Note: OpenAI structured output requires additionalProperties: false at all levels
     # and all properties must be listed in required array
-    def location_enrichment_schema
-      locale_properties = supported_locales.to_h { |loc| [loc, { type: "string" }] }
+    # @param locales [Array<String>] List of locale codes to include in schema (defaults to all)
+    def location_enrichment_schema(locales = nil)
+      locales ||= supported_locales
+      locale_properties = locales.to_h { |loc| [loc, { type: "string" }] }
 
       {
         type: "object",
@@ -1325,14 +1350,14 @@ module Ai
           descriptions: {
             type: "object",
             properties: locale_properties,
-            required: supported_locales,
+            required: locales,
             additionalProperties: false,
             description: "Localized descriptions keyed by locale code"
           },
           historical_context: {
             type: "object",
             properties: locale_properties,
-            required: supported_locales,
+            required: locales,
             additionalProperties: false,
             description: "Localized historical context for audio narration"
           }
