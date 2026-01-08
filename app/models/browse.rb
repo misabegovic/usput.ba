@@ -41,9 +41,38 @@ class Browse < ApplicationRecord
   }
 
   # Filter by city name
+  # For locations: checks the city_name column directly
+  # For experiences: finds experiences that have ANY location in the specified city
+  # For plans: checks the city_name column (plan's primary city)
   scope :by_city_name, ->(city_name) {
     return all if city_name.blank?
-    where(city_name: city_name)
+
+    # Find experience IDs that have any location in the specified city
+    experience_ids_in_city = ExperienceLocation
+      .joins(:location)
+      .where(locations: { city: city_name })
+      .pluck(:experience_id)
+      .uniq
+
+    # Build conditions: locations and plans by city_name column, experiences by location join
+    conditions = []
+    values = []
+
+    # Locations directly in the city
+    conditions << "(browsable_type = 'Location' AND city_name = ?)"
+    values << city_name
+
+    # Plans in the city
+    conditions << "(browsable_type = 'Plan' AND city_name = ?)"
+    values << city_name
+
+    # Experiences with ANY location in the city
+    if experience_ids_in_city.any?
+      conditions << "(browsable_type = 'Experience' AND browsable_id IN (?))"
+      values << experience_ids_in_city
+    end
+
+    where(conditions.join(" OR "), *values)
   }
 
   # Filter by minimum rating
