@@ -4,10 +4,14 @@ module Ai
   # Kreira Plan-ove za različite profile turista
   # Koristi SVE dostupne Experience-e iz baze (ne samo nove)
   # Jedan Experience može biti u više Plan-ova
+  # Checks for similarity with existing plans before creating new ones
   class PlanCreator
     include Concerns::ErrorReporting
 
     class CreationError < StandardError; end
+
+    # Similarity threshold - plans with title similarity above this are considered duplicates
+    TITLE_SIMILARITY_THRESHOLD = 0.75
 
     # Podržani profili turista
     TOURIST_PROFILES = {
@@ -51,6 +55,7 @@ module Ai
 
     def initialize
       # No longer using @chat directly - using OpenaiQueue for rate limiting
+      @existing_plans_cache = nil
     end
 
     # Kreira Plan za specifičan profil i grad
@@ -71,6 +76,13 @@ module Ai
       # AI predlaže strukturu plana
       proposal = ai_propose_plan(experiences, profile, profile_data, city, duration_days)
       return nil if proposal.blank?
+
+      # Check if a similar plan already exists (by title or profile+city combination)
+      proposed_title = proposal.dig(:titles, :en) || proposal.dig(:titles, "en") || ""
+      if too_similar_to_existing?(proposed_title, profile, city)
+        log_info "Skipping plan '#{proposed_title}' - too similar to existing plan"
+        return nil
+      end
 
       # Kreiraj Plan
       create_plan_from_proposal(proposal, experiences, profile, city)
@@ -333,6 +345,9 @@ module Ai
       # Dodaj Experience-e po danima
       add_experiences_to_plan(plan, proposal[:days], experiences)
 
+      # Refresh the cache so subsequent proposals check against this new plan
+      refresh_existing_plans_cache!
+
       log_info "Created plan: #{plan.title} (#{plan.plan_experiences.count} experiences, #{duration_days} days)"
       plan
     rescue StandardError => e
@@ -563,6 +578,98 @@ module Ai
       # Otherwise, this quote is likely embedded in text content
       # Look for patterns that suggest continuation of text
       remaining.match?(/\A[a-zA-Z0-9\s,.'!?;:\-]/m)
+    end
+
+    # Check if the proposed plan is too similar to any existing plan
+    # Considers: 1) Title similarity 2) Same profile + city combination
+    def too_similar_to_existing?(proposed_title, profile, city)
+      existing_plans.any? do |existing|
+        # Check 1: Same profile + city = definite duplicate
+        if profile.to_s.downcase == existing[:profile].to_s.downcase &&
+           city.to_s.downcase == existing[:city].to_s.downcase
+          log_info "Found existing plan with same profile '#{profile}' and city '#{city}'"
+          return true
+        end
+
+        # Check 2: Title similarity
+        similarity = calculate_title_similarity(proposed_title, existing)
+        if similarity >= TITLE_SIMILARITY_THRESHOLD
+          log_info "Found similar plan: '#{existing[:title]}' (#{(similarity * 100).round}% similar to '#{proposed_title}')"
+          return true
+        end
+      end
+      false
+    end
+
+    # Calculate title similarity between proposed and existing plan
+    # Uses word-based Jaccard similarity for efficiency
+    def calculate_title_similarity(proposed_title, existing_plan)
+      # Compare against all language versions of the existing title
+      existing_titles = [
+        existing_plan[:title],
+        existing_plan[:title_en],
+        existing_plan[:title_bs]
+      ].compact.map { |t| t.to_s.downcase }
+
+      proposed_normalized = proposed_title.to_s.downcase
+
+      # Find the highest similarity across all title versions
+      existing_titles.map do |existing_title|
+        word_similarity(proposed_normalized, existing_title)
+      end.max || 0.0
+    end
+
+    # Word-based Jaccard similarity
+    def word_similarity(str1, str2)
+      return 1.0 if str1 == str2
+      return 0.0 if str1.blank? || str2.blank?
+
+      # Normalize and tokenize
+      words1 = normalize_for_comparison(str1).split(/\s+/).to_set
+      words2 = normalize_for_comparison(str2).split(/\s+/).to_set
+
+      return 0.0 if words1.empty? && words2.empty?
+
+      intersection = (words1 & words2).size
+      union = (words1 | words2).size
+
+      union.zero? ? 0.0 : (intersection.to_f / union)
+    end
+
+    # Normalize text for comparison - remove common words and punctuation
+    def normalize_for_comparison(text)
+      # Remove punctuation and common stop words
+      stop_words = %w[the a an of in to for and or but with by at on from kroz sa i u na po za od do]
+      text.to_s
+          .downcase
+          .gsub(/[^\p{L}\p{N}\s]/u, " ") # Keep letters, numbers, spaces (Unicode aware)
+          .split(/\s+/)
+          .reject { |w| stop_words.include?(w) || w.length < 2 }
+          .join(" ")
+    end
+
+    # Cache of existing plans for similarity checking
+    def existing_plans
+      @existing_plans_cache ||= load_existing_plans
+    end
+
+    # Load existing plans with their titles in multiple languages, profile, and city
+    def load_existing_plans
+      Plan.where(user_id: nil).includes(:translations).map do |plan|
+        {
+          id: plan.id,
+          title: plan.title,
+          title_en: plan.translation_for(:title, :en),
+          title_bs: plan.translation_for(:title, :bs),
+          profile: plan.preferences&.dig("tourist_profile"),
+          city: plan.city_name
+        }
+      end
+    end
+
+    # Refresh the cache (useful when creating multiple plans in sequence)
+    def refresh_existing_plans_cache!
+      @existing_plans_cache = load_existing_plans
     end
 
   end

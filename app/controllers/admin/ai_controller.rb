@@ -12,6 +12,7 @@ module Admin
       @fix_cities_status = LocationCityFixJob.current_status
       @experience_type_sync_status = ExperienceTypeSyncJob.current_status
       @rebuild_experiences_status = RebuildExperiencesJob.current_status
+      @rebuild_plans_status = RebuildPlansJob.current_status
       @last_generation = parse_last_generation
 
       # Paginate cities for the table
@@ -214,6 +215,55 @@ module Admin
     def force_reset_rebuild_experiences
       RebuildExperiencesJob.force_reset!
       redirect_to admin_ai_path, notice: t("admin.ai.rebuild_experiences_force_reset", default: "Experience rebuild has been force reset. You can now start a new run.")
+    end
+
+    # POST /admin/ai/rebuild_plans
+    # Analyzes and rebuilds plans with quality issues or high similarity
+    def rebuild_plans
+      current_status = RebuildPlansJob.current_status
+      if current_status[:status] == "in_progress"
+        redirect_to admin_ai_path, alert: t("admin.ai.rebuild_plans_already_in_progress", default: "Plan rebuild is already in progress")
+        return
+      end
+
+      dry_run = params[:dry_run] == "1"
+      rebuild_mode = params[:rebuild_mode].presence || "all"
+      max_rebuilds = params[:max_rebuilds].presence&.to_i
+      delete_similar = params[:delete_similar] == "1"
+
+      RebuildPlansJob.clear_status!
+      RebuildPlansJob.perform_later(
+        dry_run: dry_run,
+        rebuild_mode: rebuild_mode,
+        max_rebuilds: max_rebuilds,
+        delete_similar: delete_similar
+      )
+
+      notice_msg = if dry_run
+        t("admin.ai.rebuild_plans_preview_started", default: "Plan analysis started (preview mode - no changes will be made)")
+      else
+        t("admin.ai.rebuild_plans_started", default: "Plan rebuild started")
+      end
+
+      redirect_to admin_ai_path, notice: notice_msg
+    end
+
+    # GET /admin/ai/rebuild_plans_status (AJAX)
+    # Returns current status of rebuild plans job
+    def rebuild_plans_status
+      @rebuild_status = RebuildPlansJob.current_status
+
+      respond_to do |format|
+        format.json { render json: @rebuild_status }
+        format.html { render partial: "rebuild_plans_status", locals: { status: @rebuild_status } }
+      end
+    end
+
+    # POST /admin/ai/force_reset_rebuild_plans
+    # Force resets a stuck or in-progress rebuild plans job
+    def force_reset_rebuild_plans
+      RebuildPlansJob.force_reset!
+      redirect_to admin_ai_path, notice: t("admin.ai.rebuild_plans_force_reset", default: "Plan rebuild has been force reset. You can now start a new run.")
     end
 
     private
