@@ -17,17 +17,20 @@ module Ai
   # To disable strict mode (not recommended):
   #   generator = Ai::CountryWideLocationGenerator.new(strict_mode: false)
   #
-  # == Review Queue
+  # == Skipped Locations
   #
-  # When strict mode is enabled, locations that fail validation are added to
-  # a review queue instead of being created with potentially incorrect data.
-  # The summary includes details about queued locations:
-  #   result[:locations_queued_for_review]  # Count of queued locations
-  #   result[:review_queue]                 # Array of queued location details
-  #   result[:review_queue_by_reason]       # Breakdown by failure reason
+  # When strict mode is enabled, locations that fail validation are skipped
+  # instead of being created with potentially incorrect data. No manual review
+  # is required - the generator automatically retries geocoding with exponential
+  # backoff before giving up.
   #
-  # Common failure reasons:
-  # - geocoding_failed: Reverse geocoding couldn't determine the city
+  # The summary includes details about skipped locations:
+  #   result[:locations_skipped]        # Count of skipped locations
+  #   result[:skipped_locations]        # Array of skipped location details
+  #   result[:skipped_by_reason]        # Breakdown by failure reason
+  #
+  # Common skip reasons:
+  # - geocoding_failed: Reverse geocoding couldn't determine the city (after retries)
   # - coordinates_outside_bih: Coordinates are outside Bosnia and Herzegovina
   # - missing_coordinates: AI didn't provide valid coordinates
   # - missing_name: AI didn't provide a location name
@@ -99,7 +102,7 @@ module Ai
       @places_service = GeoapifyService.new
       @locations_created = []
       @experiences_created = []
-      @locations_queued_for_review = []
+      @locations_skipped = []
       @options = {
         generate_audio: options.fetch(:generate_audio, false),
         audio_locale: options.fetch(:audio_locale, "bs"),
@@ -997,8 +1000,8 @@ module Ai
 
       unless validation[:valid]
         if @options[:strict_mode]
-          # In strict mode, queue invalid suggestions for review instead of creating them
-          queue_for_review(suggestion, reason: validation[:reason], details: validation)
+          # In strict mode, skip invalid suggestions instead of creating them with bad data
+          skip_location(suggestion, reason: validation[:reason], details: validation)
           return
         else
           # In non-strict mode, log warning but continue (legacy behavior)
@@ -1097,28 +1100,26 @@ module Ai
       normalize.call(city1) == normalize.call(city2)
     end
 
-    # Queue a location suggestion for manual review instead of creating it
-    # Used when we can't verify the city name with confidence
+    # Skip a location that failed validation
+    # Used when we can't verify the city name after all retry attempts
     # @param suggestion [Hash] AI-generated location suggestion
-    # @param reason [String] Why this location needs review
-    # @param details [Hash] Additional context for the review
-    def queue_for_review(suggestion, reason:, details: {})
-      review_entry = {
+    # @param reason [String] Why this location was skipped
+    # @param details [Hash] Additional context
+    def skip_location(suggestion, reason:, details: {})
+      skip_entry = {
         name: suggestion[:name],
         lat: suggestion[:lat],
         lng: suggestion[:lng],
         ai_city: suggestion[:city_name],
         reason: reason,
-        details: details,
-        queued_at: Time.current
+        skipped_at: Time.current
       }
 
-      @locations_queued_for_review << review_entry
+      @locations_skipped << skip_entry
 
-      Rails.logger.warn "[AI::CountryWideLocationGenerator] Queued for review: #{suggestion[:name]} - #{reason}"
-      Rails.logger.warn "  AI suggested city: #{suggestion[:city_name]}"
-      Rails.logger.warn "  Coordinates: #{suggestion[:lat]}, #{suggestion[:lng]}"
-      Rails.logger.warn "  Details: #{details.inspect}" if details.present?
+      Rails.logger.info "[AI::CountryWideLocationGenerator] Skipped: #{suggestion[:name]} - #{reason}"
+      Rails.logger.debug "  AI suggested city: #{suggestion[:city_name]}"
+      Rails.logger.debug "  Coordinates: #{suggestion[:lat]}, #{suggestion[:lng]}"
     end
 
     # Known coordinate overrides for areas where geocoding services return incorrect data
@@ -1129,11 +1130,16 @@ module Ai
       # Add more overrides here as needed
     ].freeze
 
+    # Maximum retry attempts for geocoding
+    GEOCODING_MAX_RETRIES = 3
+    GEOCODING_RETRY_DELAYS = [2, 4, 8].freeze # Exponential backoff in seconds
+
     # Use reverse geocoding to get the actual city name from coordinates
     # This corrects AI-suggested city names that may be incorrect
+    # Includes automatic retry with exponential backoff
     # @param lat [Float] Latitude
     # @param lng [Float] Longitude
-    # @return [String, nil] City name or nil if geocoding fails
+    # @return [String, nil] City name or nil if geocoding fails after all retries
     def get_city_from_coordinates(lat, lng)
       return nil if lat.blank? || lng.blank?
 
@@ -1147,12 +1153,26 @@ module Ai
         return override_city
       end
 
-      # Try Geoapify first (more reliable for Balkan regions)
-      city_name = get_city_from_geoapify(lat_f, lng_f)
-      return city_name if city_name.present?
+      # Try geocoding with retries
+      GEOCODING_MAX_RETRIES.times do |attempt|
+        # Try Geoapify first (more reliable for Balkan regions)
+        city_name = get_city_from_geoapify(lat_f, lng_f)
+        return city_name if city_name.present?
 
-      # Fallback to Nominatim via Geocoder gem
-      get_city_from_nominatim(lat_f, lng_f)
+        # Fallback to Nominatim via Geocoder gem
+        city_name = get_city_from_nominatim(lat_f, lng_f)
+        return city_name if city_name.present?
+
+        # If both failed, retry with exponential backoff (unless last attempt)
+        if attempt < GEOCODING_MAX_RETRIES - 1
+          delay = GEOCODING_RETRY_DELAYS[attempt] || GEOCODING_RETRY_DELAYS.last
+          Rails.logger.info "[AI::CountryWideLocationGenerator] Geocoding failed for #{lat}, #{lng}. Retrying in #{delay}s (attempt #{attempt + 2}/#{GEOCODING_MAX_RETRIES})"
+          sleep(delay)
+        end
+      end
+
+      Rails.logger.warn "[AI::CountryWideLocationGenerator] Geocoding failed for #{lat}, #{lng} after #{GEOCODING_MAX_RETRIES} attempts"
+      nil
     end
 
     # Check if coordinates fall within a known problematic area with manual override
@@ -1330,7 +1350,7 @@ module Ai
           # This shouldn't happen if process_ai_suggestion is working correctly,
           # but guard against it anyway
           Rails.logger.error "[AI::CountryWideLocationGenerator] Strict mode: Cannot create location without verified city: #{suggestion[:name]}"
-          queue_for_review(suggestion, reason: "no_verified_city_in_strict_mode")
+          skip_location(suggestion, reason: "no_verified_city_in_strict_mode")
           return nil
         end
         city_name = verified_city
@@ -1679,15 +1699,15 @@ module Ai
     def build_summary
       summary = {
         locations_created: @locations_created.count,
+        locations_skipped: @locations_skipped.count,
         experiences_created: @experiences_created.count,
-        locations_queued_for_review: @locations_queued_for_review.count,
         locations: @locations_created.map { |l| { id: l.id, name: l.name, city: l.city } },
         experiences: @experiences_created.map { |e| { id: e.id, title: e.title } }
       }
 
-      # Include queued locations details if any exist
-      if @locations_queued_for_review.any?
-        summary[:review_queue] = @locations_queued_for_review.map do |entry|
+      # Include skipped locations details if any exist (for logging/debugging)
+      if @locations_skipped.any?
+        summary[:skipped_locations] = @locations_skipped.map do |entry|
           {
             name: entry[:name],
             ai_city: entry[:ai_city],
@@ -1697,7 +1717,7 @@ module Ai
         end
 
         # Group by reason for easier analysis
-        summary[:review_queue_by_reason] = @locations_queued_for_review
+        summary[:skipped_by_reason] = @locations_skipped
           .group_by { |e| e[:reason] }
           .transform_values(&:count)
       end
