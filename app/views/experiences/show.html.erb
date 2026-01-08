@@ -322,16 +322,16 @@
       <%# Sidebar %>
       <div class="space-y-6">
         <%# Quick Info %>
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
           <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><%= t("experiences.show.info", default: "Informacije") %></h3>
           <div class="space-y-4">
             <% if @experience.formatted_duration %>
-              <div class="flex items-center justify-between">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0">
                 <span class="text-gray-600 dark:text-gray-400"><%= t("experiences.show.duration", default: "Trajanje") %></span>
                 <span class="font-medium text-gray-900 dark:text-white"><%= @experience.formatted_duration %></span>
               </div>
             <% end %>
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0">
               <span class="text-gray-600 dark:text-gray-400"><%= t("experiences.show.locations_count", default: "Broj lokacija") %></span>
               <span class="font-medium text-gray-900 dark:text-white"><%= @experience.locations_count %></span>
             </div>
@@ -340,7 +340,7 @@
 
         <%# Contact Information %>
         <% if @experience.has_contact_info? %>
-          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
               <svg class="w-5 h-5 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
@@ -392,7 +392,7 @@
 
         <%# Nearby Experiences %>
         <% if @nearby_experiences.any? %>
-          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><%= t("experiences.show.nearby_experiences", default: "Iskustva u blizini") %></h3>
             <div class="space-y-4">
               <% @nearby_experiences.each do |nearby| %>
@@ -437,7 +437,7 @@
 
         <%# Related Plans %>
         <% if @related_plans.any? %>
-          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
               <div class="flex items-center">
                 <svg class="w-5 h-5 mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -485,7 +485,7 @@
         <% end %>
 
         <%# CTA - Add to Plan %>
-        <div class="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl p-6 text-white text-center"
+        <div class="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl p-4 sm:p-6 text-white text-center"
              data-controller="add-to-plan"
              data-add-to-plan-experience-id-value="<%= @experience.uuid %>"
              data-add-to-plan-experience-title-value="<%= @experience.translate(:title, I18n.locale) %>"
