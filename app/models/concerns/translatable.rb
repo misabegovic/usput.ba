@@ -75,8 +75,9 @@ module Translatable
     send(field) if respond_to?(field)
   end
 
-  # Alias for translate
+  # Aliases for translate
   alias_method :t, :translate
+  alias_method :translation_for, :translate
 
   # Set translation for a field
   #
