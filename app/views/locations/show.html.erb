@@ -578,7 +578,7 @@
             <div class="space-y-4">
               <% @related_experiences.first(3).each do |experience| %>
                 <%= link_to experience_path(experience), class: "block group" do %>
-                  <div class="flex items-start space-x-3">
+                  <div class="flex items-start space-x-3 min-w-0 overflow-hidden">
                     <% if experience.cover_photo.attached? %>
                       <%= image_tag experience.cover_photo, class: "w-16 h-16 rounded-lg object-cover flex-shrink-0", alt: experience.title %>
                     <% else %>
@@ -589,7 +589,7 @@
                       </div>
                     <% end %>
                     <div class="flex-1 min-w-0">
-                      <p class="font-medium text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate">
+                      <p class="font-medium text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate break-words">
                         <%= experience.title %>
                       </p>
                       <div class="flex items-center mt-1">
@@ -597,7 +597,7 @@
                         <span class="ml-1 text-xs text-gray-500 dark:text-gray-400"><%= number_with_precision(experience.average_rating || 0, precision: 1) %></span>
                       </div>
                       <% if experience.experience_category %>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"><%= experience.experience_category.name %></p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate"><%= experience.experience_category.name %></p>
                       <% end %>
                     </div>
                   </div>
