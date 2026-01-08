@@ -127,6 +127,16 @@ Rails.application.routes.draw do
     get "ai/sync_experience_types_status", to: "ai#sync_experience_types_status", as: :sync_experience_types_status_admin_ai
     post "ai/force_reset_experience_type_sync", to: "ai#force_reset_experience_type_sync", as: :force_reset_experience_type_sync_admin_ai
 
+    # Rebuild Experiences (analyze and regenerate low-quality or similar experiences)
+    post "ai/rebuild_experiences", to: "ai#rebuild_experiences", as: :rebuild_experiences_admin_ai
+    get "ai/rebuild_experiences_status", to: "ai#rebuild_experiences_status", as: :rebuild_experiences_status_admin_ai
+    post "ai/force_reset_rebuild_experiences", to: "ai#force_reset_rebuild_experiences", as: :force_reset_rebuild_experiences_admin_ai
+
+    # Rebuild Plans (analyze and regenerate low-quality or similar plans)
+    post "ai/rebuild_plans", to: "ai#rebuild_plans", as: :rebuild_plans_admin_ai
+    get "ai/rebuild_plans_status", to: "ai#rebuild_plans_status", as: :rebuild_plans_status_admin_ai
+    post "ai/force_reset_rebuild_plans", to: "ai#force_reset_rebuild_plans", as: :force_reset_rebuild_plans_admin_ai
+
     # Audio Tours Generator (odvojeno od glavnog AI generatora)
     get "ai/audio_tours", to: "ai/audio_tours#index", as: :ai_audio_tours
     post "ai/audio_tours/generate", to: "ai/audio_tours#generate", as: :generate_admin_ai_audio_tours

@@ -4,15 +4,22 @@ module Ai
   # Kreira Experience-e od postojećih lokacija
   # Može kreirati lokalne (unutar grada) i tematske (cross-city) Experience-e
   # Poštuje max_experiences limit za kontrolu broja kreiranih Experience-a
+  # Checks for similarity with existing experiences before creating new ones
   class ExperienceCreator
     include Concerns::ErrorReporting
 
     class CreationError < StandardError; end
 
+    # Similarity threshold - experiences with title similarity above this are considered duplicates
+    # Note: Location overlap is intentionally NOT penalized since the same location can offer
+    # multiple different experiences depending on context/theme
+    TITLE_SIMILARITY_THRESHOLD = 0.75
+
     def initialize(max_experiences: nil)
       # No longer using @chat directly - using OpenaiQueue for rate limiting
       @max_experiences = max_experiences # nil = unlimited
       @created_count = 0
+      @existing_experiences_cache = nil
     end
 
     # Kreira lokalne Experience-e za grad (lokacije samo iz tog grada)
@@ -88,6 +95,13 @@ module Ai
 
       return nil if locations.count < min_locations_per_experience
 
+      # Check if a similar experience already exists (by title/theme, not locations)
+      proposed_title = extract_initial_title(proposal)
+      if too_similar_to_existing?(proposed_title, proposal)
+        log_info "Skipping experience '#{proposed_title}' - too similar to existing experience"
+        return nil
+      end
+
       # Pronađi kategoriju ako je specificirana
       category = find_or_create_category(proposal[:category_key])
 
@@ -111,6 +125,9 @@ module Ai
 
         # Pokušaj dodati cover photo
         attach_cover_photo(experience, locations)
+
+        # Refresh the cache so subsequent proposals check against this new experience
+        refresh_existing_experiences_cache!
 
         log_info "Created experience: #{experience.title} with #{locations.count} locations"
         experience
@@ -547,6 +564,91 @@ module Ai
       # Otherwise, this quote is likely embedded in text content
       # Look for patterns that suggest continuation of text
       remaining.match?(/\A[a-zA-Z0-9\s,.'!?;:\-]/m)
+    end
+
+    # Check if the proposed experience is too similar to any existing experience
+    # Note: We intentionally do NOT check location overlap - the same location can
+    # offer multiple different experiences (e.g., a mosque can be part of both
+    # "Ottoman Heritage" and "Architectural Wonders" experiences)
+    def too_similar_to_existing?(proposed_title, proposal)
+      existing_experiences.any? do |existing|
+        similarity = calculate_title_similarity(proposed_title, existing)
+        if similarity >= TITLE_SIMILARITY_THRESHOLD
+          log_info "Found similar experience: '#{existing[:title]}' (#{(similarity * 100).round}% similar to '#{proposed_title}')"
+          true
+        else
+          false
+        end
+      end
+    end
+
+    # Calculate title similarity between proposed and existing experience
+    # Uses word-based Jaccard similarity for efficiency
+    def calculate_title_similarity(proposed_title, existing_exp)
+      # Compare against all language versions of the existing title
+      existing_titles = [
+        existing_exp[:title],
+        existing_exp[:title_en],
+        existing_exp[:title_bs]
+      ].compact.map { |t| t.to_s.downcase }
+
+      proposed_normalized = proposed_title.to_s.downcase
+
+      # Find the highest similarity across all title versions
+      existing_titles.map do |existing_title|
+        word_similarity(proposed_normalized, existing_title)
+      end.max || 0.0
+    end
+
+    # Word-based Jaccard similarity
+    def word_similarity(str1, str2)
+      return 1.0 if str1 == str2
+      return 0.0 if str1.blank? || str2.blank?
+
+      # Normalize and tokenize
+      words1 = normalize_for_comparison(str1).split(/\s+/).to_set
+      words2 = normalize_for_comparison(str2).split(/\s+/).to_set
+
+      return 0.0 if words1.empty? && words2.empty?
+
+      intersection = (words1 & words2).size
+      union = (words1 | words2).size
+
+      union.zero? ? 0.0 : (intersection.to_f / union)
+    end
+
+    # Normalize text for comparison - remove common words and punctuation
+    def normalize_for_comparison(text)
+      # Remove punctuation and common stop words
+      stop_words = %w[the a an of in to for and or but with by at on from kroz kroz sa i u na po za od do]
+      text.to_s
+          .downcase
+          .gsub(/[^\p{L}\p{N}\s]/u, " ") # Keep letters, numbers, spaces (Unicode aware)
+          .split(/\s+/)
+          .reject { |w| stop_words.include?(w) || w.length < 2 }
+          .join(" ")
+    end
+
+    # Cache of existing experiences for similarity checking
+    def existing_experiences
+      @existing_experiences_cache ||= load_existing_experiences
+    end
+
+    # Load existing experiences with their titles in multiple languages
+    def load_existing_experiences
+      Experience.includes(:translations).map do |exp|
+        {
+          id: exp.id,
+          title: exp.title,
+          title_en: exp.translation_for(:title, :en),
+          title_bs: exp.translation_for(:title, :bs)
+        }
+      end
+    end
+
+    # Refresh the cache (useful when creating multiple experiences in sequence)
+    def refresh_existing_experiences_cache!
+      @existing_experiences_cache = load_existing_experiences
     end
 
   end
