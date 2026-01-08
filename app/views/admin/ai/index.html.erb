@@ -213,6 +213,94 @@
     </div>
   </div>
 
+  <!-- Rebuild Experiences Card -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <div class="max-w-2xl mx-auto">
+      <h2 class="text-lg font-semibold text-gray-900 mb-2 text-center">Rebuild Experiences</h2>
+
+      <p class="text-gray-600 mb-4 text-center text-sm">
+        Analyze experiences for quality issues and similarity, then regenerate content as needed.
+      </p>
+
+      <!-- Rebuild Status -->
+      <div class="mb-4">
+        <%= render partial: "rebuild_experiences_status", locals: { status: @rebuild_experiences_status } %>
+      </div>
+
+      <ul class="text-left text-gray-600 mb-6 space-y-2 max-w-md mx-auto text-sm">
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-rose-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>Checks description quality, translation completeness, and ijekavica usage</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-rose-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+          </svg>
+          <span>Detects experiences with too similar titles or overlapping locations</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-rose-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          <span>Regenerates low-quality content using AI with proper cultural context</span>
+        </li>
+      </ul>
+
+      <%= form_with url: admin_rebuild_experiences_admin_ai_path, method: :post, class: "space-y-4" do |f| %>
+        <div class="flex flex-col items-center gap-4">
+          <div class="flex flex-wrap items-center justify-center gap-4">
+            <div class="flex items-center gap-2">
+              <label for="rebuild_mode" class="text-sm text-gray-600">Mode:</label>
+              <select name="rebuild_mode" id="rebuild_mode" class="rounded-md border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 text-sm">
+                <option value="all">All issues</option>
+                <option value="quality">Quality issues only</option>
+                <option value="similar">Similar experiences only</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label for="max_rebuilds" class="text-sm text-gray-600">Max rebuilds:</label>
+              <select name="max_rebuilds" id="max_rebuilds" class="rounded-md border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 text-sm">
+                <option value="">Unlimited</option>
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-center gap-4">
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="dry_run" value="1" class="rounded border-gray-300 text-gray-600 focus:ring-gray-500" checked>
+              <span>Preview only (no changes)</span>
+            </label>
+
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="delete_similar" value="1" class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+              <span class="text-red-600">Delete duplicate experiences</span>
+            </label>
+          </div>
+
+          <button type="submit"
+                  class="inline-flex items-center gap-2 px-6 py-3 bg-rose-600 text-white font-medium rounded-lg hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  <%= "disabled" if @rebuild_experiences_status[:status] == "in_progress" %>>
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Analyze & Rebuild Experiences
+          </button>
+        </div>
+      <% end %>
+
+      <p class="text-xs text-gray-400 mt-4 text-center">
+        Tip: Run in preview mode first to see what will be changed before making actual modifications.
+      </p>
+    </div>
+  </div>
+
   <!-- Current State Stats -->
   <div class="bg-white shadow rounded-lg overflow-hidden">
     <h2 class="text-lg font-semibold p-4 sm:p-6 border-b text-gray-900">Current Content State</h2>
