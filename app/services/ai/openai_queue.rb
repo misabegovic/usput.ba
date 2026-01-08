@@ -9,6 +9,10 @@ module Ai
   # - Uses exponential backoff (configured in config/initializers/ruby_llm.rb)
   # - Also retries on 500, 502, 503, 504, 529 and network errors
   #
+  # Additional retry logic is implemented for gateway errors (502, 503, 504)
+  # that come through as HTML content from CDNs like Cloudflare, which the
+  # Faraday middleware doesn't catch.
+  #
   # Usage:
   #   result = Ai::OpenaiQueue.request(
   #     prompt: "Your prompt",
@@ -20,6 +24,20 @@ module Ai
 
     class RequestError < StandardError; end
     class RateLimitError < RequestError; end
+    class GatewayError < RequestError; end
+
+    # Gateway error patterns in HTML responses from CDNs like Cloudflare
+    GATEWAY_ERROR_PATTERNS = [
+      /502\s*Bad\s*Gateway/i,
+      /503\s*Service\s*(Temporarily\s*)?Unavailable/i,
+      /504\s*Gateway\s*Time[- ]?out/i,
+      /<title>[^<]*(?:502|503|504)[^<]*<\/title>/i,
+      /cloudflare/i
+    ].freeze
+
+    # Retry configuration for gateway errors
+    GATEWAY_RETRY_ATTEMPTS = 3
+    GATEWAY_RETRY_BASE_DELAY = 5 # seconds
 
     class << self
       # Synchronous request with automatic rate limiting (via RubyLLM)
@@ -49,24 +67,56 @@ module Ai
     end
 
     # Execute a request - RubyLLM handles retries internally
+    # Additional retry logic for gateway errors from CDNs
     def execute_request(prompt:, schema: nil, context: "OpenaiQueue")
-      response = if schema
-        @chat.with_schema(schema).ask(prompt)
-      else
-        @chat.ask(prompt)
-      end
+      attempt = 0
 
-      parse_response(response, schema)
-    rescue RubyLLM::RateLimitError => e
-      # RubyLLM already retried - if we're here, all retries failed
-      log_error "[#{context}] Rate limit exceeded after retries: #{e.message}"
-      raise RateLimitError, "Rate limit exceeded: #{e.message}"
-    rescue RubyLLM::Error => e
-      log_error "[#{context}] API error: #{e.message}"
-      raise RequestError, e.message
-    rescue StandardError => e
-      log_error "[#{context}] Request failed: #{e.message}"
-      raise RequestError, e.message
+      begin
+        attempt += 1
+        response = if schema
+          @chat.with_schema(schema).ask(prompt)
+        else
+          @chat.ask(prompt)
+        end
+
+        # Check for gateway errors in the response content
+        check_for_gateway_error_in_response(response)
+
+        parse_response(response, schema)
+      rescue GatewayError => e
+        if attempt < GATEWAY_RETRY_ATTEMPTS
+          delay = GATEWAY_RETRY_BASE_DELAY * (2**(attempt - 1))
+          Rails.logger.warn "[#{context}] Gateway error (attempt #{attempt}/#{GATEWAY_RETRY_ATTEMPTS}), retrying in #{delay}s: #{e.message}"
+          sleep(delay)
+          retry
+        end
+        log_error "[#{context}] Gateway error after #{GATEWAY_RETRY_ATTEMPTS} attempts: #{e.message}"
+        raise RequestError, "Gateway error: #{e.message}"
+      rescue RubyLLM::RateLimitError => e
+        # RubyLLM already retried - if we're here, all retries failed
+        log_error "[#{context}] Rate limit exceeded after retries: #{e.message}"
+        raise RateLimitError, "Rate limit exceeded: #{e.message}"
+      rescue RubyLLM::Error => e
+        # Check if the error message contains gateway error HTML
+        if gateway_error_content?(e.message) && attempt < GATEWAY_RETRY_ATTEMPTS
+          delay = GATEWAY_RETRY_BASE_DELAY * (2**(attempt - 1))
+          Rails.logger.warn "[#{context}] Gateway error in exception (attempt #{attempt}/#{GATEWAY_RETRY_ATTEMPTS}), retrying in #{delay}s"
+          sleep(delay)
+          retry
+        end
+        log_error "[#{context}] API error: #{e.message}"
+        raise RequestError, e.message
+      rescue StandardError => e
+        # Check if the error message contains gateway error HTML
+        if gateway_error_content?(e.message) && attempt < GATEWAY_RETRY_ATTEMPTS
+          delay = GATEWAY_RETRY_BASE_DELAY * (2**(attempt - 1))
+          Rails.logger.warn "[#{context}] Gateway error in exception (attempt #{attempt}/#{GATEWAY_RETRY_ATTEMPTS}), retrying in #{delay}s"
+          sleep(delay)
+          retry
+        end
+        log_error "[#{context}] Request failed: #{e.message}"
+        raise RequestError, e.message
+      end
     end
 
     private
@@ -103,6 +153,38 @@ module Ai
       json_str.gsub!(/['']/, "'")
       json_str.gsub!(/,(\s*[\}\]])/, '\1')
       json_str
+    end
+
+    # Check if response content contains gateway error HTML from CDNs
+    def check_for_gateway_error_in_response(response)
+      return if response.nil?
+
+      content = response.content.to_s
+      return if content.blank?
+
+      if gateway_error_content?(content)
+        raise GatewayError, extract_gateway_error_type(content)
+      end
+    end
+
+    # Check if content contains gateway error patterns
+    def gateway_error_content?(content)
+      return false if content.blank?
+
+      # Quick check: must contain HTML markers
+      return false unless content.include?("<") && content.include?(">")
+
+      GATEWAY_ERROR_PATTERNS.any? { |pattern| content.match?(pattern) }
+    end
+
+    # Extract the type of gateway error from HTML content
+    def extract_gateway_error_type(content)
+      case content
+      when /502/i then "502 Bad Gateway"
+      when /503/i then "503 Service Unavailable"
+      when /504/i then "504 Gateway Timeout"
+      else "Gateway Error"
+      end
     end
 
     def log_error(message)
