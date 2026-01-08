@@ -402,14 +402,14 @@
       <%# Sidebar %>
       <div class="space-y-6">
         <%# Quick Info %>
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
           <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><%= t("locations.show.info", default: "Informacije") %></h3>
           <div class="space-y-4">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0">
               <span class="text-gray-600 dark:text-gray-400"><%= t("locations.show.budget", default: "Budzet") %></span>
               <span class="font-medium text-gray-900 dark:text-white"><%= t("locations.budget.#{@location.budget}") %></span>
             </div>
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0">
               <span class="text-gray-600 dark:text-gray-400"><%= t("locations.show.type", default: "Tip") %></span>
               <span class="font-medium text-gray-900 dark:text-white"><%= t("locations.types.#{@location.location_type}") %></span>
             </div>
@@ -444,7 +444,7 @@
 
         <%# Location / Google Maps %>
         <% if @location.geocoded? %>
-          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
               <svg class="w-5 h-5 mr-2 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
@@ -490,7 +490,7 @@
 
         <%# Contact Info %>
         <% if @location.has_contact_info? %>
-          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><%= t("locations.show.contact", default: "Kontakt") %></h3>
             <div class="space-y-3">
               <% if @location.phone.present? %>
@@ -523,7 +523,7 @@
 
         <%# Nearby Locations %>
         <% if @nearby_locations.any? %>
-          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><%= t("locations.show.nearby_locations", default: "Lokacije u blizini") %></h3>
             <div class="space-y-4">
               <% @nearby_locations.each do |nearby| %>
@@ -566,7 +566,7 @@
 
         <%# Related Experiences %>
         <% if @related_experiences.any? %>
-          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
               <div class="flex items-center">
                 <svg class="w-5 h-5 mr-2 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -617,7 +617,7 @@
 
         <%# Related Plans %>
         <% if @related_plans.any? %>
-          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
               <div class="flex items-center">
                 <svg class="w-5 h-5 mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
