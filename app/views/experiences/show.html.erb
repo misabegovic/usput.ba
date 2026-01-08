@@ -241,7 +241,7 @@
 
         <%# Locations in Experience %>
         <% if @experience.locations.any? %>
-          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
             <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4"><%= t("experiences.show.locations", default: "Lokacije u iskustvu") %></h2>
             <div class="flow-root">
               <ul role="list" class="-mb-8">
@@ -253,7 +253,7 @@
                       <% unless is_last %>
                         <span aria-hidden="true" class="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200 dark:bg-white/10"></span>
                       <% end %>
-                      <div class="relative flex items-start space-x-4">
+                      <div class="relative flex items-start space-x-3 sm:space-x-4">
                         <%# Timeline icon %>
                         <div class="relative">
                           <% if location.photos.attached? %>
@@ -269,16 +269,16 @@
                           <% end %>
                         </div>
                         <%# Content %>
-                        <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1">
+                        <div class="flex min-w-0 flex-1 justify-between space-x-3 sm:space-x-4 pt-1">
                           <div class="min-w-0 flex-1">
                             <%= link_to location_path(location), class: "group" do %>
-                              <p class="font-medium text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                              <p class="font-medium text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors break-words">
                                 <%= location.translate(:name, I18n.locale) %>
                               </p>
                             <% end %>
                             <% if location.translate(:description, I18n.locale).present? %>
                               <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
-                                <%= location.translate(:description, I18n.locale).truncate(120) %>
+                                <%= location.translate(:description, I18n.locale) %>
                               </p>
                             <% end %>
                             <%# Tags %>
