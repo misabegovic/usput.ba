@@ -356,17 +356,21 @@ module Admin
       max_locations = params[:max_locations].presence&.to_i || 10
       images_per_location = params[:images_per_location].presence&.to_i || 5
       use_coordinates = params[:use_coordinates] != "0"
+      replace_photos = params[:replace_photos] == "1"
 
       WikimediaImageFetchJob.clear_status!
       WikimediaImageFetchJob.perform_later(
         dry_run: dry_run,
         max_locations: max_locations,
         images_per_location: images_per_location,
-        use_coordinates: use_coordinates
+        use_coordinates: use_coordinates,
+        replace_photos: replace_photos
       )
 
       notice_msg = if dry_run
         t("admin.ai.wikimedia_fetch_preview_started", default: "Wikimedia image fetch preview started (no images will be attached)")
+      elsif replace_photos
+        t("admin.ai.wikimedia_fetch_replace_started", default: "Wikimedia image fetch started (replacing existing photos)")
       else
         t("admin.ai.wikimedia_fetch_started", default: "Wikimedia image fetch started")
       end
@@ -405,17 +409,21 @@ module Admin
       max_locations = params[:max_locations].presence&.to_i || 10
       images_per_location = params[:images_per_location].presence&.to_i || 3
       creative_commons_only = params[:creative_commons_only] == "1"
+      replace_photos = params[:replace_photos] == "1"
 
       LocationImageFinderJob.clear_status!
       LocationImageFinderJob.perform_later(
         dry_run: dry_run,
         max_locations: max_locations,
         images_per_location: images_per_location,
-        creative_commons_only: creative_commons_only
+        creative_commons_only: creative_commons_only,
+        replace_photos: replace_photos
       )
 
       notice_msg = if dry_run
         t("admin.ai.google_image_fetch_preview_started", default: "Google image search preview started (no images will be attached)")
+      elsif replace_photos
+        t("admin.ai.google_image_fetch_replace_started", default: "Google image search started (replacing existing photos)")
       else
         t("admin.ai.google_image_fetch_started", default: "Google image search started")
       end
