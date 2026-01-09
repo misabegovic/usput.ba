@@ -1,0 +1,134 @@
+<% if status[:status] == "in_progress" %>
+  <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <div>
+          <span class="font-medium text-blue-900">Google image search in progress</span>
+          <span class="text-blue-700 ml-2"><%= status[:message] %></span>
+        </div>
+      </div>
+      <%= form_with url: admin_force_reset_google_image_fetch_admin_ai_path, method: :post, class: "inline", data: { turbo_confirm: "Are you sure? This will reset the search status and allow you to start a new run.", controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
+        <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
+        <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+        <button type="submit"
+                class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                data-action="credential-form#copyCredentials">
+          Force Stop & Restart
+        </button>
+      <% end %>
+    </div>
+  </div>
+<% elsif status[:status] == "completed" && status[:results].present? %>
+  <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+    <div class="flex items-start gap-3">
+      <svg class="h-5 w-5 text-green-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <div class="flex-1">
+        <span class="font-medium text-green-900">
+          <%= status[:results]["dry_run"] ? "Preview completed" : "Google image search completed" %>
+        </span>
+        <p class="text-green-700 text-sm mt-1"><%= status[:message] %></p>
+
+        <% if status[:results]["location_results"].present? && status[:results]["location_results"].any? %>
+          <details class="mt-3">
+            <summary class="text-sm text-green-700 cursor-pointer hover:underline font-medium">
+              View <%= status[:results]["location_results"].size %> location results
+              (<%= status[:results]["images_found"] %> images found<%= status[:results]["dry_run"] ? "" : ", #{status[:results]["images_attached"]} attached" %>)
+            </summary>
+            <div class="mt-3 space-y-4 max-h-96 overflow-y-auto">
+              <% status[:results]["location_results"].each do |loc_result| %>
+                <div class="bg-white rounded-lg p-3 border border-green-100">
+                  <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-medium text-gray-900">
+                      <%= loc_result["name"] %>
+                      <span class="text-xs text-gray-500 font-normal">(<%= loc_result["city"] %>)</span>
+                    </h4>
+                    <span class="text-xs px-2 py-1 rounded-full <%= loc_result["images_found"].to_i > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600' %>">
+                      <%= loc_result["images_found"] %> found
+                      <% unless status[:results]["dry_run"] %>
+                        / <%= loc_result["images_attached"] %> attached
+                      <% end %>
+                    </span>
+                  </div>
+
+                  <% if loc_result["images"].present? && loc_result["images"].any? %>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mt-2">
+                      <% loc_result["images"].first(10).each do |image| %>
+                        <div class="relative group">
+                          <a href="<%= image["source"] %>" target="_blank" rel="noopener noreferrer" class="block">
+                            <img src="<%= image["thumbnail"] %>"
+                                 alt="<%= image["title"] %>"
+                                 class="w-full h-20 object-cover rounded border border-gray-200 hover:border-green-400 transition-colors"
+                                 loading="lazy">
+                          </a>
+                          <% if image["attached"] %>
+                            <div class="absolute top-1 right-1 bg-green-500 text-white rounded-full p-0.5">
+                              <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                              </svg>
+                            </div>
+                          <% end %>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% else %>
+                    <p class="text-xs text-gray-500 italic">No images found for this location</p>
+                  <% end %>
+
+                  <% if loc_result["error"].present? %>
+                    <p class="text-xs text-red-600 mt-2">Error: <%= loc_result["error"] %></p>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </details>
+        <% end %>
+
+        <% if status[:results]["errors"].present? && status[:results]["errors"].any? %>
+          <details class="mt-2">
+            <summary class="text-sm text-red-600 cursor-pointer hover:underline">
+              View <%= status[:results]["errors"].size %> errors
+            </summary>
+            <ul class="mt-2 text-xs text-red-700 space-y-1 max-h-40 overflow-y-auto">
+              <% status[:results]["errors"].each do |error| %>
+                <li class="bg-red-50 rounded px-2 py-1">
+                  <strong><%= error["name"] %></strong>: <%= error["error"] %>
+                </li>
+              <% end %>
+            </ul>
+          </details>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% elsif status[:status] == "quota_exceeded" %>
+  <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+    <div class="flex items-center gap-3">
+      <svg class="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+      </svg>
+      <div>
+        <span class="font-medium text-amber-900">Google API quota exceeded</span>
+        <span class="text-amber-700 ml-2"><%= status[:message] %></span>
+        <p class="text-xs text-amber-600 mt-1">Free tier: 100 queries/day. Try again tomorrow or upgrade your Google API plan.</p>
+      </div>
+    </div>
+  </div>
+<% elsif status[:status] == "failed" %>
+  <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+    <div class="flex items-center gap-3">
+      <svg class="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+      <div>
+        <span class="font-medium text-red-900">Google image search failed</span>
+        <span class="text-red-700 ml-2"><%= status[:message] %></span>
+      </div>
+    </div>
+  </div>
+<% end %>

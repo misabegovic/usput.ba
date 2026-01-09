@@ -17,6 +17,12 @@ LLM_DEFAULT_MODEL=gpt-4o-mini
 # Geoapify (for location data)
 GEOAPIFY_API_KEY=
 
+# Google Custom Search API (for image search)
+# Get API key: https://console.cloud.google.com/apis/credentials
+# Create search engine: https://programmablesearchengine.google.com/
+GOOGLE_API_KEY=
+SEARCH_ENGINE_CX=
+
 # AWS S3 (only needed for production storage)
 # AWS_ACCESS_KEY_ID=
 # AWS_SECRET_ACCESS_KEY=
