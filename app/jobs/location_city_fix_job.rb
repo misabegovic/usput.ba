@@ -2,13 +2,14 @@
 
 # Background job for fixing location cities using reverse geocoding,
 # regenerating descriptions where city was corrected or quality is poor,
-# and removing inappropriate locations like soup kitchens or locations with city mismatches.
+# and removing inappropriate locations like soup kitchens, medical facilities, or locations with city mismatches.
 #
 # Usage:
 #   LocationCityFixJob.perform_later
 #   LocationCityFixJob.perform_later(regenerate_content: true)
 #   LocationCityFixJob.perform_later(analyze_descriptions: true) # Analyze and regenerate poor descriptions
 #   LocationCityFixJob.perform_later(remove_soup_kitchens: true) # Remove soup kitchen locations (default: true)
+#   LocationCityFixJob.perform_later(remove_medical_facilities: true) # Remove Red Cross, hospitals, clinics (default: true)
 #   LocationCityFixJob.perform_later(remove_city_mismatches: true) # Remove locations where name mentions wrong city (default: true)
 #   LocationCityFixJob.perform_later(dry_run: true) # Preview changes without saving
 #   LocationCityFixJob.perform_later(clear_cache: true) # Clear geocoder cache first
@@ -42,8 +43,33 @@ class LocationCityFixJob < ApplicationJob
     socijalna\ pomoc
   ].freeze
 
-  def perform(regenerate_content: false, analyze_descriptions: false, remove_soup_kitchens: true, remove_city_mismatches: true, dry_run: false, clear_cache: false)
-    Rails.logger.info "[LocationCityFixJob] Starting location city fix (regenerate_content: #{regenerate_content}, analyze_descriptions: #{analyze_descriptions}, remove_soup_kitchens: #{remove_soup_kitchens}, remove_city_mismatches: #{remove_city_mismatches}, dry_run: #{dry_run}, clear_cache: #{clear_cache})"
+  # Keywords that identify medical facilities (case-insensitive)
+  # These locations are not appropriate for tourism and should be removed
+  MEDICAL_FACILITY_KEYWORDS = %w[
+    red\ cross
+    crveni\ krst
+    crveni\ križ
+    crveni\ kriz
+    hospital
+    bolnica
+    klinika
+    clinic
+    zdravstveni\ centar
+    health\ center
+    health\ centre
+    dom\ zdravlja
+    ambulanta
+    emergency\ room
+    hitna\ pomoć
+    hitna\ pomoc
+    urgent\ care
+    medical\ center
+    medical\ centre
+    medicinski\ centar
+  ].freeze
+
+  def perform(regenerate_content: false, analyze_descriptions: false, remove_soup_kitchens: true, remove_medical_facilities: true, remove_city_mismatches: true, dry_run: false, clear_cache: false)
+    Rails.logger.info "[LocationCityFixJob] Starting location city fix (regenerate_content: #{regenerate_content}, analyze_descriptions: #{analyze_descriptions}, remove_soup_kitchens: #{remove_soup_kitchens}, remove_medical_facilities: #{remove_medical_facilities}, remove_city_mismatches: #{remove_city_mismatches}, dry_run: #{dry_run}, clear_cache: #{clear_cache})"
 
     save_status("in_progress", "Starting location city fix...")
 
@@ -61,11 +87,13 @@ class LocationCityFixJob < ApplicationJob
       descriptions_analyzed: 0,
       descriptions_regenerated: 0,
       soup_kitchens_removed: 0,
+      medical_facilities_removed: 0,
       city_mismatches_removed: 0,
       errors: [],
       corrections: [],
       description_issues: [],
       removed_soup_kitchens: [],
+      removed_medical_facilities: [],
       removed_city_mismatches: []
     }
 
@@ -89,6 +117,24 @@ class LocationCityFixJob < ApplicationJob
               location.destroy!
               results[:soup_kitchens_removed] += 1
               Rails.logger.info "[LocationCityFixJob] Removed soup kitchen: #{location.name}"
+            end
+
+            next # Skip further processing for removed locations
+          end
+
+          # Check if this is a medical facility (Red Cross, hospital, etc.) and should be removed
+          if remove_medical_facilities && medical_facility?(location)
+            Rails.logger.info "[LocationCityFixJob] Found medical facility: #{location.name} (ID: #{location.id})"
+            results[:removed_medical_facilities] << {
+              location_id: location.id,
+              name: location.name,
+              city: location.city
+            }
+
+            unless dry_run
+              location.destroy!
+              results[:medical_facilities_removed] += 1
+              Rails.logger.info "[LocationCityFixJob] Removed medical facility: #{location.name}"
             end
 
             next # Skip further processing for removed locations
@@ -136,7 +182,7 @@ class LocationCityFixJob < ApplicationJob
 
         # Update status periodically
         if results[:total_checked] % 10 == 0
-          save_status("in_progress", "Processed #{results[:total_checked]} locations... (#{results[:cities_corrected]} corrected, #{results[:soup_kitchens_removed]} soup kitchens removed)")
+          save_status("in_progress", "Processed #{results[:total_checked]} locations... (#{results[:cities_corrected]} corrected, #{results[:soup_kitchens_removed]} soup kitchens removed, #{results[:medical_facilities_removed]} medical facilities removed)")
         end
       end
 
@@ -465,6 +511,7 @@ class LocationCityFixJob < ApplicationJob
     parts << "#{results[:descriptions_analyzed]} analyzed" if results[:descriptions_analyzed] > 0
     parts << "#{results[:descriptions_regenerated]} descriptions regenerated (quality)" if results[:descriptions_regenerated] > 0
     parts << "#{results[:soup_kitchens_removed]} soup kitchens removed" if results[:soup_kitchens_removed].to_i > 0
+    parts << "#{results[:medical_facilities_removed]} medical facilities removed" if results[:medical_facilities_removed].to_i > 0
     parts << "#{results[:city_mismatches_removed]} city mismatches removed" if results[:city_mismatches_removed].to_i > 0
 
     if parts.length == 1
@@ -493,6 +540,27 @@ class LocationCityFixJob < ApplicationJob
 
     # Check if any soup kitchen keywords are present
     SOUP_KITCHEN_KEYWORDS.any? { |keyword| text_to_check.include?(keyword.downcase) }
+  end
+
+  # Check if a location is a medical facility (Red Cross, hospital, clinic, etc.)
+  # Examines name, descriptions, and any other relevant text fields
+  # @param location [Location] The location to check
+  # @return [Boolean] true if this appears to be a medical facility
+  def medical_facility?(location)
+    # Combine all text fields to check
+    text_to_check = [
+      location.name,
+      location.city,
+      location.translate(:description, :en),
+      location.translate(:description, :bs),
+      location.translate(:description, :hr),
+      location.translate(:name, :en),
+      location.translate(:name, :bs),
+      location.translate(:name, :hr)
+    ].compact.map(&:downcase).join(" ")
+
+    # Check if any medical facility keywords are present
+    MEDICAL_FACILITY_KEYWORDS.any? { |keyword| text_to_check.include?(keyword.downcase) }
   end
 
   # Check if a location's name mentions a city different from its actual city

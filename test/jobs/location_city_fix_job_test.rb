@@ -213,4 +213,125 @@ class LocationCityFixJobTest < ActiveJob::TestCase
     job = LocationCityFixJob.new
     refute job.send(:cities_different?, "sarajevo", "SARAJEVO")
   end
+
+  # === Medical facility keywords tests ===
+
+  test "MEDICAL_FACILITY_KEYWORDS is defined and contains expected keywords" do
+    keywords = LocationCityFixJob::MEDICAL_FACILITY_KEYWORDS
+
+    assert keywords.is_a?(Array)
+    assert_includes keywords, "red cross"
+    assert_includes keywords, "crveni krst"
+    assert_includes keywords, "crveni križ"
+    assert_includes keywords, "hospital"
+    assert_includes keywords, "bolnica"
+  end
+
+  test "MEDICAL_FACILITY_KEYWORDS contains Bosnian/Croatian variants" do
+    keywords = LocationCityFixJob::MEDICAL_FACILITY_KEYWORDS
+
+    # Bosnian/Croatian keywords
+    assert_includes keywords, "klinika"
+    assert_includes keywords, "dom zdravlja"
+    assert_includes keywords, "zdravstveni centar"
+    assert_includes keywords, "hitna pomoć"
+  end
+
+  # === Medical facility detection tests ===
+
+  test "medical_facility? returns true for location with red cross in name" do
+    job = LocationCityFixJob.new
+    location = Minitest::Mock.new
+    location.expect :name, "Red Cross Center"
+    location.expect :city, "Sarajevo"
+    location.expect :translate, nil, [:description, :en]
+    location.expect :translate, nil, [:description, :bs]
+    location.expect :translate, nil, [:description, :hr]
+    location.expect :translate, nil, [:name, :en]
+    location.expect :translate, nil, [:name, :bs]
+    location.expect :translate, nil, [:name, :hr]
+
+    assert job.send(:medical_facility?, location)
+    location.verify
+  end
+
+  test "medical_facility? returns true for location with crveni krst in name" do
+    job = LocationCityFixJob.new
+    location = Minitest::Mock.new
+    location.expect :name, "Crveni Krst Sarajevo"
+    location.expect :city, "Sarajevo"
+    location.expect :translate, nil, [:description, :en]
+    location.expect :translate, nil, [:description, :bs]
+    location.expect :translate, nil, [:description, :hr]
+    location.expect :translate, nil, [:name, :en]
+    location.expect :translate, nil, [:name, :bs]
+    location.expect :translate, nil, [:name, :hr]
+
+    assert job.send(:medical_facility?, location)
+    location.verify
+  end
+
+  test "medical_facility? returns true for location with hospital in name" do
+    job = LocationCityFixJob.new
+    location = Minitest::Mock.new
+    location.expect :name, "General Hospital Mostar"
+    location.expect :city, "Mostar"
+    location.expect :translate, nil, [:description, :en]
+    location.expect :translate, nil, [:description, :bs]
+    location.expect :translate, nil, [:description, :hr]
+    location.expect :translate, nil, [:name, :en]
+    location.expect :translate, nil, [:name, :bs]
+    location.expect :translate, nil, [:name, :hr]
+
+    assert job.send(:medical_facility?, location)
+    location.verify
+  end
+
+  test "medical_facility? returns true for location with bolnica in name" do
+    job = LocationCityFixJob.new
+    location = Minitest::Mock.new
+    location.expect :name, "Opća Bolnica Sarajevo"
+    location.expect :city, "Sarajevo"
+    location.expect :translate, nil, [:description, :en]
+    location.expect :translate, nil, [:description, :bs]
+    location.expect :translate, nil, [:description, :hr]
+    location.expect :translate, nil, [:name, :en]
+    location.expect :translate, nil, [:name, :bs]
+    location.expect :translate, nil, [:name, :hr]
+
+    assert job.send(:medical_facility?, location)
+    location.verify
+  end
+
+  test "medical_facility? returns false for regular restaurant" do
+    job = LocationCityFixJob.new
+    location = Minitest::Mock.new
+    location.expect :name, "Restaurant Sarajevo"
+    location.expect :city, "Sarajevo"
+    location.expect :translate, "A nice restaurant", [:description, :en]
+    location.expect :translate, "Lijep restoran", [:description, :bs]
+    location.expect :translate, nil, [:description, :hr]
+    location.expect :translate, nil, [:name, :en]
+    location.expect :translate, nil, [:name, :bs]
+    location.expect :translate, nil, [:name, :hr]
+
+    refute job.send(:medical_facility?, location)
+    location.verify
+  end
+
+  test "medical_facility? returns false for historical bridge" do
+    job = LocationCityFixJob.new
+    location = Minitest::Mock.new
+    location.expect :name, "Stari Most"
+    location.expect :city, "Mostar"
+    location.expect :translate, "Historic Ottoman bridge", [:description, :en]
+    location.expect :translate, "Historijski osmanski most", [:description, :bs]
+    location.expect :translate, nil, [:description, :hr]
+    location.expect :translate, nil, [:name, :en]
+    location.expect :translate, nil, [:name, :bs]
+    location.expect :translate, nil, [:name, :hr]
+
+    refute job.send(:medical_facility?, location)
+    location.verify
+  end
 end
