@@ -25,6 +25,25 @@
     </div>
   </div>
 
+  <!-- Admin Credentials -->
+  <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+    <p class="text-sm font-medium text-gray-700 mb-3">
+      <%= t("admin.credentials.confirm_action", default: "Enter your admin credentials to enable generation:") %>
+    </p>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <input type="text"
+             id="audio_tours_admin_username"
+             placeholder="<%= t("admin.credentials.username", default: "Admin Username") %>"
+             autocomplete="username"
+             class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+      <input type="password"
+             id="audio_tours_admin_password"
+             placeholder="<%= t("admin.credentials.password", default: "Admin Password") %>"
+             autocomplete="current-password"
+             class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+    </div>
+  </div>
+
   <!-- Stats -->
   <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
     <div class="bg-white rounded-lg shadow p-4 text-center">
@@ -46,7 +65,9 @@
   </div>
 
   <!-- Main Form -->
-  <%= form_with url: admin_generate_admin_ai_audio_tours_path, method: :post, class: "bg-white shadow rounded-lg" do |f| %>
+  <%= form_with url: admin_generate_admin_ai_audio_tours_path, method: :post, class: "bg-white shadow rounded-lg", data: { controller: "credential-form", "credential-form-username-id-value": "audio_tours_admin_username", "credential-form-password-id-value": "audio_tours_admin_password" } do |f| %>
+    <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
+    <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
     <!-- Generation Controls - TOP -->
     <div class="p-4 sm:p-6 border-b bg-gray-50">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -84,6 +105,7 @@
 
         <button type="submit"
                 data-audio-tours-generator-target="generateBtn"
+                data-action="credential-form#copyCredentials"
                 disabled
                 class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -12,7 +12,11 @@
           <p class="text-blue-600 text-sm"><%= status[:message] %></p>
         </div>
       </div>
-      <%= button_to "Force Reset", admin_force_reset_experience_type_sync_admin_ai_path, method: :post, class: "text-xs text-blue-600 hover:text-blue-800 underline", data: { confirm: "Are you sure? This will cancel the current sync." } %>
+      <%= form_with url: admin_force_reset_experience_type_sync_admin_ai_path, method: :post, class: "inline", data: { turbo_confirm: "Are you sure? This will cancel the current sync.", controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
+        <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
+        <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+        <button type="submit" class="text-xs text-blue-600 hover:text-blue-800 underline" data-action="credential-form#copyCredentials">Force Reset</button>
+      <% end %>
     </div>
   </div>
 

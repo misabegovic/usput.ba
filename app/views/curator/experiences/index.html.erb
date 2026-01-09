@@ -5,6 +5,9 @@
         class: "inline-flex items-center justify-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 w-full sm:w-auto" %>
   </div>
 
+  <!-- Pending Proposals -->
+  <%= render "curator/shared/pending_proposals" %>
+
   <!-- Filters Section -->
   <div class="rounded-lg bg-white shadow" data-controller="curator-filters">
     <!-- Mobile Filter Toggle -->
@@ -81,7 +84,8 @@
 
   <!-- Results Count -->
   <div class="flex items-center justify-between text-sm text-gray-600">
-    <span><%= t("curator.experiences.count", count: @experiences.size, default: "#{@experiences.size} experiences") %></span>
+    <span><%= t("curator.experiences.count", count: @experiences.total_count, default: "#{@experiences.total_count} experiences") %></span>
+    <span class="text-gray-500"><%= t("common.page", default: "Page") %> <%= @experiences.current_page %> / <%= @experiences.total_pages %></span>
   </div>
 
   <!-- Desktop Table -->
@@ -185,4 +189,11 @@
       </div>
     <% end %>
   </div>
+
+  <!-- Pagination -->
+  <% if @experiences.total_pages > 1 %>
+    <div class="flex justify-center">
+      <%= paginate @experiences %>
+    </div>
+  <% end %>
 </div>

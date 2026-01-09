@@ -1,0 +1,68 @@
+<%# Activity feed for curator dashboard %>
+<%# Expects: activities (collection of CuratorActivity records) %>
+<%# Optional: show_user (boolean, default true), title (string), view_all_path (path) %>
+
+<% show_user = local_assigns.fetch(:show_user, true) %>
+<% title = local_assigns.fetch(:title, t("curator.activities.recent_activity")) %>
+<% view_all_path = local_assigns.fetch(:view_all_path, nil) %>
+
+<div class="rounded-lg bg-white shadow">
+  <div class="px-4 py-4 sm:py-5 sm:px-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base sm:text-lg font-medium text-gray-900"><%= title %></h2>
+      <% if view_all_path %>
+        <%= link_to view_all_path, class: "text-sm text-emerald-600 hover:text-emerald-900" do %>
+          <%= t("common.view_all") %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <% if activities.any? %>
+      <ul class="mt-3 sm:mt-4 divide-y divide-gray-200">
+        <% activities.each do |activity| %>
+          <li class="py-3">
+            <div class="flex items-start space-x-3">
+              <%# Activity icon %>
+              <div class="flex-shrink-0">
+                <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-100">
+                  <%= render "curator/shared/activity_icon", activity: activity %>
+                </span>
+              </div>
+
+              <%# Activity content %>
+              <div class="min-w-0 flex-1">
+                <div class="text-sm text-gray-900">
+                  <% if show_user %>
+                    <span class="font-medium"><%= activity.user.username %></span>
+                  <% end %>
+                  <%= activity.description %>
+                </div>
+                <div class="mt-0.5 text-xs text-gray-500">
+                  <%= time_ago_in_words(activity.created_at) %> <%= t("common.ago") %>
+                </div>
+              </div>
+
+              <%# Link to related resource %>
+              <% if activity.recordable.present? %>
+                <div class="flex-shrink-0">
+                  <% link_path = activity_link_path(activity) %>
+                  <% if link_path %>
+                    <%= link_to link_path, class: "text-emerald-600 hover:text-emerald-900" do %>
+                      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                      </svg>
+                    <% end %>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <div class="mt-4 text-center py-6 text-gray-500 text-sm">
+        <%= t("curator.activities.no_activities") %>
+      </div>
+    <% end %>
+  </div>
+</div>

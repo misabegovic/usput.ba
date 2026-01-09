@@ -116,4 +116,118 @@ class BrowseTest < ActiveSupport::TestCase
     filtered_count_nil = Browse.by_city_name(nil).count
     assert_equal all_count, filtered_count_nil
   end
+
+  # === ai_generated scope tests ===
+
+  test "ai_generated scope filters to AI generated content" do
+    # Create an AI-generated location
+    ai_location = Location.create!(
+      name: "AI Location",
+      city: "Sarajevo",
+      lat: 43.8563,
+      lng: 18.4131,
+      location_type: :place,
+      ai_generated: true
+    )
+    Browse.sync_record(ai_location)
+
+    # Create a human-made location
+    human_location = Location.create!(
+      name: "Human Location",
+      city: "Sarajevo",
+      lat: 43.8564,
+      lng: 18.4132,
+      location_type: :place,
+      ai_generated: false
+    )
+    Browse.sync_record(human_location)
+
+    # Filter by AI generated
+    ai_results = Browse.ai_generated.locations
+    assert_includes ai_results.pluck(:browsable_id), ai_location.id
+    assert_not_includes ai_results.pluck(:browsable_id), human_location.id
+
+    # Filter by human made
+    human_results = Browse.human_made.locations
+    assert_includes human_results.pluck(:browsable_id), human_location.id
+    assert_not_includes human_results.pluck(:browsable_id), ai_location.id
+
+    # Cleanup
+    ai_location.destroy
+    human_location.destroy
+  end
+
+  test "by_origin scope filters by origin type" do
+    ai_location = Location.create!(
+      name: "AI Location",
+      city: "Sarajevo",
+      lat: 43.8563,
+      lng: 18.4131,
+      location_type: :place,
+      ai_generated: true
+    )
+    Browse.sync_record(ai_location)
+
+    human_location = Location.create!(
+      name: "Human Location",
+      city: "Sarajevo",
+      lat: 43.8564,
+      lng: 18.4132,
+      location_type: :place,
+      ai_generated: false
+    )
+    Browse.sync_record(human_location)
+
+    # Test by_origin with "ai"
+    ai_results = Browse.by_origin("ai").locations
+    assert_includes ai_results.pluck(:browsable_id), ai_location.id
+    assert_not_includes ai_results.pluck(:browsable_id), human_location.id
+
+    # Test by_origin with "human"
+    human_results = Browse.by_origin("human").locations
+    assert_includes human_results.pluck(:browsable_id), human_location.id
+    assert_not_includes human_results.pluck(:browsable_id), ai_location.id
+
+    # Test by_origin with blank returns all
+    all_results = Browse.by_origin("").locations
+    assert_includes all_results.pluck(:browsable_id), ai_location.id
+    assert_includes all_results.pluck(:browsable_id), human_location.id
+
+    # Cleanup
+    ai_location.destroy
+    human_location.destroy
+  end
+
+  test "BrowseAdapter includes ai_generated attribute for locations" do
+    location = Location.create!(
+      name: "Test Location",
+      city: "Sarajevo",
+      lat: 43.8563,
+      lng: 18.4131,
+      location_type: :place,
+      ai_generated: false
+    )
+
+    attrs = BrowseAdapter.attributes_for(location)
+    assert_not_nil attrs[:ai_generated]
+    assert_equal false, attrs[:ai_generated]
+
+    location.destroy
+  end
+
+  test "BrowseAdapter includes seasons for locations" do
+    location = Location.create!(
+      name: "Summer Beach",
+      city: "Neum",
+      lat: 42.9247,
+      lng: 17.6141,
+      location_type: :place,
+      seasons: %w[summer]
+    )
+
+    attrs = BrowseAdapter.attributes_for(location)
+    assert_equal %w[summer], attrs[:seasons]
+
+    location.destroy
+  end
 end

@@ -1,0 +1,163 @@
+<div class="space-y-6">
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900"><%= t("admin.content_changes.title") %></h1>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-3 gap-2 sm:gap-4">
+    <div class="overflow-hidden rounded-lg bg-yellow-50 px-3 py-3 shadow sm:px-4 sm:py-5 sm:p-6">
+      <dt class="truncate text-xs sm:text-sm font-medium text-yellow-600"><%= t("admin.content_changes.stats.pending") %></dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-yellow-900"><%= @stats[:pending] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-green-50 px-3 py-3 shadow sm:px-4 sm:py-5 sm:p-6">
+      <dt class="truncate text-xs sm:text-sm font-medium text-green-600"><%= t("admin.content_changes.stats.approved") %></dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-green-900"><%= @stats[:approved] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-red-50 px-3 py-3 shadow sm:px-4 sm:py-5 sm:p-6">
+      <dt class="truncate text-xs sm:text-sm font-medium text-red-600"><%= t("admin.content_changes.stats.rejected") %></dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-red-900"><%= @stats[:rejected] %></dd>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex flex-wrap gap-2">
+    <%= link_to t("common.all"), admin_content_changes_path,
+        class: "px-3 py-1 rounded-full text-xs sm:text-sm #{params[:status].blank? ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}" %>
+    <%= link_to t("admin.content_changes.stats.pending"), admin_content_changes_path(status: :pending),
+        class: "px-3 py-1 rounded-full text-xs sm:text-sm #{params[:status] == 'pending' ? 'bg-yellow-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}" %>
+    <%= link_to t("admin.content_changes.stats.approved"), admin_content_changes_path(status: :approved),
+        class: "px-3 py-1 rounded-full text-xs sm:text-sm #{params[:status] == 'approved' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}" %>
+    <%= link_to t("admin.content_changes.stats.rejected"), admin_content_changes_path(status: :rejected),
+        class: "px-3 py-1 rounded-full text-xs sm:text-sm #{params[:status] == 'rejected' ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}" %>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="hidden sm:block overflow-hidden rounded-lg bg-white shadow">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("admin.content_changes.proposed_by") %></th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("admin.content_changes.type") %></th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("admin.content_changes.content_type") %></th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("admin.content_changes.status_label") %></th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("admin.content_changes.submitted") %></th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("admin.content_changes.actions") %></th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @content_changes.each do |change| %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-medium text-gray-900"><%= change.user.username %></div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <% case change.change_type %>
+              <% when "create_content" %>
+                <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                  <%= t("admin.content_changes.types.create_content") %>
+                </span>
+              <% when "update_content" %>
+                <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                  <%= t("admin.content_changes.types.update_content") %>
+                </span>
+              <% when "delete_content" %>
+                <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+                  <%= t("admin.content_changes.types.delete_content") %>
+                </span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <%= change.changeable_type || change.changeable_class %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <% case change.status %>
+              <% when "pending" %>
+                <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
+                  <%= t("admin.content_changes.stats.pending") %>
+                </span>
+              <% when "approved" %>
+                <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                  <%= t("admin.content_changes.stats.approved") %>
+                </span>
+              <% when "rejected" %>
+                <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+                  <%= t("admin.content_changes.stats.rejected") %>
+                </span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <%= change.created_at.strftime("%d.%m.%Y %H:%M") %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+              <%= link_to t("admin.content_changes.view"), admin_content_change_path(change),
+                  class: "text-indigo-600 hover:text-indigo-900" %>
+            </td>
+          </tr>
+        <% end %>
+
+        <% if @content_changes.empty? %>
+          <tr>
+            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+              <%= t("admin.content_changes.no_proposals") %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Card Layout -->
+  <div class="sm:hidden space-y-3">
+    <% @content_changes.each do |change| %>
+      <div class="bg-white rounded-lg shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-medium text-gray-900"><%= change.user.username %></span>
+          <% case change.status %>
+          <% when "pending" %>
+            <span class="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
+              <%= t("admin.content_changes.stats.pending") %>
+            </span>
+          <% when "approved" %>
+            <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
+              <%= t("admin.content_changes.stats.approved") %>
+            </span>
+          <% when "rejected" %>
+            <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
+              <%= t("admin.content_changes.stats.rejected") %>
+            </span>
+          <% end %>
+        </div>
+        <div class="flex items-center gap-2 mb-2">
+          <% case change.change_type %>
+          <% when "create_content" %>
+            <span class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
+              <%= t("admin.content_changes.types.create_content") %>
+            </span>
+          <% when "update_content" %>
+            <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+              <%= t("admin.content_changes.types.update_content") %>
+            </span>
+          <% when "delete_content" %>
+            <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
+              <%= t("admin.content_changes.types.delete_content") %>
+            </span>
+          <% end %>
+          <span class="text-sm text-gray-500"><%= change.changeable_type || change.changeable_class %></span>
+        </div>
+        <div class="text-sm text-gray-500 mb-3">
+          <%= change.created_at.strftime("%d.%m.%Y %H:%M") %>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 text-sm">
+          <%= link_to t("admin.content_changes.view"), admin_content_change_path(change),
+              class: "text-indigo-600 hover:text-indigo-900" %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @content_changes.empty? %>
+      <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+        <%= t("admin.content_changes.no_proposals") %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_07_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_09_193210) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -78,6 +78,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_100000) do
   end
 
   create_table "browses", force: :cascade do |t|
+    t.boolean "ai_generated", default: true, null: false
     t.decimal "average_rating", precision: 3, scale: 2, default: "0.0"
     t.bigint "browsable_id", null: false
     t.string "browsable_subtype"
@@ -94,6 +95,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_100000) do
     t.jsonb "seasons", default: []
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.index ["ai_generated"], name: "index_browses_on_ai_generated"
     t.index ["average_rating"], name: "index_browses_on_average_rating"
     t.index ["browsable_subtype"], name: "index_browses_on_browsable_subtype"
     t.index ["browsable_type", "browsable_id"], name: "index_browses_on_browsable"
@@ -106,6 +108,59 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_100000) do
     t.index ["reviews_count"], name: "index_browses_on_reviews_count"
     t.index ["searchable"], name: "index_browses_on_searchable", using: :gin
     t.index ["seasons"], name: "index_browses_on_seasons", using: :gin
+  end
+
+  create_table "content_change_contributions", force: :cascade do |t|
+    t.bigint "content_change_id", null: false
+    t.datetime "created_at", null: false
+    t.text "notes"
+    t.jsonb "proposed_data", default: {}
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["content_change_id", "user_id"], name: "idx_contributions_unique_user_per_change", unique: true
+    t.index ["content_change_id"], name: "index_content_change_contributions_on_content_change_id"
+    t.index ["user_id"], name: "index_content_change_contributions_on_user_id"
+  end
+
+  create_table "content_changes", force: :cascade do |t|
+    t.text "admin_notes"
+    t.integer "change_type", default: 0, null: false
+    t.string "changeable_class"
+    t.bigint "changeable_id"
+    t.string "changeable_type"
+    t.datetime "created_at", null: false
+    t.jsonb "original_data", default: {}
+    t.jsonb "proposed_data", default: {}
+    t.datetime "reviewed_at"
+    t.bigint "reviewed_by_id"
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["change_type"], name: "index_content_changes_on_change_type"
+    t.index ["changeable_type", "changeable_id", "status"], name: "idx_content_changes_on_changeable_and_status"
+    t.index ["changeable_type", "changeable_id"], name: "idx_unique_pending_proposal_per_resource", unique: true, where: "((status = 0) AND (changeable_id IS NOT NULL))"
+    t.index ["changeable_type", "changeable_id"], name: "index_content_changes_on_changeable"
+    t.index ["reviewed_by_id"], name: "index_content_changes_on_reviewed_by_id"
+    t.index ["status"], name: "index_content_changes_on_status"
+    t.index ["user_id", "status"], name: "index_content_changes_on_user_id_and_status"
+    t.index ["user_id"], name: "index_content_changes_on_user_id"
+  end
+
+  create_table "curator_activities", force: :cascade do |t|
+    t.string "action", null: false
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.jsonb "metadata", default: {}
+    t.bigint "recordable_id"
+    t.string "recordable_type"
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.bigint "user_id", null: false
+    t.index ["action", "created_at"], name: "index_curator_activities_on_action_and_created_at"
+    t.index ["created_at"], name: "index_curator_activities_on_created_at"
+    t.index ["recordable_type", "recordable_id"], name: "index_curator_activities_on_recordable"
+    t.index ["user_id", "created_at"], name: "index_curator_activities_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_curator_activities_on_user_id"
   end
 
   create_table "curator_applications", force: :cascade do |t|
@@ -124,6 +179,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_100000) do
     t.index ["user_id", "status"], name: "index_curator_applications_on_user_id_and_status"
     t.index ["user_id"], name: "index_curator_applications_on_user_id"
     t.index ["uuid"], name: "index_curator_applications_on_uuid", unique: true
+  end
+
+  create_table "curator_reviews", force: :cascade do |t|
+    t.text "comment", null: false
+    t.bigint "content_change_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "recommendation", default: 0
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["content_change_id", "created_at"], name: "index_curator_reviews_on_content_change_id_and_created_at"
+    t.index ["content_change_id"], name: "index_curator_reviews_on_content_change_id"
+    t.index ["user_id"], name: "index_curator_reviews_on_user_id"
   end
 
   create_table "experience_categories", force: :cascade do |t|
@@ -184,6 +251,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_100000) do
   end
 
   create_table "experiences", force: :cascade do |t|
+    t.boolean "ai_generated", default: true, null: false
     t.decimal "average_rating", precision: 3, scale: 2, default: "0.0"
     t.string "contact_email"
     t.string "contact_name"
@@ -193,13 +261,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_100000) do
     t.text "description"
     t.integer "estimated_duration"
     t.bigint "experience_category_id"
+    t.boolean "needs_ai_regeneration", default: false, null: false
     t.integer "reviews_count", default: 0
     t.jsonb "seasons", default: []
     t.string "title", null: false
     t.datetime "updated_at", null: false
     t.string "uuid", limit: 36, null: false
+    t.index ["ai_generated"], name: "index_experiences_on_ai_generated"
     t.index ["average_rating"], name: "index_experiences_on_average_rating"
     t.index ["experience_category_id"], name: "index_experiences_on_experience_category_id"
+    t.index ["needs_ai_regeneration"], name: "index_experiences_on_needs_ai_regeneration", where: "(needs_ai_regeneration = true)"
     t.index ["reviews_count"], name: "index_experiences_on_reviews_count"
     t.index ["seasons"], name: "index_experiences_on_seasons", using: :gin
     t.index ["title"], name: "index_experiences_on_title"
@@ -275,6 +346,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_100000) do
   end
 
   create_table "locations", force: :cascade do |t|
+    t.boolean "ai_generated", default: true, null: false
     t.jsonb "audio_tour_metadata"
     t.decimal "average_rating", precision: 3, scale: 2, default: "0.0"
     t.integer "budget", default: 0
@@ -287,8 +359,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_100000) do
     t.decimal "lng", precision: 10, scale: 6
     t.integer "location_type", default: 0
     t.string "name", null: false
+    t.boolean "needs_ai_regeneration", default: false, null: false
     t.string "phone"
     t.integer "reviews_count", default: 0
+    t.jsonb "seasons", default: [], null: false
     t.jsonb "social_links", default: {}
     t.jsonb "suitable_experiences", default: []
     t.jsonb "tags", default: []
@@ -296,14 +370,35 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_100000) do
     t.string "uuid", limit: 36, null: false
     t.string "video_url"
     t.string "website"
+    t.index ["ai_generated"], name: "index_locations_on_ai_generated"
     t.index ["average_rating"], name: "index_locations_on_average_rating"
     t.index ["budget"], name: "index_locations_on_budget"
     t.index ["city"], name: "index_locations_on_city"
     t.index ["lat", "lng"], name: "index_locations_on_coordinates_unique", unique: true, where: "((lat IS NOT NULL) AND (lng IS NOT NULL))"
     t.index ["location_type"], name: "index_locations_on_location_type"
     t.index ["name"], name: "index_locations_on_name"
+    t.index ["needs_ai_regeneration"], name: "index_locations_on_needs_ai_regeneration", where: "(needs_ai_regeneration = true)"
     t.index ["reviews_count"], name: "index_locations_on_reviews_count"
+    t.index ["seasons"], name: "index_locations_on_seasons", using: :gin
     t.index ["uuid"], name: "index_locations_on_uuid", unique: true
+  end
+
+  create_table "photo_suggestions", force: :cascade do |t|
+    t.text "admin_notes"
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.bigint "location_id", null: false
+    t.string "photo_url"
+    t.datetime "reviewed_at"
+    t.bigint "reviewed_by_id"
+    t.integer "status", default: 0
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["location_id", "status"], name: "index_photo_suggestions_on_location_id_and_status"
+    t.index ["location_id"], name: "index_photo_suggestions_on_location_id"
+    t.index ["reviewed_by_id"], name: "index_photo_suggestions_on_reviewed_by_id"
+    t.index ["user_id", "status"], name: "index_photo_suggestions_on_user_id_and_status"
+    t.index ["user_id"], name: "index_photo_suggestions_on_user_id"
   end
 
   create_table "plan_experiences", force: :cascade do |t|
@@ -321,11 +416,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_100000) do
   end
 
   create_table "plans", force: :cascade do |t|
+    t.boolean "ai_generated", default: true, null: false
     t.decimal "average_rating", precision: 3, scale: 2, default: "0.0"
     t.string "city_name"
     t.datetime "created_at", null: false
     t.date "end_date"
     t.string "local_id"
+    t.boolean "needs_ai_regeneration", default: false, null: false
     t.text "notes"
     t.jsonb "preferences", default: {}
     t.integer "reviews_count", default: 0
@@ -335,10 +432,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_100000) do
     t.bigint "user_id"
     t.string "uuid", limit: 36, null: false
     t.integer "visibility", default: 0, null: false
+    t.index ["ai_generated"], name: "index_plans_on_ai_generated"
     t.index ["average_rating"], name: "index_plans_on_average_rating"
     t.index ["city_name"], name: "index_plans_on_city_name"
     t.index ["end_date"], name: "index_plans_on_end_date"
     t.index ["local_id"], name: "index_plans_on_local_id", unique: true, where: "(local_id IS NOT NULL)"
+    t.index ["needs_ai_regeneration"], name: "index_plans_on_needs_ai_regeneration", where: "(needs_ai_regeneration = true)"
     t.index ["reviews_count"], name: "index_plans_on_reviews_count"
     t.index ["start_date", "end_date"], name: "index_plans_on_start_date_and_end_date"
     t.index ["start_date"], name: "index_plans_on_start_date"
@@ -392,8 +491,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_100000) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.datetime "activity_count_reset_at"
+    t.integer "activity_count_today", default: 0
     t.datetime "created_at", null: false
     t.string "password_digest", null: false
+    t.string "spam_block_reason"
+    t.datetime "spam_blocked_at"
+    t.datetime "spam_blocked_until"
     t.jsonb "travel_profile_data", default: {}
     t.datetime "updated_at", null: false
     t.integer "user_type", default: 0, null: false
@@ -407,8 +511,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_100000) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "audio_tours", "locations"
+  add_foreign_key "content_change_contributions", "content_changes"
+  add_foreign_key "content_change_contributions", "users"
+  add_foreign_key "content_changes", "users"
+  add_foreign_key "content_changes", "users", column: "reviewed_by_id"
+  add_foreign_key "curator_activities", "users"
   add_foreign_key "curator_applications", "users"
   add_foreign_key "curator_applications", "users", column: "reviewed_by_id"
+  add_foreign_key "curator_reviews", "content_changes"
+  add_foreign_key "curator_reviews", "users"
   add_foreign_key "experience_category_types", "experience_categories"
   add_foreign_key "experience_category_types", "experience_types"
   add_foreign_key "experience_locations", "experiences"
@@ -418,6 +529,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_100000) do
   add_foreign_key "location_category_assignments", "locations"
   add_foreign_key "location_experience_types", "experience_types"
   add_foreign_key "location_experience_types", "locations"
+  add_foreign_key "photo_suggestions", "locations"
+  add_foreign_key "photo_suggestions", "users"
+  add_foreign_key "photo_suggestions", "users", column: "reviewed_by_id"
   add_foreign_key "plan_experiences", "experiences"
   add_foreign_key "plan_experiences", "plans"
   add_foreign_key "plans", "users"

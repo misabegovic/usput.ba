@@ -1,0 +1,136 @@
+<div class="space-y-6">
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900"><%= t("curator.proposals.title") %></h1>
+      <p class="mt-1 text-sm text-gray-600"><%= t("curator.proposals.subtitle") %></p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white shadow rounded-lg p-4">
+    <%= form_with url: curator_proposals_path, method: :get, local: true, class: "flex flex-wrap gap-4" do |f| %>
+      <div class="flex-1 min-w-[150px]">
+        <%= f.select :change_type,
+          options_for_select([
+            [t("curator.proposals.filter.all_types"), ""],
+            [t("curator.proposals.types.create_content"), "create_content"],
+            [t("curator.proposals.types.update_content"), "update_content"],
+            [t("curator.proposals.types.delete_content"), "delete_content"]
+          ], params[:change_type]),
+          {},
+          class: "block w-full rounded-md border-0 py-2 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-emerald-600 sm:text-sm" %>
+      </div>
+      <div class="flex-1 min-w-[150px]">
+        <%= f.select :content_type,
+          options_for_select([
+            [t("curator.proposals.filter.all_content_types"), ""],
+            ["Location", "Location"],
+            ["Experience", "Experience"],
+            ["Plan", "Plan"],
+            ["AudioTour", "AudioTour"],
+            ["Review", "Review"]
+          ], params[:content_type]),
+          {},
+          class: "block w-full rounded-md border-0 py-2 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-emerald-600 sm:text-sm" %>
+      </div>
+      <div>
+        <%= f.submit t("common.search"), class: "inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Proposals List -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <% if @proposals.any? %>
+      <ul role="list" class="divide-y divide-gray-200">
+        <% @proposals.each do |proposal| %>
+          <li>
+            <%= link_to curator_proposal_path(proposal), class: "block hover:bg-gray-50" do %>
+              <div class="px-4 py-4 sm:px-6">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3 min-w-0 flex-1">
+                    <% case proposal.change_type %>
+                    <% when "create_content" %>
+                      <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 shrink-0">
+                        <%= t("curator.proposals.types.create_content") %>
+                      </span>
+                    <% when "update_content" %>
+                      <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 shrink-0">
+                        <%= t("curator.proposals.types.update_content") %>
+                      </span>
+                    <% when "delete_content" %>
+                      <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 shrink-0">
+                        <%= t("curator.proposals.types.delete_content") %>
+                      </span>
+                    <% end %>
+                    <p class="text-sm font-medium text-gray-900 truncate">
+                      <%= proposal.description %>
+                    </p>
+                  </div>
+                  <div class="ml-2 flex shrink-0 items-center gap-3">
+                    <% summary = proposal.recommendation_summary %>
+                    <% if summary[:approve] > 0 || summary[:reject] > 0 %>
+                      <div class="flex items-center gap-2 text-xs">
+                        <% if summary[:approve] > 0 %>
+                          <span class="inline-flex items-center text-green-600">
+                            <svg class="h-4 w-4 mr-0.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z" />
+                            </svg>
+                            <%= summary[:approve] %>
+                          </span>
+                        <% end %>
+                        <% if summary[:reject] > 0 %>
+                          <span class="inline-flex items-center text-red-600">
+                            <svg class="h-4 w-4 mr-0.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 15h2.25m8.024-9.75c.011.05.028.1.052.148.591 1.2.924 2.55.924 3.977a8.96 8.96 0 01-.999 4.125m.023-8.25c-.076-.365.183-.75.575-.75h.908c.889 0 1.713.518 1.972 1.368.339 1.11.521 2.287.521 3.507 0 1.553-.295 3.036-.831 4.398-.306.774-1.086 1.227-1.918 1.227h-1.053c-.472 0-.745-.556-.5-.96a8.95 8.95 0 00.303-.54m.023-8.25H16.48a4.5 4.5 0 01-1.423-.23l-3.114-1.04a4.5 4.5 0 00-1.423-.23H6.504c-.618 0-1.217.247-1.605.729A11.95 11.95 0 002.25 12c0 .434.023.863.068 1.285C2.427 14.306 3.346 15 4.372 15h3.126c.618 0 .991.724.725 1.282A7.471 7.471 0 007.5 19.5a2.25 2.25 0 002.25 2.25.75.75 0 00.75-.75v-.633c0-.573.11-1.14.322-1.672.304-.76.93-1.33 1.653-1.715a9.04 9.04 0 002.86-2.4c.498-.634 1.226-1.08 2.032-1.08h.384" />
+                            </svg>
+                            <%= summary[:reject] %>
+                          </span>
+                        <% end %>
+                      </div>
+                    <% end %>
+                    <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+                <div class="mt-2 flex items-center justify-between">
+                  <div class="flex items-center gap-4 text-sm text-gray-500">
+                    <span class="flex items-center gap-1">
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                      </svg>
+                      <%= proposal.user.username %>
+                    </span>
+                    <% if proposal.contributions.count > 1 %>
+                      <span class="text-emerald-600">
+                        +<%= proposal.contributions.count - 1 %> <%= t("curator.proposals.contributors") %>
+                      </span>
+                    <% end %>
+                    <span><%= proposal.created_at.strftime("%d.%m.%Y %H:%M") %></span>
+                  </div>
+                  <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">
+                    <%= proposal.changeable_type || proposal.changeable_class %>
+                  </span>
+                </div>
+              </div>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+
+      <!-- Pagination -->
+      <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+        <%= paginate @proposals %>
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900"><%= t("curator.proposals.no_proposals") %></h3>
+        <p class="mt-1 text-sm text-gray-500"><%= t("curator.proposals.no_proposals_hint") %></p>
+      </div>
+    <% end %>
+  </div>
+</div>

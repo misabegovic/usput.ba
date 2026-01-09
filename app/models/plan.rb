@@ -114,6 +114,13 @@ class Plan < ApplicationRecord
     end
   }
 
+  # Resources needing AI regeneration (translations)
+  scope :needs_ai_regeneration, -> { where(needs_ai_regeneration: true) }
+
+  # Filter by AI generated / Human made
+  scope :ai_generated, -> { where(ai_generated: true) }
+  scope :human_made, -> { where(ai_generated: false) }
+
   # Broj dana u planu
   def duration_in_days
     return calculated_duration_days unless start_date.present? && end_date.present?

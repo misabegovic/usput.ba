@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Curator
   class ExperiencesController < BaseController
     before_action :set_experience, only: [ :show, :edit, :update, :destroy ]
@@ -8,11 +10,20 @@ module Curator
       @experiences = @experiences.by_city_name(params[:city_name]) if params[:city_name].present?
       @experiences = @experiences.by_category(params[:category_id]) if params[:category_id].present?
       @experiences = @experiences.where("experiences.title ILIKE ?", "%#{params[:search]}%") if params[:search].present?
+      @experiences = @experiences.page(params[:page]).per(20)
       @city_names = Location.joins(:experiences).where.not(city: [nil, ""]).distinct.pluck(:city).sort
       @experience_categories = ExperienceCategory.all
+
+      # Show pending proposals for this curator
+      @pending_proposals = current_user.content_changes
+        .where(changeable_type: "Experience")
+        .or(current_user.content_changes.where(changeable_class: "Experience"))
+        .pending
+        .order(created_at: :desc)
     end
 
     def show
+      @pending_proposal = pending_proposal_for(@experience)
     end
 
     def new
@@ -20,41 +31,84 @@ module Curator
     end
 
     def create
-      @experience = Experience.new(experience_params)
+      # Instead of creating directly, create a proposal for admin review
+      proposal = current_user.content_changes.build(
+        change_type: :create_content,
+        changeable_class: "Experience",
+        proposed_data: proposal_data_from_params
+      )
 
-      if @experience.save
-        update_locations
-        attach_cover_photo
-        redirect_to curator_experience_path(@experience), notice: t("curator.experiences.created")
+      if proposal.save
+        record_activity("proposal_created", recordable: proposal, metadata: { type: "Experience", title: proposal_data_from_params["title"] })
+        redirect_to curator_experiences_path, notice: t("curator.proposals.submitted_for_review")
       else
+        @experience = Experience.new(experience_params)
+        flash.now[:alert] = t("curator.proposals.failed_to_submit")
         render :new, status: :unprocessable_entity
       end
     end
 
     def edit
+      @pending_proposal = pending_proposal_for(@experience)
     end
 
     def update
-      remove_cover_photo if params[:experience][:remove_cover_photo] == "1"
+      # Use find_or_create to ensure only one pending proposal per resource
+      proposal = ContentChange.find_or_create_for_update(
+        changeable: @experience,
+        user: current_user,
+        original_data: @experience.attributes.slice(*editable_attributes),
+        proposed_data: proposal_data_from_params
+      )
 
-      if @experience.update(experience_params)
-        update_locations
-        attach_cover_photo
-        redirect_to curator_experience_path(@experience), notice: t("curator.experiences.updated")
+      if proposal.persisted?
+        action = proposal.contributions.exists?(user: current_user) ? "proposal_contributed" : "proposal_updated"
+        record_activity(action, recordable: @experience, metadata: { type: "Experience", title: @experience.title })
+        redirect_to curator_experience_path(@experience), notice: t("curator.proposals.submitted_for_review")
       else
+        flash.now[:alert] = t("curator.proposals.failed_to_submit")
         render :edit, status: :unprocessable_entity
       end
     end
 
     def destroy
-      @experience.destroy
-      redirect_to curator_experiences_path, notice: t("curator.experiences.deleted")
+      # Use find_or_create to ensure only one pending proposal per resource
+      proposal = ContentChange.find_or_create_for_delete(
+        changeable: @experience,
+        user: current_user,
+        original_data: @experience.attributes.slice(*editable_attributes)
+      )
+
+      if proposal.persisted?
+        record_activity("proposal_deleted", recordable: @experience, metadata: { type: "Experience", title: @experience.title })
+        redirect_to curator_experiences_path, notice: t("curator.proposals.delete_submitted_for_review")
+      else
+        redirect_to curator_experiences_path, alert: t("curator.proposals.failed_to_submit")
+      end
     end
 
     private
 
     def set_experience
       @experience = Experience.find_by_public_id!(params[:id])
+    end
+
+    def editable_attributes
+      %w[title description experience_category_id estimated_duration contact_name contact_email contact_phone contact_website seasons]
+    end
+
+    def proposal_data_from_params
+      data = experience_params.to_h
+
+      # Include location UUIDs for association
+      if params[:experience][:location_uuids].present?
+        data["location_uuids"] = params[:experience][:location_uuids].reject(&:blank?)
+      end
+
+      # Note: Cover photo is not included in proposals
+      # It would need to be added after approval
+
+      data
     end
 
     def experience_params
@@ -68,39 +122,6 @@ module Curator
     def load_form_options
       @experience_categories = ExperienceCategory.all
       @locations = Location.order(:name)
-    end
-
-    def attach_cover_photo
-      return unless params[:experience][:cover_photo].present?
-      return if params[:experience][:cover_photo].blank?
-      @experience.cover_photo.attach(params[:experience][:cover_photo])
-    end
-
-    def remove_cover_photo
-      @experience.cover_photo.purge if @experience.cover_photo.attached?
-    end
-
-    def update_locations
-      return unless params[:experience][:location_uuids].present?
-
-      location_uuids = params[:experience][:location_uuids].reject(&:blank?)
-
-      # Convert UUIDs to database IDs
-      locations = Location.where(uuid: location_uuids).index_by(&:uuid)
-      location_ids = location_uuids.filter_map { |uuid| locations[uuid]&.id }
-
-      # Remove existing locations not in the new list
-      @experience.experience_locations.where.not(location_id: location_ids).destroy_all
-
-      # Add/update locations with positions (preserving order from form)
-      location_uuids.each_with_index do |uuid, index|
-        location = locations[uuid]
-        next unless location
-
-        exp_loc = @experience.experience_locations.find_or_initialize_by(location_id: location.id)
-        exp_loc.position = index + 1
-        exp_loc.save
-      end
     end
   end
 end

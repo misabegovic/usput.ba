@@ -15,26 +15,32 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <%= button_to admin_stop_admin_ai_path,
-              method: :post,
-              form: { data: { turbo_confirm: t("admin.ai.stop_confirm") } },
-              class: "inline-flex items-center gap-2 px-3 py-1.5 text-sm text-red-700 hover:text-red-800 hover:bg-red-100 rounded-md transition-colors",
-              data: { generation_status_target: "stopButton", action: "generation-status#stopGeneration" } do %>
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
-          </svg>
-          <span><%= t("admin.ai.stop_generation") %></span>
+        <%= form_with url: admin_stop_admin_ai_path, method: :post, class: "inline", data: { turbo_confirm: t("admin.ai.stop_confirm"), controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
+          <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
+          <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+          <button type="submit"
+                  class="inline-flex items-center gap-2 px-3 py-1.5 text-sm text-red-700 hover:text-red-800 hover:bg-red-100 rounded-md transition-colors"
+                  data-generation-status-target="stopButton"
+                  data-action="credential-form#copyCredentials generation-status#stopGeneration">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
+            </svg>
+            <span><%= t("admin.ai.stop_generation") %></span>
+          </button>
         <% end %>
-        <%= button_to admin_reset_admin_ai_path,
-              method: :post,
-              form: { data: { turbo_confirm: t("admin.ai.reset_confirm") } },
-              class: "inline-flex items-center gap-2 px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors",
-              title: t("admin.ai.reset_tooltip") do %>
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-          </svg>
-          <span><%= t("admin.ai.force_reset") %></span>
+        <%= form_with url: admin_reset_admin_ai_path, method: :post, class: "inline", data: { turbo_confirm: t("admin.ai.reset_confirm"), controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
+          <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
+          <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+          <button type="submit"
+                  class="inline-flex items-center gap-2 px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                  title="<%= t("admin.ai.reset_tooltip") %>"
+                  data-action="credential-form#copyCredentials">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            <span><%= t("admin.ai.force_reset") %></span>
+          </button>
         <% end %>
         <button type="button"
                 data-generation-status-target="button"

@@ -1,6 +1,7 @@
 module Admin
   class CuratorApplicationsController < BaseController
     before_action :set_application, only: [ :show, :approve, :reject ]
+    before_action :require_admin_credentials, only: [ :approve, :reject ]
 
     def index
       @applications = CuratorApplication.includes(:user, :reviewed_by).recent

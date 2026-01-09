@@ -102,6 +102,20 @@ class Browse < ApplicationRecord
     where("category_keys @> ?", [ category_key ].to_json)
   }
 
+  # Filter by AI generated / Human made
+  scope :ai_generated, -> { where(ai_generated: true) }
+  scope :human_made, -> { where(ai_generated: false) }
+  scope :by_origin, ->(origin) {
+    case origin.to_s
+    when "ai", "ai_generated"
+      ai_generated
+    when "human", "human_made"
+      human_made
+    else
+      all
+    end
+  }
+
   # Filter by season - matches if seasons array contains the season OR is empty (year-round)
   # Seasons: spring, summer, fall, winter
   scope :by_season, ->(season) {

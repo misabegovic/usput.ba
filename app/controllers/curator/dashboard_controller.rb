@@ -25,6 +25,14 @@ module Curator
         recent_reviews: Review.includes(:reviewable, :user).order(created_at: :desc).limit(5),
         recent_plans: Plan.public_plans.includes(:user).order(created_at: :desc).limit(5)
       }
+
+      # Recent curator activities (from all curators)
+      @recent_activities = CuratorActivity.includes(:user, :recordable)
+        .recent
+        .limit(10)
+
+      # Pending proposals count for the badge
+      @pending_proposals_count = ContentChange.pending.count
     end
 
     private

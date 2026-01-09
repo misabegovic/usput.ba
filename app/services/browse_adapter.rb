@@ -33,7 +33,8 @@ class BrowseAdapter
         reviews_count: location.reviews_count,
         budget: location.budget_before_type_cast,
         category_keys: location.category_keys,
-        seasons: [] # Locations don't have seasons - they're available year-round
+        seasons: location.seasons,
+        ai_generated: location.ai_generated
       }
     end
 
@@ -52,7 +53,8 @@ class BrowseAdapter
         reviews_count: experience.reviews_count,
         budget: nil, # Experiences don't have budget
         category_keys: [ experience.category_key ].compact,
-        seasons: experience.seasons
+        seasons: experience.seasons,
+        ai_generated: experience.ai_generated
       }
     end
 
@@ -77,7 +79,8 @@ class BrowseAdapter
         reviews_count: plan.reviews_count,
         budget: nil, # Plans don't have budget
         category_keys: [],
-        seasons: plan_seasons
+        seasons: plan_seasons,
+        ai_generated: plan.ai_generated
       }
     end
 

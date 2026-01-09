@@ -1,0 +1,82 @@
+<% case status %>
+<% when "in_progress" %>
+  <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <svg class="h-5 w-5 text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <div>
+          <span class="text-blue-800 font-medium">Regeneration in progress</span>
+          <% if progress["current_type"].present? %>
+            <p class="text-blue-600 text-sm">
+              Processing <%= progress["current_type"] %>: <%= progress["current"] %>/<%= progress["total"] %>
+            </p>
+          <% else %>
+            <p class="text-blue-600 text-sm"><%= progress["message"] || "Starting..." %></p>
+          <% end %>
+        </div>
+      </div>
+      <%= form_with url: admin_force_reset_regenerate_translations_admin_ai_path, method: :post, class: "inline", data: { turbo_confirm: "Are you sure? This will cancel the current regeneration.", controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
+        <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
+        <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+        <button type="submit" class="text-xs text-blue-600 hover:text-blue-800 underline" data-action="credential-form#copyCredentials">Force Reset</button>
+      <% end %>
+    </div>
+  </div>
+
+<% when "completed" %>
+  <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+    <div class="flex items-start gap-3">
+      <svg class="h-5 w-5 text-green-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <div class="flex-1">
+        <span class="text-green-800 font-medium">Regeneration completed</span>
+        <p class="text-green-600 text-sm"><%= progress["message"] %></p>
+        <% if progress["results"].present? %>
+          <div class="mt-2 grid grid-cols-3 gap-2 text-xs">
+            <div class="bg-green-100 rounded px-2 py-1">
+              <span class="text-green-700">Locations:</span>
+              <span class="font-medium text-green-900"><%= progress["results"]["locations"]["success"] || 0 %></span>
+              <% if progress["results"]["locations"]["failed"].to_i > 0 %>
+                <span class="text-red-600">(<%= progress["results"]["locations"]["failed"] %> failed)</span>
+              <% end %>
+            </div>
+            <div class="bg-green-100 rounded px-2 py-1">
+              <span class="text-green-700">Experiences:</span>
+              <span class="font-medium text-green-900"><%= progress["results"]["experiences"]["success"] || 0 %></span>
+              <% if progress["results"]["experiences"]["failed"].to_i > 0 %>
+                <span class="text-red-600">(<%= progress["results"]["experiences"]["failed"] %> failed)</span>
+              <% end %>
+            </div>
+            <div class="bg-green-100 rounded px-2 py-1">
+              <span class="text-green-700">Plans:</span>
+              <span class="font-medium text-green-900"><%= progress["results"]["plans"]["success"] || 0 %></span>
+              <% if progress["results"]["plans"]["failed"].to_i > 0 %>
+                <span class="text-red-600">(<%= progress["results"]["plans"]["failed"] %> failed)</span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+<% when "failed" %>
+  <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+    <div class="flex items-start gap-3">
+      <svg class="h-5 w-5 text-red-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+      </svg>
+      <div>
+        <span class="text-red-800 font-medium">Regeneration failed</span>
+        <p class="text-red-600 text-sm"><%= progress["message"] %></p>
+      </div>
+    </div>
+  </div>
+
+<% else %>
+  <div class="text-gray-500 text-sm text-center">No recent regeneration activity</div>
+<% end %>

@@ -50,12 +50,6 @@
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
               <%= link_to t("admin.users.view"), admin_user_path(user), class: "text-indigo-600 hover:text-indigo-900" %>
               <%= link_to t("admin.users.edit"), edit_admin_user_path(user), class: "text-indigo-600 hover:text-indigo-900" %>
-              <% unless user == current_user %>
-                <%= button_to t("admin.users.delete"), admin_user_path(user),
-                    method: :delete,
-                    class: "text-red-600 hover:text-red-900",
-                    data: { turbo_confirm: t("admin.users.confirm_delete", username: user.username) } %>
-              <% end %>
             </td>
           </tr>
         <% end %>
@@ -92,12 +86,6 @@
         <div class="flex items-center gap-4 text-sm">
           <%= link_to t("admin.users.view"), admin_user_path(user), class: "text-indigo-600 hover:text-indigo-900" %>
           <%= link_to t("admin.users.edit"), edit_admin_user_path(user), class: "text-indigo-600 hover:text-indigo-900" %>
-          <% unless user == current_user %>
-            <%= button_to t("admin.users.delete"), admin_user_path(user),
-                method: :delete,
-                class: "text-red-600 hover:text-red-900",
-                data: { turbo_confirm: t("admin.users.confirm_delete", username: user.username) } %>
-          <% end %>
         </div>
       </div>
     <% end %>

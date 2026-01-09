@@ -33,6 +33,41 @@
     </div>
   </div>
 
+  <!-- Pending Actions -->
+  <div class="grid grid-cols-1 gap-3 sm:gap-5 sm:grid-cols-3">
+    <% if @stats[:pending_proposals] > 0 %>
+      <%= link_to admin_content_changes_path, class: "overflow-hidden rounded-lg bg-amber-50 border border-amber-200 px-4 py-4 shadow sm:p-6 hover:bg-amber-100 transition-colors" do %>
+        <dt class="truncate text-sm font-medium text-amber-600"><%= t("admin.dashboard.pending_proposals") %></dt>
+        <dd class="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight text-amber-900"><%= @stats[:pending_proposals] %></dd>
+        <dd class="mt-1 text-xs text-amber-600"><%= t("admin.dashboard.click_to_review") %></dd>
+      <% end %>
+    <% else %>
+      <div class="overflow-hidden rounded-lg bg-green-50 px-4 py-4 shadow sm:p-6">
+        <dt class="truncate text-sm font-medium text-green-600"><%= t("admin.dashboard.pending_proposals") %></dt>
+        <dd class="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight text-green-900">0</dd>
+        <dd class="mt-1 text-xs text-green-600"><%= t("admin.dashboard.all_reviewed") %></dd>
+      </div>
+    <% end %>
+
+    <div class="overflow-hidden rounded-lg <%= @stats[:pending_photo_suggestions] > 0 ? 'bg-blue-50 border border-blue-200' : 'bg-white' %> px-4 py-4 shadow sm:p-6">
+      <dt class="truncate text-sm font-medium <%= @stats[:pending_photo_suggestions] > 0 ? 'text-blue-600' : 'text-gray-500' %>"><%= t("admin.dashboard.pending_photos") %></dt>
+      <dd class="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight <%= @stats[:pending_photo_suggestions] > 0 ? 'text-blue-900' : 'text-gray-900' %>"><%= @stats[:pending_photo_suggestions] %></dd>
+    </div>
+
+    <% if @stats[:blocked_curators] > 0 %>
+      <div class="overflow-hidden rounded-lg bg-red-50 border border-red-200 px-4 py-4 shadow sm:p-6">
+        <dt class="truncate text-sm font-medium text-red-600"><%= t("admin.dashboard.blocked_curators") %></dt>
+        <dd class="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight text-red-900"><%= @stats[:blocked_curators] %></dd>
+        <dd class="mt-1 text-xs text-red-600"><%= t("admin.dashboard.spam_blocked") %></dd>
+      </div>
+    <% else %>
+      <div class="overflow-hidden rounded-lg bg-white px-4 py-4 shadow sm:p-6">
+        <dt class="truncate text-sm font-medium text-gray-500"><%= t("admin.dashboard.blocked_curators") %></dt>
+        <dd class="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">0</dd>
+      </div>
+    <% end %>
+  </div>
+
   <!-- Recent Users -->
   <div class="rounded-lg bg-white shadow">
     <div class="px-4 py-4 sm:p-6">
@@ -94,27 +129,47 @@
     </div>
   </div>
 
-  <!-- Danger Zone -->
-  <div class="rounded-lg border-2 border-red-300 bg-red-50 shadow">
+  <!-- Recent Curator Activities -->
+  <div class="rounded-lg bg-white shadow">
     <div class="px-4 py-4 sm:p-6">
-      <h2 class="text-base sm:text-lg font-medium text-red-900"><%= t("admin.dashboard.danger_zone") %></h2>
-      <p class="mt-2 text-sm text-red-700"><%= t("admin.dashboard.clear_database_warning") %></p>
+      <h2 class="text-base sm:text-lg font-medium text-gray-900 mb-4"><%= t("admin.dashboard.curator_activity") %></h2>
 
-      <%= form_with url: admin_clear_database_path, method: :delete, class: "mt-4", data: { turbo_confirm: t("admin.dashboard.confirm_clear"), controller: "confirm-delete", "confirm-delete-text-value": "DELETE ALL" } do |f| %>
-        <div class="flex flex-col sm:flex-row gap-3">
-          <%= f.text_field :confirmation_text,
-              placeholder: t("admin.dashboard.confirmation_placeholder"),
-              class: "block w-full sm:w-auto rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-sm",
-              autocomplete: "off",
-              data: { "confirm-delete-target": "input", action: "input->confirm-delete#validate" } %>
-          <button type="submit"
-                  disabled
-                  data-confirm-delete-target="button"
-                  class="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
-            <%= t("admin.dashboard.clear_database") %>
-          </button>
+      <% if @recent_activities.any? %>
+        <ul class="divide-y divide-gray-200">
+          <% @recent_activities.each do |activity| %>
+            <li class="py-3">
+              <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0">
+                  <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-100">
+                    <%= render "curator/shared/activity_icon", activity: activity %>
+                  </span>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="text-sm text-gray-900">
+                    <%= link_to activity.user.username, admin_user_path(activity.user), class: "font-medium text-indigo-600 hover:text-indigo-900" %>
+                    <%= activity.description %>
+                  </div>
+                  <div class="mt-0.5 text-xs text-gray-500">
+                    <%= time_ago_in_words(activity.created_at) %> <%= t("common.ago") %>
+                    <% if activity.ip_address.present? %>
+                      <span class="text-gray-400">(<%= activity.ip_address %>)</span>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+
+        <div class="mt-4">
+          <%= paginate @recent_activities %>
+        </div>
+      <% else %>
+        <div class="text-center py-6 text-gray-500 text-sm">
+          <%= t("curator.activities.no_activities") %>
         </div>
       <% end %>
     </div>
   </div>
+
 </div>

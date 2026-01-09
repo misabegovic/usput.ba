@@ -1,0 +1,222 @@
+<div class="space-y-6">
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900">
+      <%= t("admin.content_changes.proposal_details") %>
+    </h1>
+    <div class="mt-3 sm:mt-0">
+      <%= link_to t("admin.content_changes.back_to_list"), admin_content_changes_path,
+          class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+    </div>
+  </div>
+
+  <!-- Status and Actions -->
+  <div class="overflow-hidden rounded-lg bg-white shadow">
+    <div class="px-4 py-4 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div class="space-y-2">
+          <div>
+            <span class="text-sm text-gray-500"><%= t("admin.content_changes.status_label") %>:</span>
+            <% case @content_change.status %>
+            <% when "pending" %>
+              <span class="ml-2 inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-800">
+                <%= t("admin.content_changes.stats.pending") %>
+              </span>
+            <% when "approved" %>
+              <span class="ml-2 inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
+                <%= t("admin.content_changes.stats.approved") %>
+              </span>
+            <% when "rejected" %>
+              <span class="ml-2 inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-800">
+                <%= t("admin.content_changes.stats.rejected") %>
+              </span>
+            <% end %>
+          </div>
+          <div>
+            <span class="text-sm text-gray-500"><%= t("admin.content_changes.type") %>:</span>
+            <% case @content_change.change_type %>
+            <% when "create_content" %>
+              <span class="ml-2 inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
+                <%= t("admin.content_changes.types.create_content") %>
+              </span>
+            <% when "update_content" %>
+              <span class="ml-2 inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800">
+                <%= t("admin.content_changes.types.update_content") %>
+              </span>
+            <% when "delete_content" %>
+              <span class="ml-2 inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-800">
+                <%= t("admin.content_changes.types.delete_content") %>
+              </span>
+            <% end %>
+          </div>
+          <div>
+            <span class="text-sm text-gray-500"><%= t("admin.content_changes.content_type") %>:</span>
+            <span class="ml-2 text-sm text-gray-900"><%= @content_change.changeable_type || @content_change.changeable_class %></span>
+          </div>
+        </div>
+
+        <% if @content_change.pending? %>
+          <div class="space-y-4">
+            <!-- Admin Credentials for protected actions -->
+            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <p class="text-sm text-gray-600 mb-3">
+                <%= t("admin.credentials.confirm_action", default: "Confirm your admin credentials to proceed:") %>
+              </p>
+              <div class="flex flex-col sm:flex-row gap-3" data-controller="admin-credentials">
+                <input type="text"
+                       id="content_change_admin_username"
+                       placeholder="<%= t("admin.credentials.username", default: "Admin Username") %>"
+                       data-admin-credentials-target="username"
+                       class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                <input type="password"
+                       id="content_change_admin_password"
+                       placeholder="<%= t("admin.credentials.password", default: "Admin Password") %>"
+                       data-admin-credentials-target="password"
+                       class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+              <%= form_with url: approve_admin_content_change_path(@content_change), method: :post, class: "inline", data: { controller: "credential-form", "credential-form-username-id-value": "content_change_admin_username", "credential-form-password-id-value": "content_change_admin_password" } do |f| %>
+                <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
+                <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+                <%= f.text_field :admin_notes,
+                    placeholder: t("admin.content_changes.admin_notes"),
+                    class: "rounded-md border-gray-300 text-sm w-full mb-2" %>
+                <%= f.submit t("admin.content_changes.approve_btn"),
+                    class: "inline-flex items-center justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 cursor-pointer w-full",
+                    data: { turbo_confirm: t("admin.content_changes.confirm_approve", type: @content_change.change_type.humanize), action: "credential-form#copyCredentials" } %>
+              <% end %>
+
+              <%= form_with url: reject_admin_content_change_path(@content_change), method: :post, class: "flex flex-col gap-2", data: { controller: "credential-form", "credential-form-username-id-value": "content_change_admin_username", "credential-form-password-id-value": "content_change_admin_password" } do |f| %>
+                <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
+                <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+                <%= f.text_field :admin_notes,
+                    placeholder: t("admin.content_changes.rejection_reason"),
+                    class: "rounded-md border-gray-300 text-sm w-full" %>
+                <%= f.submit t("admin.content_changes.reject_btn"),
+                    class: "inline-flex items-center justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 cursor-pointer w-full",
+                    data: { turbo_confirm: t("admin.content_changes.confirm_reject"), action: "credential-form#copyCredentials" } %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <% if @content_change.reviewed_by.present? %>
+        <div class="mt-4 text-sm text-gray-500">
+          <%= t("admin.content_changes.reviewed_by",
+              admin: @content_change.reviewed_by.username,
+              date: @content_change.reviewed_at.strftime("%d.%m.%Y %H:%M")) %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Proposal Info -->
+  <div class="overflow-hidden rounded-lg bg-white shadow">
+    <div class="px-4 py-5 sm:p-6">
+      <dl class="space-y-6">
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("admin.content_changes.proposed_by") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @content_change.user.username %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("admin.content_changes.submitted") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @content_change.created_at.strftime("%d.%m.%Y %H:%M") %></dd>
+        </div>
+
+        <% if @content_change.changeable.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Current Record</dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <% target_name = @content_change.changeable.respond_to?(:name) ? @content_change.changeable.name : (@content_change.changeable.respond_to?(:title) ? @content_change.changeable.title : "ID: #{@content_change.changeable.id}") %>
+              <%= target_name %>
+            </dd>
+          </div>
+        <% end %>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Proposed Data -->
+  <% if @content_change.proposed_data.present? %>
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-4"><%= t("admin.content_changes.proposed_changes") %></h3>
+
+        <% if @content_change.update_content? && @content_change.original_data.present? %>
+          <!-- Show diff for updates -->
+          <div class="space-y-4">
+            <% @content_change.changes_diff.each do |key, diff| %>
+              <div class="border border-gray-200 rounded-lg p-4">
+                <dt class="text-sm font-medium text-gray-700 mb-2"><%= key.humanize %></dt>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="bg-red-50 p-3 rounded">
+                    <span class="text-xs text-red-600 font-medium"><%= t("admin.content_changes.diff.from") %>:</span>
+                    <dd class="mt-1 text-sm text-gray-900 whitespace-pre-wrap"><%= diff[:from].presence || "-" %></dd>
+                  </div>
+                  <div class="bg-green-50 p-3 rounded">
+                    <span class="text-xs text-green-600 font-medium"><%= t("admin.content_changes.diff.to") %>:</span>
+                    <dd class="mt-1 text-sm text-gray-900 whitespace-pre-wrap"><%= diff[:to].presence || "-" %></dd>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <!-- Show all proposed data for creates -->
+          <dl class="space-y-4">
+            <% @content_change.proposed_data.each do |key, value| %>
+              <div class="border-b border-gray-100 pb-3">
+                <dt class="text-sm font-medium text-gray-500"><%= key.humanize %></dt>
+                <dd class="mt-1 text-sm text-gray-900 whitespace-pre-wrap bg-gray-50 p-2 rounded">
+                  <% if value.is_a?(Array) || value.is_a?(Hash) %>
+                    <%= value.to_json %>
+                  <% else %>
+                    <%= value.presence || "-" %>
+                  <% end %>
+                </dd>
+              </div>
+            <% end %>
+          </dl>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Original Data (for deletes) -->
+  <% if @content_change.delete_content? && @content_change.original_data.present? %>
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-base sm:text-lg font-medium text-red-600 mb-4"><%= t("admin.content_changes.original_data") %> (will be deleted)</h3>
+        <dl class="space-y-4">
+          <% @content_change.original_data.each do |key, value| %>
+            <div class="border-b border-gray-100 pb-3">
+              <dt class="text-sm font-medium text-gray-500"><%= key.humanize %></dt>
+              <dd class="mt-1 text-sm text-gray-900 whitespace-pre-wrap bg-red-50 p-2 rounded">
+                <% if value.is_a?(Array) || value.is_a?(Hash) %>
+                  <%= value.to_json %>
+                <% else %>
+                  <%= value.presence || "-" %>
+                <% end %>
+              </dd>
+            </div>
+          <% end %>
+        </dl>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Admin Notes -->
+  <% if @content_change.admin_notes.present? %>
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-4"><%= t("admin.content_changes.admin_notes") %></h3>
+        <div class="text-sm text-gray-900 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">
+          <%= @content_change.admin_notes %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
