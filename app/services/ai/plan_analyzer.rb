@@ -74,12 +74,13 @@ module Ai
       }
     end
 
-    # Analyze all plans and find quality issues
+    # Analyze all AI-generated plans and find quality issues
     # @return [Array<Hash>] Array of analysis results
     def analyze_all
       results = []
 
-      Plan.includes(:plan_experiences, :experiences, :translations).find_each do |plan|
+      # Only analyze AI-generated plans (user_id is nil)
+      Plan.where(user_id: nil).includes(:plan_experiences, :experiences, :translations).find_each do |plan|
         result = analyze(plan)
         results << result unless result[:skipped]
       end
@@ -111,12 +112,13 @@ module Ai
       similar_groups.sort_by { |g| -g[:similarity][:overall] }
     end
 
-    # Get a comprehensive report of all quality issues
+    # Get a comprehensive report of all quality issues for AI-generated plans
     # @return [Hash] Report with statistics and issues by type
     def generate_report
       all_results = []
 
-      Plan.includes(:plan_experiences, :experiences, :translations).find_each do |plan|
+      # Only analyze AI-generated plans (user_id is nil)
+      Plan.where(user_id: nil).includes(:plan_experiences, :experiences, :translations).find_each do |plan|
         result = analyze(plan)
         all_results << result unless result[:skipped]
       end
