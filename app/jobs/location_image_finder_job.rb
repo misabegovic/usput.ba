@@ -292,14 +292,20 @@ class LocationImageFinderJob < ApplicationJob
 
     filename = generate_filename(location, image)
 
-    location.photos.attach(
+    attachments = location.photos.attach(
       io: downloaded[:io],
       filename: filename,
       content_type: downloaded[:content_type]
     )
 
-    Rails.logger.info "[LocationImageFinderJob] Attached image to #{location.name}: #{filename}"
-    true
+    # Verify attachment was actually created
+    if attachments.present?
+      Rails.logger.info "[LocationImageFinderJob] Attached image to #{location.name}: #{filename}"
+      true
+    else
+      Rails.logger.warn "[LocationImageFinderJob] Attachment returned empty for #{location.name}"
+      false
+    end
 
   rescue ActiveStorage::IntegrityError => e
     Rails.logger.warn "[LocationImageFinderJob] Integrity error attaching image: #{e.message}"
