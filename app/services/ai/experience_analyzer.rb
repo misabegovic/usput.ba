@@ -121,8 +121,9 @@ module Ai
     end
 
     # Get a comprehensive report of all quality issues
+    # @param limit [Integer, nil] Maximum number of items to return per category (nil = unlimited)
     # @return [Hash] Report with statistics and issues by type
-    def generate_report
+    def generate_report(limit: 20)
       all_results = []
       similar_experiences = []
 
@@ -144,9 +145,9 @@ module Ai
         similar_experience_pairs: similar_experiences.count,
         issues_by_severity: group_issues_by_severity(all_results),
         issues_by_type: group_issues_by_type(all_results),
-        worst_experiences: experiences_to_rebuild.take(20),
-        deletable_experiences: experiences_to_delete.take(20),
-        similar_experiences: similar_experiences.take(10)
+        worst_experiences: limit ? experiences_to_rebuild.take(limit) : experiences_to_rebuild,
+        deletable_experiences: limit ? experiences_to_delete.take(limit) : experiences_to_delete,
+        similar_experiences: limit ? similar_experiences.take(limit / 2) : similar_experiences
       }
     end
 

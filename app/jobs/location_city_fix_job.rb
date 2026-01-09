@@ -15,6 +15,10 @@ class LocationCityFixJob < ApplicationJob
   # Retry on transient failures
   retry_on StandardError, wait: :polynomially_longer, attempts: 3
 
+  # Rate limits per service (seconds between requests)
+  GEOAPIFY_SLEEP = 0.2   # 5 requests/second
+  NOMINATIM_SLEEP = 1.1  # 1 request/second (with small buffer)
+
   def perform(regenerate_content: false, analyze_descriptions: false, dry_run: false, clear_cache: false)
     Rails.logger.info "[LocationCityFixJob] Starting location city fix (regenerate_content: #{regenerate_content}, analyze_descriptions: #{analyze_descriptions}, dry_run: #{dry_run}, clear_cache: #{clear_cache})"
 
@@ -45,13 +49,19 @@ class LocationCityFixJob < ApplicationJob
         results[:total_checked] += 1
 
         begin
-          process_location(location, results,
-                           regenerate_content: regenerate_content,
-                           analyze_descriptions: analyze_descriptions,
-                           dry_run: dry_run)
+          geocode_source = process_location(location, results,
+                                            regenerate_content: regenerate_content,
+                                            analyze_descriptions: analyze_descriptions,
+                                            dry_run: dry_run)
 
-          # Rate limit to avoid overwhelming Nominatim and AI APIs
-          sleep(1.1) # Nominatim requires max 1 request per second
+          # Rate limit based on which geocoding service was used
+          case geocode_source
+          when :nominatim
+            sleep(NOMINATIM_SLEEP)
+          when :geoapify
+            sleep(GEOAPIFY_SLEEP)
+          # :override and nil don't need rate limiting
+          end
         rescue StandardError => e
           results[:errors] << { location_id: location.id, name: location.name, error: e.message }
           Rails.logger.warn "[LocationCityFixJob] Error processing #{location.name}: #{e.message}"
@@ -107,12 +117,15 @@ class LocationCityFixJob < ApplicationJob
 
   private
 
+  # Returns the geocoding source used (:geoapify, :nominatim, :override, or nil)
   def process_location(location, results, regenerate_content:, analyze_descriptions:, dry_run:)
     city_corrected = false
     correct_city = location.city
 
     # Get the correct city from coordinates
-    geocoded_city = get_city_from_coordinates(location.lat, location.lng)
+    geocode_result = get_city_from_coordinates(location.lat, location.lng)
+    geocoded_city = geocode_result[:city]
+    geocode_source = geocode_result[:source]
 
     if geocoded_city.present?
       # Compare with current city
@@ -150,6 +163,8 @@ class LocationCityFixJob < ApplicationJob
     if analyze_descriptions
       analyze_and_regenerate_description(location, results, dry_run: dry_run, city: correct_city)
     end
+
+    geocode_source
   end
 
   def analyze_and_regenerate_description(location, results, dry_run:, city:)
@@ -186,8 +201,9 @@ class LocationCityFixJob < ApplicationJob
     normalize.call(current) != normalize.call(geocoded)
   end
 
+  # Returns { city: String|nil, source: :override|:geoapify|:nominatim|nil }
   def get_city_from_coordinates(lat, lng)
-    return nil if lat.blank? || lng.blank?
+    return { city: nil, source: nil } if lat.blank? || lng.blank?
 
     lat_f = lat.to_f
     lng_f = lng.to_f
@@ -196,25 +212,25 @@ class LocationCityFixJob < ApplicationJob
     override_city = check_coordinate_overrides(lat_f, lng_f)
     if override_city
       Rails.logger.info "[LocationCityFixJob] Using coordinate override for #{lat}, #{lng}: #{override_city}"
-      return override_city
+      return { city: override_city, source: :override }
     end
 
     # Try Geoapify first (more reliable for Balkan regions)
     city_name = get_city_from_geoapify(lat_f, lng_f)
     if city_name.present?
       Rails.logger.info "[LocationCityFixJob] Final city from Geoapify for #{lat}, #{lng}: #{city_name}"
-      return city_name
+      return { city: city_name, source: :geoapify }
     end
 
     # Fallback to Nominatim if Geoapify fails
     city_name = get_city_from_nominatim(lat_f, lng_f)
     if city_name.present?
       Rails.logger.info "[LocationCityFixJob] Final city from Nominatim for #{lat}, #{lng}: #{city_name}"
-      return city_name
+      return { city: city_name, source: :nominatim }
     end
 
     Rails.logger.info "[LocationCityFixJob] Could not extract city name for #{lat}, #{lng}"
-    nil
+    { city: nil, source: nil }
   end
 
   # Use Geoapify reverse geocoding API (primary method)

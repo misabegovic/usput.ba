@@ -29,7 +29,13 @@ module Admin
     # POST /admin/ai/generate
     # Pokrece autonomno AI generiranje
     def generate
-      max_experiences = params[:max_experiences].presence&.to_i
+      # Parse max values - empty string means "use default", "0" means unlimited
+      max_locations = parse_max_param(params[:max_locations])
+      max_experiences = parse_max_param(params[:max_experiences])
+      max_plans = parse_max_param(params[:max_plans])
+      skip_locations = params[:skip_locations] == "1"
+      skip_experiences = params[:skip_experiences] == "1"
+      skip_plans = params[:skip_plans] == "1"
 
       # Provjeri da li je vec u toku
       current_status = ::Ai::ContentOrchestrator.current_status
@@ -39,7 +45,14 @@ module Admin
       end
 
       # Pokreni job
-      ContentGenerationJob.perform_later(max_experiences: max_experiences)
+      ContentGenerationJob.perform_later(
+        max_locations: max_locations,
+        max_experiences: max_experiences,
+        max_plans: max_plans,
+        skip_locations: skip_locations,
+        skip_experiences: skip_experiences,
+        skip_plans: skip_plans
+      )
 
       redirect_to admin_ai_path, notice: t("admin.ai.generation_started")
     end
@@ -92,11 +105,17 @@ module Admin
       end
 
       regenerate_content = params[:regenerate_content] == "1"
+      analyze_descriptions = params[:analyze_descriptions] == "1"
       dry_run = params[:dry_run] == "1"
       clear_cache = params[:clear_cache] == "1"
 
       LocationCityFixJob.clear_status!
-      LocationCityFixJob.perform_later(regenerate_content: regenerate_content, dry_run: dry_run, clear_cache: clear_cache)
+      LocationCityFixJob.perform_later(
+        regenerate_content: regenerate_content,
+        analyze_descriptions: analyze_descriptions,
+        dry_run: dry_run,
+        clear_cache: clear_cache
+      )
 
       notice_msg = if dry_run
         t("admin.ai.city_fix_preview_started", default: "City fix preview started (no changes will be made)")
@@ -267,6 +286,13 @@ module Admin
     end
 
     private
+
+    # Parse max param: empty/nil = use default, "0" = unlimited (pass 0), other = specific value
+    def parse_max_param(value)
+      return nil if value.blank? # Use default
+      int_value = value.to_i
+      int_value # 0 means unlimited, other values are specific limits
+    end
 
     def parse_last_generation
       status = ::Ai::ContentOrchestrator.current_status

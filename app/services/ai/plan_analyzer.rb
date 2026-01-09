@@ -113,8 +113,9 @@ module Ai
     end
 
     # Get a comprehensive report of all quality issues for AI-generated plans
+    # @param limit [Integer, nil] Maximum number of items to return per category (nil = unlimited)
     # @return [Hash] Report with statistics and issues by type
-    def generate_report
+    def generate_report(limit: 20)
       all_results = []
 
       # Only analyze AI-generated plans (user_id is nil)
@@ -136,9 +137,9 @@ module Ai
         similar_plan_pairs: similar_plans.count,
         issues_by_severity: group_issues_by_severity(all_results),
         issues_by_type: group_issues_by_type(all_results),
-        worst_plans: plans_to_rebuild.take(20),
-        deletable_plans: plans_to_delete.take(20),
-        similar_plans: similar_plans.take(10)
+        worst_plans: limit ? plans_to_rebuild.take(limit) : plans_to_rebuild,
+        deletable_plans: limit ? plans_to_delete.take(limit) : plans_to_delete,
+        similar_plans: limit ? similar_plans.take(limit / 2) : similar_plans
       }
     end
 

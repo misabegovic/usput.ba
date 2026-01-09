@@ -22,6 +22,9 @@ class RebuildPlansJob < ApplicationJob
   # Rebuild modes
   MODES = %w[all quality similar].freeze
 
+  # Score threshold below which experiences will also be rebuilt (not just content)
+  EXPERIENCE_REBUILD_THRESHOLD = 50
+
   def perform(dry_run: false, rebuild_mode: "all", max_rebuilds: nil, delete_similar: false)
     Rails.logger.info "[RebuildPlansJob] Starting (dry_run: #{dry_run}, mode: #{rebuild_mode}, max_rebuilds: #{max_rebuilds})"
 
@@ -46,7 +49,7 @@ class RebuildPlansJob < ApplicationJob
       # Phase 1: Analyze all plans
       save_status("in_progress", "Analyzing plans for quality issues...")
       analyzer = Ai::PlanAnalyzer.new
-      report = analyzer.generate_report
+      report = analyzer.generate_report(limit: max_rebuilds)
 
       results[:total_analyzed] = report[:total_plans]
       results[:issues_found] = report[:plans_with_issues]
@@ -103,7 +106,7 @@ class RebuildPlansJob < ApplicationJob
 
           begin
             save_status("in_progress", "Rebuilding plan #{plan_result[:title]}...")
-            success = rebuild_plan(plan_result[:plan_id], plan_result[:issues])
+            success = rebuild_plan(plan_result[:plan_id], plan_result[:issues], plan_result[:score])
 
             if success
               rebuild_count += 1
@@ -205,7 +208,7 @@ class RebuildPlansJob < ApplicationJob
 
   private
 
-  def rebuild_plan(plan_id, issues)
+  def rebuild_plan(plan_id, issues, score = 100)
     plan = Plan.includes(:plan_experiences, :experiences, :translations).find_by(id: plan_id)
     return false unless plan
 
@@ -214,6 +217,13 @@ class RebuildPlansJob < ApplicationJob
 
     experiences = plan.experiences.to_a
     return false if experiences.empty?
+
+    # For low-quality plans, also rebuild experiences
+    if score < EXPERIENCE_REBUILD_THRESHOLD
+      rebuild_experiences_for_plan(plan, experiences)
+      # Reload experiences after potential changes
+      experiences = plan.experiences.reload.to_a
+    end
 
     # Determine what needs to be regenerated
     needs_new_content = issues.any? { |i| [:missing_title, :short_title, :ekavica_violation, :missing_translation, :missing_notes, :short_notes].include?(i[:type]) }
@@ -253,6 +263,168 @@ class RebuildPlansJob < ApplicationJob
   rescue Ai::OpenaiQueue::RequestError => e
     Rails.logger.warn "[RebuildPlansJob] AI regeneration failed: #{e.message}"
     false
+  end
+
+  def rebuild_experiences_for_plan(plan, current_experiences)
+    city = plan.city_name
+    return if city.blank?
+
+    Rails.logger.info "[RebuildPlansJob] Rebuilding experiences for plan #{plan.id}: #{plan.title}"
+
+    # Get available experiences in the same city that aren't already in the plan
+    current_ids = current_experiences.map(&:id)
+    available_experiences = Experience.joins(:locations)
+                                       .where(locations: { city: city })
+                                       .where.not(id: current_ids)
+                                       .distinct
+                                       .includes(:locations, :experience_category)
+                                       .to_a
+
+    return if available_experiences.empty?
+
+    prompt = build_experience_replacement_prompt(plan, current_experiences, available_experiences)
+
+    result = Ai::OpenaiQueue.request(
+      prompt: prompt,
+      schema: experience_replacement_schema,
+      context: "RebuildPlans:experiences:#{plan.id}"
+    )
+
+    return unless result
+
+    if result[:keep_all]
+      Rails.logger.info "[RebuildPlansJob] AI decided to keep all experiences for plan #{plan.id}"
+      return
+    end
+
+    replacements = result[:replacements] || []
+    return if replacements.empty?
+
+    apply_experience_replacements(plan, replacements, available_experiences)
+    Rails.logger.info "[RebuildPlansJob] Replaced #{replacements.count} experiences for plan #{plan.id}"
+  rescue Ai::OpenaiQueue::RequestError => e
+    Rails.logger.warn "[RebuildPlansJob] AI experience replacement failed: #{e.message}"
+  end
+
+  def build_experience_replacement_prompt(plan, current_experiences, available_experiences)
+    profile = plan.preferences&.dig("tourist_profile") || "general"
+
+    current_info = current_experiences.map do |exp|
+      category = exp.experience_category&.name || "general"
+      "  - ID: #{exp.id} | #{exp.title} | Category: #{category} | Duration: #{exp.formatted_duration || 'unknown'}"
+    end.join("\n")
+
+    available_info = available_experiences.map do |exp|
+      category = exp.experience_category&.name || "general"
+      "  - ID: #{exp.id} | #{exp.title} | Category: #{category} | Duration: #{exp.formatted_duration || 'unknown'}"
+    end.join("\n")
+
+    <<~PROMPT
+      TASK: Analyze a travel plan's experiences and decide which ones should be replaced.
+
+      PLAN DETAILS:
+      - City: #{plan.city_name}
+      - Tourist Profile: #{profile}
+      - Duration: #{plan.calculated_duration_days} days
+
+      CURRENT EXPERIENCES IN PLAN:
+      #{current_info}
+
+      AVAILABLE REPLACEMENT EXPERIENCES:
+      #{available_info}
+
+      TOURIST PROFILE PREFERENCES:
+      #{profile_preferences_description(profile)}
+
+      INSTRUCTIONS:
+      1. Analyze each current experience for fit with the #{profile} tourist profile
+      2. Identify experiences that don't match the profile well
+      3. For each poor-fit experience, select a better replacement from available options
+      4. Consider: thematic coherence, duration balance, variety
+
+      RULES:
+      - Only replace experiences that truly don't fit the profile
+      - If all experiences are appropriate, set keep_all to true
+      - Maximum 50% of experiences should be replaced (keep some continuity)
+      - Each replacement must improve profile alignment
+      - Provide clear reasoning for each replacement
+    PROMPT
+  end
+
+  def profile_preferences_description(profile)
+    preferences = {
+      "family" => "Relaxed pace, nature and cultural activities, kid-friendly, medium budget",
+      "couple" => "Moderate pace, romantic settings, culture and food focus, medium budget",
+      "adventure" => "Active pace, outdoor and sport activities, nature exploration, medium budget",
+      "nature" => "Relaxed pace, natural landscapes, outdoor activities, scenic locations",
+      "culture" => "Moderate pace, historical sites, museums, local traditions",
+      "budget" => "Active pace, free or low-cost activities, cultural and nature focus",
+      "luxury" => "Relaxed pace, premium experiences, fine dining, exclusive locations",
+      "foodie" => "Relaxed pace, culinary experiences, local gastronomy, food tours",
+      "solo" => "Flexible pace, mix of culture, nature and adventure, social-friendly spots"
+    }
+    preferences[profile] || "General interest traveler, balanced mix of activities"
+  end
+
+  def experience_replacement_schema
+    {
+      type: "object",
+      properties: {
+        keep_all: {
+          type: "boolean",
+          description: "Set to true if all current experiences are appropriate for the profile"
+        },
+        replacements: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              remove_experience_id: { type: "integer" },
+              add_experience_id: { type: "integer" },
+              reason: { type: "string" }
+            },
+            required: %w[remove_experience_id add_experience_id reason],
+            additionalProperties: false
+          }
+        },
+        reasoning: {
+          type: "string",
+          description: "Overall reasoning for the decisions made"
+        }
+      },
+      required: %w[keep_all replacements reasoning],
+      additionalProperties: false
+    }
+  end
+
+  def apply_experience_replacements(plan, replacements, available_experiences)
+    available_ids = available_experiences.map(&:id).to_set
+
+    replacements.each do |replacement|
+      remove_id = replacement[:remove_experience_id] || replacement["remove_experience_id"]
+      add_id = replacement[:add_experience_id] || replacement["add_experience_id"]
+
+      # Validate the replacement experience exists in available list
+      next unless available_ids.include?(add_id)
+
+      # Find the plan_experience to replace
+      plan_exp = plan.plan_experiences.find_by(experience_id: remove_id)
+      next unless plan_exp
+
+      # Preserve day and position
+      day_number = plan_exp.day_number
+      position = plan_exp.position
+
+      # Replace
+      plan_exp.destroy!
+      plan.plan_experiences.create!(
+        experience_id: add_id,
+        day_number: day_number,
+        position: position
+      )
+
+      Rails.logger.info "[RebuildPlansJob] Replaced experience #{remove_id} with #{add_id} in plan #{plan.id}"
+    end
   end
 
   def differentiate_plan(pair)

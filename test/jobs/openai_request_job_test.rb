@@ -132,12 +132,12 @@ class OpenaiRequestJobTest < ActiveJob::TestCase
       attempts += 1
       raise Ai::OpenaiQueue::RequestError, "API failed"
     } do
-      assert_raises(Ai::OpenaiQueue::RequestError) do
-        OpenaiRequestJob.perform_now(prompt: "Test", context: "Test")
-      end
+      # With retry_on, perform_now catches the error and schedules retry
+      # The error is not re-raised to the caller
+      OpenaiRequestJob.perform_now(prompt: "Test", context: "Test")
     end
 
-    assert_equal 1, attempts
+    assert_equal 1, attempts, "Request should have been attempted once"
   end
 
   test "job retries on RateLimitError" do
@@ -147,12 +147,12 @@ class OpenaiRequestJobTest < ActiveJob::TestCase
       attempts += 1
       raise Ai::OpenaiQueue::RateLimitError, "Rate limited"
     } do
-      assert_raises(Ai::OpenaiQueue::RateLimitError) do
-        OpenaiRequestJob.perform_now(prompt: "Test", context: "Test")
-      end
+      # With retry_on, perform_now catches the error and schedules retry
+      # The error is not re-raised to the caller
+      OpenaiRequestJob.perform_now(prompt: "Test", context: "Test")
     end
 
-    assert_equal 1, attempts
+    assert_equal 1, attempts, "Request should have been attempted once"
   end
 
   # === Retry configuration tests ===
