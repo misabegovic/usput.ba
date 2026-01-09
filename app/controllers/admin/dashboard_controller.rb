@@ -87,11 +87,14 @@ module Admin
       end
 
       ActiveRecord::Base.transaction do
-        # Delete plan-related data only (keep experiences and locations)
-        PlanExperience.delete_all
-        Review.where(reviewable_type: "Plan").delete_all
-        Translation.where(translatable_type: "Plan").delete_all
-        Plan.delete_all
+        # Only delete AI-generated plans (where user_id is NULL)
+        # User-owned plans are preserved
+        ai_plan_ids = Plan.where(user_id: nil).pluck(:id)
+
+        PlanExperience.where(plan_id: ai_plan_ids).delete_all
+        Review.where(reviewable_type: "Plan", reviewable_id: ai_plan_ids).delete_all
+        Translation.where(translatable_type: "Plan", translatable_id: ai_plan_ids).delete_all
+        Plan.where(id: ai_plan_ids).delete_all
       end
 
       redirect_to admin_root_path, notice: t("admin.dashboard.plans_deleted")
