@@ -62,9 +62,9 @@ class LocationImageFinderJob < ApplicationJob
     begin
       service = GoogleImageSearchService.new
 
-      # Build query for locations
-      locations = build_locations_query(city: city, location_id: location_id, replace_photos: replace_photos)
-      total_locations = locations.count
+      # Build base query for locations (simple query for counting)
+      base_locations = build_locations_query(city: city, location_id: location_id, replace_photos: replace_photos)
+      total_locations = base_locations.count
 
       results[:total_locations_to_process] = total_locations
       status_message = replace_photos ? "Found #{total_locations} locations with photos to replace" : "Found #{total_locations} locations without photos"
@@ -78,8 +78,8 @@ class LocationImageFinderJob < ApplicationJob
         return results
       end
 
-      # Apply limit
-      locations = locations.limit(max_locations)
+      # Apply prioritization ordering and limit
+      locations = build_prioritized_locations_query(base_locations).limit(max_locations)
 
       # Process each location
       locations.find_each.with_index do |location, index|
@@ -186,8 +186,12 @@ class LocationImageFinderJob < ApplicationJob
       locations = locations.where(city: city)
     end
 
-    # Prioritize locations by importance
     locations
+  end
+
+  def build_prioritized_locations_query(base_query)
+    # Prioritize locations by importance (number of categories)
+    base_query
       .left_joins(:location_categories)
       .select("locations.*, COUNT(location_categories.id) as category_count")
       .group("locations.id")
