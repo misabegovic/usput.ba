@@ -109,7 +109,8 @@ class FetchFlickrPhotosJob < ApplicationJob
         results[:errors].concat(result[:errors]) if result[:errors].any?
 
         # Rate limiting - be nice to Flickr API
-        sleep(0.5)
+        # Flickr allows ~3600 requests/hour, but we add buffer for safety
+        sleep(1.0)
       rescue StandardError => e
         results[:errors] << {
           location_id: location.id,
