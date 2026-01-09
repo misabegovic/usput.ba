@@ -117,6 +117,31 @@ module Ai
       socijalna\ pomoc
     ].freeze
 
+    # Keywords that identify medical facilities (case-insensitive)
+    # These should never be generated as tourist locations
+    MEDICAL_FACILITY_KEYWORDS = %w[
+      red\ cross
+      crveni\ krst
+      crveni\ križ
+      crveni\ kriz
+      hospital
+      bolnica
+      klinika
+      clinic
+      zdravstveni\ centar
+      health\ center
+      health\ centre
+      dom\ zdravlja
+      ambulanta
+      emergency\ room
+      hitna\ pomoć
+      hitna\ pomoc
+      urgent\ care
+      medical\ center
+      medical\ centre
+      medicinski\ centar
+    ].freeze
+
     def initialize(options = {})
       # No longer using @chat directly - using OpenaiQueue for rate limiting
       @places_service = GeoapifyService.new
@@ -909,6 +934,10 @@ module Ai
         - Food banks or humanitarian aid facilities
         - Retirement homes or elderly care facilities
         - Any social welfare facilities
+        - Red Cross facilities (Crveni krst, Crveni križ)
+        - Hospitals (bolnica) or clinics (klinika)
+        - Medical centers, health centers (dom zdravlja, zdravstveni centar)
+        - Any medical or healthcare facilities
 
         Return ONLY valid JSON:
         {
@@ -978,6 +1007,10 @@ module Ai
         - Food banks or humanitarian aid facilities
         - Retirement homes or elderly care facilities
         - Any social welfare facilities
+        - Red Cross facilities (Crveni krst, Crveni križ)
+        - Hospitals (bolnica) or clinics (klinika)
+        - Medical centers, health centers (dom zdravlja, zdravstveni centar)
+        - Any medical or healthcare facilities
 
         Return ONLY valid JSON:
         {
@@ -1012,6 +1045,10 @@ module Ai
         - Food banks or humanitarian aid facilities
         - Retirement homes or elderly care facilities
         - Any social welfare facilities
+        - Red Cross facilities (Crveni krst, Crveni križ)
+        - Hospitals (bolnica) or clinics (klinika)
+        - Medical centers, health centers (dom zdravlja, zdravstveni centar)
+        - Any medical or healthcare facilities
 
         For EACH hidden gem, provide:
         1. name: The name of the place
@@ -1040,6 +1077,13 @@ module Ai
       if soup_kitchen_suggestion?(suggestion)
         Rails.logger.info "[AI::CountryWideLocationGenerator] Skipping soup kitchen: #{suggestion[:name]}"
         skip_location(suggestion, reason: "soup_kitchen", details: { name: suggestion[:name] })
+        return
+      end
+
+      # Check if this is a medical facility (Red Cross, hospital, etc.) - skip if so
+      if medical_facility_suggestion?(suggestion)
+        Rails.logger.info "[AI::CountryWideLocationGenerator] Skipping medical facility: #{suggestion[:name]}"
+        skip_location(suggestion, reason: "medical_facility", details: { name: suggestion[:name] })
         return
       end
 
@@ -1098,6 +1142,23 @@ module Ai
 
       # Check if any soup kitchen keywords are present
       SOUP_KITCHEN_KEYWORDS.any? { |keyword| text_to_check.include?(keyword.downcase) }
+    end
+
+    # Check if an AI suggestion is for a medical facility (Red Cross, hospital, clinic, etc.)
+    # @param suggestion [Hash] AI-generated location suggestion
+    # @return [Boolean] true if this appears to be a medical facility
+    def medical_facility_suggestion?(suggestion)
+      # Combine all text fields to check
+      text_to_check = [
+        suggestion[:name],
+        suggestion[:name_local],
+        suggestion[:why_notable],
+        suggestion[:insider_tip],
+        suggestion[:category]
+      ].compact.map(&:to_s).map(&:downcase).join(" ")
+
+      # Check if any medical facility keywords are present
+      MEDICAL_FACILITY_KEYWORDS.any? { |keyword| text_to_check.include?(keyword.downcase) }
     end
 
     # Validate AI suggestion by checking if geocoded city matches AI-suggested city
