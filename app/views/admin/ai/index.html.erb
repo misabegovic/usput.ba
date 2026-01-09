@@ -441,6 +441,96 @@
     </div>
   </div>
 
+  <!-- Fetch Flickr Photos Card -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <div class="max-w-2xl mx-auto">
+      <h2 class="text-lg font-semibold text-gray-900 mb-2 text-center">Fetch Flickr Photos</h2>
+
+      <p class="text-gray-600 mb-4 text-center text-sm">
+        Fetch Creative Commons licensed photos from Flickr for locations without images.
+      </p>
+
+      <!-- Flickr Photos Status -->
+      <div class="mb-4">
+        <%= render partial: "flickr_photos_status", locals: { status: @flickr_photos_status } %>
+      </div>
+
+      <ul class="text-left text-gray-600 mb-6 space-y-2 max-w-md mx-auto text-sm">
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-cyan-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          <span>Searches photos by location coordinates, name, and city</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-cyan-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+          </svg>
+          <span>Only fetches Creative Commons licensed images (CC BY, CC BY-SA, CC BY-ND)</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-cyan-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
+          <span>Downloads and attaches up to 5 photos per location</span>
+        </li>
+      </ul>
+
+      <%= form_with url: admin_fetch_flickr_photos_admin_ai_path, method: :post, class: "space-y-4" do |f| %>
+        <div class="flex flex-col items-center gap-4">
+          <div class="flex flex-wrap items-center justify-center gap-4">
+            <div class="flex items-center gap-2">
+              <label for="flickr_max_locations" class="text-sm text-gray-600">Max locations:</label>
+              <select name="max_locations" id="flickr_max_locations" class="rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 text-sm">
+                <option value="">Unlimited</option>
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50" selected>50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label for="flickr_max_photos" class="text-sm text-gray-600">Photos per location:</label>
+              <select name="max_photos_per_location" id="flickr_max_photos" class="rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 text-sm">
+                <option value="1">1</option>
+                <option value="3">3</option>
+                <option value="5" selected>5</option>
+                <option value="10">10</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label for="flickr_city" class="text-sm text-gray-600">City (optional):</label>
+              <input type="text" name="city" id="flickr_city" placeholder="e.g. Sarajevo" class="rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 text-sm w-32">
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-center gap-4">
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="dry_run" value="1" class="rounded border-gray-300 text-gray-600 focus:ring-gray-500" checked>
+              <span>Preview only (no downloads)</span>
+            </label>
+          </div>
+
+          <button type="submit"
+                  class="inline-flex items-center gap-2 px-6 py-3 bg-cyan-600 text-white font-medium rounded-lg hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  <%= "disabled" if @flickr_photos_status[:status] == "in_progress" %>>
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            Fetch Flickr Photos
+          </button>
+        </div>
+      <% end %>
+
+      <p class="text-xs text-gray-400 mt-4 text-center">
+        Requires FLICKR_API_KEY environment variable. Rate-limited: 0.5 sec between locations.
+      </p>
+    </div>
+  </div>
+
   <!-- Current State Stats -->
   <div class="bg-white shadow rounded-lg overflow-hidden">
     <h2 class="text-lg font-semibold p-4 sm:p-6 border-b text-gray-900">Current Content State</h2>

@@ -13,6 +13,7 @@ module Admin
       @experience_type_sync_status = ExperienceTypeSyncJob.current_status
       @rebuild_experiences_status = RebuildExperiencesJob.current_status
       @rebuild_plans_status = RebuildPlansJob.current_status
+      @flickr_photos_status = FetchFlickrPhotosJob.current_status
       @last_generation = parse_last_generation
 
       # Paginate cities for the table
@@ -283,6 +284,55 @@ module Admin
     def force_reset_rebuild_plans
       RebuildPlansJob.force_reset!
       redirect_to admin_ai_path, notice: t("admin.ai.rebuild_plans_force_reset", default: "Plan rebuild has been force reset. You can now start a new run.")
+    end
+
+    # POST /admin/ai/fetch_flickr_photos
+    # Fetches Creative Commons photos from Flickr for locations without images
+    def fetch_flickr_photos
+      current_status = FetchFlickrPhotosJob.current_status
+      if current_status[:status] == "in_progress"
+        redirect_to admin_ai_path, alert: t("admin.ai.flickr_photos_already_in_progress", default: "Flickr photo fetch is already in progress")
+        return
+      end
+
+      dry_run = params[:dry_run] == "1"
+      max_locations = params[:max_locations].presence&.to_i
+      max_photos = params[:max_photos_per_location].presence&.to_i || 5
+      city = params[:city].presence
+
+      FetchFlickrPhotosJob.clear_status!
+      FetchFlickrPhotosJob.perform_later(
+        dry_run: dry_run,
+        max_locations: max_locations,
+        max_photos_per_location: max_photos,
+        city: city
+      )
+
+      notice_msg = if dry_run
+        t("admin.ai.flickr_photos_preview_started", default: "Flickr photo fetch preview started (no changes will be made)")
+      else
+        t("admin.ai.flickr_photos_started", default: "Flickr photo fetch started")
+      end
+
+      redirect_to admin_ai_path, notice: notice_msg
+    end
+
+    # GET /admin/ai/flickr_photos_status (AJAX)
+    # Returns current status of Flickr photo fetch job
+    def flickr_photos_status
+      @flickr_status = FetchFlickrPhotosJob.current_status
+
+      respond_to do |format|
+        format.json { render json: @flickr_status }
+        format.html { render partial: "flickr_photos_status", locals: { status: @flickr_status } }
+      end
+    end
+
+    # POST /admin/ai/force_reset_flickr_photos
+    # Force resets a stuck or in-progress Flickr photo fetch job
+    def force_reset_flickr_photos
+      FetchFlickrPhotosJob.clear_status!
+      redirect_to admin_ai_path, notice: t("admin.ai.flickr_photos_force_reset", default: "Flickr photo fetch has been force reset. You can now start a new run.")
     end
 
     private

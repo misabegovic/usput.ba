@@ -1,0 +1,111 @@
+<% if status[:status] != "idle" %>
+  <div class="rounded-lg p-4 <%= status[:status] == 'in_progress' ? 'bg-cyan-50 border border-cyan-200' : status[:status] == 'completed' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200' %>">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <% if status[:status] == "in_progress" %>
+          <svg class="animate-spin h-5 w-5 text-cyan-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="text-cyan-800 font-medium">In Progress</span>
+        <% elsif status[:status] == "completed" %>
+          <svg class="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span class="text-green-800 font-medium">Completed</span>
+        <% else %>
+          <svg class="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          <span class="text-red-800 font-medium">Failed</span>
+        <% end %>
+      </div>
+
+      <% if status[:status] == "in_progress" %>
+        <%= button_to admin_force_reset_flickr_photos_admin_ai_path,
+            method: :post,
+            class: "text-xs text-gray-500 hover:text-red-600",
+            data: { confirm: "Are you sure you want to force reset?" } do %>
+          Force Reset
+        <% end %>
+      <% end %>
+    </div>
+
+    <% if status[:message].present? %>
+      <p class="mt-2 text-sm <%= status[:status] == 'in_progress' ? 'text-cyan-700' : status[:status] == 'completed' ? 'text-green-700' : 'text-red-700' %>">
+        <%= status[:message] %>
+      </p>
+    <% end %>
+
+    <% if status[:results].present? %>
+      <div class="mt-3 pt-3 border-t <%= status[:status] == 'in_progress' ? 'border-cyan-200' : status[:status] == 'completed' ? 'border-green-200' : 'border-red-200' %>">
+        <% if status[:results][:dry_run] %>
+          <div class="text-sm text-gray-600">
+            <p><strong>Preview:</strong> Found <%= status[:results][:total_locations] %> locations without photos</p>
+            <% if status[:results][:preview].present? %>
+              <details class="mt-2">
+                <summary class="cursor-pointer text-cyan-600 hover:text-cyan-800">Show first 20 locations</summary>
+                <ul class="mt-2 space-y-1 text-xs">
+                  <% status[:results][:preview].each do |loc| %>
+                    <li><%= loc[:name] %> (<%= loc[:city] %>)</li>
+                  <% end %>
+                </ul>
+              </details>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center text-sm">
+            <div>
+              <div class="text-lg font-bold text-gray-900"><%= status[:results][:processed] || 0 %></div>
+              <div class="text-xs text-gray-500">Processed</div>
+            </div>
+            <div>
+              <div class="text-lg font-bold text-cyan-600"><%= status[:results][:photos_attached] || 0 %></div>
+              <div class="text-xs text-gray-500">Photos Added</div>
+            </div>
+            <div>
+              <div class="text-lg font-bold text-gray-500"><%= status[:results][:skipped] || 0 %></div>
+              <div class="text-xs text-gray-500">Skipped</div>
+            </div>
+            <div>
+              <div class="text-lg font-bold text-red-600"><%= (status[:results][:errors] || []).size %></div>
+              <div class="text-xs text-gray-500">Errors</div>
+            </div>
+          </div>
+
+          <% if status[:results][:locations_updated].present? && status[:results][:locations_updated].any? %>
+            <details class="mt-3">
+              <summary class="cursor-pointer text-cyan-600 hover:text-cyan-800 text-sm">
+                Show updated locations (<%= status[:results][:locations_updated].size %>)
+              </summary>
+              <ul class="mt-2 space-y-1 text-xs max-h-40 overflow-y-auto">
+                <% status[:results][:locations_updated].each do |loc| %>
+                  <li class="flex justify-between">
+                    <span><%= loc[:name] %> (<%= loc[:city] %>)</span>
+                    <span class="text-cyan-600">+<%= loc[:photos_added] %> photos</span>
+                  </li>
+                <% end %>
+              </ul>
+            </details>
+          <% end %>
+
+          <% if status[:results][:errors].present? && status[:results][:errors].any? %>
+            <details class="mt-3">
+              <summary class="cursor-pointer text-red-600 hover:text-red-800 text-sm">
+                Show errors (<%= status[:results][:errors].size %>)
+              </summary>
+              <ul class="mt-2 space-y-1 text-xs text-red-600 max-h-40 overflow-y-auto">
+                <% status[:results][:errors].first(10).each do |err| %>
+                  <li><%= err[:location_name] || err[:photo_id] %>: <%= err[:error] %></li>
+                <% end %>
+                <% if status[:results][:errors].size > 10 %>
+                  <li class="text-gray-500">... and <%= status[:results][:errors].size - 10 %> more</li>
+                <% end %>
+              </ul>
+            </details>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

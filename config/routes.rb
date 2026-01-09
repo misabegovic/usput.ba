@@ -137,6 +137,11 @@ Rails.application.routes.draw do
     get "ai/rebuild_plans_status", to: "ai#rebuild_plans_status", as: :rebuild_plans_status_admin_ai
     post "ai/force_reset_rebuild_plans", to: "ai#force_reset_rebuild_plans", as: :force_reset_rebuild_plans_admin_ai
 
+    # Flickr Photos (fetch CC photos for locations without images)
+    post "ai/fetch_flickr_photos", to: "ai#fetch_flickr_photos", as: :fetch_flickr_photos_admin_ai
+    get "ai/flickr_photos_status", to: "ai#flickr_photos_status", as: :flickr_photos_status_admin_ai
+    post "ai/force_reset_flickr_photos", to: "ai#force_reset_flickr_photos", as: :force_reset_flickr_photos_admin_ai
+
     # Audio Tours Generator (odvojeno od glavnog AI generatora)
     get "ai/audio_tours", to: "ai/audio_tours#index", as: :ai_audio_tours
     post "ai/audio_tours/generate", to: "ai/audio_tours#generate", as: :generate_admin_ai_audio_tours
