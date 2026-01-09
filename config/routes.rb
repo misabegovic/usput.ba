@@ -161,6 +161,11 @@ Rails.application.routes.draw do
     get "ai/fetch_wikimedia_images_status", to: "ai#fetch_wikimedia_images_status", as: :fetch_wikimedia_images_status_admin_ai
     post "ai/force_reset_wikimedia_fetch", to: "ai#force_reset_wikimedia_fetch", as: :force_reset_wikimedia_fetch_admin_ai
 
+    # Google Custom Search Image Fetch (fetch images from Google for locations without photos)
+    post "ai/fetch_google_images", to: "ai#fetch_google_images", as: :fetch_google_images_admin_ai
+    get "ai/fetch_google_images_status", to: "ai#fetch_google_images_status", as: :fetch_google_images_status_admin_ai
+    post "ai/force_reset_google_image_fetch", to: "ai#force_reset_google_image_fetch", as: :force_reset_google_image_fetch_admin_ai
+
     # Audio Tours Generator (odvojeno od glavnog AI generatora)
     get "ai/audio_tours", to: "ai/audio_tours#index", as: :ai_audio_tours
     post "ai/audio_tours/generate", to: "ai/audio_tours#generate", as: :generate_admin_ai_audio_tours

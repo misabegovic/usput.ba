@@ -667,6 +667,111 @@
     </div>
   </div>
 
+  <!-- Fetch Google Images Card -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <div class="max-w-2xl mx-auto">
+      <h2 class="text-lg font-semibold text-gray-900 mb-2 text-center">Fetch Google Images</h2>
+
+      <p class="text-gray-600 mb-4 text-center text-sm">
+        Search and fetch images using Google Custom Search API for locations that don't have photos.
+      </p>
+
+      <!-- Locations without photos count -->
+      <div class="mb-4 p-3 bg-emerald-50 rounded-lg">
+        <div class="flex items-center justify-center gap-2 text-sm">
+          <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <span class="font-semibold text-emerald-800"><%= @locations_without_photos_count %></span>
+          <span class="text-emerald-700">locations without photos</span>
+        </div>
+        <p class="text-xs text-emerald-600 text-center mt-1">Free: 100 queries/day, then $5/1000 queries</p>
+      </div>
+
+      <!-- Google Image Fetch Status -->
+      <div class="mb-4">
+        <%= render partial: "google_images_status", locals: { status: @google_image_fetch_status } %>
+      </div>
+
+      <ul class="text-left text-gray-600 mb-6 space-y-2 max-w-md mx-auto text-sm">
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-emerald-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <span>Searches Google for location images with "Bosnia Herzegovina" context</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-emerald-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          <span>Downloads and attaches large, high-quality photos</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-emerald-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+          </svg>
+          <span>Optional Creative Commons filter for legally safe images</span>
+        </li>
+      </ul>
+
+      <%= form_with url: admin_fetch_google_images_admin_ai_path, method: :post, class: "space-y-4", data: { controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
+        <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
+        <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+        <div class="flex flex-col items-center gap-4">
+          <div class="flex flex-wrap items-center justify-center gap-4">
+            <div class="flex items-center gap-2">
+              <label for="google_max_locations" class="text-sm text-gray-600">Max locations:</label>
+              <select name="max_locations" id="google_max_locations" class="rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
+                <option value="1">1</option>
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label for="google_images_per_location" class="text-sm text-gray-600">Images per location:</label>
+              <select name="images_per_location" id="google_images_per_location" class="rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
+                <option value="1">1</option>
+                <option value="3" selected>3</option>
+                <option value="5">5</option>
+                <option value="10">10</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-center gap-4">
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="creative_commons_only" value="1" class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
+              <span>Creative Commons only (safer licensing)</span>
+            </label>
+
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="dry_run" value="1" class="rounded border-gray-300 text-gray-600 focus:ring-gray-500">
+              <span>Preview only (don't attach images)</span>
+            </label>
+          </div>
+
+          <button type="submit"
+                  class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  <%= "disabled" if @google_image_fetch_status[:status] == "in_progress" || @locations_without_photos_count.zero? %>
+                  data-action="credential-form#copyCredentials">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            Fetch Google Images
+          </button>
+        </div>
+      <% end %>
+
+      <p class="text-xs text-gray-400 mt-4 text-center">
+        Requires GOOGLE_API_KEY and SEARCH_ENGINE_CX environment variables.
+        Images may be copyrighted - use Creative Commons filter for safer usage.
+      </p>
+    </div>
+  </div>
+
   <!-- Current State Stats -->
   <div class="bg-white shadow rounded-lg overflow-hidden">
     <h2 class="text-lg font-semibold p-4 sm:p-6 border-b text-gray-900">Current Content State</h2>
