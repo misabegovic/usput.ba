@@ -452,7 +452,7 @@
             <p class="mt-2 text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl dark:text-white"><%= t("home.seasonal.#{current_season}.title") %></p>
             <p class="mt-6 text-xl/8 text-gray-700 dark:text-gray-300"><%= t("home.seasonal.#{current_season}.description") %></p>
             <div class="mt-10 flex">
-              <%= link_to explore_path(types: ["location"], season: current_season), class: "rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:bg-yellow-500 dark:text-gray-900 dark:hover:bg-yellow-400 dark:focus-visible:outline-yellow-500" do %>
+              <%= link_to explore_path(season: current_season), class: "rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:bg-yellow-500 dark:text-gray-900 dark:hover:bg-yellow-400 dark:focus-visible:outline-yellow-500" do %>
                 <%= t("home.seasonal.#{current_season}.cta") %>
                 <span aria-hidden="true">&rarr;</span>
               <% end %>

@@ -52,6 +52,29 @@
     </div>
   </div>
 
+  <!-- Pending Proposals Alert -->
+  <% if @pending_proposals_count > 0 %>
+    <div class="rounded-lg bg-amber-50 border border-amber-200 p-4">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+        </div>
+        <div class="ml-3 flex-1">
+          <p class="text-sm text-amber-700">
+            <%= t("curator.dashboard.pending_proposals_alert", count: @pending_proposals_count) %>
+          </p>
+        </div>
+        <div class="ml-3">
+          <%= link_to curator_proposals_path, class: "text-sm font-medium text-amber-700 hover:text-amber-600" do %>
+            <%= t("curator.dashboard.review_proposals") %> &rarr;
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <!-- Quick Actions -->
   <div class="rounded-lg bg-white shadow">
     <div class="px-4 py-4 sm:py-5 sm:px-6">
@@ -214,4 +237,10 @@
       </div>
     </div>
   </div>
+
+  <!-- Recent Curator Activities -->
+  <%= render "curator/shared/activity_feed",
+      activities: @recent_activities,
+      title: t("curator.dashboard.recent_activity"),
+      show_user: true %>
 </div>

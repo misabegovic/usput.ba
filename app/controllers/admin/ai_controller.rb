@@ -4,6 +4,15 @@ module Admin
   # Controller za autonomni AI Content Generator
   # Admin samo klikne jedan gumb - AI odlucuje SVE
   class AiController < BaseController
+    before_action :require_admin_credentials, only: [
+      :generate, :stop, :reset,
+      :fix_cities, :force_reset_city_fix,
+      :sync_experience_types, :force_reset_experience_type_sync,
+      :rebuild_experiences, :force_reset_rebuild_experiences,
+      :rebuild_plans, :force_reset_rebuild_plans,
+      :regenerate_translations, :force_reset_regenerate_translations
+    ]
+
     # GET /admin/ai
     # Dashboard sa statistikama i gumbom za generiranje
     def index
@@ -13,6 +22,8 @@ module Admin
       @experience_type_sync_status = ExperienceTypeSyncJob.current_status
       @rebuild_experiences_status = RebuildExperiencesJob.current_status
       @rebuild_plans_status = RebuildPlansJob.current_status
+      @regenerate_translations_status = RegenerateTranslationsJob.status
+      @dirty_counts = RegenerateTranslationsJob.dirty_counts
       @last_generation = parse_last_generation
 
       # Paginate cities for the table
@@ -283,6 +294,48 @@ module Admin
     def force_reset_rebuild_plans
       RebuildPlansJob.force_reset!
       redirect_to admin_ai_path, notice: t("admin.ai.rebuild_plans_force_reset", default: "Plan rebuild has been force reset. You can now start a new run.")
+    end
+
+    # POST /admin/ai/regenerate_translations
+    # Regenerates translations and audio tours for dirty resources
+    def regenerate_translations
+      if RegenerateTranslationsJob.in_progress?
+        redirect_to admin_ai_path, alert: t("admin.ai.regenerate_translations_already_in_progress", default: "Translation regeneration is already in progress")
+        return
+      end
+
+      dry_run = params[:dry_run] == "1"
+      include_audio = params[:include_audio] != "0"
+
+      RegenerateTranslationsJob.reset_status!
+      RegenerateTranslationsJob.perform_later(dry_run: dry_run, include_audio: include_audio)
+
+      notice_msg = if dry_run
+        t("admin.ai.regenerate_translations_preview_started", default: "Translation regeneration preview started (no changes will be made)")
+      else
+        t("admin.ai.regenerate_translations_started", default: "Translation regeneration started")
+      end
+
+      redirect_to admin_ai_path, notice: notice_msg
+    end
+
+    # GET /admin/ai/regenerate_translations_status (AJAX)
+    # Returns current status of translation regeneration job
+    def regenerate_translations_status
+      status = RegenerateTranslationsJob.status
+      progress = RegenerateTranslationsJob.progress
+
+      respond_to do |format|
+        format.json { render json: { status: status, progress: progress } }
+        format.html { render partial: "regenerate_translations_status", locals: { status: status, progress: progress } }
+      end
+    end
+
+    # POST /admin/ai/force_reset_regenerate_translations
+    # Force resets a stuck or in-progress translation regeneration job
+    def force_reset_regenerate_translations
+      RegenerateTranslationsJob.reset_status!
+      redirect_to admin_ai_path, notice: t("admin.ai.regenerate_translations_force_reset", default: "Translation regeneration has been force reset. You can now start a new run.")
     end
 
     private

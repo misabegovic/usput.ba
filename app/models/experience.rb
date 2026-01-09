@@ -85,6 +85,13 @@ class Experience < ApplicationRecord
   # Experiences available year-round (empty seasons array)
   scope :year_round, -> { where("seasons = '[]'::jsonb") }
 
+  # Resources needing AI regeneration (translations)
+  scope :needs_ai_regeneration, -> { where(needs_ai_regeneration: true) }
+
+  # Filter by AI generated / Human made
+  scope :ai_generated, -> { where(ai_generated: true) }
+  scope :human_made, -> { where(ai_generated: false) }
+
   # Dodaj lokaciju na određenu poziciju
   def add_location(location, position: nil)
     pos = position || (experience_locations.maximum(:position) || 0) + 1

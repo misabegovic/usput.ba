@@ -3,6 +3,9 @@
     <h1 class="text-xl sm:text-2xl font-bold text-gray-900"><%= t("curator.reviews.title") %></h1>
   </div>
 
+  <!-- Pending Proposals -->
+  <%= render "curator/shared/pending_proposals" %>
+
   <!-- Stats Overview -->
   <div class="grid grid-cols-2 gap-3 sm:gap-5 sm:grid-cols-4">
     <div class="overflow-hidden rounded-lg bg-white px-4 py-4 shadow">
@@ -123,4 +126,11 @@
       </div>
     <% end %>
   </div>
+
+  <!-- Pagination -->
+  <% if @reviews.total_pages > 1 %>
+    <div class="flex justify-center">
+      <%= paginate @reviews %>
+    </div>
+  <% end %>
 </div>

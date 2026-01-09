@@ -26,7 +26,8 @@ export default class extends Controller {
     "seasonClearBtn",
     "budgetClearBtn",
     "durationClearBtn",
-    "ratingClearBtn"
+    "ratingClearBtn",
+    "originClearBtn"
   ]
 
   static values = {
@@ -203,7 +204,8 @@ export default class extends Controller {
       season: false,
       budget: false,
       duration: false,
-      min_rating: false
+      min_rating: false,
+      origin: false
     }
 
     // Check which filters are active
@@ -227,6 +229,9 @@ export default class extends Controller {
     }
     if (this.hasRatingClearBtnTarget) {
       this.ratingClearBtnTarget.classList.toggle("hidden", !filterStates.min_rating)
+    }
+    if (this.hasOriginClearBtnTarget) {
+      this.originClearBtnTarget.classList.toggle("hidden", !filterStates.origin)
     }
   }
 
@@ -366,6 +371,12 @@ export default class extends Controller {
   clearRating(event) {
     event.preventDefault()
     this.clearFilterByName("min_rating")
+  }
+
+  // Clear origin filter
+  clearOrigin(event) {
+    event.preventDefault()
+    this.clearFilterByName("origin")
   }
 
   // Clear city filter

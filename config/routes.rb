@@ -84,11 +84,19 @@ Rails.application.routes.draw do
 
   # Curator dashboard - for curators and admins
   namespace :curator do
-    resources :locations
+    resources :locations do
+      resources :photo_suggestions, only: [:new, :create]
+    end
     resources :experiences
     resources :reviews, only: [ :index, :show, :destroy ]
     resources :audio_tours
     resources :plans
+    resources :proposals, only: [ :index, :show ] do
+      member do
+        post :add_review
+      end
+    end
+    resources :photo_suggestions, only: [:index, :show]
     root "dashboard#index"
   end
 
@@ -105,12 +113,18 @@ Rails.application.routes.draw do
         post :reject
       end
     end
-    resources :ai_generations, only: [ :index ] do
+    resources :content_changes, only: [ :index, :show ] do
       member do
-        post :retry
+        post :approve
+        post :reject
       end
     end
-
+    resources :photo_suggestions, only: [ :index, :show ] do
+      member do
+        post :approve
+        post :reject
+      end
+    end
     # Autonomni AI Content Generator
     get "ai", to: "ai#index", as: :ai
     post "ai/generate", to: "ai#generate", as: :generate_admin_ai
@@ -137,12 +151,16 @@ Rails.application.routes.draw do
     get "ai/rebuild_plans_status", to: "ai#rebuild_plans_status", as: :rebuild_plans_status_admin_ai
     post "ai/force_reset_rebuild_plans", to: "ai#force_reset_rebuild_plans", as: :force_reset_rebuild_plans_admin_ai
 
+    # Regenerate Translations (for dirty resources after curator changes)
+    post "ai/regenerate_translations", to: "ai#regenerate_translations", as: :regenerate_translations_admin_ai
+    get "ai/regenerate_translations_status", to: "ai#regenerate_translations_status", as: :regenerate_translations_status_admin_ai
+    post "ai/force_reset_regenerate_translations", to: "ai#force_reset_regenerate_translations", as: :force_reset_regenerate_translations_admin_ai
+
     # Audio Tours Generator (odvojeno od glavnog AI generatora)
     get "ai/audio_tours", to: "ai/audio_tours#index", as: :ai_audio_tours
     post "ai/audio_tours/generate", to: "ai/audio_tours#generate", as: :generate_admin_ai_audio_tours
     get "ai/audio_tours/estimate", to: "ai/audio_tours#estimate", as: :estimate_admin_ai_audio_tours
 
-    delete "clear_database", to: "dashboard#clear_database"
     root "dashboard#index"
   end
 

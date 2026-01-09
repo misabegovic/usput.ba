@@ -33,8 +33,12 @@
                     class: "rounded-md px-3 py-2 text-sm font-medium #{request.path.start_with?(curator_plans_path) ? 'bg-emerald-800 text-white' : 'text-emerald-100 hover:bg-emerald-600'}" %>
                 <%= link_to t("curator.nav.audio_tours"), curator_audio_tours_path,
                     class: "rounded-md px-3 py-2 text-sm font-medium #{request.path.start_with?(curator_audio_tours_path) ? 'bg-emerald-800 text-white' : 'text-emerald-100 hover:bg-emerald-600'}" %>
+                <%= link_to t("curator.nav.photo_suggestions"), curator_photo_suggestions_path,
+                    class: "rounded-md px-3 py-2 text-sm font-medium #{request.path.start_with?(curator_photo_suggestions_path) ? 'bg-emerald-800 text-white' : 'text-emerald-100 hover:bg-emerald-600'}" %>
                 <%= link_to t("curator.nav.reviews"), curator_reviews_path,
                     class: "rounded-md px-3 py-2 text-sm font-medium #{request.path.start_with?(curator_reviews_path) ? 'bg-emerald-800 text-white' : 'text-emerald-100 hover:bg-emerald-600'}" %>
+                <%= link_to t("curator.nav.proposals"), curator_proposals_path,
+                    class: "rounded-md px-3 py-2 text-sm font-medium #{request.path.start_with?(curator_proposals_path) ? 'bg-emerald-800 text-white' : 'text-emerald-100 hover:bg-emerald-600'}" %>
               </div>
             </div>
             <!-- Desktop Actions -->
@@ -73,8 +77,12 @@
                 class: "block rounded-md px-3 py-2 text-base font-medium #{request.path.start_with?(curator_plans_path) ? 'bg-emerald-800 text-white' : 'text-emerald-100 hover:bg-emerald-600'}" %>
             <%= link_to t("curator.nav.audio_tours"), curator_audio_tours_path,
                 class: "block rounded-md px-3 py-2 text-base font-medium #{request.path.start_with?(curator_audio_tours_path) ? 'bg-emerald-800 text-white' : 'text-emerald-100 hover:bg-emerald-600'}" %>
+            <%= link_to t("curator.nav.photo_suggestions"), curator_photo_suggestions_path,
+                class: "block rounded-md px-3 py-2 text-base font-medium #{request.path.start_with?(curator_photo_suggestions_path) ? 'bg-emerald-800 text-white' : 'text-emerald-100 hover:bg-emerald-600'}" %>
             <%= link_to t("curator.nav.reviews"), curator_reviews_path,
                 class: "block rounded-md px-3 py-2 text-base font-medium #{request.path.start_with?(curator_reviews_path) ? 'bg-emerald-800 text-white' : 'text-emerald-100 hover:bg-emerald-600'}" %>
+            <%= link_to t("curator.nav.proposals"), curator_proposals_path,
+                class: "block rounded-md px-3 py-2 text-base font-medium #{request.path.start_with?(curator_proposals_path) ? 'bg-emerald-800 text-white' : 'text-emerald-100 hover:bg-emerald-600'}" %>
           </div>
           <div class="border-t border-emerald-600 pb-3 pt-4">
             <div class="px-4 mb-3">

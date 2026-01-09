@@ -1,0 +1,311 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <div>
+      <div class="flex items-center gap-3">
+        <%= link_to curator_proposals_path, class: "text-gray-400 hover:text-gray-600" do %>
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+        <% end %>
+        <h1 class="text-2xl font-bold text-gray-900"><%= t("curator.proposals.proposal_details") %></h1>
+        <% case @proposal.change_type %>
+        <% when "create_content" %>
+          <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+            <%= t("curator.proposals.types.create_content") %>
+          </span>
+        <% when "update_content" %>
+          <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+            <%= t("curator.proposals.types.update_content") %>
+          </span>
+        <% when "delete_content" %>
+          <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+            <%= t("curator.proposals.types.delete_content") %>
+          </span>
+        <% end %>
+      </div>
+      <p class="mt-1 text-sm text-gray-600"><%= @proposal.description %></p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Content -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Proposal Info -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900"><%= t("curator.proposals.proposed_changes") %></h3>
+        </div>
+        <div class="px-4 py-5 sm:p-6">
+          <% if @proposal.update_content? && @proposal.original_data.present? %>
+            <h4 class="text-sm font-medium text-gray-700 mb-3"><%= t("curator.proposals.changes_diff") %></h4>
+            <div class="space-y-3">
+              <% @proposal.changes_diff.each do |key, diff| %>
+                <div class="rounded-lg border border-gray-200 overflow-hidden">
+                  <div class="bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 border-b border-gray-200">
+                    <%= key.humanize %>
+                  </div>
+                  <div class="p-3 space-y-2">
+                    <div class="flex items-start gap-2">
+                      <span class="inline-flex items-center rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-700 shrink-0">-</span>
+                      <span class="text-sm text-gray-600 break-all"><%= diff[:from].presence || t("curator.proposals.empty_value") %></span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                      <span class="inline-flex items-center rounded bg-green-100 px-1.5 py-0.5 text-xs font-medium text-green-700 shrink-0">+</span>
+                      <span class="text-sm text-gray-900 break-all"><%= diff[:to].presence || t("curator.proposals.empty_value") %></span>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% elsif @proposal.create_content? %>
+            <h4 class="text-sm font-medium text-gray-700 mb-3"><%= t("curator.proposals.new_content") %></h4>
+            <dl class="divide-y divide-gray-200">
+              <% @proposal.proposed_data.each do |key, value| %>
+                <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
+                  <dt class="text-sm font-medium text-gray-500"><%= key.humanize %></dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0 break-all">
+                    <% if value.is_a?(Array) %>
+                      <%= value.join(", ") %>
+                    <% elsif value.is_a?(Hash) %>
+                      <pre class="text-xs bg-gray-50 p-2 rounded"><%= JSON.pretty_generate(value) %></pre>
+                    <% else %>
+                      <%= value.presence || "-" %>
+                    <% end %>
+                  </dd>
+                </div>
+              <% end %>
+            </dl>
+          <% elsif @proposal.delete_content? %>
+            <div class="rounded-md bg-red-50 p-4">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-red-800"><%= t("curator.proposals.deletion_request") %></h3>
+                  <p class="mt-2 text-sm text-red-700"><%= t("curator.proposals.deletion_warning") %></p>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Contributors -->
+      <% if @proposal.contributions.any? %>
+        <div class="bg-white shadow rounded-lg">
+          <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900"><%= t("curator.proposals.contributors_title") %></h3>
+          </div>
+          <div class="px-4 py-5 sm:p-6">
+            <ul class="divide-y divide-gray-200">
+              <% @proposal.contributions.includes(:user).order(:created_at).each do |contribution| %>
+                <li class="py-4">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                        <span class="text-sm font-medium text-emerald-700"><%= contribution.user.username[0].upcase %></span>
+                      </div>
+                      <div>
+                        <p class="text-sm font-medium text-gray-900"><%= contribution.user.username %></p>
+                        <p class="text-xs text-gray-500"><%= contribution.created_at.strftime("%d.%m.%Y %H:%M") %></p>
+                      </div>
+                    </div>
+                    <% if contribution.notes.present? %>
+                      <span class="text-xs text-gray-500 italic">"<%= contribution.notes %>"</span>
+                    <% end %>
+                  </div>
+                  <% if contribution.proposed_data.present? %>
+                    <div class="mt-2 ml-11">
+                      <details class="text-sm">
+                        <summary class="text-emerald-600 cursor-pointer hover:text-emerald-800"><%= t("curator.proposals.view_contribution") %></summary>
+                        <div class="mt-2 bg-gray-50 rounded p-2">
+                          <% contribution.proposed_data.each do |key, value| %>
+                            <p class="text-xs"><strong><%= key %>:</strong> <%= value.is_a?(Array) ? value.join(", ") : value %></p>
+                          <% end %>
+                        </div>
+                      </details>
+                    </div>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Curator Reviews -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900"><%= t("curator.proposals.reviews_title") %></h3>
+          <% summary = @proposal.recommendation_summary %>
+          <div class="mt-2 flex items-center gap-4 text-sm">
+            <span class="inline-flex items-center text-green-600">
+              <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z" />
+              </svg>
+              <%= summary[:approve] %> <%= t("curator.proposals.recommend_approve") %>
+            </span>
+            <span class="inline-flex items-center text-red-600">
+              <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 15h2.25m8.024-9.75c.011.05.028.1.052.148.591 1.2.924 2.55.924 3.977a8.96 8.96 0 01-.999 4.125m.023-8.25c-.076-.365.183-.75.575-.75h.908c.889 0 1.713.518 1.972 1.368.339 1.11.521 2.287.521 3.507 0 1.553-.295 3.036-.831 4.398-.306.774-1.086 1.227-1.918 1.227h-1.053c-.472 0-.745-.556-.5-.96a8.95 8.95 0 00.303-.54m.023-8.25H16.48a4.5 4.5 0 01-1.423-.23l-3.114-1.04a4.5 4.5 0 00-1.423-.23H6.504c-.618 0-1.217.247-1.605.729A11.95 11.95 0 002.25 12c0 .434.023.863.068 1.285C2.427 14.306 3.346 15 4.372 15h3.126c.618 0 .991.724.725 1.282A7.471 7.471 0 007.5 19.5a2.25 2.25 0 002.25 2.25.75.75 0 00.75-.75v-.633c0-.573.11-1.14.322-1.672.304-.76.93-1.33 1.653-1.715a9.04 9.04 0 002.86-2.4c.498-.634 1.226-1.08 2.032-1.08h.384" />
+              </svg>
+              <%= summary[:reject] %> <%= t("curator.proposals.recommend_reject") %>
+            </span>
+            <span class="text-gray-500">
+              <%= summary[:neutral] %> <%= t("curator.proposals.neutral") %>
+            </span>
+          </div>
+        </div>
+        <div class="px-4 py-5 sm:p-6">
+          <% if @proposal.curator_reviews.any? %>
+            <ul class="space-y-4 mb-6">
+              <% @proposal.curator_reviews.recent.includes(:user).each do |review| %>
+                <li class="bg-gray-50 rounded-lg p-4">
+                  <div class="flex items-start justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                        <span class="text-sm font-medium text-gray-600"><%= review.user.username[0].upcase %></span>
+                      </div>
+                      <div>
+                        <p class="text-sm font-medium text-gray-900"><%= review.user.username %></p>
+                        <p class="text-xs text-gray-500"><%= review.created_at.strftime("%d.%m.%Y %H:%M") %></p>
+                      </div>
+                    </div>
+                    <% case review.recommendation %>
+                    <% when "recommend_approve" %>
+                      <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
+                        <%= t("curator.proposals.recommend_approve") %>
+                      </span>
+                    <% when "recommend_reject" %>
+                      <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
+                        <%= t("curator.proposals.recommend_reject") %>
+                      </span>
+                    <% else %>
+                      <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">
+                        <%= t("curator.proposals.neutral") %>
+                      </span>
+                    <% end %>
+                  </div>
+                  <p class="mt-2 text-sm text-gray-700"><%= review.comment %></p>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="text-sm text-gray-500 mb-6"><%= t("curator.proposals.no_reviews_yet") %></p>
+          <% end %>
+
+          <!-- Add Review Form -->
+          <% if @existing_review.blank? %>
+            <div class="border-t border-gray-200 pt-6">
+              <h4 class="text-sm font-medium text-gray-900 mb-4"><%= t("curator.proposals.add_your_review") %></h4>
+              <%= form_with model: @review, url: add_review_curator_proposal_path(@proposal), method: :post, local: true, class: "space-y-4" do |f| %>
+                <div>
+                  <%= f.label :recommendation, t("curator.proposals.your_recommendation"), class: "block text-sm font-medium text-gray-700" %>
+                  <div class="mt-2 flex gap-4">
+                    <label class="inline-flex items-center">
+                      <%= f.radio_button :recommendation, "recommend_approve", class: "h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300" %>
+                      <span class="ml-2 text-sm text-gray-700"><%= t("curator.proposals.recommend_approve") %></span>
+                    </label>
+                    <label class="inline-flex items-center">
+                      <%= f.radio_button :recommendation, "neutral", checked: true, class: "h-4 w-4 text-gray-600 focus:ring-gray-500 border-gray-300" %>
+                      <span class="ml-2 text-sm text-gray-700"><%= t("curator.proposals.neutral") %></span>
+                    </label>
+                    <label class="inline-flex items-center">
+                      <%= f.radio_button :recommendation, "recommend_reject", class: "h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300" %>
+                      <span class="ml-2 text-sm text-gray-700"><%= t("curator.proposals.recommend_reject") %></span>
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <%= f.label :comment, t("curator.proposals.your_comment"), class: "block text-sm font-medium text-gray-700" %>
+                  <%= f.text_area :comment, rows: 4, placeholder: t("curator.proposals.comment_placeholder"), class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+                  <p class="mt-1 text-xs text-gray-500"><%= t("curator.proposals.comment_hint") %></p>
+                </div>
+                <div>
+                  <%= f.submit t("curator.proposals.submit_review"), class: "inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 cursor-pointer" %>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="border-t border-gray-200 pt-6">
+              <div class="rounded-md bg-emerald-50 p-4">
+                <div class="flex">
+                  <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <div class="ml-3">
+                    <p class="text-sm font-medium text-emerald-800"><%= t("curator.proposals.already_reviewed") %></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+      <!-- Proposal Info -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900"><%= t("curator.proposals.info") %></h3>
+        </div>
+        <div class="px-4 py-5 sm:p-6">
+          <dl class="space-y-4">
+            <div>
+              <dt class="text-sm font-medium text-gray-500"><%= t("curator.proposals.proposed_by") %></dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= @proposal.user.username %></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500"><%= t("curator.proposals.content_type") %></dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= @proposal.changeable_type || @proposal.changeable_class %></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500"><%= t("curator.proposals.submitted_at") %></dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= @proposal.created_at.strftime("%d.%m.%Y %H:%M") %></dd>
+            </div>
+            <% if @proposal.changeable.present? %>
+              <div>
+                <dt class="text-sm font-medium text-gray-500"><%= t("curator.proposals.target_resource") %></dt>
+                <dd class="mt-1">
+                  <% case @proposal.changeable_type %>
+                  <% when "Location" %>
+                    <%= link_to @proposal.changeable.name, curator_location_path(@proposal.changeable), class: "text-sm text-emerald-600 hover:text-emerald-800" %>
+                  <% when "Experience" %>
+                    <%= link_to @proposal.changeable.title, curator_experience_path(@proposal.changeable), class: "text-sm text-emerald-600 hover:text-emerald-800" %>
+                  <% when "Plan" %>
+                    <%= link_to @proposal.changeable.title, curator_plan_path(@proposal.changeable), class: "text-sm text-emerald-600 hover:text-emerald-800" %>
+                  <% when "AudioTour" %>
+                    <%= link_to "#{@proposal.changeable.location&.name} (#{@proposal.changeable.locale})", curator_audio_tour_path(@proposal.changeable), class: "text-sm text-emerald-600 hover:text-emerald-800" %>
+                  <% end %>
+                </dd>
+              </div>
+            <% end %>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Status Info -->
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-amber-800"><%= t("curator.proposals.status.pending") %></h3>
+            <p class="mt-2 text-sm text-amber-700"><%= t("curator.proposals.pending_note") %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

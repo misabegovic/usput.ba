@@ -40,6 +40,7 @@ class NewDesignController < ApplicationController
     @duration = params[:duration]
     @min_rating = params[:min_rating]
     @city_name = params[:city_name]
+    @origin = params[:origin]
     @audio_support = params[:audio_support] == "true"
     @lat = params[:lat].presence&.to_f
     @lng = params[:lng].presence&.to_f
@@ -82,6 +83,7 @@ class NewDesignController < ApplicationController
     base_browse = base_browse.by_min_rating(@min_rating) if @min_rating.present?
     base_browse = base_browse.by_season(@season) if @season.present?
     base_browse = base_browse.by_budget(@budget) if @budget.present?
+    base_browse = base_browse.by_origin(@origin) if @origin.present?
     base_browse = base_browse.nearby(@lat, @lng, radius_km: @radius) if @lat.present? && @lng.present?
 
     # Check if search matches a single place - if so, expand to nearby items
@@ -402,6 +404,7 @@ class NewDesignController < ApplicationController
     expanded_browse = expanded_browse.by_min_rating(@min_rating) if @min_rating.present?
     expanded_browse = expanded_browse.by_season(@season) if @season.present?
     expanded_browse = expanded_browse.by_budget(@budget) if @budget.present?
+    expanded_browse = expanded_browse.by_origin(@origin) if @origin.present?
 
     # Now add nearby items that match the search OR are within 10km of the matched location
     nearby_browse = Browse.nearby(location.lat, location.lng, radius_km: 10)

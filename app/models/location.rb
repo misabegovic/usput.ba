@@ -19,6 +19,7 @@ class Location < ApplicationRecord
   has_many :location_experience_types, dependent: :destroy
   has_many :experience_types, through: :location_experience_types
   has_many :audio_tours, dependent: :destroy
+  has_many :photo_suggestions, dependent: :destroy
 
   # Location categories (many-to-many - a location can have multiple categories)
   has_many :location_category_assignments, dependent: :destroy
@@ -144,6 +145,33 @@ class Location < ApplicationRecord
     where("locations.average_rating >= ?", min_rating.to_f)
   }
 
+  # Resources needing AI regeneration (translations, audio tours)
+  scope :needs_ai_regeneration, -> { where(needs_ai_regeneration: true) }
+
+  # Filter by AI generated / Human made
+  scope :ai_generated, -> { where(ai_generated: true) }
+  scope :human_made, -> { where(ai_generated: false) }
+
+  # Filter by season - matches if seasons array contains the season OR is empty (year-round)
+  scope :by_season, ->(season) {
+    return all if season.blank?
+    where("seasons = '[]'::jsonb OR seasons @> ?", [ season ].to_json)
+  }
+
+  # Filter by multiple seasons (OR logic)
+  scope :by_seasons, ->(seasons) {
+    return all if seasons.blank?
+    seasons = Array(seasons).map(&:to_s)
+    conditions = seasons.map { "seasons @> ?" }
+    where("seasons = '[]'::jsonb OR #{conditions.join(' OR ')}", *seasons.map { |s| [ s ].to_json })
+  }
+
+  # Locations available year-round (empty seasons array)
+  scope :year_round, -> { where("seasons = '[]'::jsonb") }
+
+  # Valid seasons constant
+  SEASONS = %w[spring summer fall winter].freeze
+
   # Get supported experiences dynamically from database
   def self.supported_experiences
     ExperienceType.active_keys
@@ -263,6 +291,46 @@ class Location < ApplicationRecord
   # Get a specific social link
   def social_link(platform)
     social_links[platform.to_s.strip.downcase]
+  end
+
+  # Season helpers
+
+  # Ensure seasons is always an array
+  def seasons
+    super || []
+  end
+
+  # Check if location is available in a specific season
+  def available_in_season?(season)
+    seasons.empty? || seasons.include?(season.to_s)
+  end
+
+  # Check if location is available year-round
+  def year_round?
+    seasons.empty?
+  end
+
+  # Add a season
+  def add_season(season)
+    season = season.to_s.downcase
+    return unless SEASONS.include?(season)
+    self.seasons = (seasons + [ season ]).uniq
+  end
+
+  # Remove a season
+  def remove_season(season)
+    self.seasons = seasons - [ season.to_s.downcase ]
+  end
+
+  # Set as year-round (clear all seasons)
+  def set_year_round!
+    self.seasons = []
+  end
+
+  # Get human-readable season names
+  def season_names
+    return [ "Year-round" ] if seasons.empty?
+    seasons.map(&:titleize)
   end
 
   # Check if this is a contact type (guide, business, artisan)

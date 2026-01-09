@@ -32,20 +32,46 @@
         </div>
 
         <% if @application.pending? %>
-          <div class="flex flex-col sm:flex-row gap-3">
-            <%= button_to t("admin.curator_applications.approve_btn"), approve_admin_curator_application_path(@application),
-                method: :post,
-                class: "inline-flex items-center justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500",
-                data: { turbo_confirm: t("admin.curator_applications.confirm_approve", username: @application.user.username) } %>
+          <div class="space-y-4">
+            <!-- Admin Credentials for protected actions -->
+            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <p class="text-sm text-gray-600 mb-3">
+                <%= t("admin.credentials.confirm_action", default: "Confirm your admin credentials to proceed:") %>
+              </p>
+              <div class="flex flex-col sm:flex-row gap-3" data-controller="admin-credentials">
+                <input type="text"
+                       id="curator_admin_username"
+                       placeholder="<%= t("admin.credentials.username", default: "Admin Username") %>"
+                       data-admin-credentials-target="username"
+                       class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                <input type="password"
+                       id="curator_admin_password"
+                       placeholder="<%= t("admin.credentials.password", default: "Admin Password") %>"
+                       data-admin-credentials-target="password"
+                       class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+              </div>
+            </div>
 
-            <%= form_with url: reject_admin_curator_application_path(@application), method: :post, class: "flex flex-col sm:flex-row items-stretch sm:items-center gap-2" do |f| %>
-              <%= f.text_field :admin_notes,
-                  placeholder: t("admin.curator_applications.rejection_reason"),
-                  class: "rounded-md border-gray-300 text-sm w-full" %>
-              <%= f.submit t("admin.curator_applications.reject_btn"),
-                  class: "inline-flex items-center justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 cursor-pointer",
-                  data: { turbo_confirm: t("admin.curator_applications.confirm_reject", username: @application.user.username) } %>
-            <% end %>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <%= form_with url: approve_admin_curator_application_path(@application), method: :post, class: "inline", data: { controller: "credential-form", "credential-form-username-id-value": "curator_admin_username", "credential-form-password-id-value": "curator_admin_password" } do |f| %>
+                <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
+                <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+                <%= f.submit t("admin.curator_applications.approve_btn"),
+                    class: "inline-flex items-center justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 cursor-pointer",
+                    data: { turbo_confirm: t("admin.curator_applications.confirm_approve", username: @application.user.username), action: "credential-form#copyCredentials" } %>
+              <% end %>
+
+              <%= form_with url: reject_admin_curator_application_path(@application), method: :post, class: "flex flex-col sm:flex-row items-stretch sm:items-center gap-2", data: { controller: "credential-form", "credential-form-username-id-value": "curator_admin_username", "credential-form-password-id-value": "curator_admin_password" } do |f| %>
+                <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
+                <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+                <%= f.text_field :admin_notes,
+                    placeholder: t("admin.curator_applications.rejection_reason"),
+                    class: "rounded-md border-gray-300 text-sm w-full" %>
+                <%= f.submit t("admin.curator_applications.reject_btn"),
+                    class: "inline-flex items-center justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 cursor-pointer",
+                    data: { turbo_confirm: t("admin.curator_applications.confirm_reject", username: @application.user.username), action: "credential-form#copyCredentials" } %>
+              <% end %>
+            </div>
           </div>
         <% end %>
       </div>

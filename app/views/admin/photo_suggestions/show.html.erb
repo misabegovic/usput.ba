@@ -1,0 +1,172 @@
+<div class="space-y-6">
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900">
+      <%= t("admin.photo_suggestions.suggestion_details") %>
+    </h1>
+    <div class="mt-3 sm:mt-0">
+      <%= link_to t("admin.photo_suggestions.back_to_list"), admin_photo_suggestions_path,
+          class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+    </div>
+  </div>
+
+  <!-- Photo Preview -->
+  <div class="overflow-hidden rounded-lg bg-white shadow">
+    <div class="aspect-video bg-gray-100 relative max-h-96">
+      <% if @photo_suggestion.photo.attached? %>
+        <%= image_tag @photo_suggestion.photo, class: "w-full h-full object-contain" %>
+      <% elsif @photo_suggestion.photo_url.present? %>
+        <%= image_tag @photo_suggestion.photo_url, class: "w-full h-full object-contain", onerror: "this.parentElement.innerHTML='<div class=\"flex items-center justify-center h-full text-gray-500\">Failed to load image from URL</div>'" %>
+      <% else %>
+        <div class="w-full h-full flex items-center justify-center text-gray-400">
+          <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Status and Actions -->
+  <div class="overflow-hidden rounded-lg bg-white shadow">
+    <div class="px-4 py-4 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div class="space-y-2">
+          <div>
+            <span class="text-sm text-gray-500"><%= t("admin.photo_suggestions.status_label") %>:</span>
+            <% case @photo_suggestion.status %>
+            <% when "pending" %>
+              <span class="ml-2 inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-800">
+                <%= t("admin.photo_suggestions.stats.pending") %>
+              </span>
+            <% when "approved" %>
+              <span class="ml-2 inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
+                <%= t("admin.photo_suggestions.stats.approved") %>
+              </span>
+            <% when "rejected" %>
+              <span class="ml-2 inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-800">
+                <%= t("admin.photo_suggestions.stats.rejected") %>
+              </span>
+            <% end %>
+          </div>
+          <div>
+            <span class="text-sm text-gray-500"><%= t("admin.photo_suggestions.source") %>:</span>
+            <span class="ml-2 text-sm text-gray-900">
+              <% if @photo_suggestion.photo.attached? %>
+                <%= t("admin.photo_suggestions.uploaded_file") %>
+              <% else %>
+                <%= t("admin.photo_suggestions.external_url") %>
+              <% end %>
+            </span>
+          </div>
+        </div>
+
+        <% if @photo_suggestion.pending? %>
+          <div class="space-y-4">
+            <!-- Admin Credentials for protected actions -->
+            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <p class="text-sm text-gray-600 mb-3">
+                <%= t("admin.credentials.confirm_action", default: "Confirm your admin credentials to proceed:") %>
+              </p>
+              <div class="flex flex-col sm:flex-row gap-3" data-controller="admin-credentials">
+                <input type="text"
+                       id="photo_suggestion_admin_username"
+                       placeholder="<%= t("admin.credentials.username", default: "Admin Username") %>"
+                       data-admin-credentials-target="username"
+                       class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                <input type="password"
+                       id="photo_suggestion_admin_password"
+                       placeholder="<%= t("admin.credentials.password", default: "Admin Password") %>"
+                       data-admin-credentials-target="password"
+                       class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+              <%= form_with url: approve_admin_photo_suggestion_path(@photo_suggestion), method: :post, class: "inline", data: { controller: "credential-form", "credential-form-username-id-value": "photo_suggestion_admin_username", "credential-form-password-id-value": "photo_suggestion_admin_password" } do |f| %>
+                <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
+                <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+                <%= f.text_field :admin_notes,
+                    placeholder: t("admin.photo_suggestions.admin_notes"),
+                    class: "rounded-md border-gray-300 text-sm w-full mb-2" %>
+                <%= f.submit t("admin.photo_suggestions.approve_btn"),
+                    class: "inline-flex items-center justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 cursor-pointer w-full",
+                    data: { turbo_confirm: t("admin.photo_suggestions.confirm_approve"), action: "credential-form#copyCredentials" } %>
+              <% end %>
+
+              <%= form_with url: reject_admin_photo_suggestion_path(@photo_suggestion), method: :post, class: "flex flex-col gap-2", data: { controller: "credential-form", "credential-form-username-id-value": "photo_suggestion_admin_username", "credential-form-password-id-value": "photo_suggestion_admin_password" } do |f| %>
+                <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
+                <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+                <%= f.text_field :admin_notes,
+                    placeholder: t("admin.photo_suggestions.rejection_reason"),
+                    class: "rounded-md border-gray-300 text-sm w-full" %>
+                <%= f.submit t("admin.photo_suggestions.reject_btn"),
+                    class: "inline-flex items-center justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 cursor-pointer w-full",
+                    data: { turbo_confirm: t("admin.photo_suggestions.confirm_reject"), action: "credential-form#copyCredentials" } %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <% if @photo_suggestion.reviewed_by.present? %>
+        <div class="mt-4 text-sm text-gray-500">
+          <%= t("admin.photo_suggestions.reviewed_by",
+              admin: @photo_suggestion.reviewed_by.username,
+              date: @photo_suggestion.reviewed_at.strftime("%d.%m.%Y %H:%M")) %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Suggestion Info -->
+  <div class="overflow-hidden rounded-lg bg-white shadow">
+    <div class="px-4 py-5 sm:p-6">
+      <dl class="space-y-6">
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("admin.photo_suggestions.suggested_by") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @photo_suggestion.user.username %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("admin.photo_suggestions.submitted") %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @photo_suggestion.created_at.strftime("%d.%m.%Y %H:%M") %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t("admin.photo_suggestions.for_location") %></dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <%= link_to @photo_suggestion.location.name, location_path(@photo_suggestion.location), class: "text-indigo-600 hover:text-indigo-900" %>
+          </dd>
+        </div>
+
+        <% if @photo_suggestion.photo_url.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500"><%= t("admin.photo_suggestions.photo_url") %></dt>
+            <dd class="mt-1 text-sm text-gray-900 break-all">
+              <%= link_to @photo_suggestion.photo_url, @photo_suggestion.photo_url, target: "_blank", class: "text-indigo-600 hover:text-indigo-900" %>
+            </dd>
+          </div>
+        <% end %>
+
+        <% if @photo_suggestion.description.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500"><%= t("admin.photo_suggestions.description") %></dt>
+            <dd class="mt-1 text-sm text-gray-900 whitespace-pre-wrap bg-gray-50 p-3 rounded-lg"><%= @photo_suggestion.description %></dd>
+          </div>
+        <% end %>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Admin Notes -->
+  <% if @photo_suggestion.admin_notes.present? %>
+    <div class="overflow-hidden rounded-lg bg-white shadow">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-4"><%= t("admin.photo_suggestions.admin_notes") %></h3>
+        <div class="text-sm text-gray-900 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">
+          <%= @photo_suggestion.admin_notes %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

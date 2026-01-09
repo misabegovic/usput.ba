@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Curator
   class LocationsController < BaseController
     before_action :set_location, only: [ :show, :edit, :update, :destroy ]
@@ -8,11 +10,20 @@ module Curator
       @locations = @locations.by_city(params[:city_name]) if params[:city_name].present?
       @locations = @locations.by_category(params[:category]) if params[:category].present?
       @locations = @locations.where("locations.name ILIKE ?", "%#{params[:search]}%") if params[:search].present?
+      @locations = @locations.page(params[:page]).per(20)
       @city_names = Location.where.not(city: [nil, ""]).distinct.pluck(:city).sort
       @location_categories = LocationCategory.active.ordered
+
+      # Show pending proposals for this curator
+      @pending_proposals = current_user.content_changes
+        .where(changeable_type: "Location")
+        .or(current_user.content_changes.where(changeable_class: "Location"))
+        .pending
+        .order(created_at: :desc)
     end
 
     def show
+      @pending_proposal = pending_proposal_for(@location)
     end
 
     def new
@@ -20,42 +31,85 @@ module Curator
     end
 
     def create
-      @location = Location.new(location_params)
+      # Instead of creating directly, create a proposal for admin review
+      proposal = current_user.content_changes.build(
+        change_type: :create_content,
+        changeable_class: "Location",
+        proposed_data: proposal_data_from_params
+      )
 
-      if @location.save
-        attach_photos
-        attach_audio_file
-        redirect_to curator_location_path(@location), notice: t("curator.locations.created")
+      if proposal.save
+        record_activity("proposal_created", recordable: proposal, metadata: { type: "Location", name: proposal_data_from_params["name"] })
+        redirect_to curator_locations_path, notice: t("curator.proposals.submitted_for_review")
       else
+        @location = Location.new(location_params)
+        flash.now[:alert] = t("curator.proposals.failed_to_submit")
         render :new, status: :unprocessable_entity
       end
     end
 
     def edit
+      @pending_proposal = pending_proposal_for(@location)
     end
 
     def update
-      remove_photos if params[:location][:remove_photo_ids].present?
-      remove_audio_file if params[:location][:remove_audio_file] == "1"
+      # Use find_or_create to ensure only one pending proposal per resource
+      # This allows multiple curators to contribute to the same proposal
+      proposal = ContentChange.find_or_create_for_update(
+        changeable: @location,
+        user: current_user,
+        original_data: @location.attributes.slice(*editable_attributes),
+        proposed_data: proposal_data_from_params
+      )
 
-      if @location.update(location_params)
-        attach_photos
-        attach_audio_file
-        redirect_to curator_location_path(@location), notice: t("curator.locations.updated")
+      if proposal.persisted?
+        action = proposal.contributions.exists?(user: current_user) ? "proposal_contributed" : "proposal_updated"
+        record_activity(action, recordable: @location, metadata: { type: "Location", name: @location.name })
+        redirect_to curator_location_path(@location), notice: t("curator.proposals.submitted_for_review")
       else
+        flash.now[:alert] = t("curator.proposals.failed_to_submit")
         render :edit, status: :unprocessable_entity
       end
     end
 
     def destroy
-      @location.destroy
-      redirect_to curator_locations_path, notice: t("curator.locations.deleted")
+      # Use find_or_create to ensure only one pending proposal per resource
+      proposal = ContentChange.find_or_create_for_delete(
+        changeable: @location,
+        user: current_user,
+        original_data: @location.attributes.slice(*editable_attributes)
+      )
+
+      if proposal.persisted?
+        record_activity("proposal_deleted", recordable: @location, metadata: { type: "Location", name: @location.name })
+        redirect_to curator_locations_path, notice: t("curator.proposals.delete_submitted_for_review")
+      else
+        redirect_to curator_locations_path, alert: t("curator.proposals.failed_to_submit")
+      end
     end
 
     private
 
     def set_location
       @location = Location.find_by_public_id!(params[:id])
+    end
+
+    def editable_attributes
+      %w[name description historical_context city lat lng location_type budget phone email website video_url tags suitable_experiences social_links]
+    end
+
+    def proposal_data_from_params
+      data = location_params.to_h
+
+      # Include category IDs
+      if params[:location][:location_category_ids].present?
+        data["location_category_ids"] = params[:location][:location_category_ids].reject(&:blank?).map(&:to_i)
+      end
+
+      # Note: File attachments (photos, audio) are not included in proposals
+      # They would need to be added after approval or handled separately
+
+      data
     end
 
     def location_params
@@ -87,36 +141,6 @@ module Curator
       @city_names = Location.where.not(city: [nil, ""]).distinct.pluck(:city).sort
       @experience_types = ExperienceType.where(active: true).order(:position)
       @location_categories = LocationCategory.active.ordered
-    end
-
-    def attach_photos
-      return unless params[:location][:photos].present?
-      photos = params[:location][:photos].reject(&:blank?)
-      @location.photos.attach(photos) if photos.any?
-    end
-
-    def remove_photos
-      signed_ids = params[:location][:remove_photo_ids].reject(&:blank?)
-      signed_ids.each do |signed_id|
-        attachment = @location.photos.find { |p| p.signed_id == signed_id }
-        attachment&.purge
-      end
-    end
-
-    def attach_audio_file
-      return unless params[:location][:audio_file].present?
-      return if params[:location][:audio_file].blank?
-
-      # Find or create audio tour for default locale (bs)
-      audio_tour = @location.audio_tours.find_or_initialize_by(locale: "bs")
-      audio_tour.save! if audio_tour.new_record?
-      audio_tour.audio_file.attach(params[:location][:audio_file])
-    end
-
-    def remove_audio_file
-      # Remove audio from the default locale audio tour
-      audio_tour = @location.audio_tour_for("bs")
-      audio_tour&.audio_file&.purge
     end
   end
 end

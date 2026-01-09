@@ -1,0 +1,44 @@
+<% if @pending_proposals.present? %>
+  <div class="overflow-hidden rounded-lg bg-amber-50 border border-amber-200 shadow">
+    <div class="px-4 py-4 sm:p-6">
+      <h3 class="text-base font-medium text-amber-800 mb-3 flex items-center gap-2">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <%= t("curator.proposals.pending_title") %>
+        <span class="inline-flex items-center rounded-full bg-amber-200 px-2 py-0.5 text-xs font-medium text-amber-800">
+          <%= @pending_proposals.size %>
+        </span>
+      </h3>
+
+      <div class="space-y-2">
+        <% @pending_proposals.each do |proposal| %>
+          <div class="bg-white rounded-md p-3 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2 min-w-0">
+              <% case proposal.change_type %>
+              <% when "create_content" %>
+                <span class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 shrink-0">
+                  <%= t("curator.proposals.types.create_content") %>
+                </span>
+              <% when "update_content" %>
+                <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 shrink-0">
+                  <%= t("curator.proposals.types.update_content") %>
+                </span>
+              <% when "delete_content" %>
+                <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 shrink-0">
+                  <%= t("curator.proposals.types.delete_content") %>
+                </span>
+              <% end %>
+              <span class="text-sm text-gray-700 truncate">
+                <%= proposal.description %>
+              </span>
+            </div>
+            <div class="text-xs text-gray-500 shrink-0">
+              <%= proposal.created_at.strftime("%d.%m.%Y") %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

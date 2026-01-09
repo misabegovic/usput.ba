@@ -8,6 +8,16 @@ class User < ApplicationRecord
   end
   has_many :curator_applications, dependent: :destroy
   has_many :plans, dependent: :nullify
+  has_many :content_changes, dependent: :destroy
+  has_many :content_change_contributions, dependent: :destroy
+  has_many :curator_reviews, dependent: :destroy
+  has_many :curator_activities, dependent: :destroy
+  has_many :photo_suggestions, dependent: :destroy
+
+  # Spam protection constants
+  MAX_ACTIVITIES_PER_HOUR = 50
+  MAX_ACTIVITIES_PER_DAY = 200
+  SPAM_BLOCK_DURATION = 24.hours
 
   validate :acceptable_avatar, if: -> { avatar.attached? }
 
@@ -38,6 +48,71 @@ class User < ApplicationRecord
 
   def can_apply_for_curator?
     basic? && !pending_curator_application?
+  end
+
+  # Spam protection methods
+  def spam_blocked?
+    return false unless spam_blocked_until.present?
+
+    if spam_blocked_until > Time.current
+      true
+    else
+      # Auto-unblock if block has expired
+      clear_spam_block!
+      false
+    end
+  end
+
+  def check_spam_activity!
+    return unless curator?
+
+    reset_activity_count_if_needed!
+
+    hourly_count = curator_activities.this_hour.count
+    daily_count = activity_count_today
+
+    if hourly_count >= MAX_ACTIVITIES_PER_HOUR
+      block_for_spam!("Exceeded #{MAX_ACTIVITIES_PER_HOUR} actions per hour")
+    elsif daily_count >= MAX_ACTIVITIES_PER_DAY
+      block_for_spam!("Exceeded #{MAX_ACTIVITIES_PER_DAY} actions per day")
+    end
+  end
+
+  def increment_activity_count!
+    reset_activity_count_if_needed!
+    increment!(:activity_count_today)
+  end
+
+  def block_for_spam!(reason)
+    update!(
+      spam_blocked_at: Time.current,
+      spam_blocked_until: SPAM_BLOCK_DURATION.from_now,
+      spam_block_reason: reason
+    )
+  end
+
+  def clear_spam_block!
+    update!(
+      spam_blocked_at: nil,
+      spam_blocked_until: nil,
+      spam_block_reason: nil
+    )
+  end
+
+  def admin_unblock!
+    clear_spam_block!
+    update!(activity_count_today: 0)
+  end
+
+  private
+
+  def reset_activity_count_if_needed!
+    if activity_count_reset_at.nil? || activity_count_reset_at < Time.current.beginning_of_day
+      update!(
+        activity_count_today: 0,
+        activity_count_reset_at: Time.current
+      )
+    end
   end
 
   # Default travel profile structure

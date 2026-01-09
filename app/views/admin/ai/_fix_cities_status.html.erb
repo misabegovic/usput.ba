@@ -11,10 +11,15 @@
           <span class="text-blue-700 ml-2"><%= status[:message] %></span>
         </div>
       </div>
-      <%= button_to "Force Stop & Restart", admin_force_reset_city_fix_admin_ai_path,
-          method: :post,
-          class: "inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors",
-          data: { confirm: "Are you sure? This will reset the city fix status and allow you to start a new run." } %>
+      <%= form_with url: admin_force_reset_city_fix_admin_ai_path, method: :post, class: "inline", data: { turbo_confirm: "Are you sure? This will reset the city fix status and allow you to start a new run.", controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
+        <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
+        <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+        <button type="submit"
+                class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                data-action="credential-form#copyCredentials">
+          Force Stop & Restart
+        </button>
+      <% end %>
     </div>
   </div>
 <% elsif status[:status] == "completed" && status[:results].present? %>
