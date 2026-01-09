@@ -11,6 +11,10 @@ RubyLLM.configure do |config|
   # Google AI API key for Gemini models
   config.gemini_api_key = ENV.fetch("GEMINI_API_KEY", nil)
 
+  # Perplexity API key for web search capabilities
+  # Used by LocationVideoFinderJob to search for YouTube videos
+  config.perplexity_api_key = ENV.fetch("PERPLEXITY_API_KEY", nil)
+
   # Default model to use
   # Options: "gpt-4o-mini", "claude-sonnet-4-20250514", "gemini-2.0-flash", etc.
   config.default_model = ENV.fetch("LLM_DEFAULT_MODEL", "gpt-4o-mini")
