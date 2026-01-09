@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-# Background job for analyzing and rebuilding plans that have quality issues
-# or are too similar to other plans
+# Background job for analyzing and rebuilding AI-generated plans that have quality issues
+# or are too similar to other plans. Only processes plans where user_id is nil (AI-generated).
+# User-owned plans are never modified by this job.
 #
 # Usage:
 #   RebuildPlansJob.perform_later                          # Analyze and rebuild
