@@ -46,7 +46,7 @@ class RebuildExperiencesJob < ApplicationJob
       # Phase 1: Analyze all experiences
       save_status("in_progress", "Analyzing experiences for quality issues...")
       analyzer = Ai::ExperienceAnalyzer.new
-      report = analyzer.generate_report
+      report = analyzer.generate_report(limit: max_rebuilds)
 
       results[:total_analyzed] = report[:total_experiences]
       results[:issues_found] = report[:experiences_with_issues]

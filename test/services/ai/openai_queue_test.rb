@@ -3,42 +3,40 @@
 require "test_helper"
 
 module Ai
-  class OpenaiQueueTest < ActiveSupport::TestCase
-    setup do
-      @mock_chat = Minitest::Mock.new
-      @mock_response = Minitest::Mock.new
-    end
-
+  class OpenaiQueueTest < ActiveJob::TestCase
     # === Request method tests ===
 
     test "request returns parsed hash response when schema is provided" do
       response_content = { name: "Test", value: 123 }
-      @mock_response.expect :nil?, false
-      @mock_response.expect :content, response_content
-      @mock_response.expect :content, response_content
 
-      @mock_chat.expect :with_schema, @mock_chat, [Hash]
-      @mock_chat.expect :ask, @mock_response, [String]
+      mock_response = Object.new
+      mock_response.define_singleton_method(:nil?) { false }
+      mock_response.define_singleton_method(:content) { response_content }
 
-      RubyLLM.stub :chat, @mock_chat do
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:with_schema) { |_schema| self }
+      mock_chat.define_singleton_method(:ask) { |_prompt| mock_response }
+
+      RubyLLM.stub :chat, mock_chat do
         result = Ai::OpenaiQueue.request(
           prompt: "Test prompt",
           schema: { type: "object" },
           context: "Test"
         )
 
-        assert_equal response_content, result
+        assert_equal response_content.deep_symbolize_keys, result
       end
     end
 
     test "request returns string response when no schema is provided" do
-      @mock_response.expect :nil?, false
-      @mock_response.expect :content, "Plain text response"
-      @mock_response.expect :content, "Plain text response"
+      mock_response = Object.new
+      mock_response.define_singleton_method(:nil?) { false }
+      mock_response.define_singleton_method(:content) { "Plain text response" }
 
-      @mock_chat.expect :ask, @mock_response, [String]
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:ask) { |_prompt| mock_response }
 
-      RubyLLM.stub :chat, @mock_chat do
+      RubyLLM.stub :chat, mock_chat do
         result = Ai::OpenaiQueue.request(
           prompt: "Test prompt",
           context: "Test"
@@ -49,9 +47,10 @@ module Ai
     end
 
     test "request returns nil when response is nil" do
-      @mock_chat.expect :ask, nil, [String]
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:ask) { |_prompt| nil }
 
-      RubyLLM.stub :chat, @mock_chat do
+      RubyLLM.stub :chat, mock_chat do
         result = Ai::OpenaiQueue.request(
           prompt: "Test prompt",
           context: "Test"
@@ -62,12 +61,14 @@ module Ai
     end
 
     test "request returns nil when response content is nil" do
-      @mock_response.expect :nil?, false
-      @mock_response.expect :content, nil
+      mock_response = Object.new
+      mock_response.define_singleton_method(:nil?) { false }
+      mock_response.define_singleton_method(:content) { nil }
 
-      @mock_chat.expect :ask, @mock_response, [String]
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:ask) { |_prompt| mock_response }
 
-      RubyLLM.stub :chat, @mock_chat do
+      RubyLLM.stub :chat, mock_chat do
         result = Ai::OpenaiQueue.request(
           prompt: "Test prompt",
           context: "Test"
@@ -80,9 +81,13 @@ module Ai
     # === Error handling tests ===
 
     test "request raises RateLimitError on RubyLLM::RateLimitError" do
+      # RubyLLM errors expect a response object with a body method
+      mock_response = Object.new
+      mock_response.define_singleton_method(:body) { '{"error": {"message": "Rate limit exceeded"}}' }
+
       mock_chat = Object.new
-      def mock_chat.ask(*)
-        raise RubyLLM::RateLimitError, "Rate limit exceeded"
+      mock_chat.define_singleton_method(:ask) do |_prompt|
+        raise RubyLLM::RateLimitError.new(mock_response)
       end
 
       RubyLLM.stub :chat, mock_chat do
@@ -90,14 +95,18 @@ module Ai
           Ai::OpenaiQueue.request(prompt: "Test", context: "Test")
         end
 
-        assert_match(/Rate limit exceeded/, error.message)
+        assert_match(/Rate limit/, error.message)
       end
     end
 
     test "request raises RequestError on RubyLLM::Error" do
+      # RubyLLM errors expect a response object with a body method
+      mock_response = Object.new
+      mock_response.define_singleton_method(:body) { '{"error": {"message": "API error"}}' }
+
       mock_chat = Object.new
-      def mock_chat.ask(*)
-        raise RubyLLM::Error, "API error"
+      mock_chat.define_singleton_method(:ask) do |_prompt|
+        raise RubyLLM::Error.new(mock_response)
       end
 
       RubyLLM.stub :chat, mock_chat do
@@ -111,7 +120,7 @@ module Ai
 
     test "request raises RequestError on StandardError" do
       mock_chat = Object.new
-      def mock_chat.ask(*)
+      mock_chat.define_singleton_method(:ask) do |_prompt|
         raise StandardError, "Unexpected error"
       end
 
@@ -127,17 +136,17 @@ module Ai
     # === JSON parsing tests ===
 
     test "parses JSON from markdown code block" do
-      json_content = '```json
-{"name": "Test", "value": 123}
-```'
-      @mock_response.expect :nil?, false
-      @mock_response.expect :content, json_content
-      @mock_response.expect :content, json_content
+      json_content = "```json\n{\"name\": \"Test\", \"value\": 123}\n```"
 
-      @mock_chat.expect :with_schema, @mock_chat, [Hash]
-      @mock_chat.expect :ask, @mock_response, [String]
+      mock_response = Object.new
+      mock_response.define_singleton_method(:nil?) { false }
+      mock_response.define_singleton_method(:content) { json_content }
 
-      RubyLLM.stub :chat, @mock_chat do
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:with_schema) { |_schema| self }
+      mock_chat.define_singleton_method(:ask) { |_prompt| mock_response }
+
+      RubyLLM.stub :chat, mock_chat do
         result = Ai::OpenaiQueue.request(
           prompt: "Test",
           schema: { type: "object" },
@@ -150,34 +159,39 @@ module Ai
 
     test "parses raw JSON object" do
       json_content = '{"name": "Test", "items": ["a", "b"]}'
-      @mock_response.expect :nil?, false
-      @mock_response.expect :content, json_content
-      @mock_response.expect :content, json_content
 
-      @mock_chat.expect :with_schema, @mock_chat, [Hash]
-      @mock_chat.expect :ask, @mock_response, [String]
+      mock_response = Object.new
+      mock_response.define_singleton_method(:nil?) { false }
+      mock_response.define_singleton_method(:content) { json_content }
 
-      RubyLLM.stub :chat, @mock_chat do
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:with_schema) { |_schema| self }
+      mock_chat.define_singleton_method(:ask) { |_prompt| mock_response }
+
+      RubyLLM.stub :chat, mock_chat do
         result = Ai::OpenaiQueue.request(
           prompt: "Test",
           schema: { type: "object" },
           context: "Test"
         )
 
-        assert_equal({ name: "Test", items: ["a", "b"] }, result)
+        assert_equal({ name: "Test", items: %w[a b] }, result)
       end
     end
 
     test "sanitizes smart quotes in JSON" do
-      json_content = '{"name": "Test"}'  # Using smart quotes
-      @mock_response.expect :nil?, false
-      @mock_response.expect :content, json_content
-      @mock_response.expect :content, json_content
+      # Using smart quotes that should be converted to regular quotes
+      json_content = '{"name": "Test"}'
 
-      @mock_chat.expect :with_schema, @mock_chat, [Hash]
-      @mock_chat.expect :ask, @mock_response, [String]
+      mock_response = Object.new
+      mock_response.define_singleton_method(:nil?) { false }
+      mock_response.define_singleton_method(:content) { json_content }
 
-      RubyLLM.stub :chat, @mock_chat do
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:with_schema) { |_schema| self }
+      mock_chat.define_singleton_method(:ask) { |_prompt| mock_response }
+
+      RubyLLM.stub :chat, mock_chat do
         result = Ai::OpenaiQueue.request(
           prompt: "Test",
           schema: { type: "object" },
@@ -190,14 +204,16 @@ module Ai
 
     test "handles trailing commas in JSON" do
       json_content = '{"name": "Test", "value": 1,}'
-      @mock_response.expect :nil?, false
-      @mock_response.expect :content, json_content
-      @mock_response.expect :content, json_content
 
-      @mock_chat.expect :with_schema, @mock_chat, [Hash]
-      @mock_chat.expect :ask, @mock_response, [String]
+      mock_response = Object.new
+      mock_response.define_singleton_method(:nil?) { false }
+      mock_response.define_singleton_method(:content) { json_content }
 
-      RubyLLM.stub :chat, @mock_chat do
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:with_schema) { |_schema| self }
+      mock_chat.define_singleton_method(:ask) { |_prompt| mock_response }
+
+      RubyLLM.stub :chat, mock_chat do
         result = Ai::OpenaiQueue.request(
           prompt: "Test",
           schema: { type: "object" },
@@ -210,14 +226,16 @@ module Ai
 
     test "returns empty hash on invalid JSON" do
       json_content = "not valid json at all"
-      @mock_response.expect :nil?, false
-      @mock_response.expect :content, json_content
-      @mock_response.expect :content, json_content
 
-      @mock_chat.expect :with_schema, @mock_chat, [Hash]
-      @mock_chat.expect :ask, @mock_response, [String]
+      mock_response = Object.new
+      mock_response.define_singleton_method(:nil?) { false }
+      mock_response.define_singleton_method(:content) { json_content }
 
-      RubyLLM.stub :chat, @mock_chat do
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:with_schema) { |_schema| self }
+      mock_chat.define_singleton_method(:ask) { |_prompt| mock_response }
+
+      RubyLLM.stub :chat, mock_chat do
         result = Ai::OpenaiQueue.request(
           prompt: "Test",
           schema: { type: "object" },
@@ -271,6 +289,71 @@ module Ai
 
     test "RequestError is a subclass of StandardError" do
       assert Ai::OpenaiQueue::RequestError < StandardError
+    end
+
+    test "GatewayError is a subclass of RequestError" do
+      assert Ai::OpenaiQueue::GatewayError < Ai::OpenaiQueue::RequestError
+    end
+
+    # === Gateway error detection tests ===
+
+    test "retries on gateway error in response content" do
+      call_count = 0
+      gateway_html = "<html><title>502 Bad Gateway</title></html>"
+      good_response = { result: "success" }
+
+      mock_response_bad = Object.new
+      mock_response_bad.define_singleton_method(:nil?) { false }
+      mock_response_bad.define_singleton_method(:content) { gateway_html }
+
+      mock_response_good = Object.new
+      mock_response_good.define_singleton_method(:nil?) { false }
+      mock_response_good.define_singleton_method(:content) { good_response }
+
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:with_schema) { |_schema| self }
+      mock_chat.define_singleton_method(:ask) do |_prompt|
+        call_count += 1
+        call_count == 1 ? mock_response_bad : mock_response_good
+      end
+
+      # Stub RubyLLM.chat before creating the queue instance
+      RubyLLM.stub :chat, mock_chat do
+        queue = Ai::OpenaiQueue.new
+
+        # Skip actual sleep in tests
+        queue.stub(:sleep, nil) do
+          result = queue.execute_request(
+            prompt: "Test",
+            schema: { type: "object" },
+            context: "Test"
+          )
+
+          assert_equal 2, call_count, "Should have retried once"
+          assert_equal good_response.deep_symbolize_keys, result
+        end
+      end
+    end
+
+    test "gateway error detection identifies 502 Bad Gateway" do
+      queue = Ai::OpenaiQueue.new
+      assert queue.send(:gateway_error_content?, "<html><title>502 Bad Gateway</title></html>")
+    end
+
+    test "gateway error detection identifies 503 Service Unavailable" do
+      queue = Ai::OpenaiQueue.new
+      assert queue.send(:gateway_error_content?, "<html><title>503 Service Unavailable</title></html>")
+    end
+
+    test "gateway error detection identifies Cloudflare errors" do
+      queue = Ai::OpenaiQueue.new
+      assert queue.send(:gateway_error_content?, "<html><body>Cloudflare Error</body></html>")
+    end
+
+    test "gateway error detection returns false for normal content" do
+      queue = Ai::OpenaiQueue.new
+      refute queue.send(:gateway_error_content?, '{"result": "success"}')
+      refute queue.send(:gateway_error_content?, "Plain text response")
     end
   end
 end

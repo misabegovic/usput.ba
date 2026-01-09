@@ -21,10 +21,16 @@ class ContentGenerationJob < ApplicationJob
   discard_on RubyLLM::ConfigurationError if defined?(RubyLLM::ConfigurationError)
   discard_on Ai::ContentOrchestrator::GenerationError
 
-  # @param max_experiences [Integer, nil] Maksimalan broj Experience-a za kreirati (nil = unlimited)
-  def perform(max_experiences: nil)
+  # @param max_locations [Integer, nil] Maksimalan broj lokacija za kreirati (nil = default 100, 0 = unlimited)
+  # @param max_experiences [Integer, nil] Maksimalan broj Experience-a za kreirati (nil = default 200, 0 = unlimited)
+  # @param max_plans [Integer, nil] Maksimalan broj planova za kreirati (nil = default 50, 0 = unlimited)
+  # @param skip_locations [Boolean] Preskoči dohvat/kreiranje lokacija
+  # @param skip_experiences [Boolean] Preskoči kreiranje iskustava
+  # @param skip_plans [Boolean] Preskoči kreiranje planova
+  def perform(max_locations: nil, max_experiences: nil, max_plans: nil, skip_locations: false, skip_experiences: false, skip_plans: false)
     Rails.logger.info "[ContentGenerationJob] Starting autonomous content generation"
-    Rails.logger.info "[ContentGenerationJob] Max experiences: #{max_experiences || 'unlimited'}"
+    Rails.logger.info "[ContentGenerationJob] Max: locations=#{max_locations || 'default (100)'}, experiences=#{max_experiences || 'default (200)'}, plans=#{max_plans || 'default (50)'}"
+    Rails.logger.info "[ContentGenerationJob] Skip: locations=#{skip_locations}, experiences=#{skip_experiences}, plans=#{skip_plans}"
 
     # Provjeri da li je već u toku generiranje
     current_status = Ai::ContentOrchestrator.current_status
@@ -34,7 +40,14 @@ class ContentGenerationJob < ApplicationJob
     end
 
     begin
-      orchestrator = Ai::ContentOrchestrator.new(max_experiences: max_experiences)
+      orchestrator = Ai::ContentOrchestrator.new(
+        max_locations: max_locations,
+        max_experiences: max_experiences,
+        max_plans: max_plans,
+        skip_locations: skip_locations,
+        skip_experiences: skip_experiences,
+        skip_plans: skip_plans
+      )
       results = orchestrator.generate
 
       Rails.logger.info "[ContentGenerationJob] Generation complete!"

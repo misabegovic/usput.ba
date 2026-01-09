@@ -16,10 +16,28 @@ module Ai
     class GenerationError < StandardError; end
     class CancellationError < StandardError; end
 
-    def initialize(max_experiences: nil)
+    # Default upper limits to prevent runaway generation
+    DEFAULT_MAX_LOCATIONS = 100
+    DEFAULT_MAX_EXPERIENCES = 200
+    DEFAULT_MAX_PLANS = 50
+
+    # @param max_locations [Integer, nil] Maximum locations to create (default: 100, nil = unlimited)
+    # @param max_experiences [Integer, nil] Maximum experiences to create (default: 200, nil = unlimited)
+    # @param max_plans [Integer, nil] Maximum plans to create (default: 50, nil = unlimited)
+    # @param skip_locations [Boolean] Skip location fetching/creation
+    # @param skip_experiences [Boolean] Skip experience creation
+    # @param skip_plans [Boolean] Skip plan creation
+    def initialize(max_locations: nil, max_experiences: nil, max_plans: nil, skip_locations: false, skip_experiences: false, skip_plans: false)
+      # Use provided limits, or defaults to prevent runaway generation
+      # Note: explicitly passing nil means "use default", pass 0 for truly unlimited (not recommended)
+      @max_locations = max_locations.nil? ? DEFAULT_MAX_LOCATIONS : (max_locations.zero? ? nil : max_locations)
+      @max_experiences = max_experiences.nil? ? DEFAULT_MAX_EXPERIENCES : (max_experiences.zero? ? nil : max_experiences)
+      @max_plans = max_plans.nil? ? DEFAULT_MAX_PLANS : (max_plans.zero? ? nil : max_plans)
       # No longer using @chat directly - using OpenaiQueue for rate limiting
       @geoapify = GeoapifyService.new
-      @max_experiences = max_experiences
+      @skip_locations = skip_locations
+      @skip_experiences = skip_experiences
+      @skip_plans = skip_plans
       @results = {
         started_at: Time.current,
         locations_created: 0,
@@ -27,7 +45,8 @@ module Ai
         experiences_created: 0,
         plans_created: 0,
         errors: [],
-        cities_processed: []
+        cities_processed: [],
+        skipped: { locations: skip_locations, experiences: skip_experiences, plans: skip_plans }
       }
     end
 
@@ -407,32 +426,38 @@ module Ai
       log_info "Processing city: #{city}"
       save_generation_status("in_progress", "Processing #{city}")
 
-      begin
-        # Faza 2: Prikupljanje lokacija
-        raw_places = fetch_locations(city_plan)
-        log_info "Fetched #{raw_places.count} places for #{city}"
+      city_result = { city: city, locations: 0, experiences: 0, plans: 0 }
 
-        # Faza 3: Obogaćivanje i spremanje lokacija
-        new_locations = enrich_and_save_locations(raw_places, city)
-        @results[:locations_created] += new_locations.count
-        log_info "Created #{new_locations.count} new locations in #{city}"
+      begin
+        # Faza 2-3: Prikupljanje i spremanje lokacija
+        unless @skip_locations || locations_limit_reached?
+          raw_places = fetch_locations(city_plan)
+          log_info "Fetched #{raw_places.count} places for #{city}"
+
+          locations_before = @results[:locations_created]
+          new_locations = enrich_and_save_locations(raw_places, city)
+          # Count is already updated inside enrich_and_save_locations
+          city_result[:locations] = @results[:locations_created] - locations_before
+          log_info "Created #{city_result[:locations]} new locations in #{city}"
+        end
 
         # Faza 4: Kreiranje lokalnih Experience-a
-        experiences = create_local_experiences(city)
-        @results[:experiences_created] += experiences.count
-        log_info "Created #{experiences.count} experiences for #{city}"
+        unless @skip_experiences || experiences_limit_reached?
+          experiences = create_local_experiences(city)
+          @results[:experiences_created] += experiences.count
+          city_result[:experiences] = experiences.count
+          log_info "Created #{experiences.count} experiences for #{city}"
+        end
 
         # Faza 5: Kreiranje Plan-ova za ovaj grad
-        plans = create_city_plans(city, profiles)
-        @results[:plans_created] += plans.count
-        log_info "Created #{plans.count} plans for #{city}"
+        unless @skip_plans || plans_limit_reached?
+          plans = create_city_plans(city, profiles)
+          @results[:plans_created] += plans.count
+          city_result[:plans] = plans.count
+          log_info "Created #{plans.count} plans for #{city}"
+        end
 
-        @results[:cities_processed] << {
-          city: city,
-          locations: new_locations.count,
-          experiences: experiences.count,
-          plans: plans.count
-        }
+        @results[:cities_processed] << city_result
       rescue StandardError => e
         log_error "Error processing #{city}: #{e.message}"
         @results[:errors] << { city: city, error: e.message }
@@ -502,16 +527,23 @@ module Ai
     end
 
     def enrich_and_save_locations(places, city)
+      return [] if locations_limit_reached?
+
       enricher = LocationEnricher.new
       created = []
 
       places.each do |place|
+        break if locations_limit_reached?
         next if place[:name].blank? || place[:lat].blank?
 
         location = enricher.create_and_enrich(place, city: city)
-        created << location if location
+        if location
+          created << location
+          @results[:locations_created] += 1
+        end
       end
 
+      # Return created locations (count already tracked above)
       created
     end
 
@@ -523,6 +555,7 @@ module Ai
     end
 
     def create_cross_city_experiences
+      return if @skip_experiences
       return if experiences_limit_reached?
 
       log_info "Creating cross-city thematic experiences"
@@ -534,10 +567,14 @@ module Ai
     end
 
     def create_city_plans(city, profiles)
+      return [] if plans_limit_reached?
+
       creator = PlanCreator.new
       created = []
 
       profiles.each do |profile|
+        break if plans_limit_reached?
+
         plan = creator.create_for_profile(profile: profile, city: city)
         created << plan if plan
       end
@@ -546,6 +583,8 @@ module Ai
     end
 
     def create_multi_city_plans(profiles)
+      return [] if @skip_plans || plans_limit_reached?
+
       log_info "Creating multi-city plans"
       save_generation_status("in_progress", "Creating multi-city plans")
 
@@ -554,6 +593,8 @@ module Ai
 
       # Samo 2-3 profila za multi-city planove
       profiles.first(3).each do |profile|
+        break if plans_limit_reached?
+
         plan = creator.create_for_profile(profile: profile, city: nil)
         if plan
           created << plan
@@ -564,6 +605,16 @@ module Ai
       created
     end
 
+    def locations_limit_reached?
+      return false unless @max_locations
+      @results[:locations_created] >= @max_locations
+    end
+
+    def remaining_location_slots
+      return nil unless @max_locations
+      [@max_locations - @results[:locations_created], 0].max
+    end
+
     def experiences_limit_reached?
       return false unless @max_experiences
       @results[:experiences_created] >= @max_experiences
@@ -572,6 +623,16 @@ module Ai
     def remaining_experience_slots
       return nil unless @max_experiences
       [@max_experiences - @results[:experiences_created], 0].max
+    end
+
+    def plans_limit_reached?
+      return false unless @max_plans
+      @results[:plans_created] >= @max_plans
+    end
+
+    def remaining_plan_slots
+      return nil unless @max_plans
+      [@max_plans - @results[:plans_created], 0].max
     end
 
     def save_generation_status(status, message, plan: nil, results: nil)

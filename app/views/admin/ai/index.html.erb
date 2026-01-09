@@ -50,16 +50,62 @@
       </ul>
 
       <%= form_with url: admin_generate_admin_ai_path, method: :post, class: "space-y-4" do |f| %>
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <div class="flex items-center gap-2">
-            <label for="max_experiences" class="text-sm text-gray-600">Max experiences:</label>
-            <select name="max_experiences" id="max_experiences" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-              <option value="">Unlimited</option>
-              <option value="5">5</option>
-              <option value="10" selected>10</option>
-              <option value="20">20</option>
-              <option value="50">50</option>
-            </select>
+        <div class="flex flex-col items-center gap-4">
+          <!-- Max limits row -->
+          <div class="flex flex-wrap items-center justify-center gap-4">
+            <div class="flex items-center gap-2">
+              <label for="max_locations" class="text-sm text-gray-600">Max locations:</label>
+              <select name="max_locations" id="max_locations" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                <option value="0">Unlimited</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="" selected>100 (default)</option>
+                <option value="200">200</option>
+                <option value="500">500</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label for="max_experiences" class="text-sm text-gray-600">Max experiences:</label>
+              <select name="max_experiences" id="max_experiences" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                <option value="0">Unlimited</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="" selected>200 (default)</option>
+                <option value="500">500</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label for="max_plans" class="text-sm text-gray-600">Max plans:</label>
+              <select name="max_plans" id="max_plans" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                <option value="0">Unlimited</option>
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="" selected>50 (default)</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Skip options row -->
+          <div class="flex flex-wrap items-center justify-center gap-4">
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="skip_locations" value="1" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+              <span>Skip locations</span>
+            </label>
+
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="skip_experiences" value="1" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+              <span>Skip experiences</span>
+            </label>
+
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="skip_plans" value="1" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+              <span>Skip plans</span>
+            </label>
           </div>
 
           <button type="submit"
@@ -120,17 +166,22 @@
           <div class="flex flex-wrap items-center justify-center gap-4">
             <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
               <input type="checkbox" name="regenerate_content" value="1" class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
-              <span>Regenerate descriptions</span>
+              <span>Regenerate on city change</span>
+            </label>
+
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="analyze_descriptions" value="1" class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
+              <span>Analyze & fix poor descriptions</span>
             </label>
 
             <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
               <input type="checkbox" name="dry_run" value="1" class="rounded border-gray-300 text-gray-600 focus:ring-gray-500">
-              <span>Preview only (no changes)</span>
+              <span>Preview only</span>
             </label>
 
             <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
               <input type="checkbox" name="clear_cache" value="1" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-              <span>Clear geocoder cache (fetch fresh data)</span>
+              <span>Clear geocoder cache</span>
             </label>
           </div>
 
@@ -147,7 +198,7 @@
       <% end %>
 
       <p class="text-xs text-gray-400 mt-4 text-center">
-        Note: This process is rate-limited (1 req/sec) to respect Nominatim usage policy.
+        Rate-limited: 1 req/sec for Nominatim, 5 req/sec for Geoapify.
       </p>
     </div>
   </div>
@@ -257,6 +308,7 @@
                 <option value="all">All issues</option>
                 <option value="quality">Quality issues only</option>
                 <option value="similar">Similar experiences only</option>
+                <option value="accommodations">Fix accommodation locations</option>
               </select>
             </div>
 
