@@ -24,7 +24,11 @@ module Ai
     # Category keys that indicate accommodation (shouldn't be in experiences)
     ACCOMMODATION_CATEGORY_KEYS = %w[
       hotel hostel motel guest_house apartment lodging accommodation
-      dom_penzionera retirement_home nursing_home
+    ].freeze
+
+    # Category keys that indicate retirement homes (must ALWAYS be replaced, never just removed)
+    RETIREMENT_HOME_CATEGORY_KEYS = %w[
+      dom_penzionera retirement_home nursing_home gerontološki starački
     ].freeze
 
     def initialize
@@ -51,6 +55,9 @@ module Ai
 
       # Check for accommodation locations (shouldn't be in experiences)
       issues.concat(check_accommodation_locations(experience))
+
+      # Check for retirement home locations (must be replaced with valid locations)
+      issues.concat(check_retirement_home_locations(experience))
 
       # Check for multi-city locations (experience should be regenerated if locations span multiple cities)
       issues.concat(check_multi_city_locations(experience))
@@ -343,6 +350,61 @@ module Ai
         tags_downcase = location.tags.map(&:to_s).map(&:downcase)
         accommodation_tags = %w[hotel hostel motel lodging accommodation smještaj smjestaj]
         return true if (tags_downcase & accommodation_tags).any?
+      end
+
+      false
+    end
+
+    # Check if experience contains retirement home locations that need to be replaced
+    # Unlike regular accommodations which can just be removed, retirement homes should trigger
+    # location replacement to maintain experience quality
+    def check_retirement_home_locations(experience)
+      issues = []
+
+      total_locations = experience.locations.count
+      return issues if total_locations == 0
+
+      retirement_home_locations = experience.locations.select do |location|
+        retirement_home_location?(location)
+      end
+
+      return issues if retirement_home_locations.empty?
+
+      issues << {
+        type: :retirement_home_locations,
+        severity: :critical,
+        message: "Experience contains #{retirement_home_locations.count} retirement home location(s) that must be replaced: #{retirement_home_locations.map(&:name).join(', ')}",
+        location_ids: retirement_home_locations.map(&:id),
+        location_names: retirement_home_locations.map(&:name),
+        retirement_home_count: retirement_home_locations.count
+      }
+
+      issues
+    end
+
+    # Check if a location is a retirement home or similar facility
+    # These locations should NEVER be in experiences and must be replaced (not just removed)
+    # @param location [Location] The location to check
+    # @return [Boolean] true if location is a retirement home
+    def retirement_home_location?(location)
+      # Check location name for retirement home keywords
+      name_downcase = location.name.to_s.downcase
+      retirement_keywords = %w[penzioner retirement nursing starački gerontološki gerontoloski]
+      return true if retirement_keywords.any? { |keyword| name_downcase.include?(keyword) }
+
+      # Check location categories
+      if location.respond_to?(:location_categories) && location.location_categories.loaded?
+        category_keys = location.location_categories.map { |c| c.key.to_s.downcase }
+        return true if category_keys.any? { |key| RETIREMENT_HOME_CATEGORY_KEYS.any? { |exc| key.include?(exc) } }
+      elsif location.respond_to?(:location_categories)
+        category_keys = location.location_categories.pluck(:key).map(&:to_s).map(&:downcase)
+        return true if category_keys.any? { |key| RETIREMENT_HOME_CATEGORY_KEYS.any? { |exc| key.include?(exc) } }
+      end
+
+      # Check tags
+      if location.tags.present?
+        tags_downcase = location.tags.map(&:to_s).map(&:downcase)
+        return true if retirement_keywords.any? { |keyword| tags_downcase.any? { |tag| tag.include?(keyword) } }
       end
 
       false

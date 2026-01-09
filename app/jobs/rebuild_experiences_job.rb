@@ -37,6 +37,7 @@ class RebuildExperiencesJob < ApplicationJob
       experiences_rebuilt: 0,
       experiences_deleted: 0,
       accommodation_locations_removed: 0,
+      retirement_home_locations_replaced: 0,
       errors: [],
       analysis_report: nil
     }
@@ -102,12 +103,13 @@ class RebuildExperiencesJob < ApplicationJob
 
           begin
             save_status("in_progress", "Rebuilding experience #{exp_result[:title]}...")
-            success = rebuild_experience(exp_result[:experience_id], exp_result[:issues])
+            result = rebuild_experience(exp_result[:experience_id], exp_result[:issues])
 
-            if success
+            if result[:success]
               rebuild_count += 1
               results[:experiences_rebuilt] += 1
             end
+            results[:retirement_home_locations_replaced] += result[:retirement_homes_replaced]
           rescue StandardError => e
             results[:errors] << {
               experience_id: exp_result[:experience_id],
@@ -168,7 +170,7 @@ class RebuildExperiencesJob < ApplicationJob
 
       save_status(
         "completed",
-        "Completed: #{results[:experiences_rebuilt]} rebuilt, #{results[:experiences_deleted]} deleted, #{results[:accommodation_locations_removed]} accommodation locations removed, #{results[:errors].count} errors",
+        "Completed: #{results[:experiences_rebuilt]} rebuilt, #{results[:experiences_deleted]} deleted, #{results[:accommodation_locations_removed]} accommodation locations removed, #{results[:retirement_home_locations_replaced]} retirement homes replaced, #{results[:errors].count} errors",
         results: results
       )
 
@@ -211,21 +213,37 @@ class RebuildExperiencesJob < ApplicationJob
 
   private
 
+  # Rebuild an experience with quality issues
+  # @param experience_id [Integer] The experience ID to rebuild
+  # @param issues [Array<Hash>] List of issues found for this experience
+  # @return [Hash] Result with :success boolean and :retirement_homes_replaced count
   def rebuild_experience(experience_id, issues)
     experience = Experience.includes(:locations, :translations, :experience_category).find_by(id: experience_id)
-    return false unless experience
+    return { success: false, retirement_homes_replaced: 0 } unless experience
 
     locations = experience.locations.to_a
-    return false if locations.empty?
+    return { success: false, retirement_homes_replaced: 0 } if locations.empty?
+
+    retirement_homes_replaced = 0
+
+    # Check for retirement home locations that need to be replaced
+    retirement_home_issue = issues.find { |i| i[:type] == :retirement_home_locations }
+    if retirement_home_issue
+      retirement_homes_replaced = replace_retirement_home_locations(experience, retirement_home_issue)
+      # Reload locations after replacement
+      experience.reload
+      locations = experience.locations.to_a
+      return { success: false, retirement_homes_replaced: retirement_homes_replaced } if locations.empty?
+    end
 
     # Determine what needs to be regenerated
-    needs_new_content = issues.any? { |i| [:missing_description, :short_description, :ekavica_violation, :missing_translation, :multi_city_locations].include?(i[:type]) }
+    needs_new_content = issues.any? { |i| [:missing_description, :short_description, :ekavica_violation, :missing_translation, :multi_city_locations, :retirement_home_locations].include?(i[:type]) }
 
     if needs_new_content
       regenerate_experience_content(experience, locations, issues)
     end
 
-    true
+    { success: true, retirement_homes_replaced: retirement_homes_replaced }
   end
 
   def regenerate_experience_content(experience, locations, issues)
@@ -384,6 +402,107 @@ class RebuildExperiencesJob < ApplicationJob
     removed_count
   end
 
+  # Replace retirement home locations with suitable alternatives from the same city
+  # @param experience [Experience] The experience to modify
+  # @param issue [Hash] The retirement_home_locations issue containing location_ids
+  # @return [Integer] Number of retirement home locations that were replaced
+  def replace_retirement_home_locations(experience, issue)
+    retirement_home_ids = issue[:location_ids] || []
+    return 0 if retirement_home_ids.empty?
+
+    Rails.logger.info "[RebuildExperiencesJob] Replacing #{retirement_home_ids.count} retirement home locations in experience '#{experience.title}'"
+
+    # Get the experience's primary city
+    primary_city = experience.city
+    return remove_retirement_homes_without_replacement(experience, retirement_home_ids) if primary_city.blank?
+
+    # Find existing location IDs in the experience (excluding retirement homes)
+    existing_location_ids = experience.locations.where.not(id: retirement_home_ids).pluck(:id)
+
+    # Find suitable replacement locations in the same city
+    replacement_locations = find_replacement_locations(
+      city: primary_city,
+      exclude_ids: existing_location_ids + retirement_home_ids,
+      count_needed: retirement_home_ids.count
+    )
+
+    replaced_count = 0
+
+    # Remove retirement home locations
+    retirement_home_ids.each do |loc_id|
+      exp_loc = experience.experience_locations.find_by(location_id: loc_id)
+      if exp_loc
+        position = exp_loc.position
+        Rails.logger.info "[RebuildExperiencesJob] Removing retirement home location ID #{loc_id} from experience '#{experience.title}'"
+        exp_loc.destroy
+        replaced_count += 1
+
+        # Add a replacement if available
+        if replacement_locations.any?
+          replacement = replacement_locations.shift
+          experience.add_location(replacement, position: position)
+          Rails.logger.info "[RebuildExperiencesJob] Added replacement location '#{replacement.name}' to experience '#{experience.title}'"
+        end
+      end
+    end
+
+    replaced_count
+  end
+
+  # Remove retirement homes when no replacements can be found
+  # @param experience [Experience] The experience to modify
+  # @param retirement_home_ids [Array<Integer>] IDs of retirement home locations to remove
+  # @return [Integer] Number of retirement homes removed
+  def remove_retirement_homes_without_replacement(experience, retirement_home_ids)
+    removed_count = 0
+    retirement_home_ids.each do |loc_id|
+      exp_loc = experience.experience_locations.find_by(location_id: loc_id)
+      if exp_loc
+        Rails.logger.info "[RebuildExperiencesJob] Removing retirement home location ID #{loc_id} from experience '#{experience.title}' (no replacement available)"
+        exp_loc.destroy
+        removed_count += 1
+      end
+    end
+    removed_count
+  end
+
+  # Find suitable replacement locations for an experience
+  # @param city [String] The city to search in
+  # @param exclude_ids [Array<Integer>] Location IDs to exclude
+  # @param count_needed [Integer] Number of locations needed
+  # @return [Array<Location>] Array of suitable replacement locations
+  def find_replacement_locations(city:, exclude_ids:, count_needed:)
+    analyzer = Ai::ExperienceAnalyzer.new
+
+    # Find locations in the same city that are not:
+    # - Already in the experience
+    # - Retirement homes
+    # - Accommodation-only locations
+    candidates = Location
+      .where(city: city)
+      .where.not(id: exclude_ids)
+      .with_coordinates
+      .includes(:location_categories)
+      .to_a
+
+    # Filter out retirement homes and pure accommodation
+    candidates.reject! do |location|
+      analyzer.send(:retirement_home_location?, location) ||
+        analyzer.send(:accommodation_location?, location)
+    end
+
+    # Prefer locations that are already used in other experiences (proven quality)
+    locations_with_experience_count = candidates.map do |location|
+      experience_count = ExperienceLocation.where(location_id: location.id).count
+      [location, experience_count]
+    end
+
+    # Sort by experience count (descending) to prefer popular locations
+    sorted = locations_with_experience_count.sort_by { |_, count| -count }
+
+    sorted.take(count_needed).map(&:first)
+  end
+
   def build_regeneration_prompt(experience, locations, issues)
     locations_info = locations.map do |loc|
       "- #{loc.name} (#{loc.city}): #{loc.description.to_s.truncate(100)}"
@@ -408,6 +527,20 @@ class RebuildExperiencesJob < ApplicationJob
       ""
     end
 
+    # Check if locations were replaced (retirement homes removed)
+    retirement_home_issue = issues.find { |i| i[:type] == :retirement_home_locations }
+    locations_replaced_guidance = if retirement_home_issue
+      <<~GUIDANCE
+
+        ⚠️ LOCATIONS UPDATED:
+        Some inappropriate locations (retirement homes) have been replaced with new locations.
+        The current locations listed above are the NEW locations for this experience.
+        Create fresh content that reflects these updated locations and creates a cohesive experience.
+      GUIDANCE
+    else
+      ""
+    end
+
     <<~PROMPT
       #{cultural_context}
 
@@ -425,7 +558,7 @@ class RebuildExperiencesJob < ApplicationJob
 
       QUALITY ISSUES TO FIX:
       #{issue_descriptions}
-      #{multi_city_guidance}
+      #{multi_city_guidance}#{locations_replaced_guidance}
       REQUIREMENTS:
       1. Create NEW, high-quality titles and descriptions for all languages
       2. Titles should be evocative and specific to this experience, NOT generic
