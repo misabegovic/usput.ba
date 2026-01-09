@@ -97,6 +97,26 @@ module Ai
     # With 7 locales per batch, we stay under the 128K token limit
     LOCALES_PER_BATCH = 7
 
+    # Keywords that identify soup kitchens and social food facilities (case-insensitive)
+    # These should never be generated as tourist locations
+    SOUP_KITCHEN_KEYWORDS = %w[
+      soup\ kitchen
+      narodna\ kuhinja
+      pučka\ kuhinja
+      javna\ kuhinja
+      socijalna\ kuhinja
+      food\ bank
+      banka\ hrane
+      humanitarna\ pomoć
+      humanitarna\ pomoc
+      besplatna\ hrana
+      socijalni\ centar
+      centar\ za\ socijalnu\ pomoć
+      centar\ za\ socijalnu\ pomoc
+      socijalna\ pomoć
+      socijalna\ pomoc
+    ].freeze
+
     def initialize(options = {})
       # No longer using @chat directly - using OpenaiQueue for rate limiting
       @places_service = GeoapifyService.new
@@ -883,6 +903,13 @@ module Ai
         - Include diverse categories: Ottoman heritage, Austro-Hungarian architecture, natural wonders, medieval sites, religious sites, traditional crafts, local cuisine
         - Don't just list obvious tourist spots - think like a knowledgeable local guide
 
+        DO NOT INCLUDE:
+        - Soup kitchens (narodna kuhinja, pučka kuhinja, javna kuhinja)
+        - Social service centers
+        - Food banks or humanitarian aid facilities
+        - Retirement homes or elderly care facilities
+        - Any social welfare facilities
+
         Return ONLY valid JSON:
         {
           "locations": [
@@ -945,6 +972,13 @@ module Ai
         - Ensure geographic diversity across the country
         - Coordinates must be accurate
 
+        DO NOT INCLUDE:
+        - Soup kitchens (narodna kuhinja, pučka kuhinja, javna kuhinja)
+        - Social service centers
+        - Food banks or humanitarian aid facilities
+        - Retirement homes or elderly care facilities
+        - Any social welfare facilities
+
         Return ONLY valid JSON:
         {
           "locations": [...]
@@ -972,6 +1006,13 @@ module Ai
         7. Traditional food producers
         8. Family-run establishments with authentic experiences (lowest priority)
 
+        DO NOT INCLUDE:
+        - Soup kitchens (narodna kuhinja, pučka kuhinja, javna kuhinja)
+        - Social service centers
+        - Food banks or humanitarian aid facilities
+        - Retirement homes or elderly care facilities
+        - Any social welfare facilities
+
         For EACH hidden gem, provide:
         1. name: The name of the place
         2. name_local: Local Bosnian name
@@ -994,6 +1035,13 @@ module Ai
 
     def process_ai_suggestion(suggestion, source_region)
       return if suggestion[:name].blank? || suggestion[:lat].blank? || suggestion[:lng].blank?
+
+      # Check if this is a soup kitchen - skip if so
+      if soup_kitchen_suggestion?(suggestion)
+        Rails.logger.info "[AI::CountryWideLocationGenerator] Skipping soup kitchen: #{suggestion[:name]}"
+        skip_location(suggestion, reason: "soup_kitchen", details: { name: suggestion[:name] })
+        return
+      end
 
       # Pre-validate the AI suggestion (Option 3: Coordinate Validation Before Generation)
       validation = validate_ai_suggestion(suggestion)
@@ -1035,6 +1083,23 @@ module Ai
         lng.to_f.between?(BIH_BOUNDS[:west], BIH_BOUNDS[:east])
     end
 
+    # Check if an AI suggestion is for a soup kitchen or social food facility
+    # @param suggestion [Hash] AI-generated location suggestion
+    # @return [Boolean] true if this appears to be a soup kitchen
+    def soup_kitchen_suggestion?(suggestion)
+      # Combine all text fields to check
+      text_to_check = [
+        suggestion[:name],
+        suggestion[:name_local],
+        suggestion[:why_notable],
+        suggestion[:insider_tip],
+        suggestion[:category]
+      ].compact.map(&:to_s).map(&:downcase).join(" ")
+
+      # Check if any soup kitchen keywords are present
+      SOUP_KITCHEN_KEYWORDS.any? { |keyword| text_to_check.include?(keyword.downcase) }
+    end
+
     # Validate AI suggestion by checking if geocoded city matches AI-suggested city
     # This prevents creating locations with incorrect city names
     # @param suggestion [Hash] AI-generated location suggestion
@@ -1058,6 +1123,21 @@ module Ai
         }
       end
 
+      # Check if the location name mentions a city that doesn't match the coordinates
+      # This catches cases like "Restaurant in Blagaj" with coordinates actually in Mostar
+      name_city_mismatch = check_name_city_mismatch(suggestion[:name], verified_city)
+
+      if name_city_mismatch[:mismatch]
+        Rails.logger.warn "[AI::CountryWideLocationGenerator] Location name mentions '#{name_city_mismatch[:mentioned_city]}' but coordinates are in '#{verified_city}': #{suggestion[:name]}"
+        return {
+          valid: false,
+          reason: "name_city_mismatch",
+          verified_city: verified_city,
+          mentioned_city: name_city_mismatch[:mentioned_city],
+          ai_city: suggestion[:city_name]
+        }
+      end
+
       # Check if the AI-suggested city matches the geocoded city
       if cities_match?(verified_city, suggestion[:city_name])
         {
@@ -1076,6 +1156,64 @@ module Ai
           ai_city: suggestion[:city_name]
         }
       end
+    end
+
+    # Known cities in Bosnia and Herzegovina for name matching
+    # Used to detect when a location name mentions a specific city
+    BIH_CITIES = %w[
+      Sarajevo Mostar Banja\ Luka Tuzla Zenica Bijeljina Bihać Brčko Prijedor
+      Doboj Trebinje Blagaj Jajce Travnik Visoko Konjic Jablanica Neum Livno
+      Goražde Srebrenica Zvornik Višegrad Foča Cazin Gradačac Gračanica
+      Lukavac Zavidovići Kakanj Bugojno Stolac Čapljina Široki\ Brijeg
+      Posušje Prozor Rama Glamoč Drvar Bosanski\ Petrovac Sanski\ Most
+      Ključ Mrkonjić\ Grad Jajce Donji\ Vakuf Gornji\ Vakuf Bugojno
+      Fojnica Kiseljak Kreševo Busovača Vitez Novi\ Travnik Olovo Vareš
+      Breza Ilijaš Vogošća Hadžići Ilidža Trnovo Pale Rogatica Sokolac
+      Han\ Pijesak Vlasenica Bratunac Milići Osmaci Šekovići Kalesija
+      Živinice Banovići Kladanj Sapna Teočak Čelić Lopare Ugljevik
+      Samac Modriča Vukosavlje Pelagićevo Domaljevac-Šamac Orašje Odžak
+      Gradiska Laktaši Prnjavor Srbac Derventa Brod Šamac Čelinac
+      Kotor\ Varoš Kneževo Šipovo Jezero Ribnik Petrovac Bosanska\ Krupa
+      Bosanska\ Dubica Kostajnica Kozarska\ Dubica Novi\ Grad Krupa\ na\ Uni
+      Velika\ Kladuša Bužim Bosanski\ Novi Bosanski\ Brod Bosanska\ Gradiška
+    ].freeze
+
+    # Check if the location name mentions a city that doesn't match the verified coordinates
+    # @param name [String] Location name to check
+    # @param verified_city [String] City determined from coordinates
+    # @return [Hash] { mismatch: true/false, mentioned_city: String|nil }
+    def check_name_city_mismatch(name, verified_city)
+      return { mismatch: false } if name.blank? || verified_city.blank?
+
+      name_lower = name.to_s.downcase
+
+      # Common patterns that indicate a city is mentioned in the name
+      # e.g., "Restaurant in Blagaj", "Blagaj Tekija", "Near Mostar"
+      city_mention_patterns = [
+        /\bin\s+([a-zčćžšđ\s]+)/i,       # "in Blagaj"
+        /\bnear\s+([a-zčćžšđ\s]+)/i,     # "near Mostar"
+        /\bblizu\s+([a-zčćžšđ\s]+)/i,    # "blizu Mostara" (Bosnian)
+        /\bu\s+([a-zčćžšđ\s]+)/i,        # "u Blagaju" (Bosnian)
+        /\bkod\s+([a-zčćžšđ\s]+)/i,      # "kod Blagaja" (Bosnian)
+        /^([a-zčćžšđ]+)\s+/i             # "Blagaj Tekija" (city name at start)
+      ]
+
+      # Check if any known city is mentioned in the name
+      BIH_CITIES.each do |city|
+        city_lower = city.downcase
+        next if cities_match?(city, verified_city) # Skip if it matches the verified city
+
+        # Check if city name appears in the location name
+        if name_lower.include?(city_lower)
+          # Verify it's a standalone word, not part of another word
+          # e.g., "Sarajevo" shouldn't match in "Sarajevska" but should match in "Old Sarajevo"
+          if name_lower.match?(/\b#{Regexp.escape(city_lower)}\b/i)
+            return { mismatch: true, mentioned_city: city }
+          end
+        end
+      end
+
+      { mismatch: false }
     end
 
     # Check if two city names refer to the same city (fuzzy matching)
