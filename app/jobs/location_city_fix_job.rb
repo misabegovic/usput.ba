@@ -2,7 +2,8 @@
 
 # Background job for fixing location cities using reverse geocoding,
 # regenerating descriptions where city was corrected or quality is poor,
-# and removing inappropriate locations like soup kitchens, medical facilities, or locations with city mismatches.
+# and removing inappropriate locations like soup kitchens, medical facilities,
+# locations with city mismatches, or locations outside Bosnia and Herzegovina.
 #
 # Usage:
 #   LocationCityFixJob.perform_later
@@ -11,6 +12,7 @@
 #   LocationCityFixJob.perform_later(remove_soup_kitchens: true) # Remove soup kitchen locations (default: true)
 #   LocationCityFixJob.perform_later(remove_medical_facilities: true) # Remove Red Cross, hospitals, clinics (default: true)
 #   LocationCityFixJob.perform_later(remove_city_mismatches: true) # Remove locations where name mentions wrong city (default: true)
+#   LocationCityFixJob.perform_later(remove_outside_bih: true) # Remove locations outside Bosnia and Herzegovina (default: true)
 #   LocationCityFixJob.perform_later(dry_run: true) # Preview changes without saving
 #   LocationCityFixJob.perform_later(clear_cache: true) # Clear geocoder cache first
 class LocationCityFixJob < ApplicationJob
@@ -22,6 +24,15 @@ class LocationCityFixJob < ApplicationJob
   # Rate limits per service (seconds between requests)
   GEOAPIFY_SLEEP = 0.2   # 5 requests/second
   NOMINATIM_SLEEP = 1.1  # 1 request/second (with small buffer)
+
+  # Bosnia and Herzegovina bounding box coordinates
+  # Used to validate that locations are within the country's borders
+  BIH_BOUNDS = {
+    min_lat: 42.55,  # Southernmost point (near Trebinje)
+    max_lat: 45.28,  # Northernmost point (near Bosanska Gradiška)
+    min_lng: 15.72,  # Westernmost point (near Bihać)
+    max_lng: 19.62   # Easternmost point (near Zvornik)
+  }.freeze
 
   # Keywords that identify soup kitchens and social food facilities (case-insensitive)
   # These locations are not appropriate for tourism and should be removed
@@ -68,8 +79,8 @@ class LocationCityFixJob < ApplicationJob
     medicinski\ centar
   ].freeze
 
-  def perform(regenerate_content: false, analyze_descriptions: false, remove_soup_kitchens: true, remove_medical_facilities: true, remove_city_mismatches: true, dry_run: false, clear_cache: false)
-    Rails.logger.info "[LocationCityFixJob] Starting location city fix (regenerate_content: #{regenerate_content}, analyze_descriptions: #{analyze_descriptions}, remove_soup_kitchens: #{remove_soup_kitchens}, remove_medical_facilities: #{remove_medical_facilities}, remove_city_mismatches: #{remove_city_mismatches}, dry_run: #{dry_run}, clear_cache: #{clear_cache})"
+  def perform(regenerate_content: false, analyze_descriptions: false, remove_soup_kitchens: true, remove_medical_facilities: true, remove_city_mismatches: true, remove_outside_bih: true, dry_run: false, clear_cache: false)
+    Rails.logger.info "[LocationCityFixJob] Starting location city fix (regenerate_content: #{regenerate_content}, analyze_descriptions: #{analyze_descriptions}, remove_soup_kitchens: #{remove_soup_kitchens}, remove_medical_facilities: #{remove_medical_facilities}, remove_city_mismatches: #{remove_city_mismatches}, remove_outside_bih: #{remove_outside_bih}, dry_run: #{dry_run}, clear_cache: #{clear_cache})"
 
     save_status("in_progress", "Starting location city fix...")
 
@@ -89,12 +100,14 @@ class LocationCityFixJob < ApplicationJob
       soup_kitchens_removed: 0,
       medical_facilities_removed: 0,
       city_mismatches_removed: 0,
+      outside_bih_removed: 0,
       errors: [],
       corrections: [],
       description_issues: [],
       removed_soup_kitchens: [],
       removed_medical_facilities: [],
-      removed_city_mismatches: []
+      removed_city_mismatches: [],
+      removed_outside_bih: []
     }
 
     begin
@@ -104,6 +117,26 @@ class LocationCityFixJob < ApplicationJob
         results[:total_checked] += 1
 
         begin
+          # Check if location is outside Bosnia and Herzegovina and should be removed
+          if remove_outside_bih && outside_bih?(location)
+            Rails.logger.info "[LocationCityFixJob] Found location outside BiH: #{location.name} (ID: #{location.id}, lat: #{location.lat}, lng: #{location.lng})"
+            results[:removed_outside_bih] << {
+              location_id: location.id,
+              name: location.name,
+              city: location.city,
+              lat: location.lat,
+              lng: location.lng
+            }
+
+            unless dry_run
+              location.destroy!
+              results[:outside_bih_removed] += 1
+              Rails.logger.info "[LocationCityFixJob] Removed location outside BiH: #{location.name}"
+            end
+
+            next # Skip further processing for removed locations
+          end
+
           # Check if this is a soup kitchen and should be removed
           if remove_soup_kitchens && soup_kitchen?(location)
             Rails.logger.info "[LocationCityFixJob] Found soup kitchen: #{location.name} (ID: #{location.id})"
@@ -182,7 +215,7 @@ class LocationCityFixJob < ApplicationJob
 
         # Update status periodically
         if results[:total_checked] % 10 == 0
-          save_status("in_progress", "Processed #{results[:total_checked]} locations... (#{results[:cities_corrected]} corrected, #{results[:soup_kitchens_removed]} soup kitchens removed, #{results[:medical_facilities_removed]} medical facilities removed)")
+          save_status("in_progress", "Processed #{results[:total_checked]} locations... (#{results[:cities_corrected]} corrected, #{results[:outside_bih_removed]} outside BiH removed, #{results[:soup_kitchens_removed]} soup kitchens removed, #{results[:medical_facilities_removed]} medical facilities removed)")
         end
       end
 
@@ -510,6 +543,7 @@ class LocationCityFixJob < ApplicationJob
     parts << "#{results[:content_regenerated]} descriptions regenerated (city change)" if results[:content_regenerated] > 0
     parts << "#{results[:descriptions_analyzed]} analyzed" if results[:descriptions_analyzed] > 0
     parts << "#{results[:descriptions_regenerated]} descriptions regenerated (quality)" if results[:descriptions_regenerated] > 0
+    parts << "#{results[:outside_bih_removed]} locations outside BiH removed" if results[:outside_bih_removed].to_i > 0
     parts << "#{results[:soup_kitchens_removed]} soup kitchens removed" if results[:soup_kitchens_removed].to_i > 0
     parts << "#{results[:medical_facilities_removed]} medical facilities removed" if results[:medical_facilities_removed].to_i > 0
     parts << "#{results[:city_mismatches_removed]} city mismatches removed" if results[:city_mismatches_removed].to_i > 0
@@ -561,6 +595,23 @@ class LocationCityFixJob < ApplicationJob
 
     # Check if any medical facility keywords are present
     MEDICAL_FACILITY_KEYWORDS.any? { |keyword| text_to_check.include?(keyword.downcase) }
+  end
+
+  # Check if a location is outside Bosnia and Herzegovina boundaries
+  # Uses a bounding box check for performance
+  # @param location [Location] The location to check
+  # @return [Boolean] true if the location is outside BiH boundaries
+  def outside_bih?(location)
+    return false if location.lat.blank? || location.lng.blank?
+
+    lat = location.lat.to_f
+    lng = location.lng.to_f
+
+    # Check if coordinates fall outside the BiH bounding box
+    lat < BIH_BOUNDS[:min_lat] ||
+      lat > BIH_BOUNDS[:max_lat] ||
+      lng < BIH_BOUNDS[:min_lng] ||
+      lng > BIH_BOUNDS[:max_lng]
   end
 
   # Check if a location's name mentions a city different from its actual city
