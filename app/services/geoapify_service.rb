@@ -8,9 +8,12 @@ class GeoapifyService
   PLACE_DETAILS_URL = "https://api.geoapify.com/v2/place-details".freeze
 
   # Categories to EXCLUDE from search results
-  # Includes retirement homes and social facilities not relevant for tourism
+  # Includes retirement homes, social facilities, and soup kitchens not relevant for tourism
   EXCLUDED_CATEGORIES = %w[
     service.social_facility
+    service.social_facility.food_bank
+    service.social_facility.soup_kitchen
+    amenity.social_facility
     healthcare.nursing_home
     healthcare.assisted_living
     healthcare.retirement_home
@@ -30,6 +33,19 @@ class GeoapifyService
     elderly
     seniorski
     aged care
+    soup kitchen
+    narodna kuhinja
+    pučka kuhinja
+    javna kuhinja
+    socijalna kuhinja
+    food bank
+    banka hrane
+    humanitarna pomoć
+    humanitarna pomoc
+    besplatna hrana
+    socijalni centar
+    centar za socijalnu pomoć
+    centar za socijalnu pomoc
   ].freeze
 
   # Default tourism categories (fallback if database is empty)

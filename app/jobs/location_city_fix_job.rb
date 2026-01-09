@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
-# Background job for fixing location cities using reverse geocoding
-# and regenerating descriptions where city was corrected or quality is poor
+# Background job for fixing location cities using reverse geocoding,
+# regenerating descriptions where city was corrected or quality is poor,
+# and removing inappropriate locations like soup kitchens or locations with city mismatches.
 #
 # Usage:
 #   LocationCityFixJob.perform_later
 #   LocationCityFixJob.perform_later(regenerate_content: true)
 #   LocationCityFixJob.perform_later(analyze_descriptions: true) # Analyze and regenerate poor descriptions
+#   LocationCityFixJob.perform_later(remove_soup_kitchens: true) # Remove soup kitchen locations (default: true)
+#   LocationCityFixJob.perform_later(remove_city_mismatches: true) # Remove locations where name mentions wrong city (default: true)
 #   LocationCityFixJob.perform_later(dry_run: true) # Preview changes without saving
 #   LocationCityFixJob.perform_later(clear_cache: true) # Clear geocoder cache first
 class LocationCityFixJob < ApplicationJob
@@ -19,8 +22,28 @@ class LocationCityFixJob < ApplicationJob
   GEOAPIFY_SLEEP = 0.2   # 5 requests/second
   NOMINATIM_SLEEP = 1.1  # 1 request/second (with small buffer)
 
-  def perform(regenerate_content: false, analyze_descriptions: false, dry_run: false, clear_cache: false)
-    Rails.logger.info "[LocationCityFixJob] Starting location city fix (regenerate_content: #{regenerate_content}, analyze_descriptions: #{analyze_descriptions}, dry_run: #{dry_run}, clear_cache: #{clear_cache})"
+  # Keywords that identify soup kitchens and social food facilities (case-insensitive)
+  # These locations are not appropriate for tourism and should be removed
+  SOUP_KITCHEN_KEYWORDS = %w[
+    soup\ kitchen
+    narodna\ kuhinja
+    pučka\ kuhinja
+    javna\ kuhinja
+    socijalna\ kuhinja
+    food\ bank
+    banka\ hrane
+    humanitarna\ pomoć
+    humanitarna\ pomoc
+    besplatna\ hrana
+    socijalni\ centar
+    centar\ za\ socijalnu\ pomoć
+    centar\ za\ socijalnu\ pomoc
+    socijalna\ pomoć
+    socijalna\ pomoc
+  ].freeze
+
+  def perform(regenerate_content: false, analyze_descriptions: false, remove_soup_kitchens: true, remove_city_mismatches: true, dry_run: false, clear_cache: false)
+    Rails.logger.info "[LocationCityFixJob] Starting location city fix (regenerate_content: #{regenerate_content}, analyze_descriptions: #{analyze_descriptions}, remove_soup_kitchens: #{remove_soup_kitchens}, remove_city_mismatches: #{remove_city_mismatches}, dry_run: #{dry_run}, clear_cache: #{clear_cache})"
 
     save_status("in_progress", "Starting location city fix...")
 
@@ -37,9 +60,13 @@ class LocationCityFixJob < ApplicationJob
       content_regenerated: 0,
       descriptions_analyzed: 0,
       descriptions_regenerated: 0,
+      soup_kitchens_removed: 0,
+      city_mismatches_removed: 0,
       errors: [],
       corrections: [],
-      description_issues: []
+      description_issues: [],
+      removed_soup_kitchens: [],
+      removed_city_mismatches: []
     }
 
     begin
@@ -49,6 +76,46 @@ class LocationCityFixJob < ApplicationJob
         results[:total_checked] += 1
 
         begin
+          # Check if this is a soup kitchen and should be removed
+          if remove_soup_kitchens && soup_kitchen?(location)
+            Rails.logger.info "[LocationCityFixJob] Found soup kitchen: #{location.name} (ID: #{location.id})"
+            results[:removed_soup_kitchens] << {
+              location_id: location.id,
+              name: location.name,
+              city: location.city
+            }
+
+            unless dry_run
+              location.destroy!
+              results[:soup_kitchens_removed] += 1
+              Rails.logger.info "[LocationCityFixJob] Removed soup kitchen: #{location.name}"
+            end
+
+            next # Skip further processing for removed locations
+          end
+
+          # Check if location name mentions a different city than its actual location
+          if remove_city_mismatches
+            mismatch = check_name_city_mismatch(location)
+            if mismatch[:mismatch]
+              Rails.logger.info "[LocationCityFixJob] Found city mismatch: #{location.name} mentions '#{mismatch[:mentioned_city]}' but is in '#{location.city}' (ID: #{location.id})"
+              results[:removed_city_mismatches] << {
+                location_id: location.id,
+                name: location.name,
+                actual_city: location.city,
+                mentioned_city: mismatch[:mentioned_city]
+              }
+
+              unless dry_run
+                location.destroy!
+                results[:city_mismatches_removed] += 1
+                Rails.logger.info "[LocationCityFixJob] Removed city mismatch location: #{location.name}"
+              end
+
+              next # Skip further processing for removed locations
+            end
+          end
+
           geocode_source = process_location(location, results,
                                             regenerate_content: regenerate_content,
                                             analyze_descriptions: analyze_descriptions,
@@ -69,7 +136,7 @@ class LocationCityFixJob < ApplicationJob
 
         # Update status periodically
         if results[:total_checked] % 10 == 0
-          save_status("in_progress", "Processed #{results[:total_checked]} locations... (#{results[:cities_corrected]} corrected, #{results[:descriptions_regenerated]} descriptions regenerated)")
+          save_status("in_progress", "Processed #{results[:total_checked]} locations... (#{results[:cities_corrected]} corrected, #{results[:soup_kitchens_removed]} soup kitchens removed)")
         end
       end
 
@@ -397,12 +464,65 @@ class LocationCityFixJob < ApplicationJob
     parts << "#{results[:content_regenerated]} descriptions regenerated (city change)" if results[:content_regenerated] > 0
     parts << "#{results[:descriptions_analyzed]} analyzed" if results[:descriptions_analyzed] > 0
     parts << "#{results[:descriptions_regenerated]} descriptions regenerated (quality)" if results[:descriptions_regenerated] > 0
+    parts << "#{results[:soup_kitchens_removed]} soup kitchens removed" if results[:soup_kitchens_removed].to_i > 0
+    parts << "#{results[:city_mismatches_removed]} city mismatches removed" if results[:city_mismatches_removed].to_i > 0
 
     if parts.length == 1
       "Finished: No changes needed"
     else
       parts.join(", ")
     end
+  end
+
+  # Check if a location is a soup kitchen or social food facility
+  # Examines name, descriptions, and any other relevant text fields
+  # @param location [Location] The location to check
+  # @return [Boolean] true if this appears to be a soup kitchen
+  def soup_kitchen?(location)
+    # Combine all text fields to check
+    text_to_check = [
+      location.name,
+      location.city,
+      location.translate(:description, :en),
+      location.translate(:description, :bs),
+      location.translate(:description, :hr),
+      location.translate(:name, :en),
+      location.translate(:name, :bs),
+      location.translate(:name, :hr)
+    ].compact.map(&:downcase).join(" ")
+
+    # Check if any soup kitchen keywords are present
+    SOUP_KITCHEN_KEYWORDS.any? { |keyword| text_to_check.include?(keyword.downcase) }
+  end
+
+  # Check if a location's name mentions a city different from its actual city
+  # @param location [Location] The location to check
+  # @return [Hash] { mismatch: true/false, mentioned_city: String|nil }
+  def check_name_city_mismatch(location)
+    return { mismatch: false } if location.name.blank? || location.city.blank?
+
+    name_lower = location.name.to_s.downcase
+    actual_city = location.city.to_s
+
+    # Known cities in Bosnia and Herzegovina
+    bih_cities = %w[
+      Sarajevo Mostar Banja\ Luka Tuzla Zenica Bijeljina Bihać Brčko Prijedor
+      Doboj Trebinje Blagaj Jajce Travnik Visoko Konjic Jablanica Neum Livno
+      Goražde Srebrenica Zvornik Višegrad Foča Cazin Gradačac Gračanica
+      Lukavac Zavidovići Kakanj Bugojno Stolac Čapljina Široki\ Brijeg
+    ]
+
+    bih_cities.each do |city|
+      city_lower = city.downcase
+      next if cities_match?(actual_city, city) # Skip if it matches the actual city
+
+      # Check if city name appears in the location name as a standalone word
+      if name_lower.match?(/\b#{Regexp.escape(city_lower)}\b/i)
+        return { mismatch: true, mentioned_city: city }
+      end
+    end
+
+    { mismatch: false }
   end
 
   def save_status(status, message, results: nil)

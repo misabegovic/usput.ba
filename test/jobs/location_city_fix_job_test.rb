@@ -73,4 +73,144 @@ class LocationCityFixJobTest < ActiveJob::TestCase
     status = LocationCityFixJob.current_status
     assert_equal "idle", status[:status]
   end
+
+  # === Soup kitchen keywords tests ===
+
+  test "SOUP_KITCHEN_KEYWORDS is defined and contains expected keywords" do
+    keywords = LocationCityFixJob::SOUP_KITCHEN_KEYWORDS
+
+    assert keywords.is_a?(Array)
+    assert_includes keywords, "soup kitchen"
+    assert_includes keywords, "narodna kuhinja"
+    assert_includes keywords, "pučka kuhinja"
+    assert_includes keywords, "food bank"
+    assert_includes keywords, "banka hrane"
+  end
+
+  test "SOUP_KITCHEN_KEYWORDS contains Bosnian/Croatian variants" do
+    keywords = LocationCityFixJob::SOUP_KITCHEN_KEYWORDS
+
+    # Bosnian/Croatian keywords
+    assert_includes keywords, "javna kuhinja"
+    assert_includes keywords, "socijalna kuhinja"
+    assert_includes keywords, "besplatna hrana"
+  end
+
+  # === Soup kitchen detection tests ===
+
+  test "soup_kitchen? returns true for location with soup kitchen in name" do
+    job = LocationCityFixJob.new
+    location = Minitest::Mock.new
+    location.expect :name, "Community Soup Kitchen"
+    location.expect :city, "Sarajevo"
+    location.expect :translate, nil, [:description, :en]
+    location.expect :translate, nil, [:description, :bs]
+    location.expect :translate, nil, [:description, :hr]
+    location.expect :translate, nil, [:name, :en]
+    location.expect :translate, nil, [:name, :bs]
+    location.expect :translate, nil, [:name, :hr]
+
+    assert job.send(:soup_kitchen?, location)
+    location.verify
+  end
+
+  test "soup_kitchen? returns true for location with narodna kuhinja in name" do
+    job = LocationCityFixJob.new
+    location = Minitest::Mock.new
+    location.expect :name, "Narodna Kuhinja Centar"
+    location.expect :city, "Mostar"
+    location.expect :translate, nil, [:description, :en]
+    location.expect :translate, nil, [:description, :bs]
+    location.expect :translate, nil, [:description, :hr]
+    location.expect :translate, nil, [:name, :en]
+    location.expect :translate, nil, [:name, :bs]
+    location.expect :translate, nil, [:name, :hr]
+
+    assert job.send(:soup_kitchen?, location)
+    location.verify
+  end
+
+  test "soup_kitchen? returns false for regular restaurant" do
+    job = LocationCityFixJob.new
+    location = Minitest::Mock.new
+    location.expect :name, "Restaurant Sarajevo"
+    location.expect :city, "Sarajevo"
+    location.expect :translate, "A nice restaurant", [:description, :en]
+    location.expect :translate, "Lijep restoran", [:description, :bs]
+    location.expect :translate, nil, [:description, :hr]
+    location.expect :translate, nil, [:name, :en]
+    location.expect :translate, nil, [:name, :bs]
+    location.expect :translate, nil, [:name, :hr]
+
+    refute job.send(:soup_kitchen?, location)
+    location.verify
+  end
+
+  # === City mismatch detection tests ===
+
+  test "check_name_city_mismatch returns mismatch when name mentions different city" do
+    job = LocationCityFixJob.new
+    location = Minitest::Mock.new
+    location.expect :name, "Beautiful View in Blagaj"
+    location.expect :city, "Mostar"
+
+    result = job.send(:check_name_city_mismatch, location)
+
+    assert result[:mismatch]
+    assert_equal "Blagaj", result[:mentioned_city]
+    location.verify
+  end
+
+  test "check_name_city_mismatch returns no mismatch when name matches city" do
+    job = LocationCityFixJob.new
+    location = Minitest::Mock.new
+    location.expect :name, "Mostar Old Bridge"
+    location.expect :city, "Mostar"
+
+    result = job.send(:check_name_city_mismatch, location)
+
+    refute result[:mismatch]
+    location.verify
+  end
+
+  test "check_name_city_mismatch returns no mismatch for generic name" do
+    job = LocationCityFixJob.new
+    location = Minitest::Mock.new
+    location.expect :name, "Beautiful Historic Monument"
+    location.expect :city, "Sarajevo"
+
+    result = job.send(:check_name_city_mismatch, location)
+
+    refute result[:mismatch]
+    location.verify
+  end
+
+  test "check_name_city_mismatch handles nil values" do
+    job = LocationCityFixJob.new
+    location = Minitest::Mock.new
+    location.expect :name, nil
+    location.expect :city, "Sarajevo"
+
+    result = job.send(:check_name_city_mismatch, location)
+
+    refute result[:mismatch]
+    location.verify
+  end
+
+  # === Cities match tests ===
+
+  test "cities_different? returns false for same city names" do
+    job = LocationCityFixJob.new
+    refute job.send(:cities_different?, "Sarajevo", "Sarajevo")
+  end
+
+  test "cities_different? returns true for different city names" do
+    job = LocationCityFixJob.new
+    assert job.send(:cities_different?, "Sarajevo", "Mostar")
+  end
+
+  test "cities_different? handles case differences" do
+    job = LocationCityFixJob.new
+    refute job.send(:cities_different?, "sarajevo", "SARAJEVO")
+  end
 end
