@@ -10,6 +10,7 @@
 #   WikimediaImageFetchJob.perform_later(max_locations: 5) # Process up to 5 locations
 #   WikimediaImageFetchJob.perform_later(images_per_location: 3) # Fetch 3 images per location
 #   WikimediaImageFetchJob.perform_later(use_coordinates: true) # Also search by GPS coordinates
+#   WikimediaImageFetchJob.perform_later(replace_photos: true) # Replace existing photos
 #
 class WikimediaImageFetchJob < ApplicationJob
   queue_as :default
@@ -25,22 +26,24 @@ class WikimediaImageFetchJob < ApplicationJob
   DEFAULT_IMAGES_PER_LOCATION = 5
   MAX_IMAGES_PER_LOCATION = 10
 
-  def perform(dry_run: false, max_locations: nil, images_per_location: nil, use_coordinates: true)
+  def perform(dry_run: false, max_locations: nil, images_per_location: nil, use_coordinates: true, replace_photos: false)
     max_locations ||= DEFAULT_MAX_LOCATIONS
     images_per_location ||= DEFAULT_IMAGES_PER_LOCATION
     images_per_location = [images_per_location, MAX_IMAGES_PER_LOCATION].min
 
-    Rails.logger.info "[WikimediaImageFetchJob] Starting (dry_run: #{dry_run}, max_locations: #{max_locations}, images_per_location: #{images_per_location})"
+    Rails.logger.info "[WikimediaImageFetchJob] Starting (dry_run: #{dry_run}, max_locations: #{max_locations}, images_per_location: #{images_per_location}, replace_photos: #{replace_photos})"
 
     save_status("in_progress", "Starting Wikimedia image fetch...")
 
     results = {
       started_at: Time.current,
       dry_run: dry_run,
+      replace_photos: replace_photos,
       total_locations_checked: 0,
       locations_processed: 0,
       images_found: 0,
       images_attached: 0,
+      photos_removed: 0,
       errors: [],
       location_results: []
     }
@@ -48,32 +51,35 @@ class WikimediaImageFetchJob < ApplicationJob
     begin
       service = WikimediaService.new
 
-      # Find locations without photos
-      locations_without_photos = find_locations_without_photos(max_locations)
+      # Find locations to process
+      locations_to_process = find_locations_to_process(max_locations, replace_photos: replace_photos)
 
-      if locations_without_photos.empty?
+      if locations_to_process.empty?
         results[:status] = "completed"
         results[:finished_at] = Time.current
-        save_status("completed", "No locations without photos found", results: results)
+        message = replace_photos ? "No locations with photos found" : "No locations without photos found"
+        save_status("completed", message, results: results)
         return results
       end
 
-      results[:total_locations_checked] = locations_without_photos.count
+      results[:total_locations_checked] = locations_to_process.count
 
-      locations_without_photos.each_with_index do |location, index|
+      locations_to_process.each_with_index do |location, index|
         begin
-          save_status("in_progress", "Processing #{index + 1}/#{locations_without_photos.count}: #{location.name}")
+          save_status("in_progress", "Processing #{index + 1}/#{locations_to_process.count}: #{location.name}")
 
           location_result = process_location(location, service,
             dry_run: dry_run,
             images_per_location: images_per_location,
-            use_coordinates: use_coordinates
+            use_coordinates: use_coordinates,
+            replace_photos: replace_photos
           )
 
           results[:location_results] << location_result
           results[:locations_processed] += 1
           results[:images_found] += location_result[:images_found]
           results[:images_attached] += location_result[:images_attached]
+          results[:photos_removed] += location_result[:photos_removed] || 0
 
         rescue StandardError => e
           error_info = {
@@ -131,31 +137,39 @@ class WikimediaImageFetchJob < ApplicationJob
 
   private
 
-  # Find locations without any attached photos
+  # Find locations to process based on replace_photos flag
   # Selects random locations to distribute image fetching
-  def find_locations_without_photos(limit)
+  def find_locations_to_process(limit, replace_photos: false)
     # Get location IDs that have photos
     locations_with_photos_ids = ActiveStorage::Attachment
       .where(record_type: "Location", name: "photos")
       .distinct
       .pluck(:record_id)
 
-    # Find locations without photos, preferring those with coordinates
-    Location
-      .where.not(id: locations_with_photos_ids)
+    # Find locations with or without photos based on replace_photos flag
+    locations = if replace_photos
+      # When replacing, find locations WITH photos
+      Location.where(id: locations_with_photos_ids)
+    else
+      # Default: find locations WITHOUT photos
+      Location.where.not(id: locations_with_photos_ids)
+    end
+
+    locations
       .with_coordinates
       .order(Arel.sql("RANDOM()"))
       .limit(limit)
   end
 
   # Process a single location - search for images and optionally attach them
-  def process_location(location, service, dry_run:, images_per_location:, use_coordinates:)
+  def process_location(location, service, dry_run:, images_per_location:, use_coordinates:, replace_photos: false)
     result = {
       location_id: location.id,
       name: location.name,
       city: location.city,
       images_found: 0,
       images_attached: 0,
+      photos_removed: 0,
       images: []
     }
 
@@ -188,6 +202,16 @@ class WikimediaImageFetchJob < ApplicationJob
     if images.empty?
       Rails.logger.info "[WikimediaImageFetchJob] No images found for #{location.name}"
       return result
+    end
+
+    # If replacing photos and we found new images, remove existing photos first
+    if replace_photos && images.any? && !dry_run
+      existing_photos_count = location.photos.count
+      if existing_photos_count > 0
+        location.photos.purge
+        result[:photos_removed] = existing_photos_count
+        Rails.logger.info "[WikimediaImageFetchJob] Removed #{existing_photos_count} existing photos from #{location.name}"
+      end
     end
 
     # Process each found image
@@ -280,6 +304,9 @@ class WikimediaImageFetchJob < ApplicationJob
 
     unless results[:dry_run]
       parts << "#{results[:images_attached]} images attached"
+      if results[:replace_photos] && results[:photos_removed] > 0
+        parts << "#{results[:photos_removed]} photos removed"
+      end
     end
 
     if results[:errors].any?

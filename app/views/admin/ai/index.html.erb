@@ -569,7 +569,7 @@
       <h2 class="text-lg font-semibold text-gray-900 mb-2 text-center">Fetch Wikimedia Images</h2>
 
       <p class="text-gray-600 mb-4 text-center text-sm">
-        Search and fetch images from Wikimedia Commons for locations that don't have photos.
+        Search and fetch images from Wikimedia Commons for locations. Can add photos to locations without any or replace existing photos.
       </p>
 
       <!-- Locations without photos count -->
@@ -647,11 +647,16 @@
               <input type="checkbox" name="dry_run" value="1" class="rounded border-gray-300 text-gray-600 focus:ring-gray-500">
               <span>Preview only (don't attach images)</span>
             </label>
+
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="replace_photos" value="1" class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+              <span class="text-red-600">Replace existing photos</span>
+            </label>
           </div>
 
           <button type="submit"
                   class="inline-flex items-center gap-2 px-6 py-3 bg-cyan-600 text-white font-medium rounded-lg hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  <%= "disabled" if @wikimedia_fetch_status[:status] == "in_progress" || @locations_without_photos_count.zero? %>
+                  <%= "disabled" if @wikimedia_fetch_status[:status] == "in_progress" %>
                   data-action="credential-form#copyCredentials">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -673,7 +678,7 @@
       <h2 class="text-lg font-semibold text-gray-900 mb-2 text-center">Fetch Google Images</h2>
 
       <p class="text-gray-600 mb-4 text-center text-sm">
-        Search and fetch images using Google Custom Search API for locations that don't have photos.
+        Search and fetch images using Google Custom Search API. Can add photos to locations without any or replace existing photos.
       </p>
 
       <!-- Locations without photos count -->
@@ -751,11 +756,16 @@
               <input type="checkbox" name="dry_run" value="1" class="rounded border-gray-300 text-gray-600 focus:ring-gray-500">
               <span>Preview only (don't attach images)</span>
             </label>
+
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="replace_photos" value="1" class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+              <span class="text-red-600">Replace existing photos</span>
+            </label>
           </div>
 
           <button type="submit"
                   class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  <%= "disabled" if @google_image_fetch_status[:status] == "in_progress" || @locations_without_photos_count.zero? %>
+                  <%= "disabled" if @google_image_fetch_status[:status] == "in_progress" %>
                   data-action="credential-form#copyCredentials">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
