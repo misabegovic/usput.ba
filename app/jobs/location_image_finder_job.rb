@@ -82,7 +82,9 @@ class LocationImageFinderJob < ApplicationJob
       locations = build_prioritized_locations_query(base_locations).limit(max_locations)
 
       # Process each location
-      locations.find_each.with_index do |location, index|
+      # Note: Using each instead of find_each because find_each doesn't work well with
+      # grouped queries (it calls .count internally which fails with aggregate selects)
+      locations.each.with_index do |location, index|
         break if index >= max_locations
 
         process_location(
