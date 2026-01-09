@@ -51,5 +51,50 @@ module Admin
 
       redirect_to admin_root_path, notice: t("admin.dashboard.database_cleared")
     end
+
+    def delete_all_experiences
+      confirmation = params[:confirmation_text]
+
+      if confirmation != "DELETE EXPERIENCES"
+        redirect_to admin_root_path, alert: t("admin.dashboard.invalid_confirmation")
+        return
+      end
+
+      ActiveRecord::Base.transaction do
+        # Delete experience-related data only (keep plans and locations)
+        PlanExperience.delete_all
+        ExperienceLocation.delete_all
+        Review.where(reviewable_type: "Experience").delete_all
+        Translation.where(translatable_type: "Experience").delete_all
+
+        # Delete experience cover photos from ActiveStorage
+        ActiveStorage::Attachment.where(record_type: "Experience").find_each do |attachment|
+          attachment.purge
+        end
+
+        Experience.delete_all
+      end
+
+      redirect_to admin_root_path, notice: t("admin.dashboard.experiences_deleted")
+    end
+
+    def delete_all_plans
+      confirmation = params[:confirmation_text]
+
+      if confirmation != "DELETE PLANS"
+        redirect_to admin_root_path, alert: t("admin.dashboard.invalid_confirmation")
+        return
+      end
+
+      ActiveRecord::Base.transaction do
+        # Delete plan-related data only (keep experiences and locations)
+        PlanExperience.delete_all
+        Review.where(reviewable_type: "Plan").delete_all
+        Translation.where(translatable_type: "Plan").delete_all
+        Plan.delete_all
+      end
+
+      redirect_to admin_root_path, notice: t("admin.dashboard.plans_deleted")
+    end
   end
 end

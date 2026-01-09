@@ -143,6 +143,8 @@ Rails.application.routes.draw do
     get "ai/audio_tours/estimate", to: "ai/audio_tours#estimate", as: :estimate_admin_ai_audio_tours
 
     delete "clear_database", to: "dashboard#clear_database"
+    delete "delete_all_experiences", to: "dashboard#delete_all_experiences"
+    delete "delete_all_plans", to: "dashboard#delete_all_plans"
     root "dashboard#index"
   end
 
