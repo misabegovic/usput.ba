@@ -100,20 +100,25 @@ module Ai
         email: sanitized_email
       )
 
-      # Obogati i spremi
-      enrichment = generate_enrichment(location, place_data)
-      apply_enrichment(location, enrichment) if enrichment.present?
-
-      if location.save
-        # Dodaj tagove iz kategorija
-        add_tags_from_categories(location, place_data[:categories])
-
-        log_info "Created and enriched location: #{location.name}"
-        location
-      else
+      # Save location first so it has an ID for translations
+      # Translations require translatable_id to be set (not-null constraint)
+      unless location.save
         log_error "Failed to create location: #{location.errors.full_messages.join(', ')}"
-        nil
+        return nil
       end
+
+      # Generate and apply enrichment (including translations) now that location has an ID
+      enrichment = generate_enrichment(location, place_data)
+      if enrichment.present?
+        apply_enrichment(location, enrichment)
+        location.save!
+      end
+
+      # Dodaj tagove iz kategorija
+      add_tags_from_categories(location, place_data[:categories])
+
+      log_info "Created and enriched location: #{location.name}"
+      location
     rescue StandardError => e
       log_error "Error creating location #{place_data[:name]}: #{e.message}"
       nil
