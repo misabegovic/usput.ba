@@ -598,20 +598,15 @@ class LocationCityFixJob < ApplicationJob
   end
 
   # Check if a location is outside Bosnia and Herzegovina boundaries
-  # Uses a bounding box check for performance
+  # Uses polygon-based validation for accurate border checking,
+  # especially along the eastern border with Serbia (Drina river)
   # @param location [Location] The location to check
   # @return [Boolean] true if the location is outside BiH boundaries
   def outside_bih?(location)
     return false if location.lat.blank? || location.lng.blank?
 
-    lat = location.lat.to_f
-    lng = location.lng.to_f
-
-    # Check if coordinates fall outside the BiH bounding box
-    lat < BIH_BOUNDS[:min_lat] ||
-      lat > BIH_BOUNDS[:max_lat] ||
-      lng < BIH_BOUNDS[:min_lng] ||
-      lng > BIH_BOUNDS[:max_lng]
+    # Use polygon-based validation for accurate BiH border checking
+    Geo::BihBoundaryValidator.outside_bih?(location.lat, location.lng)
   end
 
   # Check if a location's name mentions a city different from its actual city
