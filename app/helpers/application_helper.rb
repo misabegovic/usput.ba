@@ -130,6 +130,51 @@ module ApplicationHelper
     }.to_json
   end
 
+  # Open Graph meta tags helper for social media previews
+  # @param title [String] The page title
+  # @param description [String] The page description (will be truncated to 200 chars)
+  # @param image_url [String, nil] The URL for the preview image
+  # @param type [String] The OG type (default: "website")
+  # @param url [String, nil] The canonical URL (defaults to current request URL)
+  # @return [String] HTML meta tags for Open Graph and Twitter Cards
+  def og_meta_tags(title:, description:, image_url: nil, type: "website", url: nil)
+    # Sanitize and truncate description
+    clean_description = strip_tags(description.to_s).squish.truncate(200)
+    page_url = url || request.original_url
+    site_name = "Usput.ba"
+
+    # Default image if none provided
+    default_image_url = "#{request.protocol}#{request.host_with_port}/pwa-icon-512.png"
+    final_image_url = image_url.presence || default_image_url
+
+    tags = []
+
+    # Open Graph tags
+    tags << tag.meta(property: "og:title", content: title)
+    tags << tag.meta(property: "og:description", content: clean_description)
+    tags << tag.meta(property: "og:type", content: type)
+    tags << tag.meta(property: "og:url", content: page_url)
+    tags << tag.meta(property: "og:site_name", content: site_name)
+    tags << tag.meta(property: "og:image", content: final_image_url)
+    tags << tag.meta(property: "og:locale", content: I18n.locale == :bs ? "bs_BA" : "en_US")
+
+    # Twitter Card tags
+    tags << tag.meta(name: "twitter:card", content: "summary_large_image")
+    tags << tag.meta(name: "twitter:title", content: title)
+    tags << tag.meta(name: "twitter:description", content: clean_description)
+    tags << tag.meta(name: "twitter:image", content: final_image_url)
+
+    safe_join(tags, "\n")
+  end
+
+  # Default OG meta tags for pages without specific content
+  def default_og_meta_tags
+    og_meta_tags(
+      title: "Usput.ba - Experience Bosnia & Herzegovina",
+      description: t('app.description', default: 'Discover hidden gems, authentic experiences and unforgettable places in Bosnia and Herzegovina')
+    )
+  end
+
   # Returns a random hero background image path from the hero_backgrounds folder
   # If no images are found, returns nil
   def random_hero_background

@@ -1,3 +1,21 @@
+<%# Open Graph meta tags for social sharing %>
+<% content_for :title do %><%= @plan.display_title %> - Usput.ba<% end %>
+<%
+  plan_description = "#{@plan.city_name} - #{@plan.duration_in_days} #{t('wizard.dates.days')}"
+  plan_description += ". #{@plan.experiences.count} #{t('nav.experiences').downcase}" if @plan.experiences.any?
+  first_experience_with_photo = @plan.experiences.find { |e| e.cover_photo.attached? }
+  plan_image_url = first_experience_with_photo ? safe_attachment_url(first_experience_with_photo.cover_photo, variant_options: { resize_to_fill: [1200, 630] }) : nil
+%>
+<% content_for :meta_description do %><%= plan_description.truncate(160) %><% end %>
+<% content_for :og_meta do %>
+  <%= og_meta_tags(
+    title: "#{@plan.display_title} - Usput.ba",
+    description: plan_description,
+    image_url: plan_image_url,
+    type: "article"
+  ) %>
+<% end %>
+
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 overflow-x-hidden"
      data-controller="travel-profile"
      data-travel-profile-item-id-value="<%= @plan.uuid %>"
