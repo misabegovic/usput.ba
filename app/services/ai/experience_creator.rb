@@ -96,7 +96,7 @@ module Ai
     def create_experience_from_proposal(proposal, available_locations)
       # Pronađi lokacije iz proposal-a
       location_ids = proposal[:location_ids] || []
-      locations = available_locations.where(id: location_ids).to_a
+      locations = available_locations.select { |loc| location_ids.include?(loc.id) }
 
       # Fallback ako AI nije vratio validne ID-jeve
       if locations.count < min_locations_per_experience && proposal[:location_names].present?
