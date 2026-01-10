@@ -1123,8 +1123,10 @@ module Ai
     end
 
     def coordinates_in_bih?(lat, lng)
-      lat.to_f.between?(BIH_BOUNDS[:south], BIH_BOUNDS[:north]) &&
-        lng.to_f.between?(BIH_BOUNDS[:west], BIH_BOUNDS[:east])
+      # Use polygon-based validation for accurate BiH border checking
+      # This prevents locations from Serbia (along the Drina river) from being
+      # incorrectly classified as being in BiH
+      Geo::BihBoundaryValidator.inside_bih?(lat, lng)
     end
 
     # Check if an AI suggestion is for a soup kitchen or social food facility
