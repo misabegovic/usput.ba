@@ -266,12 +266,10 @@ class WikimediaImageFetchJob < ApplicationJob
     io = service.download_image(image[:url])
     return false unless io
 
-    # Determine filename
-    filename = File.basename(URI.parse(image[:url]).path)
-    filename = "wikimedia_#{SecureRandom.hex(4)}.jpg" if filename.blank?
-
-    # Determine content type
-    content_type = image[:mime] || "image/jpeg"
+    # Generate safe filename based on content type, not URL
+    # This prevents PHP injection attacks via malicious filenames like "shell.php"
+    content_type = sanitize_content_type(image[:mime])
+    filename = generate_safe_filename(location, content_type)
 
     # Attach to location
     location.photos.attach(
@@ -288,6 +286,25 @@ class WikimediaImageFetchJob < ApplicationJob
     false
   ensure
     io&.close if io.respond_to?(:close)
+  end
+
+  # Generate a safe filename that cannot be used for code injection
+  # Uses content type to determine extension, not the URL path
+  def generate_safe_filename(location, content_type)
+    extension = case content_type
+                when "image/png" then ".png"
+                when "image/gif" then ".gif"
+                when "image/webp" then ".webp"
+                else ".jpg"
+                end
+
+    "#{location.name.parameterize.first(30)}_wikimedia_#{SecureRandom.hex(4)}#{extension}"
+  end
+
+  # Sanitize content type to only allow safe image types
+  def sanitize_content_type(content_type)
+    allowed_types = %w[image/jpeg image/png image/gif image/webp]
+    allowed_types.include?(content_type&.downcase) ? content_type : "image/jpeg"
   end
 
   def build_completion_summary(results)

@@ -55,17 +55,16 @@ class PhotoSuggestion < ApplicationRecord
     require "open-uri"
     require "tempfile"
 
-    uri = URI.parse(photo_url)
-    filename = File.basename(uri.path).presence || "photo_#{id}.jpg"
-
-    # Ensure filename has an extension
-    filename = "#{filename}.jpg" unless filename.match?(/\.(jpg|jpeg|png|gif|webp)$/i)
-
     downloaded_file = URI.open(photo_url, read_timeout: 30) # rubocop:disable Security/Open
+
+    # Generate safe filename based on content type, not URL
+    # This prevents PHP injection attacks via malicious filenames like "shell.php"
+    filename = generate_safe_filename(downloaded_file.content_type)
+
     location.photos.attach(
       io: downloaded_file,
       filename: filename,
-      content_type: downloaded_file.content_type || "image/jpeg"
+      content_type: sanitize_content_type(downloaded_file.content_type)
     )
   rescue OpenURI::HTTPError, SocketError, Timeout::Error => e
     Rails.logger.error "Failed to download photo from URL #{photo_url}: #{e.message}"
@@ -92,6 +91,25 @@ class PhotoSuggestion < ApplicationRecord
   end
 
   private
+
+  # Generate a safe filename that cannot be used for code injection
+  # Uses content type to determine extension, not the URL path
+  def generate_safe_filename(content_type)
+    extension = case content_type&.downcase
+                when /png/ then ".png"
+                when /gif/ then ".gif"
+                when /webp/ then ".webp"
+                else ".jpg"
+                end
+
+    "photo_#{id}_#{SecureRandom.hex(4)}#{extension}"
+  end
+
+  # Sanitize content type to only allow safe image types
+  def sanitize_content_type(content_type)
+    allowed_types = %w[image/jpeg image/png image/gif image/webp]
+    allowed_types.include?(content_type&.downcase) ? content_type : "image/jpeg"
+  end
 
   def photo_or_url_present
     unless photo.attached? || photo_url.present?
