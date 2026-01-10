@@ -83,16 +83,21 @@ module Ai
       end
 
       # Kreiraj lokaciju
+      # Sanitize string fields from Geoapify to remove null bytes and control characters
+      sanitized_name = sanitize_external_string(place_data[:name])
+      sanitized_phone = sanitize_external_string(place_data[:contact]&.dig(:phone))
+      sanitized_email = sanitize_external_string(place_data[:contact]&.dig(:email))
+
       location = Location.new(
-        name: place_data[:name],
+        name: sanitized_name,
         lat: place_data[:lat],
         lng: place_data[:lng],
         city: city,
         location_type: determine_location_type(place_data[:categories]),
         budget: determine_budget(place_data),
         website: normalize_website_url(place_data[:website]),
-        phone: place_data[:contact]&.dig(:phone),
-        email: place_data[:contact]&.dig(:email)
+        phone: sanitized_phone,
+        email: sanitized_email
       )
 
       # Obogati i spremi
@@ -420,11 +425,28 @@ module Ai
       url = url.to_s.strip
       return nil if url.empty?
 
+      # Sanitize null bytes and control characters
+      url = sanitize_external_string(url)
+      return nil if url.blank?
+
       # Already has a valid scheme
       return url if url.match?(%r{\Ahttps?://}i)
 
       # Prepend https:// if no scheme present
       "https://#{url}"
+    end
+
+    # Sanitizes a string from external sources (Geoapify API) by removing null bytes
+    # and other control characters that PostgreSQL rejects
+    # @param str [String, nil] The string to sanitize
+    # @return [String, nil] Sanitized string or nil
+    def sanitize_external_string(str)
+      return nil if str.nil?
+      return str unless str.is_a?(String)
+
+      # Remove null bytes (0x00) which PostgreSQL rejects in text columns
+      # Also remove other control characters except tab, newline, carriage return
+      str.gsub(/[\x00]/, '').gsub(/[\x01-\x08\x0B\x0C\x0E-\x1F]/, '')
     end
 
     def determine_budget(place_data)
