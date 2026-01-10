@@ -112,17 +112,49 @@ class Rack::Attack
   end
 
   # ----------------------------------------------------------------------------
-  # Blocklist: Known bad actors (optional - add IPs as needed)
+  # Blocklist: Exploit probes and malicious requests
   # ----------------------------------------------------------------------------
-  # blocklist("block-bad-actors") do |req|
-  #   Rack::Attack::Fail2Ban.filter("pentesters-#{req.ip}", maxretry: 3, findtime: 10.minutes, bantime: 1.hour) do
-  #     # Block requests trying to access sensitive paths
-  #     CGI.unescape(req.query_string) =~ %r{/etc/passwd} ||
-  #     req.path.include?("/wp-admin") ||
-  #     req.path.include?("/.env") ||
-  #     req.path.include?("/phpMyAdmin")
-  #   end
-  # end
+
+  # Block PHP/ASP/JSP file requests (common injection attempts)
+  blocklist("block-executable-extensions") do |req|
+    req.path =~ /\.(php|phtml|php3|php4|php5|php7|phps|asp|aspx|jsp|cgi|pl)$/i
+  end
+
+  # Block WordPress/CMS probes
+  blocklist("block-cms-probes") do |req|
+    req.path =~ %r{(wp-admin|wp-login|wp-content|wp-includes|xmlrpc\.php|wordpress)}i
+  end
+
+  # Block sensitive file access attempts
+  blocklist("block-sensitive-files") do |req|
+    req.path =~ %r{(\.env|\.git|\.htaccess|\.htpasswd|\.ssh|\.aws|config\.php|web\.config)}i
+  end
+
+  # Block common vulnerability scanners paths
+  blocklist("block-scanner-paths") do |req|
+    req.path =~ %r{(phpMyAdmin|phpmyadmin|pma|adminer|mysql|solr|elasticsearch|_profiler)}i
+  end
+
+  # Block path traversal attempts
+  blocklist("block-path-traversal") do |req|
+    req.path.include?("..") ||
+    req.path.include?("%2e%2e") ||
+    CGI.unescape(req.path).include?("..")
+  end
+
+  # Block null byte injection attempts
+  blocklist("block-null-byte") do |req|
+    req.path.include?("%00") || req.query_string&.include?("%00")
+  end
+
+  # Fail2Ban: Auto-ban repeat offenders
+  blocklist("fail2ban-pentesters") do |req|
+    Rack::Attack::Fail2Ban.filter("pentesters-#{req.ip}", maxretry: 3, findtime: 10.minutes, bantime: 1.hour) do
+      # Trigger on any suspicious pattern
+      CGI.unescape(req.query_string.to_s) =~ %r{(/etc/passwd|/proc/|union\s+select|<script)}i ||
+      req.path =~ %r{(shell|cmd|exec|system|eval|base64)}i
+    end
+  end
 
   # ----------------------------------------------------------------------------
   # Custom responses
@@ -144,10 +176,26 @@ class Rack::Attack
   end
 
   # ----------------------------------------------------------------------------
-  # Logging (for monitoring throttled requests)
+  # Blocklist response: Return 403 Forbidden (not 404, to not reveal app structure)
+  # ----------------------------------------------------------------------------
+  self.blocklisted_responder = lambda do |request|
+    [
+      403,
+      { "Content-Type" => "text/plain" },
+      ["Forbidden"]
+    ]
+  end
+
+  # ----------------------------------------------------------------------------
+  # Logging (for monitoring throttled and blocked requests)
   # ----------------------------------------------------------------------------
   ActiveSupport::Notifications.subscribe("throttle.rack_attack") do |_name, _start, _finish, _id, payload|
     req = payload[:request]
     Rails.logger.warn("[Rack::Attack] Throttled #{req.ip} for #{req.path}")
+  end
+
+  ActiveSupport::Notifications.subscribe("blocklist.rack_attack") do |_name, _start, _finish, _id, payload|
+    req = payload[:request]
+    Rails.logger.warn("[Rack::Attack] Blocked #{req.ip} for #{req.path} (#{payload[:match_type]})")
   end
 end
