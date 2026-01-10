@@ -3,7 +3,11 @@
   <head>
     <title><%= content_for(:title) || "Usput.ba - Experience Bosnia & Herzegovina" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="<%= t('app.description', default: 'Discover hidden gems, authentic experiences and unforgettable places in Bosnia and Herzegovina') %>">
+    <meta name="description" content="<%= content_for(:meta_description) || t('app.description', default: 'Discover hidden gems, authentic experiences and unforgettable places in Bosnia and Herzegovina') %>">
+
+    <%# Open Graph and Twitter Card meta tags for social sharing %>
+    <%= content_for?(:og_meta) ? yield(:og_meta) : default_og_meta_tags %>
+
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Usput.ba">
