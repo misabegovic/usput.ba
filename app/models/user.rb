@@ -104,17 +104,6 @@ class User < ApplicationRecord
     update!(activity_count_today: 0)
   end
 
-  private
-
-  def reset_activity_count_if_needed!
-    if activity_count_reset_at.nil? || activity_count_reset_at < Time.current.beginning_of_day
-      update!(
-        activity_count_today: 0,
-        activity_count_reset_at: Time.current
-      )
-    end
-  end
-
   # Default travel profile structure
   def travel_profile_data
     super.presence || default_travel_profile
@@ -147,6 +136,15 @@ class User < ApplicationRecord
   end
 
   private
+
+  def reset_activity_count_if_needed!
+    if activity_count_reset_at.nil? || activity_count_reset_at < Time.current.beginning_of_day
+      update!(
+        activity_count_today: 0,
+        activity_count_reset_at: Time.current
+      )
+    end
+  end
 
   def default_travel_profile
     {
