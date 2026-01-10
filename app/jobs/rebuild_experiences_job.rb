@@ -19,9 +19,9 @@ class RebuildExperiencesJob < ApplicationJob
   discard_on Ai::OpenaiQueue::ConfigurationError if defined?(Ai::OpenaiQueue::ConfigurationError)
 
   # Rebuild modes
-  MODES = %w[all quality similar accommodations].freeze
+  MODES = %w[all quality similar accommodations orphaned].freeze
 
-  def perform(dry_run: false, rebuild_mode: "all", max_rebuilds: nil, delete_similar: false)
+  def perform(dry_run: false, rebuild_mode: "all", max_rebuilds: nil, delete_similar: false, delete_orphaned: false)
     Rails.logger.info "[RebuildExperiencesJob] Starting (dry_run: #{dry_run}, mode: #{rebuild_mode}, max_rebuilds: #{max_rebuilds})"
 
     save_status("in_progress", "Starting experience analysis...")
@@ -36,6 +36,7 @@ class RebuildExperiencesJob < ApplicationJob
       similar_pairs_found: 0,
       experiences_rebuilt: 0,
       experiences_deleted: 0,
+      orphaned_experiences_deleted: 0,
       accommodation_locations_removed: 0,
       retirement_home_locations_replaced: 0,
       errors: [],
@@ -55,6 +56,13 @@ class RebuildExperiencesJob < ApplicationJob
       results[:analysis_report] = report
 
       save_status("in_progress", "Found #{results[:issues_found]} experiences with issues, #{results[:similar_pairs_found]} similar pairs, #{report[:experiences_to_delete]} to delete")
+
+      # Phase 1.5: Handle orphaned experiences (no locations)
+      if rebuild_mode == "all" || rebuild_mode == "orphaned" || delete_orphaned
+        orphaned_count = delete_orphaned_experiences(dry_run: dry_run)
+        results[:orphaned_experiences_deleted] = orphaned_count
+        results[:experiences_deleted] += orphaned_count unless dry_run
+      end
 
       if dry_run
         # In dry run mode, just return the analysis without making changes
@@ -168,9 +176,10 @@ class RebuildExperiencesJob < ApplicationJob
       results[:status] = "completed"
       results[:finished_at] = Time.current
 
+      orphaned_msg = results[:orphaned_experiences_deleted] > 0 ? ", #{results[:orphaned_experiences_deleted]} orphaned deleted" : ""
       save_status(
         "completed",
-        "Completed: #{results[:experiences_rebuilt]} rebuilt, #{results[:experiences_deleted]} deleted, #{results[:accommodation_locations_removed]} accommodation locations removed, #{results[:retirement_home_locations_replaced]} retirement homes replaced, #{results[:errors].count} errors",
+        "Completed: #{results[:experiences_rebuilt]} rebuilt, #{results[:experiences_deleted]} deleted#{orphaned_msg}, #{results[:accommodation_locations_removed]} accommodation locations removed, #{results[:retirement_home_locations_replaced]} retirement homes replaced, #{results[:errors].count} errors",
         results: results
       )
 
@@ -400,6 +409,37 @@ class RebuildExperiencesJob < ApplicationJob
 
     Rails.logger.info "[RebuildExperiencesJob] #{dry_run ? 'Would remove' : 'Removed'} #{removed_count} excess accommodation locations from experiences"
     removed_count
+  end
+
+  # Delete experiences that have no locations attached (orphaned)
+  # @param dry_run [Boolean] If true, just count but don't actually delete
+  # @return [Integer] Number of orphaned experiences deleted
+  def delete_orphaned_experiences(dry_run: false)
+    save_status("in_progress", "Finding orphaned experiences (no locations)...")
+
+    # Find experiences with no locations
+    orphaned_experiences = Experience.left_joins(:experience_locations)
+                                     .where(experience_locations: { id: nil })
+                                     .distinct
+
+    orphaned_count = orphaned_experiences.count
+    return 0 if orphaned_count == 0
+
+    save_status("in_progress", "#{dry_run ? 'Found' : 'Deleting'} #{orphaned_count} orphaned experiences...")
+
+    deleted_count = 0
+    orphaned_experiences.find_each do |experience|
+      if dry_run
+        Rails.logger.info "[RebuildExperiencesJob] Would delete orphaned experience #{experience.id}: '#{experience.title}' (no locations)"
+      else
+        Rails.logger.info "[RebuildExperiencesJob] Deleting orphaned experience #{experience.id}: '#{experience.title}' (no locations)"
+        experience.destroy
+      end
+      deleted_count += 1
+    end
+
+    Rails.logger.info "[RebuildExperiencesJob] #{dry_run ? 'Would delete' : 'Deleted'} #{deleted_count} orphaned experiences"
+    deleted_count
   end
 
   # Replace retirement home locations with suitable alternatives from the same city
