@@ -9,9 +9,11 @@ module Ai
   # - Uses exponential backoff (configured in config/initializers/ruby_llm.rb)
   # - Also retries on 500, 502, 503, 504, 529 and network errors
   #
-  # Additional retry logic is implemented for gateway errors (502, 503, 504)
-  # that come through as HTML content from CDNs like Cloudflare, which the
-  # Faraday middleware doesn't catch.
+  # Additional retry logic is implemented for:
+  # - Gateway errors (502, 503, 504) that come through as HTML content from
+  #   CDNs like Cloudflare, which the Faraday middleware doesn't catch
+  # - Network timeout errors (Net::ReadTimeout, Net::OpenTimeout) with
+  #   3 retries and exponential backoff (10s, 20s, 40s delays)
   #
   # Usage:
   #   result = Ai::OpenaiQueue.request(
@@ -25,6 +27,7 @@ module Ai
     class RequestError < StandardError; end
     class RateLimitError < RequestError; end
     class GatewayError < RequestError; end
+    class TimeoutError < RequestError; end
 
     # Gateway error patterns in HTML responses from CDNs like Cloudflare
     GATEWAY_ERROR_PATTERNS = [
@@ -38,6 +41,10 @@ module Ai
     # Retry configuration for gateway errors
     GATEWAY_RETRY_ATTEMPTS = 3
     GATEWAY_RETRY_BASE_DELAY = 5 # seconds
+
+    # Retry configuration for network timeout errors
+    TIMEOUT_RETRY_ATTEMPTS = 3
+    TIMEOUT_RETRY_BASE_DELAY = 10 # seconds (longer than gateway since timeouts indicate slow responses)
 
     class << self
       # Synchronous request with automatic rate limiting (via RubyLLM)
@@ -106,6 +113,16 @@ module Ai
         end
         log_error "[#{context}] API error: #{e.message}"
         raise RequestError, e.message
+      rescue Net::ReadTimeout, Net::OpenTimeout => e
+        # Network timeout errors - retry with exponential backoff
+        if attempt < TIMEOUT_RETRY_ATTEMPTS
+          delay = TIMEOUT_RETRY_BASE_DELAY * (2**(attempt - 1))
+          Rails.logger.warn "[#{context}] Network timeout (attempt #{attempt}/#{TIMEOUT_RETRY_ATTEMPTS}), retrying in #{delay}s: #{e.class.name}"
+          sleep(delay)
+          retry
+        end
+        log_error "[#{context}] Network timeout after #{TIMEOUT_RETRY_ATTEMPTS} attempts: #{e.message}"
+        raise TimeoutError, "Network timeout: #{e.message}"
       rescue StandardError => e
         # Check if the error message contains gateway error HTML
         if gateway_error_content?(e.message) && attempt < GATEWAY_RETRY_ATTEMPTS
