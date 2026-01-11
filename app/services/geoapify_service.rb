@@ -76,7 +76,6 @@ class GeoapifyService
     commercial.food_and_drink
     commercial.food_and_drink.bakery
     commercial.food_and_drink.deli
-    commercial.food_and_drink.wine
     education.library
     education.university
     entertainment
@@ -296,7 +295,6 @@ class GeoapifyService
     "commercial.food_and_drink.bakery" => "bakery",
     "commercial.food_and_drink.deli" => "deli",
     "commercial.food_and_drink.butcher" => "butcher",
-    "commercial.food_and_drink.wine" => "wine_store",
     "commercial.florist" => "florist",
     "commercial.electronics" => "electronics_store",
     "commercial.convenience" => "convenience_store",
@@ -816,10 +814,20 @@ class GeoapifyService
 
   def convert_types_to_categories(types)
     # Convert Google Places types to Geoapify categories
+    # Also accepts Geoapify categories directly (passes them through)
     type_to_category = category_type_mapping.invert
+    mapping = category_type_mapping
 
     types.filter_map do |type|
-      type_to_category[type] || find_matching_category(type)
+      # First check if it's already a valid Geoapify category
+      if mapping.key?(type)
+        type
+      # Otherwise try to convert from Google Places type
+      elsif type_to_category[type]
+        type_to_category[type]
+      else
+        find_matching_category(type)
+      end
     end.presence || tourism_categories
   end
 
