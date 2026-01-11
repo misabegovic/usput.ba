@@ -204,11 +204,13 @@ class Experience < ApplicationRecord
     return cover_photo if cover_photo.attached?
 
     # Find a random photo from associated locations
-    locations_with_photos = locations.joins(:photos_attachments).distinct
+    # Use unscope(:order) to remove the default ordering from experience_locations
+    # This prevents "for SELECT DISTINCT, ORDER BY expressions must appear in select list" error
+    locations_with_photos = locations.joins(:photos_attachments).unscope(:order).distinct
     return nil unless locations_with_photos.exists?
 
-    random_location = locations_with_photos.order("RANDOM()").first
-    random_location.photos.order("RANDOM()").first
+    random_location = locations_with_photos.order(Arel.sql("RANDOM()")).first
+    random_location.photos.order(Arel.sql("RANDOM()")).first
   end
 
   # Check if display_cover_photo would return something
