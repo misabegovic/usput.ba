@@ -4,18 +4,6 @@ module Admin
   # Controller za autonomni AI Content Generator
   # Admin samo klikne jedan gumb - AI odlucuje SVE
   class AiController < BaseController
-    before_action :require_admin_credentials, only: [
-      :generate, :stop, :reset,
-      :fix_cities, :force_reset_city_fix,
-      :sync_experience_types, :force_reset_experience_type_sync,
-      :rebuild_experiences, :force_reset_rebuild_experiences,
-      :rebuild_plans, :force_reset_rebuild_plans,
-      :regenerate_translations, :force_reset_regenerate_translations,
-      :fetch_wikimedia_images, :force_reset_wikimedia_fetch,
-      :fetch_google_images, :force_reset_google_image_fetch,
-      :delete_location_photos, :force_reset_delete_location_photos
-    ]
-
     # GET /admin/ai
     # Dashboard sa statistikama i gumbom za generiranje
     def index
@@ -27,7 +15,6 @@ module Admin
       @rebuild_plans_status = RebuildPlansJob.current_status
       @regenerate_translations_status = RegenerateTranslationsJob.status
       @dirty_counts = RegenerateTranslationsJob.dirty_counts
-      @wikimedia_fetch_status = WikimediaImageFetchJob.current_status
       @google_image_fetch_status = LocationImageFinderJob.current_status
       @delete_location_photos_status = DeleteLocationPhotosJob.current_status
       @delete_experience_photos_status = DeleteExperiencePhotosJob.current_status
@@ -357,59 +344,6 @@ module Admin
     def force_reset_regenerate_translations
       RegenerateTranslationsJob.reset_status!
       redirect_to admin_ai_path, notice: t("admin.ai.regenerate_translations_force_reset", default: "Translation regeneration has been force reset. You can now start a new run.")
-    end
-
-    # POST /admin/ai/fetch_wikimedia_images
-    # Fetches images from Wikimedia Commons for locations without photos
-    def fetch_wikimedia_images
-      current_status = WikimediaImageFetchJob.current_status
-      if current_status[:status] == "in_progress"
-        redirect_to admin_ai_path, alert: t("admin.ai.wikimedia_fetch_already_in_progress", default: "Wikimedia image fetch is already in progress")
-        return
-      end
-
-      dry_run = params[:dry_run] == "1"
-      max_locations = params[:max_locations].presence&.to_i || 10
-      images_per_location = params[:images_per_location].presence&.to_i || 5
-      use_coordinates = params[:use_coordinates] != "0"
-      replace_photos = params[:replace_photos] == "1"
-
-      WikimediaImageFetchJob.clear_status!
-      WikimediaImageFetchJob.perform_later(
-        dry_run: dry_run,
-        max_locations: max_locations,
-        images_per_location: images_per_location,
-        use_coordinates: use_coordinates,
-        replace_photos: replace_photos
-      )
-
-      notice_msg = if dry_run
-        t("admin.ai.wikimedia_fetch_preview_started", default: "Wikimedia image fetch preview started (no images will be attached)")
-      elsif replace_photos
-        t("admin.ai.wikimedia_fetch_replace_started", default: "Wikimedia image fetch started (replacing existing photos)")
-      else
-        t("admin.ai.wikimedia_fetch_started", default: "Wikimedia image fetch started")
-      end
-
-      redirect_to admin_ai_path, notice: notice_msg
-    end
-
-    # GET /admin/ai/fetch_wikimedia_images_status (AJAX)
-    # Returns current status of Wikimedia image fetch job
-    def fetch_wikimedia_images_status
-      @wikimedia_status = WikimediaImageFetchJob.current_status
-
-      respond_to do |format|
-        format.json { render json: @wikimedia_status }
-        format.html { render partial: "wikimedia_images_status", locals: { status: @wikimedia_status } }
-      end
-    end
-
-    # POST /admin/ai/force_reset_wikimedia_fetch
-    # Force resets a stuck or in-progress Wikimedia fetch job
-    def force_reset_wikimedia_fetch
-      WikimediaImageFetchJob.force_reset!
-      redirect_to admin_ai_path, notice: t("admin.ai.wikimedia_fetch_force_reset", default: "Wikimedia image fetch has been force reset. You can now start a new run.")
     end
 
     # POST /admin/ai/fetch_google_images

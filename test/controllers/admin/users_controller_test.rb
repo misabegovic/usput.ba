@@ -22,87 +22,46 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     Flipper.disable(:admin_dashboard)
   end
 
-  # Index and Show don't require credentials
-  test "index is accessible without credentials" do
+  test "index is accessible" do
     get admin_users_path
     assert_response :success
   end
 
-  test "show is accessible without credentials" do
+  test "show is accessible" do
     get admin_user_path(@user)
     assert_response :success
   end
 
-  test "edit is accessible without credentials" do
+  test "edit is accessible" do
     get edit_admin_user_path(@user)
     assert_response :success
   end
 
-  # Update requires credentials
-  test "update without credentials is rejected" do
+  test "update succeeds" do
     patch admin_user_path(@user), params: { user: { user_type: "curator" } }
-    assert_redirected_to admin_root_path
-    assert_match(/credentials/i, flash[:alert])
-  end
-
-  test "update with invalid credentials is rejected" do
-    patch admin_user_path(@user), params: {
-      user: { user_type: "curator" },
-      admin_username: "wrong",
-      admin_password: "wrong"
-    }
-    assert_redirected_to admin_root_path
-    assert_match(/invalid/i, flash[:alert])
-  end
-
-  test "update with valid credentials succeeds" do
-    patch admin_user_path(@user), params: {
-      user: { user_type: "curator" },
-      admin_username: "testadmin",
-      admin_password: "testpass123"
-    }
     assert_redirected_to admin_user_path(@user)
     @user.reload
     assert_equal "curator", @user.user_type
   end
 
-  # Destroy requires credentials
-  test "destroy without credentials is rejected" do
-    assert_no_difference("User.count") do
-      delete admin_user_path(@other_user)
-    end
-    assert_redirected_to admin_root_path
+  test "update to admin type succeeds" do
+    patch admin_user_path(@user), params: { user: { user_type: "admin" } }
+    assert_redirected_to admin_user_path(@user)
+    @user.reload
+    assert_equal "admin", @user.user_type
   end
 
-  test "destroy with invalid credentials is rejected" do
-    assert_no_difference("User.count") do
-      delete admin_user_path(@other_user), params: {
-        admin_username: "wrong",
-        admin_password: "wrong"
-      }
-    end
-    assert_redirected_to admin_root_path
-  end
-
-  test "destroy with valid credentials succeeds" do
+  test "destroy succeeds" do
     assert_difference("User.count", -1) do
-      delete admin_user_path(@other_user), params: {
-        admin_username: "testadmin",
-        admin_password: "testpass123"
-      }
+      delete admin_user_path(@other_user)
     end
     assert_redirected_to admin_users_path
   end
 
-  test "credentials rejected when Flipper disabled mid-request" do
-    # Simulate Flipper being disabled after login but before action
+  test "actions rejected when Flipper disabled" do
     Flipper.disable(:admin_dashboard)
 
-    patch admin_user_path(@user), params: {
-      user: { user_type: "curator" },
-      admin_username: "testadmin",
-      admin_password: "testpass123"
-    }
+    patch admin_user_path(@user), params: { user: { user_type: "curator" } }
     assert_redirected_to root_path
   end
 

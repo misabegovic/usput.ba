@@ -5,7 +5,6 @@ module Admin
     # Controller za upravljanje generiranjem audio tura
     # Odvojeno od glavnog AI generatora zbog troškova ElevenLabs API-ja
     class AudioToursController < Admin::BaseController
-      before_action :require_admin_credentials, only: [ :generate ]
 
       # GET /admin/ai/audio_tours
       # Lista lokacija koje nemaju audio ture

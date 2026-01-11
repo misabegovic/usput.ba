@@ -5,14 +5,21 @@ require "test_helper"
 module Ai
   class ExperienceLocationSyncerTest < ActiveSupport::TestCase
     setup do
-      @syncer = Ai::ExperienceLocationSyncer.new
+      # Mock GeoapifyService to avoid API key requirement
+      @mock_geoapify = Minitest::Mock.new
+      GeoapifyService.stub :new, @mock_geoapify do
+        @syncer = Ai::ExperienceLocationSyncer.new
+      end
     end
 
     # === Basic initialization tests ===
 
     test "initializes without errors" do
-      assert_nothing_raised do
-        Ai::ExperienceLocationSyncer.new
+      mock_geoapify = Minitest::Mock.new
+      GeoapifyService.stub :new, mock_geoapify do
+        assert_nothing_raised do
+          Ai::ExperienceLocationSyncer.new
+        end
       end
     end
 
@@ -70,7 +77,7 @@ module Ai
     end
 
     test "sync_locations handles experience without description" do
-      experience = Experience.new(title: "Test Experience")
+      experience = Experience.new(title: "Test Experience", uuid: SecureRandom.uuid)
       experience.save(validate: false)
 
       result = @syncer.sync_locations(experience)

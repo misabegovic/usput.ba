@@ -1,7 +1,6 @@
 module Admin
   class UsersController < BaseController
     before_action :set_user, only: [ :show, :edit, :update, :destroy ]
-    before_action :require_admin_credentials, only: [ :update, :destroy ]
 
     def index
       @users = User.order(created_at: :desc)

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "ostruct"
 
 class LocationCityFixJobTest < ActiveJob::TestCase
   # === Queue configuration tests ===
@@ -150,51 +151,39 @@ class LocationCityFixJobTest < ActiveJob::TestCase
 
   test "check_name_city_mismatch returns mismatch when name mentions different city" do
     job = LocationCityFixJob.new
-    location = Minitest::Mock.new
-    location.expect :name, "Beautiful View in Blagaj"
-    location.expect :city, "Mostar"
+    location = OpenStruct.new(name: "Beautiful View in Blagaj", city: "Mostar")
 
     result = job.send(:check_name_city_mismatch, location)
 
     assert result[:mismatch]
     assert_equal "Blagaj", result[:mentioned_city]
-    location.verify
   end
 
   test "check_name_city_mismatch returns no mismatch when name matches city" do
     job = LocationCityFixJob.new
-    location = Minitest::Mock.new
-    location.expect :name, "Mostar Old Bridge"
-    location.expect :city, "Mostar"
+    location = OpenStruct.new(name: "Mostar Old Bridge", city: "Mostar")
 
     result = job.send(:check_name_city_mismatch, location)
 
     refute result[:mismatch]
-    location.verify
   end
 
   test "check_name_city_mismatch returns no mismatch for generic name" do
     job = LocationCityFixJob.new
-    location = Minitest::Mock.new
-    location.expect :name, "Beautiful Historic Monument"
-    location.expect :city, "Sarajevo"
+    location = OpenStruct.new(name: "Beautiful Historic Monument", city: "Sarajevo")
 
     result = job.send(:check_name_city_mismatch, location)
 
     refute result[:mismatch]
-    location.verify
   end
 
   test "check_name_city_mismatch handles nil values" do
     job = LocationCityFixJob.new
-    location = Minitest::Mock.new
-    location.expect :name, nil
-    location.expect :city, "Sarajevo"
+    location = OpenStruct.new(name: nil, city: "Sarajevo")
 
     result = job.send(:check_name_city_mismatch, location)
 
     refute result[:mismatch]
-    location.verify
   end
 
   # === Cities match tests ===

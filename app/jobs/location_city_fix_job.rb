@@ -347,6 +347,10 @@ class LocationCityFixJob < ApplicationJob
     normalize.call(current) != normalize.call(geocoded)
   end
 
+  def cities_match?(city1, city2)
+    !cities_different?(city1, city2)
+  end
+
   # Returns { city: String|nil, source: :override|:geoapify|:nominatim|nil }
   def get_city_from_coordinates(lat, lng)
     return { city: nil, source: nil } if lat.blank? || lng.blank?

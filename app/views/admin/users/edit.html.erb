@@ -32,14 +32,13 @@
           <%= f.select :user_type,
               options_for_select([
                 [t("admin.users.types.basic"), "basic"],
-                [t("admin.users.types.curator"), "curator"]
+                [t("admin.users.types.curator"), "curator"],
+                [t("admin.users.types.admin"), "admin"]
               ], @user.user_type),
               {},
               class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" %>
           <p class="mt-2 text-sm text-gray-500"><%= t("admin.users.type_help") %></p>
         </div>
-
-        <%= render "admin/shared/admin_credentials" %>
 
         <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
           <%= link_to t("common.cancel"), admin_users_path,

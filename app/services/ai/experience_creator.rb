@@ -133,9 +133,6 @@ module Ai
           experience.add_location(loc, position: index + 1)
         end
 
-        # Pokušaj dodati cover photo
-        attach_cover_photo(experience, locations)
-
         # Sync additional locations mentioned in the description but not yet connected
         sync_locations_from_description(experience)
 
@@ -444,22 +441,6 @@ module Ai
       base_per_location = 35
       travel_time = (locations.count - 1) * 15 # 15 min između lokacija
       (locations.count * base_per_location) + travel_time
-    end
-
-    def attach_cover_photo(experience, locations)
-      location_with_photo = locations.find { |loc| loc.photos.attached? }
-      return unless location_with_photo
-
-      source_photo = location_with_photo.photos.first
-      return unless source_photo
-
-      experience.cover_photo.attach(
-        io: StringIO.new(source_photo.download),
-        filename: "experience-#{experience.id}-cover#{File.extname(source_photo.filename.to_s)}",
-        content_type: source_photo.content_type
-      )
-    rescue StandardError => e
-      log_warn "Could not attach cover photo: #{e.message}"
     end
 
     # Sync additional locations mentioned in the description but not yet connected

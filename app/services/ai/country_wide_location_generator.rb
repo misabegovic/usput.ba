@@ -503,7 +503,6 @@ module Ai
 
       if experience.save
         add_locations_to_experience(experience, experience_data, locations)
-        attach_cover_photo(experience, locations)
 
         Rails.logger.info "[AI::CountryWideLocationGenerator] Created country-wide experience: #{experience.title}"
         experience
@@ -528,7 +527,6 @@ module Ai
 
       if experience.save
         add_locations_to_experience(experience, experience_data, locations)
-        attach_cover_photo(experience, locations)
 
         Rails.logger.info "[AI::CountryWideLocationGenerator] Created regional experience for #{region_name}: #{experience.title}"
         experience
@@ -557,7 +555,6 @@ module Ai
 
       if experience.save
         add_locations_to_experience(experience, experience_data, locations)
-        attach_cover_photo(experience, locations)
 
         Rails.logger.info "[AI::CountryWideLocationGenerator] Created cross-region experience: #{experience.title}"
         experience
@@ -786,22 +783,6 @@ module Ai
       selected_locations.each_with_index do |loc, index|
         experience.add_location(loc, position: index + 1)
       end
-    end
-
-    def attach_cover_photo(experience, locations)
-      location_with_photo = locations.find { |loc| loc.photos.attached? }
-      return unless location_with_photo
-
-      source_photo = location_with_photo.photos.first
-      return unless source_photo
-
-      experience.cover_photo.attach(
-        io: StringIO.new(source_photo.download),
-        filename: "experience-#{experience.id}-cover#{File.extname(source_photo.filename.to_s)}",
-        content_type: source_photo.content_type
-      )
-    rescue StandardError => e
-      Rails.logger.warn "[AI::CountryWideLocationGenerator] Could not attach cover photo: #{e.message}"
     end
 
     # Get supported locales from database

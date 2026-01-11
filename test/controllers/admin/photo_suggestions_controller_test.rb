@@ -64,14 +64,7 @@ class Admin::PhotoSuggestionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "approve requires admin credentials" do
-    login_as_admin
-    post approve_admin_photo_suggestion_path(@pending_suggestion)
-    # HTML requests redirect with flash message instead of 403
-    assert_redirected_to admin_root_path
-  end
-
-  test "approve with valid credentials approves the suggestion with attached photo" do
+  test "approve approves the suggestion with attached photo" do
     # Create a suggestion with an attached photo (not URL) since URL download won't work in tests
     suggestion_with_photo = PhotoSuggestion.new(
       user: @curator,
@@ -88,8 +81,6 @@ class Admin::PhotoSuggestionsControllerTest < ActionDispatch::IntegrationTest
     login_as_admin
 
     post approve_admin_photo_suggestion_path(suggestion_with_photo), params: {
-      admin_username: "testadmin",
-      admin_password: "testpass123",
       admin_notes: "Great photo!"
     }
 
@@ -99,33 +90,10 @@ class Admin::PhotoSuggestionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Great photo!", suggestion_with_photo.admin_notes
   end
 
-  test "approve with invalid credentials is rejected" do
-    login_as_admin
-
-    post approve_admin_photo_suggestion_path(@pending_suggestion), params: {
-      admin_username: "testadmin",
-      admin_password: "wrongpassword"
-    }
-
-    # HTML requests redirect with flash message instead of 403
-    assert_redirected_to admin_root_path
-    @pending_suggestion.reload
-    assert @pending_suggestion.pending?
-  end
-
-  test "reject requires admin credentials" do
-    login_as_admin
-    post reject_admin_photo_suggestion_path(@pending_suggestion)
-    # HTML requests redirect with flash message instead of 403
-    assert_redirected_to admin_root_path
-  end
-
-  test "reject with valid credentials rejects the suggestion" do
+  test "reject rejects the suggestion" do
     login_as_admin
 
     post reject_admin_photo_suggestion_path(@pending_suggestion), params: {
-      admin_username: "testadmin",
-      admin_password: "testpass123",
       admin_notes: "Low quality"
     }
 
@@ -140,10 +108,7 @@ class Admin::PhotoSuggestionsControllerTest < ActionDispatch::IntegrationTest
     @pending_suggestion.reject!(admin_user, notes: "Already rejected")
     login_as_admin
 
-    post approve_admin_photo_suggestion_path(@pending_suggestion), params: {
-      admin_username: "testadmin",
-      admin_password: "testpass123"
-    }
+    post approve_admin_photo_suggestion_path(@pending_suggestion)
 
     assert_redirected_to admin_photo_suggestions_path
     @pending_suggestion.reload

@@ -21,10 +21,11 @@ class User < ApplicationRecord
 
   validate :acceptable_avatar, if: -> { avatar.attached? }
 
-  # User types: basic (default), curator (can manage resources)
+  # User types: basic (default), curator (can manage resources), admin (full access)
   enum :user_type, {
     basic: 0,
-    curator: 1
+    curator: 1,
+    admin: 2
   }, default: :basic
 
   validates :username, presence: true,

@@ -6,25 +6,6 @@
     <% end %>
   </div>
 
-  <!-- Admin Credentials for all protected actions -->
-  <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
-    <p class="text-sm font-medium text-amber-800 mb-3">
-      <%= t("admin.credentials.confirm_action", default: "Enter your admin credentials to enable actions:") %>
-    </p>
-    <div class="flex flex-col sm:flex-row gap-3">
-      <input type="text"
-             id="ai_admin_username"
-             placeholder="<%= t("admin.credentials.username", default: "Admin Username") %>"
-             autocomplete="username"
-             class="flex-1 rounded-md border-amber-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 text-sm">
-      <input type="password"
-             id="ai_admin_password"
-             placeholder="<%= t("admin.credentials.password", default: "Admin Password") %>"
-             autocomplete="current-password"
-             class="flex-1 rounded-md border-amber-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 text-sm">
-    </div>
-  </div>
-
   <!-- Generation Status Banner (manual refresh, no polling) -->
   <div data-controller="generation-status" data-generation-status-url-value="<%= admin_status_admin_ai_path %>">
     <div data-generation-status-target="container">
@@ -68,9 +49,7 @@
         </li>
       </ul>
 
-      <%= form_with url: admin_generate_admin_ai_path, method: :post, class: "space-y-4", data: { controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
-        <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
-        <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+      <%= form_with url: admin_generate_admin_ai_path, method: :post, class: "space-y-4" do |f| %>
         <div class="flex flex-col items-center gap-4">
           <!-- Max limits row -->
           <div class="flex flex-wrap items-center justify-center gap-4">
@@ -131,8 +110,7 @@
 
           <button type="submit"
                   class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  <%= "disabled" if @generation_status[:status] == "in_progress" %>
-                  data-action="credential-form#copyCredentials">
+                  <%= "disabled" if @generation_status[:status] == "in_progress" %>>
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
             </svg>
@@ -183,9 +161,7 @@
         </li>
       </ul>
 
-      <%= form_with url: admin_fix_cities_admin_ai_path, method: :post, class: "space-y-4", data: { controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
-        <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
-        <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+      <%= form_with url: admin_fix_cities_admin_ai_path, method: :post, class: "space-y-4" do |f| %>
         <div class="flex flex-col items-center gap-4">
           <div class="flex flex-wrap items-center justify-center gap-4">
             <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
@@ -236,8 +212,7 @@
 
           <button type="submit"
                   class="inline-flex items-center gap-2 px-6 py-3 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  <%= "disabled" if @fix_cities_status[:status] == "in_progress" %>
-                  data-action="credential-form#copyCredentials">
+                  <%= "disabled" if @fix_cities_status[:status] == "in_progress" %>>
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -288,9 +263,7 @@
         </li>
       </ul>
 
-      <%= form_with url: admin_sync_experience_types_admin_ai_path, method: :post, class: "space-y-4", data: { controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
-        <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
-        <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+      <%= form_with url: admin_sync_experience_types_admin_ai_path, method: :post, class: "space-y-4" do |f| %>
         <div class="flex flex-col items-center gap-4">
           <div class="flex flex-wrap items-center justify-center gap-4">
             <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
@@ -301,8 +274,7 @@
 
           <button type="submit"
                   class="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  <%= "disabled" if @experience_type_sync_status[:status] == "in_progress" %>
-                  data-action="credential-form#copyCredentials">
+                  <%= "disabled" if @experience_type_sync_status[:status] == "in_progress" %>>
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
@@ -359,9 +331,7 @@
         </li>
       </ul>
 
-      <%= form_with url: admin_rebuild_experiences_admin_ai_path, method: :post, class: "space-y-4", data: { controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
-        <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
-        <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+      <%= form_with url: admin_rebuild_experiences_admin_ai_path, method: :post, class: "space-y-4" do |f| %>
         <div class="flex flex-col items-center gap-4">
           <div class="flex flex-wrap items-center justify-center gap-4">
             <div class="flex items-center gap-2">
@@ -406,8 +376,7 @@
 
           <button type="submit"
                   class="inline-flex items-center gap-2 px-6 py-3 bg-rose-600 text-white font-medium rounded-lg hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  <%= "disabled" if @rebuild_experiences_status[:status] == "in_progress" %>
-                  data-action="credential-form#copyCredentials">
+                  <%= "disabled" if @rebuild_experiences_status[:status] == "in_progress" %>>
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
@@ -457,9 +426,7 @@
         </li>
       </ul>
 
-      <%= form_with url: admin_rebuild_plans_admin_ai_path, method: :post, class: "space-y-4", data: { controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
-        <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
-        <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+      <%= form_with url: admin_rebuild_plans_admin_ai_path, method: :post, class: "space-y-4" do |f| %>
         <div class="flex flex-col items-center gap-4">
           <div class="flex flex-wrap items-center justify-center gap-4">
             <div class="flex items-center gap-2">
@@ -497,8 +464,7 @@
 
           <button type="submit"
                   class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  <%= "disabled" if @rebuild_plans_status[:status] == "in_progress" %>
-                  data-action="credential-form#copyCredentials">
+                  <%= "disabled" if @rebuild_plans_status[:status] == "in_progress" %>>
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
@@ -567,9 +533,7 @@
         </li>
       </ul>
 
-      <%= form_with url: admin_regenerate_translations_admin_ai_path, method: :post, class: "space-y-4", data: { controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
-        <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
-        <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+      <%= form_with url: admin_regenerate_translations_admin_ai_path, method: :post, class: "space-y-4" do |f| %>
         <div class="flex flex-col items-center gap-4">
           <div class="flex flex-wrap items-center justify-center gap-4">
             <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
@@ -585,8 +549,7 @@
 
           <button type="submit"
                   class="inline-flex items-center gap-2 px-6 py-3 bg-teal-600 text-white font-medium rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  <%= "disabled" if @regenerate_translations_status == "in_progress" || (@dirty_counts[:locations] + @dirty_counts[:experiences] + @dirty_counts[:plans]).zero? %>
-                  data-action="credential-form#copyCredentials">
+                  <%= "disabled" if @regenerate_translations_status == "in_progress" || (@dirty_counts[:locations] + @dirty_counts[:experiences] + @dirty_counts[:plans]).zero? %>>
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
@@ -597,115 +560,6 @@
 
       <p class="text-xs text-gray-400 mt-4 text-center">
         Resources are marked dirty when curator changes are approved.
-      </p>
-    </div>
-  </div>
-
-  <!-- Fetch Wikimedia Images Card -->
-  <div class="bg-white shadow rounded-lg p-6">
-    <div class="max-w-2xl mx-auto">
-      <h2 class="text-lg font-semibold text-gray-900 mb-2 text-center">Fetch Wikimedia Images</h2>
-
-      <p class="text-gray-600 mb-4 text-center text-sm">
-        Search and fetch images from Wikimedia Commons for locations. Can add photos to locations without any or replace existing photos.
-      </p>
-
-      <!-- Locations without photos count -->
-      <div class="mb-4 p-3 bg-cyan-50 rounded-lg">
-        <div class="flex items-center justify-center gap-2 text-sm">
-          <svg class="h-5 w-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-          </svg>
-          <span class="font-semibold text-cyan-800"><%= @locations_without_photos_count %></span>
-          <span class="text-cyan-700">locations without photos</span>
-        </div>
-      </div>
-
-      <!-- Wikimedia Fetch Status -->
-      <div class="mb-4">
-        <%= render partial: "wikimedia_images_status", locals: { status: @wikimedia_fetch_status } %>
-      </div>
-
-      <ul class="text-left text-gray-600 mb-6 space-y-2 max-w-md mx-auto text-sm">
-        <li class="flex items-start gap-2">
-          <svg class="h-5 w-5 text-cyan-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-          </svg>
-          <span>Searches Wikimedia Commons by location name and city</span>
-        </li>
-        <li class="flex items-start gap-2">
-          <svg class="h-5 w-5 text-cyan-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-          </svg>
-          <span>Also searches by GPS coordinates for nearby images</span>
-        </li>
-        <li class="flex items-start gap-2">
-          <svg class="h-5 w-5 text-cyan-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-          </svg>
-          <span>Downloads and attaches high-quality images (min 400x300px)</span>
-        </li>
-      </ul>
-
-      <%= form_with url: admin_fetch_wikimedia_images_admin_ai_path, method: :post, class: "space-y-4", data: { controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
-        <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
-        <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
-        <div class="flex flex-col items-center gap-4">
-          <div class="flex flex-wrap items-center justify-center gap-4">
-            <div class="flex items-center gap-2">
-              <label for="wikimedia_max_locations" class="text-sm text-gray-600">Max locations:</label>
-              <select name="max_locations" id="wikimedia_max_locations" class="rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 text-sm">
-                <option value="1">1</option>
-                <option value="5">5</option>
-                <option value="10" selected>10</option>
-                <option value="20">20</option>
-                <option value="50">50</option>
-              </select>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <label for="wikimedia_images_per_location" class="text-sm text-gray-600">Images per location:</label>
-              <select name="images_per_location" id="wikimedia_images_per_location" class="rounded-md border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 text-sm">
-                <option value="1">1</option>
-                <option value="3">3</option>
-                <option value="5" selected>5</option>
-                <option value="10">10</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap items-center justify-center gap-4">
-            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-              <input type="checkbox" name="use_coordinates" value="1" checked class="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500">
-              <span>Also search by coordinates</span>
-            </label>
-
-            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-              <input type="checkbox" name="dry_run" value="1" class="rounded border-gray-300 text-gray-600 focus:ring-gray-500">
-              <span>Preview only (don't attach images)</span>
-            </label>
-
-            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-              <input type="checkbox" name="replace_photos" value="1" class="rounded border-gray-300 text-red-600 focus:ring-red-500">
-              <span class="text-red-600">Replace existing photos</span>
-            </label>
-          </div>
-
-          <button type="submit"
-                  class="inline-flex items-center gap-2 px-6 py-3 bg-cyan-600 text-white font-medium rounded-lg hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  <%= "disabled" if @wikimedia_fetch_status[:status] == "in_progress" %>
-                  data-action="credential-form#copyCredentials">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
-            Fetch Wikimedia Images
-          </button>
-        </div>
-      <% end %>
-
-      <p class="text-xs text-gray-400 mt-4 text-center">
-        Rate-limited: 1 request/second to Wikimedia API. Images are from Wikimedia Commons (various licenses).
       </p>
     </div>
   </div>
@@ -757,9 +611,7 @@
         </li>
       </ul>
 
-      <%= form_with url: admin_fetch_google_images_admin_ai_path, method: :post, class: "space-y-4", data: { controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
-        <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
-        <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+      <%= form_with url: admin_fetch_google_images_admin_ai_path, method: :post, class: "space-y-4" do |f| %>
         <div class="flex flex-col items-center gap-4">
           <div class="flex flex-wrap items-center justify-center gap-4">
             <div class="flex items-center gap-2">
@@ -803,8 +655,7 @@
 
           <button type="submit"
                   class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  <%= "disabled" if @google_image_fetch_status[:status] == "in_progress" %>
-                  data-action="credential-form#copyCredentials">
+                  <%= "disabled" if @google_image_fetch_status[:status] == "in_progress" %>>
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
@@ -855,9 +706,7 @@
         </li>
       </ul>
 
-      <%= form_with url: admin_delete_location_photos_admin_ai_path, method: :post, class: "space-y-4", data: { controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
-        <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
-        <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+      <%= form_with url: admin_delete_location_photos_admin_ai_path, method: :post, class: "space-y-4" do |f| %>
         <div class="flex flex-col items-center gap-4">
           <div class="flex flex-wrap items-center justify-center gap-4">
             <div class="flex items-center gap-2">
@@ -891,8 +740,7 @@
 
           <button type="submit"
                   class="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  <%= "disabled" if @delete_location_photos_status[:status] == "in_progress" %>
-                  data-action="credential-form#copyCredentials">
+                  <%= "disabled" if @delete_location_photos_status[:status] == "in_progress" %>>
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
             </svg>
@@ -942,9 +790,7 @@
         </li>
       </ul>
 
-      <%= form_with url: admin_delete_experience_photos_admin_ai_path, method: :post, class: "space-y-4", data: { controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
-        <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
-        <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+      <%= form_with url: admin_delete_experience_photos_admin_ai_path, method: :post, class: "space-y-4" do |f| %>
         <div class="flex flex-col items-center gap-4">
           <div class="flex flex-wrap items-center justify-center gap-4">
             <div class="flex items-center gap-2">
@@ -978,8 +824,7 @@
 
           <button type="submit"
                   class="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  <%= "disabled" if @delete_experience_photos_status[:status] == "in_progress" %>
-                  data-action="credential-form#copyCredentials">
+                  <%= "disabled" if @delete_experience_photos_status[:status] == "in_progress" %>>
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
             </svg>

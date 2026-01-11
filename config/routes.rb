@@ -156,11 +156,6 @@ Rails.application.routes.draw do
     get "ai/regenerate_translations_status", to: "ai#regenerate_translations_status", as: :regenerate_translations_status_admin_ai
     post "ai/force_reset_regenerate_translations", to: "ai#force_reset_regenerate_translations", as: :force_reset_regenerate_translations_admin_ai
 
-    # Wikimedia Image Fetch (fetch images from Wikimedia Commons for locations without photos)
-    post "ai/fetch_wikimedia_images", to: "ai#fetch_wikimedia_images", as: :fetch_wikimedia_images_admin_ai
-    get "ai/fetch_wikimedia_images_status", to: "ai#fetch_wikimedia_images_status", as: :fetch_wikimedia_images_status_admin_ai
-    post "ai/force_reset_wikimedia_fetch", to: "ai#force_reset_wikimedia_fetch", as: :force_reset_wikimedia_fetch_admin_ai
-
     # Google Custom Search Image Fetch (fetch images from Google for locations without photos)
     post "ai/fetch_google_images", to: "ai#fetch_google_images", as: :fetch_google_images_admin_ai
     get "ai/fetch_google_images_status", to: "ai#fetch_google_images_status", as: :fetch_google_images_status_admin_ai

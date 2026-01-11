@@ -11,12 +11,9 @@
           <span class="text-blue-700 ml-2"><%= status[:message] %></span>
         </div>
       </div>
-      <%= form_with url: admin_force_reset_delete_experience_photos_admin_ai_path, method: :post, class: "inline", data: { turbo_confirm: "Are you sure? This will reset the deletion status and allow you to start a new run.", controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
-        <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
-        <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+      <%= form_with url: admin_force_reset_delete_experience_photos_admin_ai_path, method: :post, class: "inline", data: { turbo_confirm: "Are you sure? This will reset the deletion status and allow you to start a new run." } do |f| %>
         <button type="submit"
-                class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-                data-action="credential-form#copyCredentials">
+                class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
           Force Stop & Restart
         </button>
       <% end %>

@@ -266,23 +266,6 @@ module Ai
       Setting.get("geoapify.max_results", default: 50)
     end
 
-    def photo_download_timeout
-      Setting.get("photo.download_timeout", default: 10)
-    end
-
-    def photo_open_timeout
-      Setting.get("photo.open_timeout", default: 5)
-    end
-
-    def photo_max_size
-      Setting.get("photo.max_size", default: 5 * 1024 * 1024)
-    end
-
-    def allowed_photo_hosts
-      Setting.get("photo.allowed_hosts", default: nil)&.then { |v| JSON.parse(v) rescue nil } ||
-        %w[upload.wikimedia.org commons.wikimedia.org api.geoapify.com]
-    end
-
     def fetch_places
       Rails.logger.info "[AI::ExperienceGenerator] Fetching places from Geoapify for #{@city_name}"
 
@@ -338,11 +321,6 @@ module Ai
 
         # Add experience types using proper associations
         add_experience_types_to_location(location, enrichment[:suitable_experiences])
-
-        # Attach photos from wiki data if available
-        if place[:photos]&.any?
-          attach_photo_to_location(location, place[:photos].first)
-        end
 
         location
       else
@@ -547,77 +525,6 @@ module Ai
       types.first(max_tags).map { |t| t.gsub("_", " ") }
     end
 
-    def attach_photo_to_location(location, photo)
-      return unless photo
-
-      # Geoapify provides wiki images with direct URLs
-      photo_url = photo[:url] || photo[:name]
-      return unless photo_url.present?
-
-      # Security: Validate URL before downloading
-      unless valid_photo_url?(photo_url)
-        Rails.logger.warn "[AI::ExperienceGenerator] Invalid or disallowed photo URL for #{location.name}: #{photo_url}"
-        return
-      end
-
-      # Download photo using Faraday with timeout and size limits
-      downloaded_file = download_photo_safely(photo_url)
-      return unless downloaded_file
-
-      location.photos.attach(
-        io: downloaded_file,
-        filename: "#{location.name.parameterize}-photo.jpg",
-        content_type: downloaded_file.content_type || "image/jpeg"
-      )
-    rescue StandardError => e
-      log_warn("Failed to attach photo for #{location.name}: #{e.message}", exception: e)
-    end
-
-    def valid_photo_url?(url)
-      uri = URI.parse(url)
-
-      # Only allow https (or http for local dev)
-      return false unless %w[https http].include?(uri.scheme)
-
-      # Check against allowed hosts
-      allowed_photo_hosts.any? { |host| uri.host&.end_with?(host) }
-    rescue URI::InvalidURIError
-      false
-    end
-
-    def download_photo_safely(url)
-      connection = Faraday.new do |faraday|
-        faraday.options.timeout = photo_download_timeout
-        faraday.options.open_timeout = photo_open_timeout
-        faraday.adapter Faraday.default_adapter
-      end
-
-      response = connection.get(url)
-
-      return nil unless response.success?
-
-      # Validate content type
-      content_type = response.headers["content-type"]
-      unless content_type&.start_with?("image/")
-        Rails.logger.warn "[AI::ExperienceGenerator] Invalid content type: #{content_type}"
-        return nil
-      end
-
-      # Limit file size
-      if response.body.bytesize > photo_max_size
-        Rails.logger.warn "[AI::ExperienceGenerator] Photo too large: #{response.body.bytesize} bytes"
-        return nil
-      end
-
-      # Return a StringIO with content_type accessor
-      file = StringIO.new(response.body)
-      file.define_singleton_method(:content_type) { content_type }
-      file
-    rescue Faraday::Error => e
-      log_warn("Failed to download photo: #{e.message}", exception: e, url: url)
-      nil
-    end
-
     def generate_experiences
       Rails.logger.info "[AI::ExperienceGenerator] Generating experiences for #{@city_name}"
 
@@ -695,9 +602,6 @@ module Ai
           experience.add_location(loc, position: index + 1)
         end
 
-        # Attach cover photo from the first location that has photos
-        attach_cover_photo_to_experience(experience, selected_locations)
-
         Rails.logger.info "[AI::ExperienceGenerator] Created experience: #{experience.title} with #{selected_locations.count} locations"
         experience
       else
@@ -720,26 +624,6 @@ module Ai
 
       # Fallback to random selection
       locations.sample([ locations.count, max_locations ].min)
-    end
-
-    def attach_cover_photo_to_experience(experience, locations)
-      # Find the first location with photos
-      location_with_photo = locations.find { |loc| loc.photos.attached? }
-      return unless location_with_photo
-
-      # Copy the first photo from the location to the experience
-      source_photo = location_with_photo.photos.first
-      return unless source_photo
-
-      experience.cover_photo.attach(
-        io: StringIO.new(source_photo.download),
-        filename: "experience-#{experience.id}-cover#{File.extname(source_photo.filename.to_s)}",
-        content_type: source_photo.content_type
-      )
-
-      log_info("Attached cover photo to experience: #{experience.title}")
-    rescue StandardError => e
-      log_warn("Could not attach cover photo: #{e.message}", exception: e)
     end
 
     def generate_experience_with_ai(category_data, locations)

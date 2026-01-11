@@ -70,21 +70,11 @@ class Admin::ContentChangesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "approve requires admin credentials" do
-    login_as_admin
-    post approve_admin_content_change_path(@pending_change)
-    # HTML requests redirect with flash message instead of 403
-    assert_redirected_to admin_root_path
-  end
-
-  test "approve with valid credentials approves the proposal" do
+  test "approve approves the proposal" do
     login_as_admin
 
     assert_difference "Location.count", 1 do
-      post approve_admin_content_change_path(@pending_change), params: {
-        admin_username: "testadmin",
-        admin_password: "testpass123"
-      }
+      post approve_admin_content_change_path(@pending_change)
     end
 
     assert_redirected_to admin_content_changes_path
@@ -92,33 +82,10 @@ class Admin::ContentChangesControllerTest < ActionDispatch::IntegrationTest
     assert @pending_change.approved?
   end
 
-  test "approve with invalid credentials is rejected" do
-    login_as_admin
-
-    assert_no_difference "Location.count" do
-      post approve_admin_content_change_path(@pending_change), params: {
-        admin_username: "testadmin",
-        admin_password: "wrongpassword"
-      }
-    end
-
-    # HTML requests redirect with flash message instead of 403
-    assert_redirected_to admin_root_path
-  end
-
-  test "reject requires admin credentials" do
-    login_as_admin
-    post reject_admin_content_change_path(@pending_change)
-    # HTML requests redirect with flash message instead of 403
-    assert_redirected_to admin_root_path
-  end
-
-  test "reject with valid credentials rejects the proposal" do
+  test "reject rejects the proposal" do
     login_as_admin
 
     post reject_admin_content_change_path(@pending_change), params: {
-      admin_username: "testadmin",
-      admin_password: "testpass123",
       admin_notes: "Not appropriate"
     }
 
@@ -132,10 +99,7 @@ class Admin::ContentChangesControllerTest < ActionDispatch::IntegrationTest
     @pending_change.reject!(@admin, notes: "Already rejected")
     login_as_admin
 
-    post approve_admin_content_change_path(@pending_change), params: {
-      admin_username: "testadmin",
-      admin_password: "testpass123"
-    }
+    post approve_admin_content_change_path(@pending_change)
 
     assert_redirected_to admin_content_changes_path
   end

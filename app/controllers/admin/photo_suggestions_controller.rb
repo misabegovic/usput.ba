@@ -3,7 +3,6 @@
 module Admin
   class PhotoSuggestionsController < BaseController
     before_action :set_photo_suggestion, only: [ :show, :approve, :reject ]
-    before_action :require_admin_credentials, only: [ :approve, :reject ]
 
     def index
       @photo_suggestions = PhotoSuggestion.includes(:user, :location).order(created_at: :desc)

@@ -55,49 +55,24 @@
         </div>
 
         <% if @content_change.pending? %>
-          <div class="space-y-4">
-            <!-- Admin Credentials for protected actions -->
-            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
-              <p class="text-sm text-gray-600 mb-3">
-                <%= t("admin.credentials.confirm_action", default: "Confirm your admin credentials to proceed:") %>
-              </p>
-              <div class="flex flex-col sm:flex-row gap-3" data-controller="admin-credentials">
-                <input type="text"
-                       id="content_change_admin_username"
-                       placeholder="<%= t("admin.credentials.username", default: "Admin Username") %>"
-                       data-admin-credentials-target="username"
-                       class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                <input type="password"
-                       id="content_change_admin_password"
-                       placeholder="<%= t("admin.credentials.password", default: "Admin Password") %>"
-                       data-admin-credentials-target="password"
-                       class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-              </div>
-            </div>
+          <div class="flex flex-col gap-3">
+            <%= form_with url: approve_admin_content_change_path(@content_change), method: :post, class: "flex flex-col gap-2" do |f| %>
+              <%= f.text_field :admin_notes,
+                  placeholder: t("admin.content_changes.admin_notes"),
+                  class: "rounded-md border-gray-300 text-sm w-full" %>
+              <%= f.submit t("admin.content_changes.approve_btn"),
+                  class: "inline-flex items-center justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 cursor-pointer w-full",
+                  data: { turbo_confirm: t("admin.content_changes.confirm_approve", type: @content_change.change_type.humanize) } %>
+            <% end %>
 
-            <div class="flex flex-col sm:flex-row gap-3">
-              <%= form_with url: approve_admin_content_change_path(@content_change), method: :post, class: "inline", data: { controller: "credential-form", "credential-form-username-id-value": "content_change_admin_username", "credential-form-password-id-value": "content_change_admin_password" } do |f| %>
-                <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
-                <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
-                <%= f.text_field :admin_notes,
-                    placeholder: t("admin.content_changes.admin_notes"),
-                    class: "rounded-md border-gray-300 text-sm w-full mb-2" %>
-                <%= f.submit t("admin.content_changes.approve_btn"),
-                    class: "inline-flex items-center justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 cursor-pointer w-full",
-                    data: { turbo_confirm: t("admin.content_changes.confirm_approve", type: @content_change.change_type.humanize), action: "credential-form#copyCredentials" } %>
-              <% end %>
-
-              <%= form_with url: reject_admin_content_change_path(@content_change), method: :post, class: "flex flex-col gap-2", data: { controller: "credential-form", "credential-form-username-id-value": "content_change_admin_username", "credential-form-password-id-value": "content_change_admin_password" } do |f| %>
-                <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
-                <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
-                <%= f.text_field :admin_notes,
-                    placeholder: t("admin.content_changes.rejection_reason"),
-                    class: "rounded-md border-gray-300 text-sm w-full" %>
-                <%= f.submit t("admin.content_changes.reject_btn"),
-                    class: "inline-flex items-center justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 cursor-pointer w-full",
-                    data: { turbo_confirm: t("admin.content_changes.confirm_reject"), action: "credential-form#copyCredentials" } %>
-              <% end %>
-            </div>
+            <%= form_with url: reject_admin_content_change_path(@content_change), method: :post, class: "flex flex-col gap-2" do |f| %>
+              <%= f.text_field :admin_notes,
+                  placeholder: t("admin.content_changes.rejection_reason"),
+                  class: "rounded-md border-gray-300 text-sm w-full" %>
+              <%= f.submit t("admin.content_changes.reject_btn"),
+                  class: "inline-flex items-center justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 cursor-pointer w-full",
+                  data: { turbo_confirm: t("admin.content_changes.confirm_reject") } %>
+            <% end %>
           </div>
         <% end %>
       </div>

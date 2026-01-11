@@ -3,7 +3,6 @@
 module Admin
   class ContentChangesController < BaseController
     before_action :set_content_change, only: [ :show, :approve, :reject ]
-    before_action :require_admin_credentials, only: [ :approve, :reject ]
 
     def index
       @content_changes = ContentChange.includes(:user, :changeable, :reviewed_by).order(created_at: :desc)
