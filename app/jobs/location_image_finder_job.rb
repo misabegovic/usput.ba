@@ -56,7 +56,16 @@ class LocationImageFinderJob < ApplicationJob
       images_attached: 0,
       photos_removed: 0,
       errors: [],
-      location_results: []
+      location_results: [],
+      # Track download/attachment failure reasons for diagnostics
+      failure_reasons: {
+        invalid_content_type: 0,
+        image_too_large: 0,
+        download_failed: 0,
+        http_error: 0,
+        attachment_failed: 0,
+        empty_url: 0
+      }
     }
 
     begin
@@ -113,6 +122,13 @@ class LocationImageFinderJob < ApplicationJob
       save_status("completed", summary, results: results)
 
       Rails.logger.info "[LocationImageFinderJob] #{summary}"
+
+      # Log failure reason breakdown if there were failures
+      failed_count = results[:images_found] - results[:images_attached]
+      if failed_count > 0 && !dry_run
+        Rails.logger.info "[LocationImageFinderJob] Failure breakdown: #{results[:failure_reasons].select { |_, v| v > 0 }.to_h}"
+      end
+
       results
 
     rescue GoogleImageSearchService::ConfigurationError => e
@@ -242,14 +258,19 @@ class LocationImageFinderJob < ApplicationJob
           title: image[:title],
           thumbnail: image[:thumbnail],
           source: image[:source],
-          attached: false
+          attached: false,
+          failure_reason: nil
         }
 
         unless dry_run
-          if attach_image_to_location(location, image)
+          result = attach_image_to_location(location, image)
+          if result[:success]
             image_info[:attached] = true
             location_result[:images_attached] += 1
             results[:images_attached] += 1
+          else
+            image_info[:failure_reason] = result[:failure_reason]
+            results[:failure_reasons][result[:failure_reason]] += 1 if result[:failure_reason]
           end
         end
 
@@ -283,12 +304,17 @@ class LocationImageFinderJob < ApplicationJob
     results[:location_results] << location_result
   end
 
+  # Returns { success: true/false, failure_reason: :symbol_or_nil }
   def attach_image_to_location(location, image)
-    return false if image[:url].blank?
+    if image[:url].blank?
+      return { success: false, failure_reason: :empty_url }
+    end
 
     # Download and attach the image
     downloaded = download_image(image[:url])
-    return false unless downloaded
+    unless downloaded[:success]
+      return { success: false, failure_reason: downloaded[:failure_reason] }
+    end
 
     # Use the actual downloaded content type to generate filename (not Google API's mime_type)
     filename = generate_filename(location, downloaded[:content_type])
@@ -306,20 +332,23 @@ class LocationImageFinderJob < ApplicationJob
     photos_count_after = location.photos.reload.count
     if photos_count_after > photos_count_before
       Rails.logger.info "[LocationImageFinderJob] Attached image to #{location.name}: #{filename}"
-      true
+      { success: true }
     else
-      Rails.logger.warn "[LocationImageFinderJob] Attachment failed for #{location.name} - photo count did not increase"
-      false
+      Rails.logger.warn "[LocationImageFinderJob] Attachment failed for #{location.name} - photo count did not increase (before: #{photos_count_before}, after: #{photos_count_after})"
+      { success: false, failure_reason: :attachment_failed }
     end
 
   rescue ActiveStorage::IntegrityError => e
     Rails.logger.warn "[LocationImageFinderJob] Integrity error attaching image: #{e.message}"
-    false
+    { success: false, failure_reason: :attachment_failed }
   rescue StandardError => e
     Rails.logger.warn "[LocationImageFinderJob] Failed to attach image: #{e.message}"
-    false
+    { success: false, failure_reason: :attachment_failed }
   end
 
+  # Returns a hash with :success, :io, :content_type, and :failure_reason keys
+  # On success: { success: true, io: StringIO, content_type: "image/jpeg" }
+  # On failure: { success: false, failure_reason: :reason_symbol }
   def download_image(url)
     connection = Faraday.new do |faraday|
       faraday.options.timeout = 30
@@ -330,32 +359,36 @@ class LocationImageFinderJob < ApplicationJob
 
     response = connection.get(url)
 
-    return nil unless response.success?
+    unless response.success?
+      Rails.logger.warn "[LocationImageFinderJob] HTTP error downloading image: #{response.status}"
+      return { success: false, failure_reason: :http_error }
+    end
 
     content_type = response.headers["content-type"]&.split(";")&.first
 
     # Validate content type
     valid_types = %w[image/jpeg image/png image/webp image/gif]
     unless valid_types.include?(content_type)
-      Rails.logger.warn "[LocationImageFinderJob] Invalid content type: #{content_type}"
-      return nil
+      Rails.logger.warn "[LocationImageFinderJob] Invalid content type: #{content_type} for URL: #{url}"
+      return { success: false, failure_reason: :invalid_content_type }
     end
 
     # Validate file size (max 10MB)
     max_size = 10 * 1024 * 1024
     if response.body.bytesize > max_size
       Rails.logger.warn "[LocationImageFinderJob] Image too large: #{response.body.bytesize} bytes"
-      return nil
+      return { success: false, failure_reason: :image_too_large }
     end
 
     {
+      success: true,
       io: StringIO.new(response.body),
       content_type: content_type
     }
 
   rescue Faraday::Error => e
     Rails.logger.warn "[LocationImageFinderJob] Failed to download image: #{e.message}"
-    nil
+    { success: false, failure_reason: :download_failed }
   end
 
   def generate_filename(_location, content_type)
