@@ -136,6 +136,9 @@ module Ai
         # Pokušaj dodati cover photo
         attach_cover_photo(experience, locations)
 
+        # Sync additional locations mentioned in the description but not yet connected
+        sync_locations_from_description(experience)
+
         # Refresh the cache so subsequent proposals check against this new experience
         refresh_existing_experiences_cache!
 
@@ -457,6 +460,23 @@ module Ai
       )
     rescue StandardError => e
       log_warn "Could not attach cover photo: #{e.message}"
+    end
+
+    # Sync additional locations mentioned in the description but not yet connected
+    # Uses AI to extract location names and finds/creates them via Geoapify
+    # @param experience [Experience] The newly created experience
+    def sync_locations_from_description(experience)
+      syncer = Ai::ExperienceLocationSyncer.new
+      result = syncer.sync_locations(experience)
+
+      if result[:locations_added] > 0
+        log_info "Synced #{result[:locations_added]} additional locations from description (#{result[:locations_found_in_db]} from DB, #{result[:locations_created_via_geoapify]} via Geoapify)"
+      end
+
+      result
+    rescue StandardError => e
+      log_warn "Location sync failed for experience #{experience.id}: #{e.message}"
+      { locations_added: 0, locations_found_in_db: 0, locations_created_via_geoapify: 0 }
     end
 
     def min_locations_per_experience

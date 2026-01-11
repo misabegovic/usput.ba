@@ -39,6 +39,8 @@ class RebuildExperiencesJob < ApplicationJob
       orphaned_experiences_deleted: 0,
       accommodation_locations_removed: 0,
       retirement_home_locations_replaced: 0,
+      locations_synced_from_descriptions: 0,
+      locations_created_via_geoapify: 0,
       errors: [],
       analysis_report: nil
     }
@@ -118,6 +120,8 @@ class RebuildExperiencesJob < ApplicationJob
               results[:experiences_rebuilt] += 1
             end
             results[:retirement_home_locations_replaced] += result[:retirement_homes_replaced]
+            results[:locations_synced_from_descriptions] += result[:locations_synced]
+            results[:locations_created_via_geoapify] += result[:locations_created]
           rescue StandardError => e
             results[:errors] << {
               experience_id: exp_result[:experience_id],
@@ -177,9 +181,10 @@ class RebuildExperiencesJob < ApplicationJob
       results[:finished_at] = Time.current
 
       orphaned_msg = results[:orphaned_experiences_deleted] > 0 ? ", #{results[:orphaned_experiences_deleted]} orphaned deleted" : ""
+      locations_msg = results[:locations_synced_from_descriptions] > 0 ? ", #{results[:locations_synced_from_descriptions]} locations synced from descriptions" : ""
       save_status(
         "completed",
-        "Completed: #{results[:experiences_rebuilt]} rebuilt, #{results[:experiences_deleted]} deleted#{orphaned_msg}, #{results[:accommodation_locations_removed]} accommodation locations removed, #{results[:retirement_home_locations_replaced]} retirement homes replaced, #{results[:errors].count} errors",
+        "Completed: #{results[:experiences_rebuilt]} rebuilt, #{results[:experiences_deleted]} deleted#{orphaned_msg}, #{results[:accommodation_locations_removed]} accommodation locations removed, #{results[:retirement_home_locations_replaced]} retirement homes replaced#{locations_msg}, #{results[:errors].count} errors",
         results: results
       )
 
@@ -225,15 +230,17 @@ class RebuildExperiencesJob < ApplicationJob
   # Rebuild an experience with quality issues
   # @param experience_id [Integer] The experience ID to rebuild
   # @param issues [Array<Hash>] List of issues found for this experience
-  # @return [Hash] Result with :success boolean and :retirement_homes_replaced count
+  # @return [Hash] Result with :success boolean, :retirement_homes_replaced count, and :locations_synced count
   def rebuild_experience(experience_id, issues)
     experience = Experience.includes(:locations, :translations, :experience_category).find_by(id: experience_id)
-    return { success: false, retirement_homes_replaced: 0 } unless experience
+    return { success: false, retirement_homes_replaced: 0, locations_synced: 0, locations_created: 0 } unless experience
 
     locations = experience.locations.to_a
-    return { success: false, retirement_homes_replaced: 0 } if locations.empty?
+    return { success: false, retirement_homes_replaced: 0, locations_synced: 0, locations_created: 0 } if locations.empty?
 
     retirement_homes_replaced = 0
+    locations_synced = 0
+    locations_created = 0
 
     # Check for retirement home locations that need to be replaced
     retirement_home_issue = issues.find { |i| i[:type] == :retirement_home_locations }
@@ -242,7 +249,7 @@ class RebuildExperiencesJob < ApplicationJob
       # Reload locations after replacement
       experience.reload
       locations = experience.locations.to_a
-      return { success: false, retirement_homes_replaced: retirement_homes_replaced } if locations.empty?
+      return { success: false, retirement_homes_replaced: retirement_homes_replaced, locations_synced: 0, locations_created: 0 } if locations.empty?
     end
 
     # Determine what needs to be regenerated
@@ -252,7 +259,17 @@ class RebuildExperiencesJob < ApplicationJob
       regenerate_experience_content(experience, locations, issues)
     end
 
-    { success: true, retirement_homes_replaced: retirement_homes_replaced }
+    # After regeneration, sync locations mentioned in the description
+    # This ensures the description matches the connected locations
+    begin
+      sync_result = sync_locations_from_description(experience)
+      locations_synced = sync_result[:locations_added]
+      locations_created = sync_result[:locations_created_via_geoapify]
+    rescue StandardError => e
+      Rails.logger.warn "[RebuildExperiencesJob] Location sync failed for experience #{experience_id}: #{e.message}"
+    end
+
+    { success: true, retirement_homes_replaced: retirement_homes_replaced, locations_synced: locations_synced, locations_created: locations_created }
   end
 
   def regenerate_experience_content(experience, locations, issues)
@@ -690,5 +707,18 @@ class RebuildExperiencesJob < ApplicationJob
     Setting.set("rebuild_experiences.results", results.to_json) if results
   rescue StandardError => e
     Rails.logger.warn "[RebuildExperiencesJob] Could not save status: #{e.message}"
+  end
+
+  # Sync locations mentioned in the experience description
+  # Uses AI to extract location names from description and connects them to the experience
+  # @param experience [Experience] The experience to sync locations for
+  # @return [Hash] Sync results with :locations_added and :locations_created_via_geoapify
+  def sync_locations_from_description(experience)
+    syncer = Ai::ExperienceLocationSyncer.new
+    result = syncer.sync_locations(experience)
+
+    Rails.logger.info "[RebuildExperiencesJob] Location sync for experience #{experience.id}: #{result[:locations_added]} added (#{result[:locations_found_in_db]} from DB, #{result[:locations_created_via_geoapify]} via Geoapify)"
+
+    result
   end
 end
