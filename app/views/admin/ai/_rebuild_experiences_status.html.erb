@@ -67,6 +67,18 @@
                 <span class="font-medium text-red-900"><%= status[:results]["orphaned_experiences_deleted"] %></span>
               </div>
             <% end %>
+            <% if status[:results]["locations_synced_from_descriptions"].to_i > 0 %>
+              <div class="bg-blue-100 rounded px-2 py-1">
+                <span class="text-blue-700">Locations synced:</span>
+                <span class="font-medium text-blue-900"><%= status[:results]["locations_synced_from_descriptions"] %></span>
+              </div>
+            <% end %>
+            <% if status[:results]["locations_created_via_geoapify"].to_i > 0 %>
+              <div class="bg-indigo-100 rounded px-2 py-1">
+                <span class="text-indigo-700">New locations (Geoapify):</span>
+                <span class="font-medium text-indigo-900"><%= status[:results]["locations_created_via_geoapify"] %></span>
+              </div>
+            <% end %>
             <% if status[:results]["errors"].present? && status[:results]["errors"].any? %>
               <div class="bg-yellow-100 rounded px-2 py-1">
                 <span class="text-yellow-700">Errors:</span>
