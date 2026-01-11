@@ -54,6 +54,7 @@ gem "ruby_llm"
 
 # HTTP client for Geoapify API
 gem "faraday"
+gem "faraday-follow_redirects"  # Follow HTTP redirects for image downloads
 
 # Pagination
 gem "kaminari"
