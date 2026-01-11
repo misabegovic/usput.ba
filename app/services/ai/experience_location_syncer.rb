@@ -238,7 +238,7 @@ module Ai
                 city: { type: "string" },
                 context: { type: "string" }
               },
-              required: %w[name confidence],
+              required: %w[name confidence city context],
               additionalProperties: false
             }
           }
