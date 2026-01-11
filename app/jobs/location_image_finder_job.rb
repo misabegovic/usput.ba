@@ -358,7 +358,7 @@ class LocationImageFinderJob < ApplicationJob
     nil
   end
 
-  def generate_filename(location, content_type)
+  def generate_filename(_location, content_type)
     extension = case content_type
                 when "image/png" then ".png"
                 when "image/webp" then ".webp"
@@ -366,7 +366,7 @@ class LocationImageFinderJob < ApplicationJob
                 else ".jpg"
                 end
 
-    "#{location.name.parameterize}-#{SecureRandom.hex(4)}#{extension}"
+    "#{SecureRandom.uuid}#{extension}"
   end
 
   def save_status(status, message, results: nil)
