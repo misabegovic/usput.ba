@@ -13,7 +13,9 @@ module Admin
       :regenerate_translations, :force_reset_regenerate_translations,
       :fetch_wikimedia_images, :force_reset_wikimedia_fetch,
       :fetch_google_images, :force_reset_google_image_fetch,
-      :delete_location_photos, :force_reset_delete_location_photos
+      :delete_location_photos, :force_reset_delete_location_photos,
+      :delete_experience_photos, :force_reset_delete_experience_photos,
+      :delete_experience, :force_reset_delete_experience
     ]
 
     # GET /admin/ai
@@ -31,6 +33,7 @@ module Admin
       @google_image_fetch_status = LocationImageFinderJob.current_status
       @delete_location_photos_status = DeleteLocationPhotosJob.current_status
       @delete_experience_photos_status = DeleteExperiencePhotosJob.current_status
+      @delete_experience_status = DeleteExperienceJob.current_status
       @locations_without_photos_count = count_locations_without_photos
       @cities_with_photos = cities_with_photos
       @last_generation = parse_last_generation
@@ -567,6 +570,58 @@ module Admin
     def force_reset_delete_experience_photos
       DeleteExperiencePhotosJob.force_reset!
       redirect_to admin_ai_path, notice: t("admin.ai.delete_experience_photos_force_reset", default: "Experience photo deletion has been force reset. You can now start a new run.")
+    end
+
+    # POST /admin/ai/delete_experience
+    # Deletes experiences by UUID or title
+    def delete_experience
+      current_status = DeleteExperienceJob.current_status
+      if current_status[:status] == "in_progress"
+        redirect_to admin_ai_path, alert: t("admin.ai.delete_experience_already_in_progress", default: "Experience deletion is already in progress")
+        return
+      end
+
+      dry_run = params[:dry_run] == "1"
+      experience_id = params[:experience_id].presence
+      title = params[:title].presence
+
+      if experience_id.blank? && title.blank?
+        redirect_to admin_ai_path, alert: t("admin.ai.delete_experience_no_target", default: "Please specify an experience UUID or title")
+        return
+      end
+
+      DeleteExperienceJob.clear_status!
+      DeleteExperienceJob.perform_later(
+        experience_id: experience_id,
+        title: title,
+        dry_run: dry_run
+      )
+
+      notice_msg = if dry_run
+        t("admin.ai.delete_experience_preview_started", default: "Experience deletion preview started (no experiences will be deleted)")
+      else
+        t("admin.ai.delete_experience_started", default: "Experience deletion started")
+      end
+
+      redirect_to admin_ai_path, notice: notice_msg
+    end
+
+    # GET /admin/ai/delete_experience_status (AJAX)
+    # Returns current status of experience deletion job
+    def delete_experience_status
+      @delete_status = DeleteExperienceJob.current_status
+
+      respond_to do |format|
+        format.json { render json: @delete_status }
+        format.html { render partial: "delete_experience_status", locals: { status: @delete_status } }
+      end
+    end
+
+    # POST /admin/ai/force_reset_delete_experience
+    # Force resets a stuck or in-progress experience deletion job
+    def force_reset_delete_experience
+      DeleteExperienceJob.force_reset!
+      redirect_to admin_ai_path, notice: t("admin.ai.delete_experience_force_reset", default: "Experience deletion has been force reset. You can now start a new run.")
     end
 
     private

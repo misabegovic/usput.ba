@@ -176,6 +176,11 @@ Rails.application.routes.draw do
     get "ai/delete_experience_photos_status", to: "ai#delete_experience_photos_status", as: :delete_experience_photos_status_admin_ai
     post "ai/force_reset_delete_experience_photos", to: "ai#force_reset_delete_experience_photos", as: :force_reset_delete_experience_photos_admin_ai
 
+    # Delete Experience (delete entire experiences by UUID or title)
+    post "ai/delete_experience", to: "ai#delete_experience", as: :delete_experience_admin_ai
+    get "ai/delete_experience_status", to: "ai#delete_experience_status", as: :delete_experience_status_admin_ai
+    post "ai/force_reset_delete_experience", to: "ai#force_reset_delete_experience", as: :force_reset_delete_experience_admin_ai
+
     # Audio Tours Generator (odvojeno od glavnog AI generatora)
     get "ai/audio_tours", to: "ai/audio_tours#index", as: :ai_audio_tours
     post "ai/audio_tours/generate", to: "ai/audio_tours#generate", as: :generate_admin_ai_audio_tours
