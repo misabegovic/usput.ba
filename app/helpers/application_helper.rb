@@ -1,12 +1,12 @@
 module ApplicationHelper
   # Safely renders an ActiveStorage attachment image, handling missing files gracefully
-  # @param attachment [ActiveStorage::Attached] The attachment to render
+  # @param attachment [ActiveStorage::Attached, ActiveStorage::Attachment] The attachment to render
   # @param variant_options [Hash] Options to pass to variant() (e.g., resize_to_fill: [400, 300])
   # @param fallback [String, nil] Path to fallback image or nil to return nil
   # @param options [Hash] Options to pass to image_tag
   # @return [String, nil] The image tag HTML or nil if no image available
   def safe_attachment_image_tag(attachment, variant_options: nil, fallback: nil, **options)
-    return fallback_image_tag(fallback, options) unless attachment&.attached?
+    return fallback_image_tag(fallback, options) unless attachment_present?(attachment)
 
     begin
       if variant_options && attachment.variable?
@@ -21,11 +21,11 @@ module ApplicationHelper
   end
 
   # Safely gets the URL for an ActiveStorage attachment
-  # @param attachment [ActiveStorage::Attached] The attachment
+  # @param attachment [ActiveStorage::Attached, ActiveStorage::Attachment] The attachment
   # @param variant_options [Hash] Options to pass to variant() if needed
   # @return [String, nil] The URL or nil if not available
   def safe_attachment_url(attachment, variant_options: nil)
-    return nil unless attachment&.attached?
+    return nil unless attachment_present?(attachment)
 
     begin
       if variant_options && attachment.variable?
@@ -40,11 +40,11 @@ module ApplicationHelper
   end
 
   # Safely gets the path for an ActiveStorage attachment
-  # @param attachment [ActiveStorage::Attached] The attachment
+  # @param attachment [ActiveStorage::Attached, ActiveStorage::Attachment] The attachment
   # @param only_path [Boolean] Whether to return only the path (default: true)
   # @return [String, nil] The path or nil if not available
   def safe_attachment_path(attachment, only_path: true)
-    return nil unless attachment&.attached?
+    return nil unless attachment_present?(attachment)
 
     begin
       rails_blob_path(attachment, only_path: only_path)
@@ -59,6 +59,23 @@ module ApplicationHelper
   def fallback_image_tag(fallback, options)
     return nil if fallback.nil?
     image_tag(fallback, **options)
+  end
+
+  # Checks if an attachment is present, handling both ActiveStorage::Attached proxies
+  # and ActiveStorage::Attachment objects
+  # @param attachment [ActiveStorage::Attached, ActiveStorage::Attachment, nil] The attachment to check
+  # @return [Boolean] true if the attachment is present and usable
+  def attachment_present?(attachment)
+    return false if attachment.nil?
+
+    # ActiveStorage::Attached::One/Many proxies respond to attached?
+    if attachment.respond_to?(:attached?)
+      attachment.attached?
+    else
+      # ActiveStorage::Attachment objects are already "attached" if they exist
+      # Check for blob presence to ensure the attachment is valid
+      attachment.respond_to?(:blob) && attachment.blob.present?
+    end
   end
 
   public
