@@ -246,6 +246,96 @@ module Ai
       end
     end
 
+    test "repairs incomplete JSON with missing closing braces" do
+      # Simulates truncated AI response (EOF error)
+      json_content = '{"name": "Test", "nested": {"inner": "value"'
+
+      mock_response = Object.new
+      mock_response.define_singleton_method(:nil?) { false }
+      mock_response.define_singleton_method(:content) { json_content }
+
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:with_schema) { |_schema| self }
+      mock_chat.define_singleton_method(:ask) { |_prompt| mock_response }
+
+      RubyLLM.stub :chat, mock_chat do
+        result = Ai::OpenaiQueue.request(
+          prompt: "Test",
+          schema: { type: "object" },
+          context: "Test"
+        )
+
+        assert_equal({ name: "Test", nested: { inner: "value" } }, result)
+      end
+    end
+
+    test "repairs incomplete JSON with missing closing bracket" do
+      json_content = '{"items": [1, 2, 3'
+
+      mock_response = Object.new
+      mock_response.define_singleton_method(:nil?) { false }
+      mock_response.define_singleton_method(:content) { json_content }
+
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:with_schema) { |_schema| self }
+      mock_chat.define_singleton_method(:ask) { |_prompt| mock_response }
+
+      RubyLLM.stub :chat, mock_chat do
+        result = Ai::OpenaiQueue.request(
+          prompt: "Test",
+          schema: { type: "object" },
+          context: "Test"
+        )
+
+        assert_equal({ items: [1, 2, 3] }, result)
+      end
+    end
+
+    test "handles control characters in JSON strings" do
+      # JSON with literal newlines and tabs that should be escaped
+      json_content = "{\"name\": \"Test\nwith\nnewlines\"}"
+
+      mock_response = Object.new
+      mock_response.define_singleton_method(:nil?) { false }
+      mock_response.define_singleton_method(:content) { json_content }
+
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:with_schema) { |_schema| self }
+      mock_chat.define_singleton_method(:ask) { |_prompt| mock_response }
+
+      RubyLLM.stub :chat, mock_chat do
+        result = Ai::OpenaiQueue.request(
+          prompt: "Test",
+          schema: { type: "object" },
+          context: "Test"
+        )
+
+        assert_equal({ name: "Test\nwith\nnewlines" }, result)
+      end
+    end
+
+    test "handles trailing comma at end of JSON stream" do
+      json_content = '{"name": "Test", "value": 1},'
+
+      mock_response = Object.new
+      mock_response.define_singleton_method(:nil?) { false }
+      mock_response.define_singleton_method(:content) { json_content }
+
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:with_schema) { |_schema| self }
+      mock_chat.define_singleton_method(:ask) { |_prompt| mock_response }
+
+      RubyLLM.stub :chat, mock_chat do
+        result = Ai::OpenaiQueue.request(
+          prompt: "Test",
+          schema: { type: "object" },
+          context: "Test"
+        )
+
+        assert_equal({ name: "Test", value: 1 }, result)
+      end
+    end
+
     # === Enqueue method tests ===
 
     test "enqueue creates OpenaiRequestJob" do

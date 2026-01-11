@@ -175,18 +175,217 @@ module Ai
                    content.match(/(\{[\s\S]*\})/)
       json_str = json_match ? json_match[1] : content
       json_str = sanitize_ai_json(json_str)
-      JSON.parse(json_str, symbolize_names: true)
-    rescue JSON::ParserError => e
-      log_error "Failed to parse AI response: #{e.message}"
-      {}
+      # Final cleanup: strip any trailing comma that might remain after sanitization
+      json_str = json_str.strip.sub(/,\s*\z/, '')
+
+      begin
+        JSON.parse(json_str, symbolize_names: true)
+      rescue JSON::ParserError => e
+        # Attempt to repair incomplete JSON (e.g., truncated responses)
+        repaired_json = attempt_json_repair(json_str)
+        if repaired_json
+          begin
+            return JSON.parse(repaired_json, symbolize_names: true)
+          rescue JSON::ParserError
+            # Repair didn't help, fall through to error logging
+          end
+        end
+
+        log_error "Failed to parse AI response: #{e.message}", content: content.to_s.truncate(500)
+        {}
+      end
     end
 
     def sanitize_ai_json(json_str)
       json_str = json_str.dup
+      # Replace smart/curly quotes with straight quotes
       json_str.gsub!(/[""]/, '"')
       json_str.gsub!(/['']/, "'")
+      # Remove trailing commas (invalid JSON but common in AI output)
       json_str.gsub!(/,(\s*[\}\]])/, '\1')
+      # Remove trailing comma at end of stream (e.g., "{ ... },\n" or "{ ... }, ")
+      json_str.gsub!(/,\s*\z/, '')
+      # Escape control characters and fix structural issues within JSON strings
+      json_str = escape_chars_in_json_strings(json_str)
       json_str
+    end
+
+    # Attempt to repair incomplete JSON that was truncated (EOF error)
+    # Returns repaired JSON string or nil if repair isn't possible
+    def attempt_json_repair(json_str)
+      return nil if json_str.blank?
+
+      # Count unclosed braces and brackets
+      open_braces = 0
+      open_brackets = 0
+      in_string = false
+      escape_next = false
+
+      json_str.each_char do |char|
+        if escape_next
+          escape_next = false
+          next
+        end
+
+        case char
+        when '\\'
+          escape_next = true if in_string
+        when '"'
+          in_string = !in_string unless escape_next
+        when '{'
+          open_braces += 1 unless in_string
+        when '}'
+          open_braces -= 1 unless in_string
+        when '['
+          open_brackets += 1 unless in_string
+        when ']'
+          open_brackets -= 1 unless in_string
+        end
+      end
+
+      # If we're in the middle of a string, try to close it
+      repaired = json_str.dup
+      if in_string
+        # Remove incomplete string content back to the last complete field
+        # This handles cases like: {"key": "incomplete value...
+        repaired = repaired.sub(/,?\s*"[^"]*\z/, '')
+        # Recount after the repair
+        open_braces = 0
+        open_brackets = 0
+        in_string = false
+        escape_next = false
+
+        repaired.each_char do |char|
+          if escape_next
+            escape_next = false
+            next
+          end
+
+          case char
+          when '\\'
+            escape_next = true if in_string
+          when '"'
+            in_string = !in_string unless escape_next
+          when '{'
+            open_braces += 1 unless in_string
+          when '}'
+            open_braces -= 1 unless in_string
+          when '['
+            open_brackets += 1 unless in_string
+          when ']'
+            open_brackets -= 1 unless in_string
+          end
+        end
+      end
+
+      # If there are unclosed structures, add closing characters
+      return nil if open_braces < 0 || open_brackets < 0 # Malformed, can't repair
+
+      # Remove any trailing comma before closing
+      repaired = repaired.sub(/,\s*\z/, '')
+
+      # Add closing brackets and braces as needed
+      repaired += ']' * open_brackets if open_brackets > 0
+      repaired += '}' * open_braces if open_braces > 0
+
+      # Only return if we actually made repairs and result differs from input
+      repaired != json_str ? repaired : nil
+    end
+
+    # Escapes problematic characters that appear within JSON string values
+    # This handles cases where the AI includes literal newlines, unescaped
+    # quotes, or other control characters in text content
+    def escape_chars_in_json_strings(json_str)
+      result = []
+      in_string = false
+      escape_next = false
+      i = 0
+
+      while i < json_str.length
+        char = json_str[i]
+        next_char = json_str[i + 1]
+
+        if escape_next
+          result << char
+          escape_next = false
+        elsif char == '\\'
+          if in_string
+            # Check if this backslash is followed by a valid JSON escape character
+            if next_char && '"\\/bfnrtu'.include?(next_char)
+              result << char
+              escape_next = true
+            else
+              # Invalid escape sequence - escape the backslash itself
+              result << '\\\\'
+            end
+          else
+            result << char
+            escape_next = true
+          end
+        elsif char == '"'
+          if in_string
+            # Check if this quote might be inside a string value (not ending it)
+            # Look ahead to see if this looks like a premature string end
+            if looks_like_embedded_quote?(json_str, i)
+              result << '\\"'
+            else
+              result << char
+              in_string = false
+            end
+          else
+            result << char
+            in_string = true
+          end
+        elsif in_string
+          # Handle control characters within strings
+          case char
+          when "\n"
+            result << '\\n'
+          when "\r"
+            result << '\\r'
+          when "\t"
+            result << '\\t'
+          when "\f"
+            result << '\\f'
+          when "\b"
+            result << '\\b'
+          else
+            # Escape any other control characters (0x00-0x1F)
+            if char.ord < 32
+              result << format('\\u%04x', char.ord)
+            else
+              result << char
+            end
+          end
+        else
+          result << char
+        end
+
+        i += 1
+      end
+
+      result.join
+    end
+
+    # Heuristic to detect if a quote inside a string is likely an embedded quote
+    # rather than the actual end of the string value
+    def looks_like_embedded_quote?(json_str, pos)
+      return false if pos + 1 >= json_str.length
+
+      remaining = json_str[(pos + 1)..-1]
+
+      # If immediately followed by valid JSON structure, it's probably a real end quote
+      return false if remaining.match?(/\A\s*[,\}\]:]/m)
+
+      # If followed by a key pattern like `"key":`, it's probably a real end quote
+      return false if remaining.match?(/\A\s*,?\s*"[^"]+"\s*:/m)
+
+      # If followed by array/object closing, it's probably a real end quote
+      return false if remaining.match?(/\A\s*[\}\]]/m)
+
+      # Otherwise, this quote is likely embedded in text content
+      # Look for patterns that suggest continuation of text
+      remaining.match?(/\A[a-zA-Z0-9\s,.'!?;:\-]/m)
     end
 
     # Check if response content contains gateway error HTML from CDNs
@@ -221,9 +420,10 @@ module Ai
       end
     end
 
-    def log_error(message)
-      Rails.logger.error message
-      Rollbar.error(message) if defined?(Rollbar)
+    def log_error(message, content: nil)
+      full_message = content ? "#{message} | Content preview: #{content}" : message
+      Rails.logger.error full_message
+      Rollbar.error(message, content_preview: content) if defined?(Rollbar)
     end
   end
 end
