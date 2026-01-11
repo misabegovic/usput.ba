@@ -295,6 +295,10 @@ module Ai
       assert Ai::OpenaiQueue::GatewayError < Ai::OpenaiQueue::RequestError
     end
 
+    test "SslError is a subclass of RequestError" do
+      assert Ai::OpenaiQueue::SslError < Ai::OpenaiQueue::RequestError
+    end
+
     # === Gateway error detection tests ===
 
     test "retries on gateway error in response content" do
@@ -354,6 +358,62 @@ module Ai
       queue = Ai::OpenaiQueue.new
       refute queue.send(:gateway_error_content?, '{"result": "success"}')
       refute queue.send(:gateway_error_content?, "Plain text response")
+    end
+
+    # === SSL error handling tests ===
+
+    test "retries on SSL error and succeeds on retry" do
+      call_count = 0
+      good_response = { result: "success" }
+
+      mock_response_good = Object.new
+      mock_response_good.define_singleton_method(:nil?) { false }
+      mock_response_good.define_singleton_method(:content) { good_response }
+
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:with_schema) { |_schema| self }
+      mock_chat.define_singleton_method(:ask) do |_prompt|
+        call_count += 1
+        if call_count == 1
+          raise OpenSSL::SSL::SSLError, "SSL_read: unexpected eof while reading"
+        end
+        mock_response_good
+      end
+
+      RubyLLM.stub :chat, mock_chat do
+        queue = Ai::OpenaiQueue.new
+
+        queue.stub(:sleep, nil) do
+          result = queue.execute_request(
+            prompt: "Test",
+            schema: { type: "object" },
+            context: "Test"
+          )
+
+          assert_equal 2, call_count, "Should have retried once"
+          assert_equal good_response.deep_symbolize_keys, result
+        end
+      end
+    end
+
+    test "raises SslError after max retries" do
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:ask) do |_prompt|
+        raise OpenSSL::SSL::SSLError, "SSL_read: unexpected eof while reading"
+      end
+
+      RubyLLM.stub :chat, mock_chat do
+        queue = Ai::OpenaiQueue.new
+
+        queue.stub(:sleep, nil) do
+          error = assert_raises(Ai::OpenaiQueue::SslError) do
+            queue.execute_request(prompt: "Test", context: "Test")
+          end
+
+          assert_match(/SSL error/, error.message)
+          assert_match(/unexpected eof/, error.message)
+        end
+      end
     end
   end
 end
