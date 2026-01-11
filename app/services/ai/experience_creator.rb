@@ -122,7 +122,8 @@ module Ai
         title: initial_title,
         estimated_duration: proposal[:estimated_duration] || calculate_duration(locations),
         experience_category: category,
-        seasons: proposal[:seasons] || []
+        seasons: proposal[:seasons] || [],
+        ai_generated: true  # Explicitly mark as AI-generated
       )
 
       if experience.save

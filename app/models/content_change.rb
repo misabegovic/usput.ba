@@ -207,6 +207,10 @@ class ContentChange < ApplicationRecord
     # Filter to only allowed attributes - prevent mass assignment
     allowed_attrs = safe_attributes_for(klass)
     safe_data = proposed_data.slice(*allowed_attrs)
+
+    # Curator-created content is human-made, not AI-generated
+    safe_data["ai_generated"] = false if klass.column_names.include?("ai_generated")
+
     record = klass.new(safe_data)
     record.save!
     update!(changeable: record)

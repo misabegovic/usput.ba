@@ -337,7 +337,8 @@ class Plan < ApplicationRecord
       local_id: data["id"],
       visibility: :private_plan,
       preferences: preferences,
-      notes: sanitized_notes
+      notes: sanitized_notes,
+      ai_generated: false  # User-created plans via wizard are human-made
     )
 
     if plan.save

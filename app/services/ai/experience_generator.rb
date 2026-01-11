@@ -327,7 +327,8 @@ module Ai
         budget: place[:price_level] || :medium,
         website: place[:website],
         phone: place[:phone],
-        tags: extract_tags(place[:types])
+        tags: extract_tags(place[:types]),
+        ai_generated: true  # Explicitly mark as AI-generated
       )
 
       # Set translations (name, description, historical_context)
