@@ -820,6 +820,93 @@
     </div>
   </div>
 
+  <!-- Delete Location Photos Card -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <div class="max-w-2xl mx-auto">
+      <h2 class="text-lg font-semibold text-gray-900 mb-2 text-center">Delete Location Photos</h2>
+
+      <p class="text-gray-600 mb-4 text-center text-sm">
+        Delete all photos from a specific location by ID or from all locations in a city.
+      </p>
+
+      <!-- Delete Status -->
+      <div class="mb-4">
+        <%= render partial: "delete_location_photos_status", locals: { status: @delete_location_photos_status } %>
+      </div>
+
+      <ul class="text-left text-gray-600 mb-6 space-y-2 max-w-md mx-auto text-sm">
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+          <span>Delete photos by location ID or by city</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+          <span>Use preview mode first to see what will be deleted</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <svg class="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          <span>Useful for cleaning up bad images before re-fetching</span>
+        </li>
+      </ul>
+
+      <%= form_with url: admin_delete_location_photos_admin_ai_path, method: :post, class: "space-y-4", data: { controller: "credential-form", "credential-form-username-id-value": "ai_admin_username", "credential-form-password-id-value": "ai_admin_password" } do |f| %>
+        <%= f.hidden_field :admin_username, data: { "credential-form-target": "usernameField" } %>
+        <%= f.hidden_field :admin_password, data: { "credential-form-target": "passwordField" } %>
+        <div class="flex flex-col items-center gap-4">
+          <div class="flex flex-wrap items-center justify-center gap-4">
+            <div class="flex items-center gap-2">
+              <label for="delete_location_id" class="text-sm text-gray-600">Location ID:</label>
+              <input type="number"
+                     name="location_id"
+                     id="delete_location_id"
+                     placeholder="e.g. 123"
+                     class="w-24 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-sm">
+            </div>
+
+            <span class="text-sm text-gray-400">or</span>
+
+            <div class="flex items-center gap-2">
+              <label for="delete_city" class="text-sm text-gray-600">City:</label>
+              <select name="city" id="delete_city" class="rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-sm">
+                <option value="">Select city...</option>
+                <% @cities_with_photos.each do |city| %>
+                  <option value="<%= city %>"><%= city %></option>
+                <% end %>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-center gap-4">
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="dry_run" value="1" checked class="rounded border-gray-300 text-gray-600 focus:ring-gray-500">
+              <span>Preview only (no photos will be deleted)</span>
+            </label>
+          </div>
+
+          <button type="submit"
+                  class="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  <%= "disabled" if @delete_location_photos_status[:status] == "in_progress" %>
+                  data-action="credential-form#copyCredentials">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            Delete Photos
+          </button>
+        </div>
+      <% end %>
+
+      <p class="text-xs text-gray-400 mt-4 text-center">
+        Warning: This action permanently deletes photos. Always use preview mode first!
+      </p>
+    </div>
+  </div>
+
   <!-- Current State Stats -->
   <div class="bg-white shadow rounded-lg overflow-hidden">
     <h2 class="text-lg font-semibold p-4 sm:p-6 border-b text-gray-900">Current Content State</h2>

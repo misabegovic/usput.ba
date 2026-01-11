@@ -12,7 +12,8 @@ module Admin
       :rebuild_plans, :force_reset_rebuild_plans,
       :regenerate_translations, :force_reset_regenerate_translations,
       :fetch_wikimedia_images, :force_reset_wikimedia_fetch,
-      :fetch_google_images, :force_reset_google_image_fetch
+      :fetch_google_images, :force_reset_google_image_fetch,
+      :delete_location_photos, :force_reset_delete_location_photos
     ]
 
     # GET /admin/ai
@@ -28,7 +29,9 @@ module Admin
       @dirty_counts = RegenerateTranslationsJob.dirty_counts
       @wikimedia_fetch_status = WikimediaImageFetchJob.current_status
       @google_image_fetch_status = LocationImageFinderJob.current_status
+      @delete_location_photos_status = DeleteLocationPhotosJob.current_status
       @locations_without_photos_count = count_locations_without_photos
+      @cities_with_photos = cities_with_photos
       @last_generation = parse_last_generation
 
       # Paginate cities for the table
@@ -461,6 +464,58 @@ module Admin
       redirect_to admin_ai_path, notice: t("admin.ai.google_image_fetch_force_reset", default: "Google image fetch has been force reset. You can now start a new run.")
     end
 
+    # POST /admin/ai/delete_location_photos
+    # Deletes photos from locations by ID or city
+    def delete_location_photos
+      current_status = DeleteLocationPhotosJob.current_status
+      if current_status[:status] == "in_progress"
+        redirect_to admin_ai_path, alert: t("admin.ai.delete_location_photos_already_in_progress", default: "Photo deletion is already in progress")
+        return
+      end
+
+      dry_run = params[:dry_run] == "1"
+      location_id = params[:location_id].presence&.to_i
+      city = params[:city].presence
+
+      if location_id.blank? && city.blank?
+        redirect_to admin_ai_path, alert: t("admin.ai.delete_location_photos_no_target", default: "Please specify a location ID or city")
+        return
+      end
+
+      DeleteLocationPhotosJob.clear_status!
+      DeleteLocationPhotosJob.perform_later(
+        location_id: location_id,
+        city: city,
+        dry_run: dry_run
+      )
+
+      notice_msg = if dry_run
+        t("admin.ai.delete_location_photos_preview_started", default: "Photo deletion preview started (no photos will be deleted)")
+      else
+        t("admin.ai.delete_location_photos_started", default: "Photo deletion started")
+      end
+
+      redirect_to admin_ai_path, notice: notice_msg
+    end
+
+    # GET /admin/ai/delete_location_photos_status (AJAX)
+    # Returns current status of photo deletion job
+    def delete_location_photos_status
+      @delete_status = DeleteLocationPhotosJob.current_status
+
+      respond_to do |format|
+        format.json { render json: @delete_status }
+        format.html { render partial: "delete_location_photos_status", locals: { status: @delete_status } }
+      end
+    end
+
+    # POST /admin/ai/force_reset_delete_location_photos
+    # Force resets a stuck or in-progress photo deletion job
+    def force_reset_delete_location_photos
+      DeleteLocationPhotosJob.force_reset!
+      redirect_to admin_ai_path, notice: t("admin.ai.delete_location_photos_force_reset", default: "Photo deletion has been force reset. You can now start a new run.")
+    end
+
     private
 
     # Parse max param: empty/nil = use default, "0" = unlimited (pass 0), other = specific value
@@ -493,6 +548,20 @@ module Admin
         .pluck(:record_id)
 
       Location.where.not(id: locations_with_photos_ids).count
+    end
+
+    # Get cities that have locations with photos (for delete dropdown)
+    def cities_with_photos
+      locations_with_photos_ids = ActiveStorage::Attachment
+        .where(record_type: "Location", name: "photos")
+        .distinct
+        .pluck(:record_id)
+
+      Location.where(id: locations_with_photos_ids)
+        .distinct
+        .pluck(:city)
+        .compact
+        .sort
     end
   end
 end

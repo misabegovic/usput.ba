@@ -166,6 +166,11 @@ Rails.application.routes.draw do
     get "ai/fetch_google_images_status", to: "ai#fetch_google_images_status", as: :fetch_google_images_status_admin_ai
     post "ai/force_reset_google_image_fetch", to: "ai#force_reset_google_image_fetch", as: :force_reset_google_image_fetch_admin_ai
 
+    # Delete Location Photos (delete photos from locations by ID or city)
+    post "ai/delete_location_photos", to: "ai#delete_location_photos", as: :delete_location_photos_admin_ai
+    get "ai/delete_location_photos_status", to: "ai#delete_location_photos_status", as: :delete_location_photos_status_admin_ai
+    post "ai/force_reset_delete_location_photos", to: "ai#force_reset_delete_location_photos", as: :force_reset_delete_location_photos_admin_ai
+
     # Audio Tours Generator (odvojeno od glavnog AI generatora)
     get "ai/audio_tours", to: "ai/audio_tours#index", as: :ai_audio_tours
     post "ai/audio_tours/generate", to: "ai/audio_tours#generate", as: :generate_admin_ai_audio_tours
