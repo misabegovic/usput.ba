@@ -84,10 +84,6 @@ Rails.application.config.geoapify.tourism_categories = %w[
   catering.fast_food.chicken
   catering.fast_food.ice_cream
   catering.bar
-  catering.bar.wine
-  catering.bar.cocktail
-  catering.bar.beer
-  catering.bar.sports
   catering.pub
   catering.biergarten
   catering.taproom
@@ -156,18 +152,16 @@ Rails.application.config.geoapify.tourism_categories = %w[
   commercial.food_and_drink.bakery
   commercial.food_and_drink.deli
   commercial.food_and_drink.butcher
-  commercial.food_and_drink.wine
-  commercial.food_and_drink.beverages
-  commercial.food_and_drink.greengrocer
+  commercial.food_and_drink.drinks
+  commercial.food_and_drink.fruit_and_vegetable
   commercial.food_and_drink.farm
   commercial.food_and_drink.honey
   commercial.food_and_drink.health_food
   commercial.food_and_drink.frozen_food
   commercial.food_and_drink.seafood
-  commercial.food_and_drink.cheese
+  commercial.food_and_drink.cheese_and_dairy
   commercial.food_and_drink.chocolate
-  commercial.food_and_drink.coffee
-  commercial.food_and_drink.tea
+  commercial.food_and_drink.coffee_and_tea
   commercial.food_and_drink.spices
   commercial.food_and_drink.confectionery
   commercial.food_and_drink.pasta

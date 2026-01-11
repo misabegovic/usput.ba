@@ -48,11 +48,11 @@ class GeoapifyService
     centar za socijalnu pomoc
   ].freeze
 
-  # Default tourism categories (fallback if database is empty)
-  # Complete list of all Geoapify categories
-  # NOTE: Accommodation categories significantly reduced per user request
+  # Default tourism categories - ONLY VALID GEOAPIFY CATEGORIES
+  # Invalid categories requested by users are handled by find_matching_category for backwards compatibility
   DEFAULT_TOURISM_CATEGORIES = %w[
     accommodation.hotel
+    accommodation.hut
     camping
     camping.camp_site
     activity
@@ -83,11 +83,8 @@ class GeoapifyService
     entertainment.culture.theatre
     entertainment.culture.gallery
     entertainment.culture.arts_centre
-    entertainment.culture.cultural_center
     entertainment.museum
     entertainment.cinema
-    entertainment.casino
-    entertainment.night_club
     entertainment.zoo
     entertainment.aquarium
     entertainment.theme_park
@@ -95,18 +92,19 @@ class GeoapifyService
     entertainment.planetarium
     entertainment.bowling_alley
     entertainment.amusement_arcade
+    adult.casino
+    adult.nightclub
     healthcare.hospital
     healthcare.pharmacy
     heritage
     heritage.unesco
     leisure
     leisure.park
+    leisure.park.garden
     leisure.playground
-    leisure.garden
     leisure.spa
-    leisure.sauna
-    leisure.marina
-    leisure.swimming_area
+    leisure.spa.sauna
+    leisure.picnic.picnic_site
     man_made.bridge
     man_made.lighthouse
     man_made.pier
@@ -133,10 +131,9 @@ class GeoapifyService
     beach.beach_resort
     production.brewery
     production.winery
-    production.distillery
-    public_transport.train.station
+    public_transport.train
     public_transport.ferry
-    public_transport.airport
+    airport
     religion
     religion.place_of_worship
     religion.place_of_worship.christianity
@@ -155,51 +152,38 @@ class GeoapifyService
     tourism.sights.place_of_worship.synagogue
     tourism.sights.place_of_worship.temple
     tourism.sights.place_of_worship.shrine
-    service.townhall
-    service.embassy
+    tourism.sights.city_hall
+    office.diplomatic
     ski
-    ski.resort
+    ski.lift
     sport
     sport.stadium
     sport.sports_centre
     sport.swimming_pool
     sport.ice_rink
     sport.fitness
-    sport.golf
-    sport.tennis
-    sport.climbing
-    sport.equestrian
-    sport.diving
-    sport.water_sports
-    sport.sailing
-    sport.skiing
+    sport.horse_riding
+    sport.dive_centre
+    entertainment.activity_park.climbing
     tourism
     tourism.attraction
+    tourism.attraction.viewpoint
+    tourism.attraction.artwork
     tourism.sights
     tourism.sights.memorial
+    tourism.sights.memorial.monument
     tourism.sights.tower
     tourism.sights.windmill
-    tourism.sights.watermill
     tourism.sights.fort
     tourism.sights.castle
-    tourism.sights.palace
-    tourism.sights.manor
     tourism.sights.ruines
     tourism.sights.archaeological_site
     tourism.sights.city_gate
     tourism.sights.battlefield
     tourism.sights.monastery
-    tourism.sights.statue
+    tourism.sights.bridge
     tourism.information
     tourism.information.office
-    tourism.information.visitor_centre
-    tourism.viewpoint
-    tourism.artwork
-    tourism.artwork.sculpture
-    tourism.artwork.mural
-    tourism.alpine_hut
-    tourism.picnic_site
-    tourism.camp_site
   ].freeze
 
   # Default mapping from Geoapify categories to simplified types (fallback)
@@ -269,10 +253,6 @@ class GeoapifyService
     "catering.fast_food.kebab" => "middle_eastern_restaurant",
     "catering.fast_food.ice_cream" => "ice_cream_shop",
     "catering.bar" => "bar",
-    "catering.bar.wine" => "wine_bar",
-    "catering.bar.cocktail" => "cocktail_bar",
-    "catering.bar.beer" => "bar",
-    "catering.bar.sports" => "sports_bar",
     "catering.pub" => "pub",
     "catering.biergarten" => "beer_garden",
     "catering.taproom" => "brewery",
@@ -314,11 +294,11 @@ class GeoapifyService
     "entertainment.culture.theatre" => "theater",
     "entertainment.culture.gallery" => "art_gallery",
     "entertainment.culture.arts_centre" => "arts_center",
-    "entertainment.culture.cultural_center" => "cultural_center",
+    # Note: entertainment.culture.cultural_center is invalid, mapped in find_matching_category
     "entertainment.museum" => "museum",
     "entertainment.cinema" => "movie_theater",
-    "entertainment.casino" => "casino",
-    "entertainment.night_club" => "night_club",
+    # Note: entertainment.casino and entertainment.night_club are invalid
+    # They are mapped to adult.casino and adult.nightclub in find_matching_category
     "entertainment.zoo" => "zoo",
     "entertainment.aquarium" => "aquarium",
     "entertainment.theme_park" => "amusement_park",
@@ -345,14 +325,14 @@ class GeoapifyService
     # Leisure
     "leisure" => "park",
     "leisure.park" => "park",
+    "leisure.park.garden" => "garden",
     "leisure.playground" => "playground",
-    "leisure.garden" => "garden",
-    "leisure.dog_park" => "dog_park",
     "leisure.picnic" => "picnic_area",
+    "leisure.picnic.picnic_site" => "picnic_area",
     "leisure.spa" => "spa",
-    "leisure.sauna" => "sauna",
-    "leisure.marina" => "marina",
-    "leisure.swimming_area" => "swimming_area",
+    "leisure.spa.sauna" => "sauna",
+    # Note: leisure.garden, leisure.sauna, leisure.marina, leisure.swimming_area are invalid
+    # They are mapped to valid categories in find_matching_category
 
     # Man-made
     "man_made" => "landmark",
@@ -401,20 +381,24 @@ class GeoapifyService
 
     # Production
     "production" => "factory",
+    "production.factory" => "factory",
     "production.brewery" => "brewery",
     "production.winery" => "winery",
-    "production.distillery" => "distillery",
     "production.cheese" => "cheese_factory",
-    "production.chocolate" => "chocolate_factory",
+    # Note: production.distillery is invalid, mapped in find_matching_category
 
     # Public Transport
     "public_transport" => "transit_station",
     "public_transport.train" => "train_station",
-    "public_transport.train.station" => "train_station",
     "public_transport.bus" => "bus_station",
     "public_transport.subway" => "subway_station",
     "public_transport.ferry" => "ferry_terminal",
-    "public_transport.airport" => "airport",
+    # Note: public_transport.train.station and public_transport.airport are invalid
+    # They are mapped in find_matching_category
+
+    # Airport (separate top-level category in Geoapify)
+    "airport" => "airport",
+    "airport.international" => "airport",
 
     # Rental
     "rental" => "rental",
@@ -446,22 +430,25 @@ class GeoapifyService
 
     # Service
     "service" => "service",
+    "service.financial" => "financial_service",
     "service.financial.bank" => "bank",
     "service.financial.atm" => "atm",
-    "service.post_office" => "post_office",
+    "service.post.office" => "post_office",
     "service.police" => "police_station",
     "service.fire_station" => "fire_station",
-    "service.embassy" => "embassy",
-    "service.townhall" => "city_hall",
-    "service.community_centre" => "community_center",
     "service.travel_agency" => "travel_agency",
     "service.beauty.spa" => "spa",
     "service.beauty.hairdresser" => "hair_salon",
+    # Note: service.embassy and service.townhall are invalid
+    # They are mapped in find_matching_category
+
+    # Office (includes diplomatic/embassy)
+    "office.diplomatic" => "embassy",
 
     # Ski
     "ski" => "ski_resort",
-    "ski.resort" => "ski_resort",
     "ski.lift" => "ski_lift",
+    # Note: ski.resort is invalid, mapped in find_matching_category
 
     # Sport
     "sport" => "sports_facility",
@@ -470,58 +457,46 @@ class GeoapifyService
     "sport.swimming_pool" => "swimming_pool",
     "sport.ice_rink" => "ice_rink",
     "sport.fitness" => "gym",
-    "sport.golf" => "golf_course",
-    "sport.golf.course" => "golf_course",
-    "sport.tennis" => "tennis_court",
-    "sport.basketball" => "basketball_court",
-    "sport.soccer" => "soccer_field",
-    "sport.volleyball" => "volleyball_court",
-    "sport.climbing" => "climbing_gym",
-    "sport.climbing.outdoor" => "climbing_area",
-    "sport.equestrian" => "equestrian_facility",
-    "sport.horse_racing" => "horse_racing_track",
-    "sport.diving" => "diving_center",
-    "sport.water_sports" => "water_sports_center",
-    "sport.sailing" => "sailing_club",
-    "sport.skiing" => "ski_resort",
-    "sport.bowling" => "bowling_alley",
-    "sport.yoga" => "yoga_studio",
-    "sport.martial_arts" => "martial_arts_school",
+    "sport.fitness.fitness_centre" => "gym",
+    "sport.horse_riding" => "horse_riding",
+    "sport.dive_centre" => "diving_center",
+    # Note: sport.golf, sport.tennis, sport.climbing, sport.equestrian, sport.diving,
+    # sport.water_sports, sport.sailing, sport.skiing are invalid
+    # They are mapped in find_matching_category
 
-    # Tourism
+    # Tourism (valid Geoapify categories)
     "tourism" => "tourist_attraction",
     "tourism.attraction" => "tourist_attraction",
+    "tourism.attraction.viewpoint" => "viewpoint",
+    "tourism.attraction.artwork" => "public_art",
+    "tourism.attraction.fountain" => "fountain",
+    "tourism.attraction.clock" => "landmark",
     "tourism.sights" => "historical_landmark",
     "tourism.sights.memorial" => "memorial",
+    "tourism.sights.memorial.monument" => "monument",
     "tourism.sights.tower" => "observation_tower",
     "tourism.sights.windmill" => "windmill",
-    "tourism.sights.watermill" => "watermill",
     "tourism.sights.fort" => "fort",
     "tourism.sights.castle" => "castle",
-    "tourism.sights.palace" => "palace",
-    "tourism.sights.manor" => "manor",
     "tourism.sights.ruines" => "ruins",
     "tourism.sights.archaeological_site" => "archaeological_site",
     "tourism.sights.city_gate" => "city_gate",
+    "tourism.sights.city_hall" => "city_hall",
     "tourism.sights.battlefield" => "battlefield",
     "tourism.sights.monastery" => "monastery",
-    "tourism.sights.statue" => "statue",
-    "tourism.sights.aircraft" => "aircraft_exhibit",
-    "tourism.sights.locomotive" => "locomotive_exhibit",
-    "tourism.sights.ship" => "ship_exhibit",
+    "tourism.sights.bridge" => "bridge",
     "tourism.information" => "tourist_information",
     "tourism.information.office" => "tourist_information",
-    "tourism.information.visitor_centre" => "visitor_center",
-    "tourism.viewpoint" => "viewpoint",
-    "tourism.artwork" => "public_art",
-    "tourism.artwork.sculpture" => "sculpture",
-    "tourism.artwork.mural" => "mural",
-    "tourism.artwork.street_art" => "street_art",
-    "tourism.alpine_hut" => "alpine_hut",
-    "tourism.picnic_site" => "picnic_site",
-    "tourism.camp_site" => "campground",
-    "tourism.caravan_site" => "rv_park",
-    "tourism.wilderness_hut" => "wilderness_hut"
+    "tourism.information.map" => "tourist_information",
+    # Note: tourism.viewpoint, tourism.artwork, tourism.artwork.*, tourism.alpine_hut,
+    # tourism.picnic_site, tourism.camp_site, tourism.sights.palace, tourism.sights.manor,
+    # tourism.sights.statue, tourism.information.visitor_centre are invalid
+    # They are mapped in find_matching_category
+
+    # Camping (valid Geoapify categories)
+    "camping" => "campground",
+    "camping.camp_site" => "campground",
+    "camping.caravan_site" => "rv_park"
   }.freeze
 
   def initialize
@@ -833,6 +808,7 @@ class GeoapifyService
 
   def find_matching_category(type)
     # Try to find a matching category based on partial match
+    # Also handles mapping of invalid/deprecated Geoapify categories to valid ones
     case type
     when /restaurant/ then "catering.restaurant"
     when /cafe/ then "catering.cafe"
@@ -850,6 +826,51 @@ class GeoapifyService
     when /stadium/ then "sport.stadium"
     when /hotel|lodging/ then "accommodation.hotel"
     when /historic|landmark|monument/ then "tourism.sights"
+    # Map invalid Geoapify categories to valid alternatives
+    when /wine/ then "production.winery"
+    when /beverages|drinks/ then "commercial.food_and_drink.drinks"
+    when /greengrocer/ then "commercial.food_and_drink.fruit_and_vegetable"
+    when /cheese(?!_and_dairy)/ then "commercial.food_and_drink.cheese_and_dairy"
+    when /coffee(?!_and_tea)/ then "commercial.food_and_drink.coffee_and_tea"
+    when /tea(?!_and_tea)/ then "commercial.food_and_drink.coffee_and_tea"
+    when /cocktail|beer|sports_bar/ then "catering.bar"
+    # Map deprecated entertainment categories to valid alternatives
+    when /entertainment\.casino|casino/ then "adult.casino"
+    when /entertainment\.night_club|night_club|nightclub/ then "adult.nightclub"
+    # Map deprecated leisure categories
+    when /leisure\.garden|garden/ then "leisure.park.garden"
+    when /leisure\.sauna|sauna/ then "leisure.spa.sauna"
+    when /leisure\.marina|marina/ then "man_made.pier"
+    when /leisure\.swimming_area|swimming_area/ then "sport.swimming_pool"
+    # Map deprecated production categories
+    when /distillery/ then "production.brewery"
+    # Map deprecated transport categories
+    when /train\.station|train_station/ then "public_transport.train"
+    when /public_transport\.airport|airport/ then "airport"
+    # Map deprecated service categories
+    when /townhall|city_hall/ then "tourism.sights.city_hall"
+    when /embassy|diplomatic/ then "office.diplomatic"
+    # Map deprecated ski categories
+    when /ski\.resort|ski_resort/ then "ski"
+    # Map deprecated sport categories
+    when /sport\.golf|golf/ then "sport"
+    when /sport\.tennis|tennis/ then "sport"
+    when /sport\.climbing|climbing/ then "entertainment.activity_park.climbing"
+    when /equestrian|horse_riding/ then "sport.horse_riding"
+    when /sport\.diving|diving/ then "sport.dive_centre"
+    when /water_sports/ then "sport"
+    when /sailing/ then "sport"
+    when /skiing/ then "ski"
+    # Map deprecated tourism categories
+    when /tourism\.viewpoint|viewpoint/ then "tourism.attraction.viewpoint"
+    when /tourism\.artwork/ then "tourism.attraction.artwork"
+    when /alpine_hut/ then "accommodation.hut"
+    when /picnic_site/ then "leisure.picnic.picnic_site"
+    when /tourism\.camp_site/ then "camping.camp_site"
+    when /cultural_center/ then "entertainment.culture.arts_centre"
+    when /palace|manor/ then "tourism.sights.castle"
+    when /statue/ then "tourism.sights.memorial.monument"
+    when /visitor_centre/ then "tourism.information.office"
     else nil
     end
   end
