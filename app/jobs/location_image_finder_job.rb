@@ -359,17 +359,22 @@ class LocationImageFinderJob < ApplicationJob
   # On failure: { success: false, failure_reason: :reason_symbol }
   def download_image(url)
     connection = Faraday.new do |faraday|
-      faraday.options.timeout = 30
-      faraday.options.open_timeout = 10
+      faraday.options.timeout = 10      # Reduced from 30s - fail fast on slow servers
+      faraday.options.open_timeout = 5  # Reduced from 10s
       faraday.response :follow_redirects, limit: 3
       faraday.adapter Faraday.default_adapter
     end
 
-    # Set headers that help avoid blocks from hotlink protection and bot detection
+    # Set headers to mimic a real browser request - many servers block non-browser requests
     headers = {
-      "User-Agent" => "Mozilla/5.0 (compatible; UsputBot/1.0; +https://usput.ba)",
-      "Accept" => "image/webp,image/apng,image/*,*/*;q=0.8",
-      "Accept-Language" => "en-US,en;q=0.9"
+      "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Accept" => "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+      "Accept-Language" => "en-US,en;q=0.9",
+      "Accept-Encoding" => "gzip, deflate, br",
+      "Connection" => "keep-alive",
+      "Sec-Fetch-Dest" => "image",
+      "Sec-Fetch-Mode" => "no-cors",
+      "Sec-Fetch-Site" => "cross-site"
     }
 
     response = connection.get(url, nil, headers)
@@ -402,7 +407,7 @@ class LocationImageFinderJob < ApplicationJob
     }
 
   rescue Faraday::Error => e
-    Rails.logger.warn "[LocationImageFinderJob] Failed to download image: #{e.message}"
+    Rails.logger.warn "[LocationImageFinderJob] Failed to download image from #{url}: #{e.class} - #{e.message}"
     { success: false, failure_reason: :download_failed }
   end
 
