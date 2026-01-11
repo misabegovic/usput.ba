@@ -290,7 +290,7 @@ module Ai
       if defined?(Translation)
         translation = Translation.where(
           translatable_type: "Location",
-          key: "name"
+          field_name: "name"
         ).where("LOWER(value) LIKE ?", "%#{normalized_name.downcase}%").first
 
         if translation
