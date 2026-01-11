@@ -364,6 +364,7 @@
                 <option value="quality">Quality issues only</option>
                 <option value="similar">Similar experiences only</option>
                 <option value="accommodations">Fix accommodation locations</option>
+                <option value="orphaned">Delete orphaned (no locations)</option>
               </select>
             </div>
 
@@ -388,6 +389,11 @@
             <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
               <input type="checkbox" name="delete_similar" value="1" class="rounded border-gray-300 text-red-600 focus:ring-red-500">
               <span class="text-red-600">Delete duplicate experiences</span>
+            </label>
+
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="delete_orphaned" value="1" class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+              <span class="text-red-600">Delete orphaned (no locations)</span>
             </label>
           </div>
 

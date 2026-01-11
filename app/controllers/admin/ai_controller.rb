@@ -226,13 +226,15 @@ module Admin
       rebuild_mode = params[:rebuild_mode].presence || "all"
       max_rebuilds = params[:max_rebuilds].presence&.to_i
       delete_similar = params[:delete_similar] == "1"
+      delete_orphaned = params[:delete_orphaned] == "1"
 
       RebuildExperiencesJob.clear_status!
       RebuildExperiencesJob.perform_later(
         dry_run: dry_run,
         rebuild_mode: rebuild_mode,
         max_rebuilds: max_rebuilds,
-        delete_similar: delete_similar
+        delete_similar: delete_similar,
+        delete_orphaned: delete_orphaned
       )
 
       notice_msg = if dry_run
