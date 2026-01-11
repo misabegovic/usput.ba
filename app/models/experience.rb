@@ -204,12 +204,19 @@ class Experience < ApplicationRecord
     return cover_photo if cover_photo.attached?
 
     # Find a random photo from associated locations
-    # Use unscope(:order) to remove the default ordering from experience_locations
-    # This prevents "for SELECT DISTINCT, ORDER BY expressions must appear in select list" error
-    locations_with_photos = locations.joins(:photos_attachments).unscope(:order).distinct
-    return nil unless locations_with_photos.exists?
+    # Use subquery approach to avoid PostgreSQL "for SELECT DISTINCT, ORDER BY expressions
+    # must appear in select list" error - DISTINCT and ORDER BY cannot be combined directly
+    location_ids_with_photos = locations
+      .joins(:photos_attachments)
+      .unscope(:order)
+      .select("DISTINCT locations.id")
 
-    random_location = locations_with_photos.order(Arel.sql("RANDOM()")).first
+    random_location = Location
+      .where(id: location_ids_with_photos)
+      .order(Arel.sql("RANDOM()"))
+      .first
+    return nil unless random_location
+
     random_location.photos.order(Arel.sql("RANDOM()")).first
   end
 
