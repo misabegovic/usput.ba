@@ -359,8 +359,8 @@ class LocationImageFinderJob < ApplicationJob
   # On failure: { success: false, failure_reason: :reason_symbol }
   def download_image(url)
     connection = Faraday.new do |faraday|
-      faraday.options.timeout = 30
-      faraday.options.open_timeout = 10
+      faraday.options.timeout = 10      # Reduced from 30s - fail fast on slow servers
+      faraday.options.open_timeout = 5  # Reduced from 10s
       faraday.response :follow_redirects, limit: 3
       faraday.adapter Faraday.default_adapter
     end
