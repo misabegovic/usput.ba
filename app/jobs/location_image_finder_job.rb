@@ -290,7 +290,9 @@ class LocationImageFinderJob < ApplicationJob
     downloaded = download_image(image[:url])
     return false unless downloaded
 
-    filename = generate_filename(location, image)
+    # Use actual downloaded content_type for filename extension (not Google API's mime_type)
+    # This ensures the filename extension matches the actual file content
+    filename = generate_filename(location, downloaded[:content_type])
 
     attachments = location.photos.attach(
       io: downloaded[:io],
@@ -353,8 +355,8 @@ class LocationImageFinderJob < ApplicationJob
     nil
   end
 
-  def generate_filename(location, image)
-    extension = case image[:mime_type]
+  def generate_filename(location, content_type)
+    extension = case content_type
                 when "image/png" then ".png"
                 when "image/webp" then ".webp"
                 when "image/gif" then ".gif"
