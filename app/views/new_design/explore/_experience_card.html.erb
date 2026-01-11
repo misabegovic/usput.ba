@@ -2,8 +2,8 @@
 <%= link_to experience_path(experience), class: "group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-lg transition-all overflow-hidden", data: { turbo_frame: "_top" } do %>
   <%# Image %>
   <div class="aspect-[4/3] overflow-hidden relative">
-    <% if experience.cover_photo.attached? %>
-      <% photo = experience.cover_photo %>
+    <% photo = experience.display_cover_photo %>
+    <% if photo %>
       <% if photo.variable? %>
         <%= image_tag photo.variant(resize_to_fill: [400, 300]),
             alt: experience.title,

@@ -2,10 +2,11 @@
 <% content_for :title do %><%= @experience.translate(:title, I18n.locale) %> - Usput.ba<% end %>
 <% content_for :meta_description do %><%= strip_tags(@experience.translate(:description, I18n.locale).to_s).squish.truncate(160) %><% end %>
 <% content_for :og_meta do %>
+  <% og_cover_photo = @experience.display_cover_photo %>
   <%= og_meta_tags(
     title: "#{@experience.translate(:title, I18n.locale)} - Usput.ba",
     description: @experience.translate(:description, I18n.locale),
-    image_url: @experience.cover_photo.attached? ? safe_attachment_url(@experience.cover_photo, variant_options: { resize_to_fill: [1200, 630] }) : nil,
+    image_url: og_cover_photo ? safe_attachment_url(og_cover_photo, variant_options: { resize_to_fill: [1200, 630] }) : nil,
     type: "article"
   ) %>
 <% end %>
@@ -410,8 +411,9 @@
               <% @nearby_experiences.each do |nearby| %>
                 <%= link_to experience_path(nearby), class: "block group" do %>
                   <div class="flex items-start space-x-3">
-                    <% if nearby.cover_photo.attached? %>
-                      <%= image_tag nearby.cover_photo, class: "w-16 h-16 rounded-lg object-cover flex-shrink-0", alt: nearby.translate(:title, I18n.locale) %>
+                    <% nearby_photo = nearby.display_cover_photo %>
+                    <% if nearby_photo %>
+                      <%= image_tag nearby_photo, class: "w-16 h-16 rounded-lg object-cover flex-shrink-0", alt: nearby.translate(:title, I18n.locale) %>
                     <% else %>
                       <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
