@@ -19,6 +19,7 @@ module Ai
 
     def initialize
       @geoapify = GeoapifyService.new
+      @enricher = Ai::LocationEnricher.new
     end
 
     # Sync locations mentioned in the experience description
@@ -330,11 +331,43 @@ module Ai
       # Verify the location is in Bosnia and Herzegovina
       return nil unless location_in_bih?(best_result)
 
-      # Create the location
-      create_location_from_geoapify(best_result, context)
+      # Check if the location should be excluded (retirement homes, social facilities, etc.)
+      return nil if excluded_location?(best_result)
+
+      # Create and enrich the location using the standard enricher
+      # This ensures consistent data quality and applies all standard processing
+      create_and_enrich_location(best_result, city)
     rescue GeoapifyService::ApiError => e
       log_warn "Geoapify search failed for '#{name}': #{e.message}"
       nil
+    end
+
+    # Check if a Geoapify result should be excluded
+    # @param geoapify_result [Hash] Geoapify search result
+    # @return [Boolean] True if location should be excluded
+    def excluded_location?(geoapify_result)
+      # Check types/categories for excluded categories
+      types = geoapify_result[:types] || []
+      excluded_categories = GeoapifyService::EXCLUDED_CATEGORIES
+
+      if types.any? { |t| excluded_categories.any? { |exc| t.to_s.include?(exc) } }
+        log_info "Excluding location by category: #{geoapify_result[:name]}"
+        return true
+      end
+
+      # Check name for excluded keywords
+      name = geoapify_result[:name].to_s.downcase
+      address = geoapify_result[:address].to_s.downcase
+      combined_text = "#{name} #{address}"
+
+      excluded_keywords = GeoapifyService::EXCLUDED_NAME_KEYWORDS
+
+      if excluded_keywords.any? { |keyword| combined_text.include?(keyword.downcase) }
+        log_info "Excluding location by keyword: #{geoapify_result[:name]}"
+        return true
+      end
+
+      false
     end
 
     # Get coordinates for a city
@@ -414,46 +447,44 @@ module Ai
       lat >= 42.5 && lat <= 45.3 && lng >= 15.7 && lng <= 19.6
     end
 
-    # Create a Location record from Geoapify result
+    # Create and enrich a location using the standard LocationEnricher
+    # This ensures consistent data quality and applies all standard processing
     # @param geoapify_result [Hash] Geoapify search result
-    # @param context [String] Context about the location
+    # @param city [String] City name
     # @return [Location, nil] Created location or nil
-    def create_location_from_geoapify(geoapify_result, context)
+    def create_and_enrich_location(geoapify_result, city)
       return nil unless geoapify_result[:lat] && geoapify_result[:lng]
 
-      # Check if location already exists at these coordinates
-      existing = Location.find_by(lat: geoapify_result[:lat], lng: geoapify_result[:lng])
-      return existing if existing
+      # Get city from coordinates if not provided
+      resolved_city = city.presence ||
+                      extract_city_from_address(geoapify_result[:address]) ||
+                      @geoapify.get_city_from_coordinates(geoapify_result[:lat], geoapify_result[:lng])
 
-      # Get city from coordinates if not in the result
-      city = extract_city_from_address(geoapify_result[:address]) ||
-             @geoapify.get_city_from_coordinates(geoapify_result[:lat], geoapify_result[:lng])
-
-      # Create the location
-      location = Location.new(
+      # Build place_data in the format expected by LocationEnricher
+      place_data = {
         name: geoapify_result[:name],
         lat: geoapify_result[:lat],
         lng: geoapify_result[:lng],
-        city: city,
-        ai_generated: true
-      )
+        address_line1: geoapify_result[:address],
+        formatted: geoapify_result[:address],
+        website: geoapify_result[:website],
+        categories: geoapify_result[:types] || [],
+        contact: {
+          phone: geoapify_result[:phone]
+        }
+      }
 
-      # Add description if context is available
-      if context.present?
-        location.description = context
+      # Use the standard enricher to create and enrich the location
+      # This handles deduplication, enrichment, translations, tags, etc.
+      location = @enricher.create_and_enrich(place_data, city: resolved_city)
+
+      if location
+        # Mark as AI generated
+        location.update(ai_generated: true) unless location.ai_generated?
+        log_info "Created and enriched location '#{location.name}' in #{location.city} via Geoapify"
       end
 
-      # Add website and phone if available
-      location.website = geoapify_result[:website] if geoapify_result[:website].present?
-      location.phone = geoapify_result[:phone] if geoapify_result[:phone].present?
-
-      if location.save
-        log_info "Created new location '#{location.name}' in #{location.city} via Geoapify"
-        location
-      else
-        log_error "Failed to create location: #{location.errors.full_messages.join(', ')}"
-        nil
-      end
+      location
     rescue StandardError => e
       log_error "Error creating location from Geoapify: #{e.message}"
       nil

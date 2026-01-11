@@ -259,8 +259,9 @@ class RebuildExperiencesJob < ApplicationJob
       regenerate_experience_content(experience, locations, issues)
     end
 
-    # After regeneration, sync locations mentioned in the description
-    # This ensures the description matches the connected locations
+    # Always sync locations mentioned in the description
+    # This runs regardless of whether content was regenerated to ensure
+    # all locations mentioned in the description are connected
     begin
       sync_result = sync_locations_from_description(experience)
       locations_synced = sync_result[:locations_added]
