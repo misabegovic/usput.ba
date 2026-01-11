@@ -209,6 +209,31 @@
             </label>
           </div>
 
+          <!-- Removal options -->
+          <div class="flex flex-wrap items-center justify-center gap-4 pt-2 border-t border-gray-200">
+            <span class="text-xs text-gray-500 w-full text-center">Remove locations that are:</span>
+
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="remove_outside_bih" value="1" checked class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+              <span class="text-red-600">Outside BiH</span>
+            </label>
+
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="remove_medical_facilities" value="1" checked class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+              <span class="text-red-600">Medical facilities</span>
+            </label>
+
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="remove_soup_kitchens" value="1" checked class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+              <span class="text-red-600">Soup kitchens</span>
+            </label>
+
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" name="remove_city_mismatches" value="1" checked class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+              <span class="text-red-600">City name mismatches</span>
+            </label>
+          </div>
+
           <button type="submit"
                   class="inline-flex items-center gap-2 px-6 py-3 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   <%= "disabled" if @fix_cities_status[:status] == "in_progress" %>

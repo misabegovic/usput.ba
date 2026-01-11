@@ -125,12 +125,22 @@ module Admin
       dry_run = params[:dry_run] == "1"
       clear_cache = params[:clear_cache] == "1"
 
+      # Removal options (unchecked = don't remove, checked = remove)
+      remove_outside_bih = params[:remove_outside_bih] == "1"
+      remove_medical_facilities = params[:remove_medical_facilities] == "1"
+      remove_soup_kitchens = params[:remove_soup_kitchens] == "1"
+      remove_city_mismatches = params[:remove_city_mismatches] == "1"
+
       LocationCityFixJob.clear_status!
       LocationCityFixJob.perform_later(
         regenerate_content: regenerate_content,
         analyze_descriptions: analyze_descriptions,
         dry_run: dry_run,
-        clear_cache: clear_cache
+        clear_cache: clear_cache,
+        remove_outside_bih: remove_outside_bih,
+        remove_medical_facilities: remove_medical_facilities,
+        remove_soup_kitchens: remove_soup_kitchens,
+        remove_city_mismatches: remove_city_mismatches
       )
 
       notice_msg = if dry_run
