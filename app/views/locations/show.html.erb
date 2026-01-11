@@ -591,8 +591,9 @@
               <% @related_experiences.first(3).each do |experience| %>
                 <%= link_to experience_path(experience), class: "block group" do %>
                   <div class="flex items-start space-x-3 min-w-0 overflow-hidden">
-                    <% if experience.cover_photo.attached? %>
-                      <%= image_tag experience.cover_photo, class: "w-16 h-16 rounded-lg object-cover flex-shrink-0", alt: experience.title %>
+                    <% exp_photo = experience.display_cover_photo %>
+                    <% if exp_photo %>
+                      <%= image_tag exp_photo, class: "w-16 h-16 rounded-lg object-cover flex-shrink-0", alt: experience.title %>
                     <% else %>
                       <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

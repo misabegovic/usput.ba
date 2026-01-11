@@ -245,6 +245,33 @@ class Plan < ApplicationRecord
     experiences.includes(:locations).flat_map(&:cities).uniq
   end
 
+  # Returns cover photos for display purposes (for photo gallery)
+  # Uses experience cover_photos, with fallback to location photos for experiences without cover
+  def display_cover_photos
+    experiences.map(&:display_cover_photo).compact
+  end
+
+  # Returns a single cover photo for display (e.g., for og:image)
+  # Prioritizes experiences with their own cover_photo, then falls back to location photos
+  def display_cover_photo
+    # First try to find an experience with its own cover_photo
+    experience_with_cover = experiences.find { |e| e.cover_photo.attached? }
+    return experience_with_cover.cover_photo if experience_with_cover
+
+    # Fall back to display_cover_photo from any experience (which uses location photos)
+    experiences.each do |exp|
+      photo = exp.display_cover_photo
+      return photo if photo
+    end
+
+    nil
+  end
+
+  # Check if display_cover_photo would return something
+  def has_display_cover_photo?
+    experiences.any?(&:has_display_cover_photo?)
+  end
+
   # Duration in days for user plans (from actual experiences, then preferences)
   # Prioritizes actual experience data over preferences
   def calculated_duration_days

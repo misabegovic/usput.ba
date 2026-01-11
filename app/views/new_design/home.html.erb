@@ -637,8 +637,9 @@
             <div class="relative lg:col-span-2 group">
               <div class="absolute inset-0 rounded-lg bg-white dark:bg-gray-900 <%= index == 1 ? 'max-lg:rounded-b-4xl lg:rounded-br-4xl' : '' %>"></div>
               <%= link_to experience_path(experience), class: "relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] #{index == 1 ? 'max-lg:rounded-b-[calc(2rem+1px)] lg:rounded-br-[calc(2rem+1px)]' : ''}" do %>
-                <% if experience.cover_photo.attached? %>
-                  <%= image_tag rails_blob_path(experience.cover_photo, only_path: true), alt: experience.translate(:title, I18n.locale), class: "h-80 object-cover transition-transform group-hover:scale-105" %>
+                <% display_photo = experience.display_cover_photo %>
+                <% if display_photo %>
+                  <%= image_tag rails_blob_path(display_photo, only_path: true), alt: experience.translate(:title, I18n.locale), class: "h-80 object-cover transition-transform group-hover:scale-105" %>
                 <% else %>
                   <div class="h-80 bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
                     <svg class="w-16 h-16 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">

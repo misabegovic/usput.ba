@@ -198,6 +198,24 @@ class Experience < ApplicationRecord
     seasons.map(&:titleize)
   end
 
+  # Returns a cover photo for display purposes
+  # Falls back to a random photo from associated locations if no cover_photo is attached
+  def display_cover_photo
+    return cover_photo if cover_photo.attached?
+
+    # Find a random photo from associated locations
+    locations_with_photos = locations.joins(:photos_attachments).distinct
+    return nil unless locations_with_photos.exists?
+
+    random_location = locations_with_photos.order("RANDOM()").first
+    random_location.photos.order("RANDOM()").first
+  end
+
+  # Check if display_cover_photo would return something
+  def has_display_cover_photo?
+    cover_photo.attached? || locations.joins(:photos_attachments).exists?
+  end
+
   # Find featured experiences nearby (in the same city, sorted by rating and recency)
   def nearby_featured(limit: 3)
     current_city = city
