@@ -97,7 +97,8 @@ module Ai
         budget: determine_budget(place_data),
         website: normalize_website_url(place_data[:website]),
         phone: sanitized_phone,
-        email: sanitized_email
+        email: sanitized_email,
+        ai_generated: true  # Explicitly mark as AI-generated
       )
 
       # Save location first so it has an ID for translations

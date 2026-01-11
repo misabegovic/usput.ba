@@ -322,6 +322,7 @@ module Ai
         title: initial_title,
         city_name: city || determine_primary_city(proposal, experiences),
         visibility: :public_plan,
+        ai_generated: true,  # Explicitly mark as AI-generated
         preferences: {
           "tourist_profile" => profile,
           "generated_by_ai" => true,

@@ -1587,7 +1587,8 @@ module Ai
         budget: :medium,
         website: geoapify_data&.dig(:website),
         phone: geoapify_data&.dig(:phone),
-        tags: build_tags(suggestion, source_region)
+        tags: build_tags(suggestion, source_region),
+        ai_generated: true  # Explicitly mark as AI-generated
       )
 
       # Generate rich content with AI (use verified city name)
