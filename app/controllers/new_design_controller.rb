@@ -45,7 +45,7 @@ class NewDesignController < ApplicationController
     @lat = params[:lat].presence&.to_f
     @lng = params[:lng].presence&.to_f
     @radius = params[:radius].presence&.to_i || 25
-    @sort = params[:sort].presence || "newest"
+    @sort = params[:sort].presence || "relevance"
 
     # Pagination params per resource type
     @locations_page = (params[:locations_page] || 1).to_i
