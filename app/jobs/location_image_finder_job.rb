@@ -310,8 +310,16 @@ class LocationImageFinderJob < ApplicationJob
       return { success: false, failure_reason: :empty_url }
     end
 
-    # Download and attach the image
-    downloaded = download_image(image[:url])
+    # Download and attach the image (with retry for transient failures)
+    downloaded = download_image_with_retry(image[:url])
+
+    # If direct URL fails, try the Google-hosted thumbnail as fallback
+    # Thumbnails are smaller but much more reliable since they're cached by Google
+    if !downloaded[:success] && image[:thumbnail].present?
+      Rails.logger.info "[LocationImageFinderJob] Direct download failed, trying thumbnail fallback"
+      downloaded = download_image_with_retry(image[:thumbnail])
+    end
+
     unless downloaded[:success]
       return { success: false, failure_reason: downloaded[:failure_reason] }
     end
@@ -357,7 +365,14 @@ class LocationImageFinderJob < ApplicationJob
       faraday.adapter Faraday.default_adapter
     end
 
-    response = connection.get(url)
+    # Set headers that help avoid blocks from hotlink protection and bot detection
+    headers = {
+      "User-Agent" => "Mozilla/5.0 (compatible; UsputBot/1.0; +https://usput.ba)",
+      "Accept" => "image/webp,image/apng,image/*,*/*;q=0.8",
+      "Accept-Language" => "en-US,en;q=0.9"
+    }
+
+    response = connection.get(url, nil, headers)
 
     unless response.success?
       Rails.logger.warn "[LocationImageFinderJob] HTTP error downloading image: #{response.status}"
@@ -389,6 +404,36 @@ class LocationImageFinderJob < ApplicationJob
   rescue Faraday::Error => e
     Rails.logger.warn "[LocationImageFinderJob] Failed to download image: #{e.message}"
     { success: false, failure_reason: :download_failed }
+  end
+
+  # Wrapper method that retries download_image on transient failures
+  # @param url [String] The image URL to download
+  # @param max_retries [Integer] Maximum number of retry attempts
+  # @return [Hash] Same as download_image
+  def download_image_with_retry(url, max_retries: 2)
+    result = nil
+
+    (max_retries + 1).times do |attempt|
+      result = download_image(url)
+
+      # Return immediately if successful or if failure is not retryable
+      return result if result[:success]
+      return result unless retryable_failure?(result[:failure_reason])
+
+      if attempt < max_retries
+        delay = (attempt + 1) * 0.5 # 0.5s, 1s delays
+        Rails.logger.info "[LocationImageFinderJob] Retrying download (attempt #{attempt + 2}/#{max_retries + 1}) after #{delay}s"
+        sleep(delay)
+      end
+    end
+
+    result
+  end
+
+  # Check if a failure reason is worth retrying
+  def retryable_failure?(reason)
+    # Retry network errors and HTTP errors (might be temporary)
+    %i[download_failed http_error].include?(reason)
   end
 
   def generate_filename(_location, content_type)
