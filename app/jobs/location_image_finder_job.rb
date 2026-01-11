@@ -290,20 +290,25 @@ class LocationImageFinderJob < ApplicationJob
     downloaded = download_image(image[:url])
     return false unless downloaded
 
-    filename = generate_filename(location, image)
+    # Use the actual downloaded content type to generate filename (not Google API's mime_type)
+    filename = generate_filename(location, downloaded[:content_type])
 
-    attachments = location.photos.attach(
+    # Track photo count before attachment to verify success
+    photos_count_before = location.photos.count
+
+    location.photos.attach(
       io: downloaded[:io],
       filename: filename,
       content_type: downloaded[:content_type]
     )
 
-    # Verify attachment was actually created
-    if attachments.present?
+    # Verify attachment was actually created by checking photo count increased
+    photos_count_after = location.photos.reload.count
+    if photos_count_after > photos_count_before
       Rails.logger.info "[LocationImageFinderJob] Attached image to #{location.name}: #{filename}"
       true
     else
-      Rails.logger.warn "[LocationImageFinderJob] Attachment returned empty for #{location.name}"
+      Rails.logger.warn "[LocationImageFinderJob] Attachment failed for #{location.name} - photo count did not increase"
       false
     end
 
@@ -353,15 +358,15 @@ class LocationImageFinderJob < ApplicationJob
     nil
   end
 
-  def generate_filename(location, image)
-    extension = case image[:mime_type]
+  def generate_filename(_location, content_type)
+    extension = case content_type
                 when "image/png" then ".png"
                 when "image/webp" then ".webp"
                 when "image/gif" then ".gif"
                 else ".jpg"
                 end
 
-    "#{location.name.parameterize}-#{SecureRandom.hex(4)}#{extension}"
+    "#{SecureRandom.uuid}#{extension}"
   end
 
   def save_status(status, message, results: nil)
