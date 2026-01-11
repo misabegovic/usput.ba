@@ -466,10 +466,25 @@ module Ai
                    content.match(/(\{[\s\S]*\})/)
       json_str = json_match ? json_match[1] : content
       json_str = sanitize_ai_json(json_str)
-      JSON.parse(json_str, symbolize_names: true)
-    rescue JSON::ParserError => e
-      log_error "Failed to parse AI response: #{e.message}"
-      nil
+      # Final cleanup: strip any trailing comma that might remain after sanitization
+      json_str = json_str.strip.sub(/,\s*\z/, '')
+
+      begin
+        JSON.parse(json_str, symbolize_names: true)
+      rescue JSON::ParserError => e
+        # Attempt to repair incomplete JSON (e.g., truncated responses)
+        repaired_json = attempt_json_repair(json_str)
+        if repaired_json
+          begin
+            return JSON.parse(repaired_json, symbolize_names: true)
+          rescue JSON::ParserError
+            # Repair didn't help, fall through to error logging
+          end
+        end
+
+        log_error "Failed to parse AI response: #{e.message}", content: content.to_s.truncate(500)
+        nil
+      end
     end
 
     def sanitize_ai_json(json_str)
@@ -479,9 +494,92 @@ module Ai
       json_str.gsub!(/['']/, "'")
       # Remove trailing commas (invalid JSON but common in AI output)
       json_str.gsub!(/,(\s*[\}\]])/, '\1')
+      # Remove trailing comma at end of stream
+      json_str.gsub!(/,\s*\z/, '')
       # Escape control characters and fix structural issues within JSON strings
       json_str = escape_chars_in_json_strings(json_str)
       json_str
+    end
+
+    # Attempt to repair incomplete JSON that was truncated (EOF error)
+    # Returns repaired JSON string or nil if repair isn't possible
+    def attempt_json_repair(json_str)
+      return nil if json_str.blank?
+
+      # Count unclosed braces and brackets
+      open_braces = 0
+      open_brackets = 0
+      in_string = false
+      escape_next = false
+
+      json_str.each_char do |char|
+        if escape_next
+          escape_next = false
+          next
+        end
+
+        case char
+        when '\\'
+          escape_next = true if in_string
+        when '"'
+          in_string = !in_string unless escape_next
+        when '{'
+          open_braces += 1 unless in_string
+        when '}'
+          open_braces -= 1 unless in_string
+        when '['
+          open_brackets += 1 unless in_string
+        when ']'
+          open_brackets -= 1 unless in_string
+        end
+      end
+
+      # If we're in the middle of a string, try to close it
+      repaired = json_str.dup
+      if in_string
+        # Remove incomplete string content back to the last complete field
+        repaired = repaired.sub(/,?\s*"[^"]*\z/, '')
+        # Recount after the repair
+        open_braces = 0
+        open_brackets = 0
+        in_string = false
+        escape_next = false
+
+        repaired.each_char do |char|
+          if escape_next
+            escape_next = false
+            next
+          end
+
+          case char
+          when '\\'
+            escape_next = true if in_string
+          when '"'
+            in_string = !in_string unless escape_next
+          when '{'
+            open_braces += 1 unless in_string
+          when '}'
+            open_braces -= 1 unless in_string
+          when '['
+            open_brackets += 1 unless in_string
+          when ']'
+            open_brackets -= 1 unless in_string
+          end
+        end
+      end
+
+      # If there are unclosed structures, add closing characters
+      return nil if open_braces < 0 || open_brackets < 0 # Malformed, can't repair
+
+      # Remove any trailing comma before closing
+      repaired = repaired.sub(/,\s*\z/, '')
+
+      # Add closing brackets and braces as needed
+      repaired += ']' * open_brackets if open_brackets > 0
+      repaired += '}' * open_braces if open_braces > 0
+
+      # Only return if we actually made repairs and result differs from input
+      repaired != json_str ? repaired : nil
     end
 
     # Escapes problematic characters that appear within JSON string values
