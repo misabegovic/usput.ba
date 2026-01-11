@@ -14,6 +14,8 @@ module Ai
   #   CDNs like Cloudflare, which the Faraday middleware doesn't catch
   # - Network timeout errors (Net::ReadTimeout, Net::OpenTimeout) with
   #   3 retries and exponential backoff (10s, 20s, 40s delays)
+  # - SSL errors (OpenSSL::SSL::SSLError) such as unexpected EOF or connection
+  #   reset, with 3 retries and exponential backoff (5s, 10s, 20s delays)
   #
   # Usage:
   #   result = Ai::OpenaiQueue.request(
@@ -28,6 +30,7 @@ module Ai
     class RateLimitError < RequestError; end
     class GatewayError < RequestError; end
     class TimeoutError < RequestError; end
+    class SslError < RequestError; end
 
     # Gateway error patterns in HTML responses from CDNs like Cloudflare
     GATEWAY_ERROR_PATTERNS = [
@@ -45,6 +48,10 @@ module Ai
     # Retry configuration for network timeout errors
     TIMEOUT_RETRY_ATTEMPTS = 3
     TIMEOUT_RETRY_BASE_DELAY = 10 # seconds (longer than gateway since timeouts indicate slow responses)
+
+    # Retry configuration for SSL errors (connection reset, unexpected EOF, etc.)
+    SSL_RETRY_ATTEMPTS = 3
+    SSL_RETRY_BASE_DELAY = 5 # seconds
 
     class << self
       # Synchronous request with automatic rate limiting (via RubyLLM)
@@ -123,6 +130,16 @@ module Ai
         end
         log_error "[#{context}] Network timeout after #{TIMEOUT_RETRY_ATTEMPTS} attempts: #{e.message}"
         raise TimeoutError, "Network timeout: #{e.message}"
+      rescue OpenSSL::SSL::SSLError => e
+        # SSL errors (unexpected EOF, connection reset, etc.) - retry with exponential backoff
+        if attempt < SSL_RETRY_ATTEMPTS
+          delay = SSL_RETRY_BASE_DELAY * (2**(attempt - 1))
+          Rails.logger.warn "[#{context}] SSL error (attempt #{attempt}/#{SSL_RETRY_ATTEMPTS}), retrying in #{delay}s: #{e.message}"
+          sleep(delay)
+          retry
+        end
+        log_error "[#{context}] SSL error after #{SSL_RETRY_ATTEMPTS} attempts: #{e.message}"
+        raise SslError, "SSL error: #{e.message}"
       rescue StandardError => e
         # Check if the error message contains gateway error HTML
         if gateway_error_content?(e.message) && attempt < GATEWAY_RETRY_ATTEMPTS
