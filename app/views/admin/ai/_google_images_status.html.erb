@@ -63,13 +63,19 @@
                           <a href="<%= image["source"] %>" target="_blank" rel="noopener noreferrer" class="block">
                             <img src="<%= image["thumbnail"] %>"
                                  alt="<%= image["title"] %>"
-                                 class="w-full h-20 object-cover rounded border border-gray-200 hover:border-green-400 transition-colors"
+                                 class="w-full h-20 object-cover rounded border <%= image["attached"] ? 'border-green-400' : (image["failure_reason"].present? ? 'border-red-300' : 'border-gray-200') %> hover:border-green-400 transition-colors"
                                  loading="lazy">
                           </a>
                           <% if image["attached"] %>
                             <div class="absolute top-1 right-1 bg-green-500 text-white rounded-full p-0.5">
                               <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                              </svg>
+                            </div>
+                          <% elsif image["failure_reason"].present? %>
+                            <div class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5" title="<%= image["failure_reason"].to_s.humanize %>">
+                              <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
                               </svg>
                             </div>
                           <% end %>
@@ -83,6 +89,24 @@
                   <% if loc_result["error"].present? %>
                     <p class="text-xs text-red-600 mt-2">Error: <%= loc_result["error"] %></p>
                   <% end %>
+                </div>
+              <% end %>
+            </div>
+          </details>
+        <% end %>
+
+        <% failure_reasons = status[:results]["failure_reasons"] %>
+        <% if failure_reasons.present? && failure_reasons.values.any? { |v| v.to_i > 0 } %>
+          <details class="mt-2">
+            <summary class="text-sm text-amber-600 cursor-pointer hover:underline font-medium">
+              View failure breakdown (<%= failure_reasons.values.sum %> images not attached)
+            </summary>
+            <div class="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+              <% failure_reasons.each do |reason, count| %>
+                <% next if count.to_i == 0 %>
+                <div class="bg-amber-50 rounded px-2 py-1.5 border border-amber-200">
+                  <span class="font-medium text-amber-900"><%= count %></span>
+                  <span class="text-amber-700"><%= reason.to_s.humanize %></span>
                 </div>
               <% end %>
             </div>
