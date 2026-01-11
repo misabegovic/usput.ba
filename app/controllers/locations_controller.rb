@@ -1,4 +1,6 @@
 class LocationsController < ApplicationController
+  rescue_from ActiveRecord::RecordNotFound, with: :redirect_to_explore
+
   def show
     @location = Location.includes(:reviews).find_by_public_id!(params[:id])
     @reviews = @location.reviews.recent.limit(10)
@@ -24,5 +26,11 @@ class LocationsController < ApplicationController
 
   def audio_tour
     @location = Location.find_by_public_id!(params[:id])
+  end
+
+  private
+
+  def redirect_to_explore
+    redirect_to explore_path, alert: I18n.t("locations.not_found", default: "Location not found. Explore other destinations.")
   end
 end

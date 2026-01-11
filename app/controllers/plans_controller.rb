@@ -1,4 +1,6 @@
 class PlansController < ApplicationController
+  rescue_from ActiveRecord::RecordNotFound, with: :redirect_to_explore
+
   # Plan generation constants
   DEFAULT_DAILY_HOURS = 6        # Default hours of active tourism per day
   MIN_DAILY_HOURS = 2            # Minimum allowed daily hours
@@ -490,5 +492,9 @@ class PlansController < ApplicationController
     else
       "#{mins}min"
     end
+  end
+
+  def redirect_to_explore
+    redirect_to explore_path, alert: I18n.t("plans.not_found", default: "Plan not found. Explore other plans.")
   end
 end
