@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "faraday/follow_redirects"
+
 # Background job for finding and attaching images to locations using Google Custom Search API.
 #
 # Usage:
