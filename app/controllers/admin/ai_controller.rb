@@ -30,6 +30,7 @@ module Admin
       @wikimedia_fetch_status = WikimediaImageFetchJob.current_status
       @google_image_fetch_status = LocationImageFinderJob.current_status
       @delete_location_photos_status = DeleteLocationPhotosJob.current_status
+      @delete_experience_photos_status = DeleteExperiencePhotosJob.current_status
       @locations_without_photos_count = count_locations_without_photos
       @cities_with_photos = cities_with_photos
       @last_generation = parse_last_generation
@@ -514,6 +515,58 @@ module Admin
     def force_reset_delete_location_photos
       DeleteLocationPhotosJob.force_reset!
       redirect_to admin_ai_path, notice: t("admin.ai.delete_location_photos_force_reset", default: "Photo deletion has been force reset. You can now start a new run.")
+    end
+
+    # POST /admin/ai/delete_experience_photos
+    # Deletes cover photos from experiences by ID or city
+    def delete_experience_photos
+      current_status = DeleteExperiencePhotosJob.current_status
+      if current_status[:status] == "in_progress"
+        redirect_to admin_ai_path, alert: t("admin.ai.delete_experience_photos_already_in_progress", default: "Experience photo deletion is already in progress")
+        return
+      end
+
+      dry_run = params[:dry_run] == "1"
+      experience_id = params[:experience_id].presence
+      city = params[:city].presence
+
+      if experience_id.blank? && city.blank?
+        redirect_to admin_ai_path, alert: t("admin.ai.delete_experience_photos_no_target", default: "Please specify an experience ID or city")
+        return
+      end
+
+      DeleteExperiencePhotosJob.clear_status!
+      DeleteExperiencePhotosJob.perform_later(
+        experience_id: experience_id,
+        city: city,
+        dry_run: dry_run
+      )
+
+      notice_msg = if dry_run
+        t("admin.ai.delete_experience_photos_preview_started", default: "Experience photo deletion preview started (no photos will be deleted)")
+      else
+        t("admin.ai.delete_experience_photos_started", default: "Experience photo deletion started")
+      end
+
+      redirect_to admin_ai_path, notice: notice_msg
+    end
+
+    # GET /admin/ai/delete_experience_photos_status (AJAX)
+    # Returns current status of experience photo deletion job
+    def delete_experience_photos_status
+      @delete_status = DeleteExperiencePhotosJob.current_status
+
+      respond_to do |format|
+        format.json { render json: @delete_status }
+        format.html { render partial: "delete_experience_photos_status", locals: { status: @delete_status } }
+      end
+    end
+
+    # POST /admin/ai/force_reset_delete_experience_photos
+    # Force resets a stuck or in-progress experience photo deletion job
+    def force_reset_delete_experience_photos
+      DeleteExperiencePhotosJob.force_reset!
+      redirect_to admin_ai_path, notice: t("admin.ai.delete_experience_photos_force_reset", default: "Experience photo deletion has been force reset. You can now start a new run.")
     end
 
     private
