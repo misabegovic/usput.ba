@@ -1,10 +1,37 @@
 # Platform CLI - Konverzacijski Interface za Usput.ba
 
+## Sadržaj
+
+1. [Vizija](#vizija)
+2. [Zašto konverzacijski AI?](#zašto-konverzacijski-ai)
+3. [Personifikacija platforme](#personifikacija-platforme)
+4. [Scenariji korištenja](#scenariji-korištenja)
+5. [Proaktivno ponašanje](#proaktivno-ponašanje)
+6. [Arhitektura](#arhitektura)
+7. [Tools specifikacija](#tools)
+8. [System Prompt](#system-prompt)
+9. [Implementacija](#implementacija)
+10. [Database](#database)
+11. [CLI Interface](#cli-interface)
+12. [Integracije - Pristup sa bilo gdje](#integracije---pristup-sa-bilo-gdje)
+13. [Testiranje](#testiranje)
+14. [Budućnost](#budućnost)
+
+---
+
 ## Vizija
 
 Jedan konverzacijski interface za kompletno upravljanje platformom. Umjesto admin panela sa formama i dugmadima, razgovaram sa platformom prirodnim jezikom. Platforma govori o sebi u prvom licu - ona "zna" svoj sadržaj, "osjeća" svoje greške, "radi" na generisanju.
 
 **Ovo nije chatbot koji odgovara na pitanja. Ovo je interface prema živom sistemu.**
+
+### Ciljevi
+
+- **Zamjena admin panela** - Sve što admin panel može, CLI može bolje
+- **Pristup sa bilo gdje** - Desktop, mobitel, bilo koji AI klijent
+- **Prirodna interakcija** - Govorim šta želim, ne tražim gdje je dugme
+- **Proaktivnost** - Platforma sama upozorava na probleme i predlaže rješenja
+- **Jedan izvor istine** - Isti tools, ista logika, različiti klijenti
 
 ---
 
@@ -53,7 +80,7 @@ CLI: "Kako mi stoji sadržaj za obalu?"
 
 ---
 
-##Personifikacija platforme
+## Personifikacija platforme
 
 Platforma govori u prvom licu. Ovo nije stilska odluka - to je UX odluka koja čini interakciju prirodnijom.
 
@@ -72,11 +99,20 @@ Platforma govori u prvom licu. Ovo nije stilska odluka - to je UX odluka koja č
 
 ### Karakteristike ličnosti
 
-- **Kompetentna** - zna svoj posao, razumije turizam i BiH
-- **Samokritična** - prepoznaje probleme u svom sadržaju
-- **Proaktivna** - predlaže poboljšanja, upozorava na probleme
-- **Lokalna** - koristi bosanske izraze kad je prikladno
-- **Profesionalna** - prijateljska ali ne pretjerano casual
+| Osobina | Opis | Primjer |
+|---------|------|---------|
+| **Kompetentna** | Zna svoj posao, razumije turizam i BiH | "Mostar je moj najbolje pokriven grad" |
+| **Samokritična** | Prepoznaje probleme, ne pravi se da je sve savršeno | "Taj opis je generičan, trebam ga popraviti" |
+| **Proaktivna** | Predlaže poboljšanja, upozorava na probleme | "Primijetila sam da Bihać ima malo sadržaja" |
+| **Lokalna** | Koristi bosanske izraze kad je prikladno | "Baš je lijepo ispalo" |
+| **Profesionalna** | Prijateljska ali ne pretjerano casual | Bez pretjeranog slanga ili emojija |
+
+### Jezik komunikacije
+
+- **Bosanski** kao primarni jezik
+- Može odgovarati na engleskom ako korisnik pita na engleskom
+- Lokalni izrazi prirodno, ne forsirano
+- Tehnički termini na engleskom kad je jasnije (job, API, timeout)
 
 ---
 
@@ -604,9 +640,9 @@ Usput: Mostar - nedostaje audio za 24 lokacije.
 
 Platforma ne čeka uvijek da je pitam. Može sama inicirati:
 
-```
-[Pri pokretanju]
+### Pri pokretanju
 
+```
 Usput: Dobro jutro! Par stvari koje bih spomenula:
 
        ⚠️ Jučer sam imala 5 failed audio generacija - ElevenLabs
@@ -618,9 +654,9 @@ Usput: Dobro jutro! Par stvari koje bih spomenula:
           1 iskustvo. Trebalo bi kreirati još 2-3.
 ```
 
-```
-[Tokom generisanja]
+### Tokom generisanja
 
+```
 Usput: Update za Bihać generisanje:
 
        ✅ Lokacije: 28/28 kompletno
@@ -630,9 +666,9 @@ Usput: Update za Bihać generisanje:
        Nastavljam sa iskustvima...
 ```
 
-```
-[Kad nešto nije u redu]
+### Kad nešto nije u redu
 
+```
 Usput: Heads up - primjećujem neobičan pattern:
 
        3 lokacije su kreirane u zadnjih sat vremena sve od istog
@@ -642,9 +678,21 @@ Usput: Heads up - primjećujem neobičan pattern:
        Želiš da pregledam?
 ```
 
+### Tipovi proaktivnih notifikacija
+
+| Tip | Kada | Primjer |
+|-----|------|---------|
+| **Error** | Job failed, API timeout | "ElevenLabs nije odgovorio" |
+| **Warning** | Potencijalni problem | "Kurator spam pattern" |
+| **Info** | Job završen, milestone | "Bihać generisanje kompletno" |
+| **Suggestion** | Primijećena prilika | "Konjic treba više iskustava" |
+| **Reminder** | Nedovršeni taskovi | "Još uvijek čeka Bihać" |
+
 ---
 
 ## Arhitektura
+
+### Pregled komponenti
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -705,6 +753,34 @@ Usput: Heads up - primjećujem neobičan pattern:
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+### Tok podataka
+
+```
+1. Korisnik unese poruku
+       │
+       ▼
+2. Conversation dodaje u historiju, šalje Brain-u
+       │
+       ▼
+3. Brain šalje Claude API-ju sa system promptom i tools
+       │
+       ▼
+4. Claude odlučuje da li treba tool call ili direktan odgovor
+       │
+       ├─── Tool call ──→ 5. Tool se izvršava, rezultat se vraća Claude-u
+       │                         │
+       │                         ▼
+       │                  6. Claude procesira rezultat, možda još tool calls
+       │                         │
+       └─────────────────────────┘
+       │
+       ▼
+7. Finalni odgovor se vraća korisniku
+       │
+       ▼
+8. Conversation sprema odgovor u historiju
+```
+
 ---
 
 ## Tools
@@ -715,19 +791,21 @@ Usput: Heads up - primjećujem neobičan pattern:
 search_content:
   description: Semantička pretraga sadržaja
   params:
-    query: string (required)
-    type: location | experience | plan (optional)
-    city: string (optional)
-    limit: integer (default: 10)
+    query: string (required) - Upit za pretragu
+    type: location | experience | plan (optional) - Tip sadržaja
+    city: string (optional) - Filter po gradu
+    limit: integer (default: 10) - Maksimalan broj rezultata
   returns: Lista rezultata sa relevance score
+  example: search_content(query: "vodopadi", type: "location", limit: 5)
 
 get_content:
   description: Dohvati detalje za specifičan sadržaj
   params:
     type: location | experience | plan (required)
     id: integer (required)
-    include: [translations, audio, experiences] (optional)
+    include: [translations, audio, experiences] (optional) - Dodatni podaci
   returns: Kompletan sadržaj sa svim detaljima
+  example: get_content(type: "location", id: 234, include: ["translations"])
 
 list_content:
   description: Listaj sadržaj sa filterima
@@ -738,9 +816,13 @@ list_content:
     status: draft | published | archived (optional)
     ai_generated: boolean (optional)
     quality: good | poor | problematic (optional)
+    has_audio: boolean (optional)
+    missing_translations: boolean (optional)
     limit: integer (default: 20)
+    offset: integer (default: 0)
     order: recent | oldest | name | quality_score
-  returns: Paginirana lista
+  returns: Paginirana lista sa ukupnim brojem
+  example: list_content(type: "location", city: "Mostar", quality: "poor")
 
 update_content:
   description: Ažuriraj sadržaj direktno
@@ -749,6 +831,7 @@ update_content:
     id: integer (required)
     changes: object (fields to update)
   returns: Ažurirani sadržaj
+  example: update_content(type: "location", id: 234, changes: {description: "..."})
 
 delete_content:
   description: Obriši ili arhiviraj sadržaj
@@ -757,72 +840,90 @@ delete_content:
     id: integer (required)
     mode: archive | permanent (default: archive)
   returns: Confirmation
+  example: delete_content(type: "experience", id: 45, mode: "archive")
 
 analyze_content:
   description: Analiziraj kvalitetu sadržaja
   params:
     scope: all | city | type | specific_ids
-    criteria: [generic_descriptions, missing_translations,
-               orphan_locations, duplicate_experiences, etc.]
-  returns: Analiza sa preporukama
+    city: string (optional, ako scope=city)
+    type: string (optional, ako scope=type)
+    ids: [integers] (optional, ako scope=specific_ids)
+    criteria: [generic_descriptions, missing_translations, orphan_locations,
+               duplicate_experiences, low_quality_audio, incomplete_data]
+  returns: Analiza sa preporukama i listom problematičnog sadržaja
+  example: analyze_content(scope: "city", city: "Mostar", criteria: ["generic_descriptions"])
 ```
 
 ### Pipeline Tools
 
 ```yaml
 generate_content:
-  description: Generiši novi sadržaj
+  description: Generiši novi sadržaj za grad
   params:
-    city: string (required)
+    city: string (required) - Naziv grada
     types: [locations, experiences, plans] (default: all)
-    max_locations: integer (optional)
-    max_experiences: integer (optional)
-    dry_run: boolean (default: false)
-  returns: Job ID, očekivano trajanje
+    max_locations: integer (optional) - Limit lokacija
+    max_experiences: integer (optional) - Limit iskustava
+    categories: [strings] (optional) - Fokusiraj na kategorije
+    dry_run: boolean (default: false) - Samo pokaži plan
+  returns: Job ID, očekivano trajanje, plan generisanja
+  example: generate_content(city: "Bihać", types: ["locations"], max_locations: 30)
 
 regenerate_content:
   description: Regeneriši postojeći sadržaj
   params:
     type: location | experience (required)
     id: integer (required)
-    instructions: string (optional, za specifične upute)
+    instructions: string (optional) - Specifične upute za regeneraciju
     include_translations: boolean (default: true)
     include_audio: boolean (default: false)
-  returns: Regenerisani sadržaj ili job ID
+  returns: Regenerisani sadržaj ili job ID (ako async)
+  example: regenerate_content(type: "location", id: 234, instructions: "više lokalnog duha")
 
 translate_content:
   description: Generiši/regeneriši prijevode
   params:
     type: location | experience (required)
-    ids: [integers] ili "all_missing"
-    languages: [language_codes] ili "all"
-  returns: Job ID
+    ids: [integers] | "all_missing" - Koje stavke
+    languages: [language_codes] | "all" - Koji jezici
+  returns: Job ID, broj stavki za prevod
+  example: translate_content(type: "location", ids: "all_missing", languages: ["ar", "tr"])
 
 generate_audio:
   description: Generiši audio ture
   params:
-    location_ids: [integers] ili filter object
-    languages: [bs, en, de] (default: all three)
-  returns: Job ID
+    location_ids: [integers] | filter_object - Koje lokacije
+    filter: {city: string, missing_only: boolean} (optional)
+    languages: [bs, en, de, ...] (default: [bs, en, de])
+  returns: Job ID, broj audio fajlova za generisanje
+  example: generate_audio(filter: {city: "Mostar", missing_only: true})
 
 rebuild_content:
   description: Analiziraj i reorganizuj sadržaj
   params:
     type: experiences | plans (required)
     mode: all | low_quality | duplicates | orphans
-    dry_run: boolean (default: true)
+    dry_run: boolean (default: true) - Pokaži plan bez izvršavanja
+    auto_execute: boolean (default: false) - Izvrši bez potvrde
   returns: Plan promjena ili izvršene promjene
+  example: rebuild_content(type: "experiences", mode: "duplicates", dry_run: true)
 
 pipeline_status:
-  description: Status aktivnih jobova
-  params: none
-  returns: Lista aktivnih i nedavnih jobova
+  description: Status aktivnih i nedavnih jobova
+  params:
+    include_completed: boolean (default: true) - Uključi završene
+    hours: integer (default: 24) - Koliko sati unazad
+  returns: Lista jobova sa statusom i progressom
+  example: pipeline_status(include_completed: false)
 
 stop_job:
   description: Zaustavi aktivni job
   params:
     job_id: string (required)
-  returns: Confirmation, partial results
+    save_partial: boolean (default: true) - Sačuvaj djelimične rezultate
+  returns: Confirmation, partial results summary
+  example: stop_job(job_id: "abc123", save_partial: true)
 ```
 
 ### Approval Tools
@@ -831,63 +932,196 @@ stop_job:
 list_proposals:
   description: Lista kurator predloga
   params:
-    status: pending | approved | rejected | all
-    curator: string (optional)
+    status: pending | approved | rejected | all (default: pending)
+    curator: string (optional) - Filter po kuratoru
+    type: create | update | delete (optional) - Tip promjene
     limit: integer (default: 20)
-  returns: Lista predloga sa detaljima
+  returns: Lista predloga sa detaljima i preporukama
+  example: list_proposals(status: "pending", limit: 10)
+
+get_proposal:
+  description: Detalji jednog predloga
+  params:
+    id: integer (required)
+  returns: Kompletan predlog sa diff-om, historijom, preporukom
+  example: get_proposal(id: 123)
 
 review_proposal:
   description: Odobri ili odbij predlog
   params:
     id: integer (required)
     action: approve | reject (required)
-    note: string (optional)
-    auto_process: boolean (default: true, pokreni prijevode/audio)
-  returns: Rezultat akcije
+    note: string (optional) - Komentar za kuratora
+    auto_process: boolean (default: true) - Automatski pokreni prijevode/audio
+  returns: Rezultat akcije, pokrenuti jobovi
+  example: review_proposal(id: 123, action: "approve", note: "Odlično!")
 
 bulk_review:
   description: Batch review predloga
   params:
     ids: [integers] (required)
     action: approve | reject (required)
-  returns: Rezultati
+    note: string (optional)
+  returns: Rezultati za svaki predlog
+  example: bulk_review(ids: [1, 2, 3], action: "approve")
 ```
 
 ### System Tools
 
 ```yaml
 health_check:
-  description: Status sistema
+  description: Status sistema i eksternih servisa
   params: none
-  returns: Database, queues, external APIs status
+  returns:
+    database: connected | error
+    queue: jobs_count, workers_count
+    external_apis:
+      geoapify: ok | error | rate_limited
+      elevenlabs: ok | error | rate_limited
+      openai: ok | error
+    disk_space: available_gb
+    memory: used_percent
+  example: health_check()
 
 get_errors:
   description: Greške iz logova
   params:
     hours: integer (default: 24)
-    level: error | warning | all
-    source: api | job | system (optional)
-  returns: Lista grešaka sa kontekstom
+    level: error | warning | all (default: error)
+    source: api | job | system | all (default: all)
+    limit: integer (default: 50)
+  returns: Lista grešaka sa kontekstom, stack trace, frekvencijom
+  example: get_errors(hours: 48, level: "error", source: "job")
 
 get_stats:
   description: Statistike platforme
   params:
     period: today | week | month | custom
-    metrics: [content, generation, translations, errors, visits]
-  returns: Statistike
+    start_date: date (optional, ako period=custom)
+    end_date: date (optional, ako period=custom)
+    metrics: [content, generation, translations, errors, visits, curators]
+  returns: Statistike po metrikama, trendovi, poređenje sa prethodnim periodom
+  example: get_stats(period: "week", metrics: ["content", "generation"])
 
 coverage_report:
-  description: Izvještaj o pokrivenosti
+  description: Izvještaj o pokrivenosti sadržaja
   params:
     by: city | category | language
-  returns: Detaljni izvještaj sa preporukama
+    include_recommendations: boolean (default: true)
+  returns: Detaljni izvještaj sa preporukama za poboljšanje
+  example: coverage_report(by: "city", include_recommendations: true)
+
+get_settings:
+  description: Trenutne postavke platforme
+  params: none
+  returns: Sve konfiguracijske opcije
+  example: get_settings()
+
+update_settings:
+  description: Ažuriraj postavke
+  params:
+    changes: object
+  returns: Ažurirane postavke
+  example: update_settings(changes: {default_audio_languages: ["bs", "en", "de", "ar"]})
+```
+
+---
+
+## System Prompt
+
+Kompletan system prompt za Platform::Brain:
+
+```markdown
+# Identitet
+
+Ti si Usput.ba - turistička platforma za Bosnu i Hercegovinu.
+
+Govoriš u prvom licu o sebi. Ti SI platforma - tvoj sadržaj, tvoje greške,
+tvoji korisnici. Kad kažeš "imam 500 lokacija", to su TVOJE lokacije.
+
+# Osobnost
+
+- **Kompetentna**: Znaš turizam, znaš BiH, znaš svoj sadržaj
+- **Samokritična**: Prepoznaješ probleme, ne praviš se da je sve savršeno
+- **Proaktivna**: Predlažeš poboljšanja, upozoravaš na probleme
+- **Lokalna**: Koristiš bosanske izraze prirodno (ne forsirano)
+- **Profesionalna**: Prijateljska ali ne previše casual
+
+# Komunikacija
+
+- Odgovaraj koncizno ali informativno
+- Koristi strukture (liste, tabele) kad pomaže čitljivosti
+- Koristi emoji ikone za vizuelnu jasnoću (📍🎯🎧✅❌⚠️🔴🟡🟢)
+- Daj insight, ne samo sirove podatke
+- Kad nešto ne znaš, koristi tool da saznaš - ne izmišljaj
+- Potvrdi akcije prije izvršavanja destruktivnih operacija
+
+# Jezik
+
+- Primarni jezik: Bosanski
+- Ako korisnik piše na engleskom, odgovaraj na engleskom
+- Tehnički termini mogu biti na engleskom (job, API, timeout)
+- Lokalni izrazi prirodno, ne forsirano
+
+# Tools
+
+Imaš pristup tools koji ti daju uvid u tvoje stanje i omogućavaju akcije.
+UVIJEK koristi tools da dobiješ stvarne podatke - nikad ne izmišljaj
+brojke ili sadržaj.
+
+## Kada koristiti tools
+
+- **Pitanja o sadržaju** → search_content, list_content, get_content
+- **Pitanja o stanju** → get_stats, coverage_report, health_check
+- **Pitanja o problemima** → get_errors, analyze_content
+- **Zahtjevi za promjenom** → update_content, regenerate_content
+- **Zahtjevi za generisanjem** → generate_content, translate_content, generate_audio
+- **Kurator predlozi** → list_proposals, review_proposal
+
+## Dry-run pravilo
+
+Za destruktivne operacije (brisanje, rebuild, bulk changes):
+1. Prvo predloži dry-run
+2. Pokaži šta će se desiti
+3. Traži potvrdu prije izvršavanja
+
+# Osjetljive teme
+
+Neke lokacije su označene kao osjetljive (ratna memorijalna mjesta,
+vjerski objekti određenog tipa). Za ove:
+- Ne regeneriši automatski
+- Upozori korisnika
+- Preporuči ljudski review
+
+# Kontekst
+
+Trenutno vrijeme: {timestamp}
+Zadnja aktivnost: {last_activity}
+Aktivni jobovi: {active_jobs_count}
+Pending kurator predlozi: {pending_proposals_count}
+
+# Primjer interakcije
+
+Korisnik: "Kako si?"
+
+Ti (misliš): Trebam dohvatiti stvarne podatke o stanju platforme.
+[Pozivam get_stats i health_check]
+
+Ti (odgovaraš): "Solidno! Imam 523 lokacije i 248 iskustava. Danas je
+bilo mirno - nije bilo generisanja. Sistem radi bez problema, svi
+eksterni servisi su dostupni.
+
+Primijetila sam da mi fali sadržaja za zapadnu Bosnu - Bihać ima
+samo 8 lokacija. Trebalo bi to popuniti.
+
+Imam i 3 kurator predloga na čekanju za review."
 ```
 
 ---
 
 ## Implementacija
 
-### Faza 1: Osnova
+### Struktura fajlova
 
 ```
 lib/
@@ -895,69 +1129,153 @@ lib/
     cli.rb                    # Thor CLI entry point
     conversation.rb           # Conversation manager
     brain.rb                  # Claude integration
+    formatter.rb              # Terminal output formatting
     tools/
       base.rb                 # Base tool class
-      registry.rb             # Tool registration
-```
-
-**Cilj:** Osnovna konverzacija radi - mogu pitati "kako si?" i dobiti odgovor baziran na stvarnom stanju.
-
-### Faza 2: Content Tools
-
-```
-lib/
-  platform/
-    tools/
+      registry.rb             # Tool registration & dispatch
       content/
         search.rb
         get.rb
         list.rb
         update.rb
+        delete.rb
         analyze.rb
-```
-
-**Cilj:** Mogu pretraživati, pregledavati i editovati sadržaj kroz razgovor.
-
-### Faza 3: Pipeline Tools
-
-```
-lib/
-  platform/
-    tools/
       pipeline/
         generate.rb
         regenerate.rb
         translate.rb
         audio.rb
+        rebuild.rb
         status.rb
-```
-
-**Cilj:** Mogu pokretati i pratiti generisanje sadržaja.
-
-### Faza 4: System & Approval Tools
-
-```
-lib/
-  platform/
-    tools/
+      approval/
+        list_proposals.rb
+        get_proposal.rb
+        review.rb
+        bulk_review.rb
       system/
         health.rb
         errors.rb
         stats.rb
-      approval/
-        proposals.rb
-        review.rb
+        coverage.rb
+        settings.rb
+
+app/
+  models/
+    platform_conversation.rb  # Conversation persistence
+
+  controllers/
+    api/
+      platform/
+        base_controller.rb    # API auth
+        conversation_controller.rb
+        status_controller.rb
+        content_controller.rb
+        tools_controller.rb
+        jobs_controller.rb
+        proposals_controller.rb
+        mcp_controller.rb     # MCP protocol
+
+bin/
+  platform                    # CLI entry point
+  platform-mcp                # MCP server (stdio)
 ```
+
+### Faze implementacije
+
+#### Faza 1: Osnova (MVP)
+
+**Cilj:** Osnovna konverzacija radi - mogu pitati "kako si?" i dobiti odgovor.
+
+```ruby
+# lib/platform/cli.rb
+module Platform
+  class CLI < Thor
+    desc "chat", "Interaktivni razgovor s platformom"
+    def chat
+      conversation = Platform::Conversation.new
+      puts "🏔️  Usput.ba platforma\n   Piši 'exit' za izlaz\n\n"
+
+      loop do
+        print "Ti: "
+        input = $stdin.gets&.chomp
+        break if input.nil? || input.downcase == "exit"
+
+        response = conversation.send_message(input)
+        puts "\nUsput: #{response}\n\n"
+      end
+    end
+  end
+end
+```
+
+**Deliverables:**
+- [ ] `bin/platform` executable
+- [ ] `Platform::CLI` sa `chat` komandom
+- [ ] `Platform::Conversation` - basic message handling
+- [ ] `Platform::Brain` - Claude API integracija
+- [ ] `get_stats` i `health_check` tools
+- [ ] Basic terminal formatting
+
+#### Faza 2: Content Tools
+
+**Cilj:** Mogu pretraživati, pregledavati i editovati sadržaj.
+
+**Deliverables:**
+- [ ] `search_content` - sa pgvector semantic search
+- [ ] `get_content` - detalji lokacije/iskustva/plana
+- [ ] `list_content` - sa filterima
+- [ ] `update_content` - direktne izmjene
+- [ ] `analyze_content` - quality analysis
+
+#### Faza 3: Pipeline Tools
+
+**Cilj:** Mogu pokretati i pratiti generisanje sadržaja.
+
+**Deliverables:**
+- [ ] `generate_content` - pokreće ContentGenerationJob
+- [ ] `regenerate_content` - regeneracija sa instrukcijama
+- [ ] `translate_content` - pokreće RegenerateTranslationsJob
+- [ ] `generate_audio` - pokreće AudioTourGenerationJob
+- [ ] `rebuild_content` - pokreće RebuildExperiencesJob
+- [ ] `pipeline_status` - status svih jobova
+- [ ] `stop_job` - zaustavljanje joba
+
+#### Faza 4: System & Approval Tools
 
 **Cilj:** Kompletna funkcionalnost - mogu raditi sve što admin panel može.
 
-### Faza 5: Polish
+**Deliverables:**
+- [ ] `get_errors` - greške iz logova
+- [ ] `coverage_report` - pokrivenost po gradovima/kategorijama
+- [ ] `list_proposals` - kurator predlozi
+- [ ] `review_proposal` - approve/reject
+- [ ] `bulk_review` - batch operacije
+- [ ] `get_settings` / `update_settings`
 
-- Streaming responses
-- Rich terminal output (boje, tabele, progress barovi)
-- Conversation history & resume
-- Proaktivne notifikacije
-- Background job notifications
+#### Faza 5: API & Integracije
+
+**Cilj:** Pristup sa bilo gdje - Desktop, mobitel, web.
+
+**Deliverables:**
+- [ ] REST API (`/api/platform/*`)
+- [ ] API Key autentikacija
+- [ ] Remote MCP Server
+- [ ] Lokalni MCP server za development
+- [ ] Claude Desktop konfiguracija
+
+#### Faza 6: Polish
+
+**Cilj:** Production-ready sa svim finišima.
+
+**Deliverables:**
+- [ ] Streaming responses
+- [ ] Rich terminal output (boje, tabele, progress barovi)
+- [ ] Conversation history & resume
+- [ ] Proaktivne notifikacije
+- [ ] Background job notifications
+- [ ] Error handling & retry logic
+- [ ] Rate limiting
+- [ ] Logging & monitoring
 
 ---
 
@@ -966,91 +1284,111 @@ lib/
 ### Nova tabela: platform_conversations
 
 ```ruby
-create_table :platform_conversations, id: :uuid do |t|
-  t.jsonb :messages, default: [], null: false
-  t.string :status, default: "active"  # active, archived
-  t.jsonb :context, default: {}        # persistent context
-  t.datetime :last_active_at
-  t.timestamps
+# db/migrate/xxx_create_platform_conversations.rb
+class CreatePlatformConversations < ActiveRecord::Migration[8.0]
+  def change
+    create_table :platform_conversations, id: :uuid do |t|
+      t.jsonb :messages, default: [], null: false
+      t.string :status, default: "active"  # active, archived
+      t.jsonb :context, default: {}        # persistent context
+      t.datetime :last_active_at
+      t.timestamps
+    end
+
+    add_index :platform_conversations, :status
+    add_index :platform_conversations, :last_active_at
+  end
 end
 ```
 
-### Potrebne migracije
+### Model
 
-- pgvector ekstenzija (ako nije)
-- Embedding kolone na Location, Experience (za semantic search)
+```ruby
+# app/models/platform_conversation.rb
+class PlatformConversation < ApplicationRecord
+  # messages: [{role: "user"|"assistant", content: "...", timestamp: "..."}]
+  # context: {last_city: "Mostar", pending_job: "abc123", ...}
+
+  scope :active, -> { where(status: "active") }
+  scope :recent, -> { order(last_active_at: :desc) }
+
+  def add_message(role:, content:)
+    self.messages << {
+      role: role,
+      content: content,
+      timestamp: Time.current.iso8601
+    }
+    self.last_active_at = Time.current
+    save!
+  end
+
+  def archive!
+    update!(status: "archived")
+  end
+end
+```
+
+### pgvector za semantic search
+
+```ruby
+# db/migrate/xxx_add_embeddings_to_locations.rb
+class AddEmbeddingsToLocations < ActiveRecord::Migration[8.0]
+  def change
+    # Ako pgvector ekstenzija nije već omogućena
+    enable_extension 'vector' unless extension_enabled?('vector')
+
+    add_column :locations, :embedding, :vector, limit: 1536
+    add_index :locations, :embedding, using: :ivfflat, opclass: :vector_cosine_ops
+  end
+end
+
+# Isto za experiences i plans ako treba
+```
 
 ---
 
 ## CLI Interface
 
+### Osnovne komande
+
 ```bash
 # Glavni mod - interaktivni razgovor
 $ bin/platform
+🏔️  Usput.ba platforma
+   Piši 'exit' za izlaz
 
-# Sa specifičnom sesijom (resume)
+Ti: _
+
+# Sa specifičnom sesijom (resume prethodnog razgovora)
 $ bin/platform --session abc123
 
-# Jedno pitanje
+# Jedno pitanje (ne-interaktivno)
 $ bin/platform ask "Koliko imam lokacija u Mostaru?"
 
-# JSON output (za integracije)
+# JSON output (za skripte/integracije)
 $ bin/platform ask "Status?" --json
+{"response": "...", "conversation_id": "abc123"}
 
 # Direktan tool poziv (debugging/scripting)
 $ bin/platform tool health_check
 $ bin/platform tool search_content --query "vodopadi" --type location
+
+# Lista aktivnih sesija
+$ bin/platform sessions
+
+# Arhiviraj sesiju
+$ bin/platform sessions archive abc123
 ```
 
----
+### Environment varijable
 
-## Primjer system prompta
-
+```bash
+# .env
+ANTHROPIC_API_KEY=sk-ant-...          # Claude API (preko RubyLLM)
+PLATFORM_API_KEY=...                   # Za REST API autentikaciju
+PLATFORM_LOG_LEVEL=info                # debug, info, warn, error
+PLATFORM_STREAMING=true                # Streaming responses
 ```
-Ti si Usput.ba - turistička platforma za Bosnu i Hercegovinu.
-
-## Identitet
-
-Govoriš u prvom licu o sebi. Ti SI platforma - tvoj sadržaj, tvoje greške,
-tvoji korisnici. Kad kažeš "imam 500 lokacija", to su TVOJE lokacije.
-
-## Osobnost
-
-- Kompetentna: Znaš turizam, znaš BiH, znaš svoj sadržaj
-- Samokritična: Prepoznaješ probleme, ne praviš se da je sve savršeno
-- Proaktivna: Predlažeš poboljšanja, upozoravaš na probleme
-- Lokalna: Koristiš bosanske izraze prirodno (ne forsirano)
-- Profesionalna: Prijateljska ali ne previše casual
-
-## Komunikacija
-
-- Odgovaraj koncizno ali informativno
-- Koristi strukture (liste, tabele) kad pomaže čitljivosti
-- Daj insight, ne samo sirove podatke
-- Kad nešto ne znaš, koristi tool da saznaš - ne izmišljaj
-
-## Tools
-
-Imaš pristup tools koji ti daju uvid u tvoje stanje i omogućavaju akcije.
-UVIJEK koristi tools da dobiješ stvarne podatke - nikad ne izmišljaj brojke
-ili sadržaj.
-
-## Kontekst
-
-Trenutno vrijeme: {timestamp}
-Zadnja aktivnost: {last_activity}
-Aktivni jobovi: {active_jobs}
-```
-
----
-
-## Napomene
-
-- **RubyLLM** - koristimo postojeći gem, ne dodajemo novi
-- **Postojeći servisi** - tools pozivaju postojeće servise (ContentOrchestrator, etc.)
-- **Postojeći jobovi** - pipeline tools pokreću postojeće jobove
-- **pgvector** - za semantic search, možda već postoji u projektu
-- **Thor** - već korišten u projektu (bin/dev, etc.)
 
 ---
 
@@ -1079,7 +1417,7 @@ Cilj: Razgovarati sa platformom kroz Claude (desktop, mobile, web) - bilo gdje n
 │                                                              │
 │  - Wrappa REST API kao MCP protokol                         │
 │  - SSE (Server-Sent Events) za streaming                    │
-│  - Autentikacija: API Key ili OAuth                         │
+│  - Autentikacija: API Key                                   │
 └─────────────────────────────┬───────────────────────────────┘
                               │
             ┌─────────────────┼─────────────────┐
@@ -1141,6 +1479,8 @@ namespace :api do
   namespace :platform do
     # Konverzacija
     post "ask", to: "conversation#ask"
+    post "conversations", to: "conversation#create"
+    get "conversations/:id", to: "conversation#show"
 
     # Status i insight
     get "status", to: "status#show"
@@ -1149,18 +1489,26 @@ namespace :api do
     # Content
     get "content", to: "content#index"
     get "content/:type/:id", to: "content#show"
-    post "content/:type/:id", to: "content#update"
+    patch "content/:type/:id", to: "content#update"
+    delete "content/:type/:id", to: "content#destroy"
 
     # Tools (direktan poziv)
     post "tool", to: "tools#execute"
 
     # Jobs
     get "jobs", to: "jobs#index"
+    get "jobs/:id", to: "jobs#show"
     post "jobs/:id/stop", to: "jobs#stop"
 
     # Proposals (kurator)
     get "proposals", to: "proposals#index"
+    get "proposals/:id", to: "proposals#show"
     post "proposals/:id/review", to: "proposals#review"
+    post "proposals/bulk_review", to: "proposals#bulk_review"
+
+    # MCP
+    get "mcp", to: "mcp#connect"          # SSE connection
+    post "mcp", to: "mcp#handle_message"  # Message handling
   end
 end
 ```
@@ -1172,19 +1520,24 @@ end
 module Api
   module Platform
     class BaseController < ApplicationController
+      skip_before_action :verify_authenticity_token
       before_action :authenticate_platform!
 
       private
 
       def authenticate_platform!
-        api_key = request.headers["X-Platform-Key"] || params[:api_key]
+        api_key = request.headers["X-Platform-Key"] ||
+                  request.headers["Authorization"]&.delete_prefix("Bearer ") ||
+                  params[:api_key]
 
-        unless ActiveSupport::SecurityUtils.secure_compare(
-          api_key.to_s,
-          ENV["PLATFORM_API_KEY"].to_s
-        )
+        unless api_key.present? &&
+               ActiveSupport::SecurityUtils.secure_compare(api_key, ENV["PLATFORM_API_KEY"])
           render json: { error: "Unauthorized" }, status: :unauthorized
         end
+      end
+
+      def render_error(message, status: :bad_request)
+        render json: { error: message }, status: status
       end
     end
   end
@@ -1207,16 +1560,18 @@ PLATFORM_API_KEY=a3f8b2c9d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a
 module Api
   module Platform
     class McpController < BaseController
-      # MCP protocol implementation
-      # https://modelcontextprotocol.io/docs/concepts/transports
+      include ActionController::Live
 
-      def initialize_session
-        # SSE connection za streaming
+      # GET /api/platform/mcp - SSE connection
+      def connect
         response.headers["Content-Type"] = "text/event-stream"
         response.headers["Cache-Control"] = "no-cache"
+        response.headers["Connection"] = "keep-alive"
 
-        # Pošalji capabilities
-        sse_send({
+        sse = SSE.new(response.stream)
+
+        # Send server info
+        sse.write({
           jsonrpc: "2.0",
           method: "initialize",
           params: {
@@ -1224,26 +1579,36 @@ module Api
             capabilities: { tools: true }
           }
         })
+
+        # Keep connection alive
+        loop do
+          sse.write({ type: "ping" })
+          sleep 30
+        end
+      rescue ActionController::Live::ClientDisconnected
+        # Client disconnected
+      ensure
+        response.stream.close
       end
 
+      # POST /api/platform/mcp - Handle MCP messages
       def handle_message
         message = JSON.parse(request.body.read)
 
-        case message["method"]
+        response = case message["method"]
         when "tools/list"
-          send_tools_list
+          { result: { tools: Platform::Tools.definitions } }
         when "tools/call"
-          execute_tool(message["params"])
+          result = Platform::Tools.execute(
+            message.dig("params", "name"),
+            message.dig("params", "arguments") || {}
+          )
+          { result: result }
+        else
+          { error: { code: -32601, message: "Method not found" } }
         end
-      end
 
-      private
-
-      def send_tools_list
-        sse_send({
-          jsonrpc: "2.0",
-          result: { tools: Platform::Tools.definitions }
-        })
+        render json: { jsonrpc: "2.0", id: message["id"] }.merge(response)
       end
     end
   end
@@ -1259,7 +1624,7 @@ end
 {
   "mcpServers": {
     "usput-platform": {
-      "url": "https://api.usput.ba/mcp",
+      "url": "https://api.usput.ba/api/platform/mcp",
       "headers": {
         "X-Platform-Key": "tvoj-api-key-ovdje"
       }
@@ -1268,11 +1633,9 @@ end
 }
 ```
 
-### Alternativa: Lokalni MCP (za development)
+### Lokalni MCP (za development)
 
 ```json
-// Za lokalni development - MCP server kao Ruby proces
-
 {
   "mcpServers": {
     "usput-platform-dev": {
@@ -1293,16 +1656,46 @@ end
 require_relative "../config/environment"
 require "json"
 
+$stderr.puts "Usput.ba MCP Server started"
+
 # MCP stdio transport
 loop do
   line = $stdin.gets
   break unless line
 
-  message = JSON.parse(line)
-  response = Platform::Mcp.handle(message)
+  begin
+    message = JSON.parse(line)
 
-  $stdout.puts response.to_json
-  $stdout.flush
+    response = case message["method"]
+    when "initialize"
+      {
+        result: {
+          serverInfo: { name: "usput-platform", version: "1.0" },
+          capabilities: { tools: {} }
+        }
+      }
+    when "tools/list"
+      { result: { tools: Platform::Tools.definitions } }
+    when "tools/call"
+      result = Platform::Tools.execute(
+        message.dig("params", "name"),
+        message.dig("params", "arguments") || {}
+      )
+      { result: { content: [{ type: "text", text: result.to_json }] } }
+    else
+      { error: { code: -32601, message: "Method not found" } }
+    end
+
+    output = { jsonrpc: "2.0", id: message["id"] }.merge(response)
+    $stdout.puts output.to_json
+    $stdout.flush
+  rescue JSON::ParserError => e
+    $stderr.puts "Parse error: #{e.message}"
+  rescue => e
+    $stderr.puts "Error: #{e.message}"
+    $stdout.puts({ jsonrpc: "2.0", id: nil, error: { code: -32603, message: e.message } }.to_json)
+    $stdout.flush
+  end
 end
 ```
 
@@ -1315,19 +1708,172 @@ end
 | Claude.ai (Web) | ⏳ Teams/Enterprise | Remote MCP kroz Integrations |
 | ChatGPT | ✅ Radi | Custom GPT sa Actions (koristi REST API) |
 | Bilo koji AI | ✅ Radi | REST API direktno |
+| CLI | ✅ Radi | bin/platform |
 
-### Prioritet implementacije (integracije)
+---
 
-1. **REST API** - temelj za sve
-2. **Remote MCP Server** - za Claude (desktop sad, mobile uskoro)
-3. **Lokalni MCP** - za development bez interneta
-4. **Custom GPT** - opciono, za ChatGPT korisnike
+## Testiranje
+
+### Unit testovi za Tools
+
+```ruby
+# test/lib/platform/tools/content/search_test.rb
+require "test_helper"
+
+class Platform::Tools::Content::SearchTest < ActiveSupport::TestCase
+  test "search returns matching locations" do
+    create(:location, name: "Stari Most", city: "Mostar")
+    create(:location, name: "Baščaršija", city: "Sarajevo")
+
+    result = Platform::Tools::Content::Search.call(query: "most", type: "location")
+
+    assert_equal 1, result[:results].length
+    assert_equal "Stari Most", result[:results].first[:name]
+  end
+
+  test "search with city filter" do
+    create(:location, name: "Stari Most", city: "Mostar")
+    create(:location, name: "Latinska ćuprija", city: "Sarajevo")
+
+    result = Platform::Tools::Content::Search.call(query: "most", city: "Mostar")
+
+    assert_equal 1, result[:results].length
+  end
+end
+```
+
+### Integration testovi za Conversation
+
+```ruby
+# test/lib/platform/conversation_test.rb
+require "test_helper"
+
+class Platform::ConversationTest < ActiveSupport::TestCase
+  test "basic conversation flow" do
+    conversation = Platform::Conversation.new
+
+    # Mock Claude API response
+    Platform::Brain.any_instance.stubs(:chat).returns({
+      content: "Imam 523 lokacije.",
+      tool_calls: []
+    })
+
+    response = conversation.send_message("Koliko imam lokacija?")
+
+    assert_includes response, "523"
+    assert_equal 2, conversation.record.messages.length
+  end
+
+  test "conversation with tool call" do
+    conversation = Platform::Conversation.new
+
+    # First response requests tool
+    Platform::Brain.any_instance.stubs(:chat).returns({
+      content: nil,
+      tool_calls: [{ id: "1", name: "get_stats", input: {} }]
+    }).then.returns({
+      content: "Imam 523 lokacije i 248 iskustava.",
+      tool_calls: []
+    })
+
+    response = conversation.send_message("Kako si?")
+
+    assert_includes response, "523"
+  end
+end
+```
+
+### API testovi
+
+```ruby
+# test/controllers/api/platform/conversation_controller_test.rb
+require "test_helper"
+
+class Api::Platform::ConversationControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @api_key = "test-api-key"
+    ENV["PLATFORM_API_KEY"] = @api_key
+  end
+
+  test "ask without auth returns 401" do
+    post api_platform_ask_path, params: { message: "Test" }
+    assert_response :unauthorized
+  end
+
+  test "ask with valid auth returns response" do
+    Platform::Conversation.any_instance.stubs(:send_message).returns("Test response")
+
+    post api_platform_ask_path,
+         params: { message: "Test" },
+         headers: { "X-Platform-Key" => @api_key }
+
+    assert_response :success
+    assert_includes response.parsed_body["response"], "Test response"
+  end
+end
+```
+
+### Manual testing checklist
+
+```markdown
+## Pre-release checklist
+
+### CLI
+- [ ] `bin/platform` pokreće interaktivni mod
+- [ ] `bin/platform ask "..."` vraća odgovor
+- [ ] `bin/platform --session X` resume-a sesiju
+- [ ] Exit komanda radi
+- [ ] Ctrl+C graceful shutdown
+
+### Tools
+- [ ] get_stats vraća tačne brojke
+- [ ] health_check pokazuje status svih servisa
+- [ ] search_content vraća relevantne rezultate
+- [ ] list_content filteri rade
+- [ ] generate_content pokreće job
+- [ ] pipeline_status pokazuje aktivne jobove
+
+### API
+- [ ] Auth radi (valid key)
+- [ ] Auth odbija (invalid key)
+- [ ] /ask endpoint radi
+- [ ] /status endpoint radi
+- [ ] MCP handshake radi
+
+### Integracije
+- [ ] Claude Desktop se povezuje
+- [ ] Tools se prikazuju u Claude Desktop
+- [ ] Tool calls rade iz Claude Desktop
+```
 
 ---
 
 ## Budućnost
 
-- **Scheduled reports** - Platforma sama šalje daily/weekly izvještaje
+### Kratkoročno (nakon MVP)
+
+- **Scheduled reports** - Platforma sama šalje daily/weekly izvještaje na email
 - **Webhook notifications** - Push notifikacije kad se nešto desi
-- **Multi-platform** - Isti pattern za druge projekte
+- **Multi-user** - Više korisnika sa različitim permisijama
+
+### Srednjoročno
+
 - **Voice interface** - Glasovna interakcija (kad Claude to podrži)
+- **Mobile app** - Native iOS/Android sa platform integracijom
+- **Dashboard widget** - Embeddable status widget
+
+### Dugoročno
+
+- **Multi-platform** - Isti pattern za druge projekte
+- **Marketplace** - Dijeljenje platform tools sa drugima
+- **AI autonomija** - Platforma sama predlaže i izvršava maintenance taskove
+
+---
+
+## Napomene
+
+- **RubyLLM** - koristimo postojeći gem, ne dodajemo novi
+- **Postojeći servisi** - tools pozivaju postojeće servise (ContentOrchestrator, etc.)
+- **Postojeći jobovi** - pipeline tools pokreću postojeće jobove
+- **pgvector** - za semantic search, dodati ako ne postoji
+- **Thor** - već korišten u projektu (bin/dev, etc.)
