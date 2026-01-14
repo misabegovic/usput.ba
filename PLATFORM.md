@@ -1054,9 +1054,280 @@ Aktivni jobovi: {active_jobs}
 
 ---
 
+## Integracije - Pristup sa bilo gdje
+
+Cilj: Razgovarati sa platformom kroz Claude (desktop, mobile, web) - bilo gdje na svijetu.
+
+### Arhitektura integracija
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Rails API Layer                           │
+│              api.usput.ba/platform/*                         │
+│                                                              │
+│  POST /api/platform/ask      {"message": "Kako si?"}        │
+│  GET  /api/platform/status                                   │
+│  POST /api/platform/tool     {"name": "...", "params": {}}  │
+│  GET  /api/platform/content  ?query=...&type=...            │
+└─────────────────────────────┬───────────────────────────────┘
+                              │
+                              │ HTTPS + API Key
+                              │
+┌─────────────────────────────┴───────────────────────────────┐
+│                   Remote MCP Server                          │
+│              api.usput.ba/mcp                                │
+│                                                              │
+│  - Wrappa REST API kao MCP protokol                         │
+│  - SSE (Server-Sent Events) za streaming                    │
+│  - Autentikacija: API Key ili OAuth                         │
+└─────────────────────────────┬───────────────────────────────┘
+                              │
+            ┌─────────────────┼─────────────────┐
+            │                 │                 │
+            ▼                 ▼                 ▼
+   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
+   │   Claude    │   │   Claude    │   │   Claude    │
+   │   Desktop   │   │   Mobile    │   │    Web      │
+   │             │   │  (uskoro)   │   │  (Teams)    │
+   │  ✅ Radi    │   │  ⏳ Čeka    │   │  ⏳ Čeka    │
+   └─────────────┘   └─────────────┘   └─────────────┘
+```
+
+### Kako će izgledati na mobitelu
+
+```
+┌─────────────────────────────────┐
+│  Claude                    ≡    │
+├─────────────────────────────────┤
+│                                 │
+│  Ti: Kako si?                   │
+│                                 │
+│  ┌─────────────────────────┐   │
+│  │ 🏔️ Usput.ba             │   │
+│  │                         │   │
+│  │ Dobro! Imam 523 lokacije│   │
+│  │ i 248 iskustava.        │   │
+│  │                         │   │
+│  │ Danas sam bila mirna -  │   │
+│  │ nije bilo generisanja.  │   │
+│  │                         │   │
+│  │ Imam 2 kurator predloga │   │
+│  │ na čekanju.             │   │
+│  └─────────────────────────┘   │
+│                                 │
+│  Ti: Odobri oba                 │
+│                                 │
+│  ┌─────────────────────────┐   │
+│  │ 🏔️ Usput.ba             │   │
+│  │                         │   │
+│  │ ✅ Odobreno:            │   │
+│  │ 1. "Restoran Taurus"    │   │
+│  │ 2. Ispravka za Trebinje │   │
+│  │                         │   │
+│  │ Pokrećem prijevode...   │   │
+│  └─────────────────────────┘   │
+│                                 │
+│ ┌─────────────────────────────┐│
+│ │ Poruka...                   ││
+│ └─────────────────────────────┘│
+└─────────────────────────────────┘
+```
+
+### REST API Endpoints
+
+```ruby
+# config/routes.rb
+namespace :api do
+  namespace :platform do
+    # Konverzacija
+    post "ask", to: "conversation#ask"
+
+    # Status i insight
+    get "status", to: "status#show"
+    get "health", to: "status#health"
+
+    # Content
+    get "content", to: "content#index"
+    get "content/:type/:id", to: "content#show"
+    post "content/:type/:id", to: "content#update"
+
+    # Tools (direktan poziv)
+    post "tool", to: "tools#execute"
+
+    # Jobs
+    get "jobs", to: "jobs#index"
+    post "jobs/:id/stop", to: "jobs#stop"
+
+    # Proposals (kurator)
+    get "proposals", to: "proposals#index"
+    post "proposals/:id/review", to: "proposals#review"
+  end
+end
+```
+
+### Autentikacija
+
+```ruby
+# app/controllers/api/platform/base_controller.rb
+module Api
+  module Platform
+    class BaseController < ApplicationController
+      before_action :authenticate_platform!
+
+      private
+
+      def authenticate_platform!
+        api_key = request.headers["X-Platform-Key"] || params[:api_key]
+
+        unless ActiveSupport::SecurityUtils.secure_compare(
+          api_key.to_s,
+          ENV["PLATFORM_API_KEY"].to_s
+        )
+          render json: { error: "Unauthorized" }, status: :unauthorized
+        end
+      end
+    end
+  end
+end
+```
+
+```bash
+# Generisanje API ključa
+$ rails secret | head -c 64
+# => a3f8b2c9d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1
+
+# .env (produkcija)
+PLATFORM_API_KEY=a3f8b2c9d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1
+```
+
+### Remote MCP Server
+
+```ruby
+# app/controllers/api/platform/mcp_controller.rb
+module Api
+  module Platform
+    class McpController < BaseController
+      # MCP protocol implementation
+      # https://modelcontextprotocol.io/docs/concepts/transports
+
+      def initialize_session
+        # SSE connection za streaming
+        response.headers["Content-Type"] = "text/event-stream"
+        response.headers["Cache-Control"] = "no-cache"
+
+        # Pošalji capabilities
+        sse_send({
+          jsonrpc: "2.0",
+          method: "initialize",
+          params: {
+            serverInfo: { name: "usput-platform", version: "1.0" },
+            capabilities: { tools: true }
+          }
+        })
+      end
+
+      def handle_message
+        message = JSON.parse(request.body.read)
+
+        case message["method"]
+        when "tools/list"
+          send_tools_list
+        when "tools/call"
+          execute_tool(message["params"])
+        end
+      end
+
+      private
+
+      def send_tools_list
+        sse_send({
+          jsonrpc: "2.0",
+          result: { tools: Platform::Tools.definitions }
+        })
+      end
+    end
+  end
+end
+```
+
+### Claude Desktop konfiguracija
+
+```json
+// ~/Library/Application Support/Claude/claude_desktop_config.json (macOS)
+// %APPDATA%\Claude\claude_desktop_config.json (Windows)
+
+{
+  "mcpServers": {
+    "usput-platform": {
+      "url": "https://api.usput.ba/mcp",
+      "headers": {
+        "X-Platform-Key": "tvoj-api-key-ovdje"
+      }
+    }
+  }
+}
+```
+
+### Alternativa: Lokalni MCP (za development)
+
+```json
+// Za lokalni development - MCP server kao Ruby proces
+
+{
+  "mcpServers": {
+    "usput-platform-dev": {
+      "command": "ruby",
+      "args": ["/path/to/usput.ba/bin/platform-mcp"],
+      "env": {
+        "RAILS_ENV": "development"
+      }
+    }
+  }
+}
+```
+
+```ruby
+#!/usr/bin/env ruby
+# bin/platform-mcp - lokalni MCP server za development
+
+require_relative "../config/environment"
+require "json"
+
+# MCP stdio transport
+loop do
+  line = $stdin.gets
+  break unless line
+
+  message = JSON.parse(line)
+  response = Platform::Mcp.handle(message)
+
+  $stdout.puts response.to_json
+  $stdout.flush
+end
+```
+
+### Status podrške
+
+| Platforma | Status | Kako |
+|-----------|--------|------|
+| Claude Desktop | ✅ Radi | Remote MCP ili lokalni |
+| Claude Mobile (iOS/Android) | ⏳ Uskoro | Remote MCP (kad dodaju podršku) |
+| Claude.ai (Web) | ⏳ Teams/Enterprise | Remote MCP kroz Integrations |
+| ChatGPT | ✅ Radi | Custom GPT sa Actions (koristi REST API) |
+| Bilo koji AI | ✅ Radi | REST API direktno |
+
+### Prioritet implementacije (integracije)
+
+1. **REST API** - temelj za sve
+2. **Remote MCP Server** - za Claude (desktop sad, mobile uskoro)
+3. **Lokalni MCP** - za development bez interneta
+4. **Custom GPT** - opciono, za ChatGPT korisnike
+
+---
+
 ## Budućnost
 
-- **MCP Server** - Platform može biti MCP server za Claude Desktop
-- **Web chat** - Isti brain, drugačiji frontend
 - **Scheduled reports** - Platforma sama šalje daily/weekly izvještaje
+- **Webhook notifications** - Push notifikacije kad se nešto desi
 - **Multi-platform** - Isti pattern za druge projekte
+- **Voice interface** - Glasovna interakcija (kad Claude to podrži)
