@@ -39,7 +39,8 @@
   --shadow-glow: 0 0 20px rgba(0, 40, 104, 0.5);
   --shadow-glow-lg: 0 0 40px rgba(0, 40, 104, 0.6);
   --shadow-inner-glow: inset 0 0 20px rgba(0, 40, 104, 0.3);
-  --shadow-neumorphic: 12px 12px 24px rgba(0, 0, 0, 0.1), -12px -12px 24px rgba(255, 255, 255, 0.5);
+  --shadow-neumorphic:
+    12px 12px 24px rgba(0, 0, 0, 0.1), -12px -12px 24px rgba(255, 255, 255, 0.5);
 
   /* Custom border radius */
   --radius-4xl: 2rem;
@@ -55,8 +56,12 @@
   --animate-wiggle: wiggle 1s ease-in-out infinite;
 
   @keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
   }
 
   @keyframes fadeInUp {
@@ -71,13 +76,22 @@
   }
 
   @keyframes slideIn {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(0); }
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(0);
+    }
   }
 
   @keyframes wiggle {
-    0%, 100% { transform: rotate(-3deg); }
-    50% { transform: rotate(3deg); }
+    0%,
+    100% {
+      transform: rotate(-3deg);
+    }
+    50% {
+      transform: rotate(3deg);
+    }
   }
 }
 
@@ -110,7 +124,12 @@
     color: var(--color-gray-100);
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-display);
     font-weight: 700;
   }
@@ -120,18 +139,26 @@
   html.transitioning *,
   html.transitioning *:before,
   html.transitioning *:after {
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease !important;
+    transition:
+      background-color 0.3s ease,
+      border-color 0.3s ease,
+      color 0.3s ease !important;
     transition-delay: 0s !important;
   }
 }
 
 @layer components {
   /* Button base styles */
+  button {
+    cursor: pointer;
+  }
+
   .btn {
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     font-weight: 500;
     transition: all 0.3s;
+    cursor: pointer;
   }
 
   .btn:focus {
@@ -147,6 +174,7 @@
     background-color: var(--color-primary-600);
     color: white;
     box-shadow: var(--shadow-md);
+    cursor: pointer;
   }
 
   .btn-primary:hover {
@@ -414,18 +442,25 @@
 
   /* Gradient text - BiH colors */
   .gradient-text {
-    background: linear-gradient(to right, var(--color-primary-700), var(--color-gold));
+    background: linear-gradient(
+      to right,
+      var(--color-primary-700),
+      var(--color-gold)
+    );
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
   .dark .gradient-text {
-    background: linear-gradient(to right, var(--color-primary-400), var(--color-gold-light));
+    background: linear-gradient(
+      to right,
+      var(--color-primary-400),
+      var(--color-gold-light)
+    );
     -webkit-background-clip: text;
     background-clip: text;
   }
-
 
   /* Animated elements */
   .hover-lift {
@@ -529,7 +564,12 @@
 
   /* Gradient borders - BiH colors */
   .border-gradient {
-    border-image: linear-gradient(to right, var(--color-primary-700), var(--color-gold)) 1;
+    border-image: linear-gradient(
+        to right,
+        var(--color-primary-700),
+        var(--color-gold)
+      )
+      1;
   }
 
   /* Text shadows */
@@ -552,7 +592,8 @@
   }
 
   @keyframes gradient {
-    0%, 100% {
+    0%,
+    100% {
       background-position: 0% 50%;
     }
     50% {
@@ -567,7 +608,9 @@
 
   /* Theme toggle animation */
   .theme-transition {
-    transition: color 0.3s, background-color 0.3s;
+    transition:
+      color 0.3s,
+      background-color 0.3s;
   }
 
   /* Drag and drop indicator */

@@ -57,7 +57,47 @@ export default class extends Controller {
     plansKey: { type: String, default: "visitumo_plans" },
     activePlanKey: { type: String, default: "visitumo_active_plan" },
     generateUrl: { type: String, default: "/plans/generate" },
-    recommendationsUrl: { type: String, default: "/plans/recommendations" }
+    recommendationsUrl: { type: String, default: "/plans/recommendations" },
+    locale: { type: String, default: "en" },
+    translations: { type: Object, default: {} }
+  }
+
+  // Helper to get translation with fallback
+  t(key, fallback = key) {
+    return this.translationsValue[key] || fallback
+  }
+
+  // Helper to get locale code for date formatting
+  get dateLocale() {
+    const localeMap = {
+      'bs': 'bs-BA',
+      'hr': 'hr-HR',
+      'sr': 'sr-RS',
+      'de': 'de-DE',
+      'en': 'en-US',
+      'fr': 'fr-FR',
+      'es': 'es-ES',
+      'it': 'it-IT',
+      'ar': 'ar-SA',
+      'nl': 'nl-NL',
+      'pl': 'pl-PL',
+      'pt': 'pt-PT',
+      'cs': 'cs-CZ',
+      'sk': 'sk-SK',
+      'sl': 'sl-SI',
+      'tr': 'tr-TR'
+    }
+    return localeMap[this.localeValue] || 'en-US'
+  }
+
+  // Helper for pluralization of days
+  daysWord(count) {
+    return count === 1 ? this.t('day_singular', 'day') : this.t('day_plural', 'days')
+  }
+
+  // Helper for pluralization of locations
+  locationsWord(count) {
+    return count === 1 ? this.t('location_singular', 'location') : this.t('location_plural', 'locations')
   }
 
   // Store current plan data for regeneration
@@ -264,7 +304,7 @@ export default class extends Controller {
 
     this.planSwitcherTarget.innerHTML = `
       <div class="flex items-center gap-2 overflow-x-auto pb-1">
-        <span class="text-white/70 text-sm whitespace-nowrap">Vaši planovi:</span>
+        <span class="text-white/70 text-sm whitespace-nowrap">${this.t('your_plans', 'Your plans:')}</span>
         ${buttonsHtml}
       </div>
     `
@@ -282,14 +322,12 @@ export default class extends Controller {
         this.planTitleTarget.textContent = customTitle
       } else {
         const cityName = plan.city_name
-        const daysWord = plan.duration_days === 1 ? "dan" : "dana"
-        this.planTitleTarget.textContent = `${cityName} - ${plan.duration_days} ${daysWord}`
+        this.planTitleTarget.textContent = `${cityName} - ${plan.duration_days} ${this.daysWord(plan.duration_days)}`
       }
     }
 
     if (this.hasDurationTextTarget) {
-      const daysWord = plan.duration_days === 1 ? "dan" : "dana"
-      this.durationTextTarget.textContent = `${plan.duration_days} ${daysWord}`
+      this.durationTextTarget.textContent = `${plan.duration_days} ${this.daysWord(plan.duration_days)}`
     }
 
     if (this.hasExperiencesCountTarget) {
@@ -298,7 +336,7 @@ export default class extends Controller {
 
     if (this.hasGeneratedAtTarget) {
       const date = new Date(plan.generated_at)
-      this.generatedAtTarget.textContent = date.toLocaleDateString('hr-HR', {
+      this.generatedAtTarget.textContent = date.toLocaleDateString(this.dateLocale, {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
@@ -313,8 +351,7 @@ export default class extends Controller {
     }
 
     if (this.hasSidebarDurationTarget) {
-      const daysWord = plan.duration_days === 1 ? "dan" : "dana"
-      this.sidebarDurationTarget.textContent = `${plan.duration_days} ${daysWord}`
+      this.sidebarDurationTarget.textContent = `${plan.duration_days} ${this.daysWord(plan.duration_days)}`
     }
 
     if (this.hasSidebarExperiencesTarget) {
@@ -342,7 +379,7 @@ export default class extends Controller {
 
     const html = days.map((day, dayIndex) => {
       const date = new Date(day.date)
-      const formattedDate = date.toLocaleDateString('hr-HR', {
+      const formattedDate = date.toLocaleDateString(this.dateLocale, {
         weekday: 'long',
         day: 'numeric',
         month: 'long'
@@ -351,7 +388,7 @@ export default class extends Controller {
       const experiencesHtml = day.experiences && day.experiences.length > 0
         ? day.experiences.map((exp, index) => this.renderExperience(exp, index, dayIndex)).join('')
         : `<div class="text-center py-8 bg-gray-50 dark:bg-gray-700 rounded-xl">
-            <p class="text-gray-500 dark:text-gray-400">Nema iskustava za ovaj dan</p>
+            <p class="text-gray-500 dark:text-gray-400">${this.t('no_experiences_day', 'No experiences for this day')}</p>
           </div>`
 
       return `
@@ -360,7 +397,7 @@ export default class extends Controller {
              data-action="dragover->plan-viewer#dragOver drop->plan-viewer#drop">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl font-bold text-gray-900 dark:text-white">
-              Dan ${day.day_number}
+              ${this.t('day_label', 'Day')} ${day.day_number}
             </h2>
             <span class="text-sm text-gray-500 dark:text-gray-400">
               ${formattedDate}
@@ -388,7 +425,7 @@ export default class extends Controller {
            data-action="dragstart->plan-viewer#dragStart dragend->plan-viewer#dragEnd">
         <!-- Drag Handle -->
         <div class="flex-shrink-0 w-6 h-10 flex items-center justify-center cursor-grab active:cursor-grabbing mr-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-             title="Povuci za promjenu redoslijeda">
+             title="${this.t('drag_hint', 'Drag to reorder')}">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
           </svg>
@@ -415,7 +452,7 @@ export default class extends Controller {
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                 </svg>
-                ${locationsCount} ${locationsCount === 1 ? 'lokacija' : 'lokacije'}
+                ${locationsCount} ${this.locationsWord(locationsCount)}
               </span>
             ` : ''}
           </div>
@@ -423,7 +460,7 @@ export default class extends Controller {
         <!-- Delete Button -->
         <button type="button"
                 class="flex-shrink-0 ml-2 p-2 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                title="Ukloni iz plana"
+                title="${this.t('remove_from_plan', 'Remove from plan')}"
                 data-action="click->plan-viewer#removeExperience"
                 data-day-index="${dayIndex}"
                 data-experience-index="${index}">
@@ -501,7 +538,7 @@ export default class extends Controller {
 
         return `
           <div class="flex items-center gap-2">
-            <span class="text-xs text-gray-500 dark:text-gray-400 w-14">Dan ${dayStat.dayNumber}</span>
+            <span class="text-xs text-gray-500 dark:text-gray-400 w-14">${this.t('day_label', 'Day')} ${dayStat.dayNumber}</span>
             <div class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
               <div class="${barColor} h-full rounded-full transition-all duration-300" style="width: ${percentage}%"></div>
             </div>
@@ -565,9 +602,9 @@ export default class extends Controller {
 
     if (preferences.budget) {
       const budgetLabels = {
-        low: "Niski budžet",
-        medium: "Srednji budžet",
-        high: "Visoki budžet"
+        low: this.t('budget_low', 'Low budget'),
+        medium: this.t('budget_medium', 'Medium budget'),
+        high: this.t('budget_high', 'High budget')
       }
       items.push({
         icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -582,7 +619,7 @@ export default class extends Controller {
         icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
         </svg>`,
-        label: preferences.meat_lover ? "Volim meso" : "Preferiram bez mesa"
+        label: preferences.meat_lover ? this.t('meat_lover', 'I love meat') : this.t('prefer_meatless', 'I prefer meatless')
       })
     }
 
@@ -637,7 +674,7 @@ export default class extends Controller {
   // ============================================
 
   async deletePlan() {
-    if (!confirm("Jeste li sigurni da želite obrisati ovaj plan?")) {
+    if (!confirm(this.t('delete_confirm', 'Are you sure you want to delete this plan?'))) {
       return
     }
 
@@ -703,7 +740,7 @@ export default class extends Controller {
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
-        Generiranje...
+        ${this.t('generating', 'Generating...')}
       `
     }
 
@@ -762,14 +799,14 @@ export default class extends Controller {
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
         </svg>
-        Generirano!
+        ${this.t('generated_success', 'Generated!')}
       `
       setTimeout(() => {
         this.regenerateButtonTarget.innerHTML = `
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
           </svg>
-          Generiraj ponovo
+          ${this.t('regenerate', 'Regenerate')}
         `
       }, 2000)
     }
@@ -782,14 +819,14 @@ export default class extends Controller {
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
         </svg>
-        Greška, pokušajte ponovo
+        ${this.t('error_try_again', 'Error, try again')}
       `
       setTimeout(() => {
         this.regenerateButtonTarget.innerHTML = `
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
           </svg>
-          Generiraj ponovo
+          ${this.t('regenerate', 'Regenerate')}
         `
       }, 3000)
     }
@@ -1001,10 +1038,10 @@ export default class extends Controller {
       if (this.hasRecommendedExperiencesListTarget) {
         this.recommendedExperiencesListTarget.innerHTML = `
           <div class="text-center py-4 col-span-full text-gray-500 dark:text-gray-400">
-            <p>Nije moguće učitati preporuke</p>
+            <p>${this.t('cannot_load_recommendations', 'Could not load recommendations')}</p>
             <button type="button" class="text-amber-600 hover:text-amber-700 mt-2 underline"
                     data-action="click->plan-viewer#loadRecommendations">
-              Pokušaj ponovo
+              ${this.t('try_again', 'Try again')}
             </button>
           </div>
         `
@@ -1078,7 +1115,7 @@ export default class extends Controller {
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                 </svg>
-                ${exp.locations_count} ${exp.locations_count === 1 ? 'lokacija' : 'lokacije'}
+                ${exp.locations_count} ${this.locationsWord(exp.locations_count)}
               </span>
             ` : ''}
           </div>
@@ -1094,7 +1131,7 @@ export default class extends Controller {
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
           </svg>
-          Dodaj u plan
+          ${this.t('add_to_plan', 'Add to plan')}
         </button>
       </div>
     `
@@ -1111,8 +1148,8 @@ export default class extends Controller {
           ${displayTitle}
         </h4>
         <div class="flex items-center gap-3 mt-2 text-sm text-gray-600 dark:text-gray-400">
-          <span>${plan.duration_days} ${plan.duration_days === 1 ? 'dan' : 'dana'}</span>
-          <span>${plan.experiences_count} iskustava</span>
+          <span>${plan.duration_days} ${this.daysWord(plan.duration_days)}</span>
+          <span>${plan.experiences_count} ${this.t('experiences_plural', 'experiences')}</span>
         </div>
         ${plan.average_rating ? `
           <div class="flex items-center gap-2 mt-2">
@@ -1180,7 +1217,7 @@ export default class extends Controller {
     }
 
     if (this.hasVisibilityTextTarget) {
-      this.visibilityTextTarget.textContent = isPublic ? "Učini privatnim" : "Učini javnim"
+      this.visibilityTextTarget.textContent = isPublic ? this.t('make_private', 'Make private') : this.t('make_public', 'Make public')
     }
 
     if (this.hasVisibilityIconTarget) {
@@ -1216,14 +1253,14 @@ export default class extends Controller {
     // Update modal content based on current visibility
     if (this.hasVisibilityModalTitleTarget) {
       this.visibilityModalTitleTarget.textContent = isPublic
-        ? "Učini plan privatnim"
-        : "Učini plan javnim"
+        ? this.t('make_plan_private', 'Make plan private')
+        : this.t('make_plan_public', 'Make plan public')
     }
 
     if (this.hasVisibilityModalMessageTarget) {
       this.visibilityModalMessageTarget.textContent = isPublic
-        ? "Tvoj plan više neće biti vidljiv drugim korisnicima."
-        : "Tvoj plan će biti vidljiv svim korisnicima i pomoći će drugima da otkriju nova mjesta."
+        ? this.t('plan_private_message', 'Your plan will no longer be visible to other users.')
+        : this.t('plan_public_message', 'Your plan will be visible to all users and will help others discover new places.')
     }
 
     // Update modal icon container color
@@ -1304,7 +1341,7 @@ export default class extends Controller {
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
-        Spremanje...
+        ${this.t('saving', 'Saving...')}
       `
     }
 
@@ -1346,7 +1383,7 @@ export default class extends Controller {
         <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
         </svg>
-        ${isPublic ? "Sada je javan!" : "Sada je privatan!"}
+        ${isPublic ? this.t('now_public', 'Now public!') : this.t('now_private', 'Now private!')}
       `
       this.visibilityButtonTarget.classList.remove("bg-white/10", "hover:bg-white/20")
       this.visibilityButtonTarget.classList.add("bg-emerald-500/20", "text-emerald-100")
@@ -1362,7 +1399,7 @@ export default class extends Controller {
     // Reset confirm button
     if (this.hasConfirmVisibilityButtonTarget) {
       this.confirmVisibilityButtonTarget.disabled = false
-      this.confirmVisibilityButtonTarget.innerHTML = "Potvrdi"
+      this.confirmVisibilityButtonTarget.innerHTML = this.t('confirm', 'Confirm')
     }
   }
 
@@ -1373,11 +1410,11 @@ export default class extends Controller {
         <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
         </svg>
-        Greška
+        ${this.t('error', 'Error')}
       `
 
       setTimeout(() => {
-        this.confirmVisibilityButtonTarget.innerHTML = "Potvrdi"
+        this.confirmVisibilityButtonTarget.innerHTML = this.t('confirm', 'Confirm')
       }, 3000)
     }
 

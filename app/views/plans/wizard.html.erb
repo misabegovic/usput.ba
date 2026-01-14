@@ -343,7 +343,7 @@
           <% if @supported_interests.size > initial_count %>
             <div class="text-center mt-4" data-plan-wizard-target="loadMoreContainer">
               <button type="button"
-                      class="inline-flex items-center gap-2 px-4 py-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
+                      class="inline-flex items-center gap-2 px-4 py-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors cursor-pointer"
                       data-action="click->plan-wizard#loadMoreInterests"
                       data-plan-wizard-target="loadMoreButton"
                       data-initial-count="<%= initial_count %>"
