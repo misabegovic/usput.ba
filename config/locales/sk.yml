@@ -260,6 +260,7 @@ sk:
       search_placeholder: "Hľadať mesto..."
       searching: "Hľadanie..."
       no_results: "Žiadne mestá nenájdené"
+      manual_select: "alebo vyberte svoje mesto ručne"
     errors:
       geolocation_not_supported: "Váš prehliadač nepodporuje geolokáciu"
       location_failed: "Nepodarilo sa získať polohu. Vyberte mesto ručne."

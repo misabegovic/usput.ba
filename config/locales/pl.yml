@@ -260,6 +260,7 @@ pl:
       search_placeholder: "Szukaj miasta..."
       searching: "Wyszukiwanie..."
       no_results: "Nie znaleziono miast"
+      manual_select: "lub wybierz swoje miasto ręcznie"
     errors:
       geolocation_not_supported: "Twoja przeglądarka nie obsługuje geolokalizacji"
       location_failed: "Nie udało się uzyskać lokalizacji. Wybierz miasto ręcznie."

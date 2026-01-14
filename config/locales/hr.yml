@@ -237,6 +237,7 @@ hr:
       search_placeholder: "Pretraži mjesto..."
       searching: "Pretražujem..."
       no_results: "Nema pronađenih mjesta"
+      manual_select: "ili odaberi grad ručno"
     errors:
       geolocation_not_supported: "Vaš preglednik ne podržava geolokaciju"
       location_failed: "Nije moguće dobiti lokaciju. Molimo odaberite mjesto ručno."

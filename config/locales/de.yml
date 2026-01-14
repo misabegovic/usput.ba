@@ -260,6 +260,7 @@ de:
       search_placeholder: "Ort suchen..."
       searching: "Suche..."
       no_results: "Keine Orte gefunden"
+      manual_select: "oder wähle deine Stadt manuell aus"
     errors:
       geolocation_not_supported: "Ihr Browser unterstützt keine Geolokalisierung"
       location_failed: "Standort konnte nicht ermittelt werden. Bitte wählen Sie einen Ort manuell aus."

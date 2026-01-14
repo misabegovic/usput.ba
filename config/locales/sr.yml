@@ -260,6 +260,7 @@ sr:
       search_placeholder: "Претражите место..."
       searching: "Претражујем..."
       no_results: "Нема пронађених места"
+      manual_select: "или изаберите свој град ручно"
     errors:
       geolocation_not_supported: "Ваш прегледач не подржава геолокацију"
       location_failed: "Није могуће добити локацију. Молимо изаберите место ручно."

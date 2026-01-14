@@ -260,6 +260,7 @@ nl:
       search_placeholder: "Zoek stad..."
       searching: "Zoeken..."
       no_results: "Geen steden gevonden"
+      manual_select: "of selecteer je stad handmatig"
     errors:
       geolocation_not_supported: "Je browser ondersteunt geen geolocatie"
       location_failed: "Kon locatie niet verkrijgen. Selecteer handmatig een stad."

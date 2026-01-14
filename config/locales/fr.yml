@@ -260,6 +260,7 @@ fr:
       search_placeholder: "Rechercher une ville..."
       searching: "Recherche..."
       no_results: "Aucune ville trouvée"
+      manual_select: "ou sélectionnez votre ville manuellement"
     errors:
       geolocation_not_supported: "Votre navigateur ne prend pas en charge la géolocalisation"
       location_failed: "Impossible d'obtenir la position. Veuillez sélectionner une ville manuellement."

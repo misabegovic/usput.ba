@@ -260,6 +260,7 @@ sl:
       search_placeholder: "Išči mesto..."
       searching: "Iskanje..."
       no_results: "Ni najdenih mest"
+      manual_select: "ali izberite svoje mesto ročno"
     errors:
       geolocation_not_supported: "Vaš brskalnik ne podpira geolokacije"
       location_failed: "Ni bilo mogoče pridobiti lokacije. Izberite mesto ročno."

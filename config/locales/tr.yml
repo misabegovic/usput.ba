@@ -259,6 +259,7 @@ tr:
       search_placeholder: "Şehir ara..."
       searching: "Aranıyor..."
       no_results: "Şehir bulunamadı"
+      manual_select: "veya şehrinizi manuel olarak seçin"
     errors:
       geolocation_not_supported: "Tarayıcınız coğrafi konumu desteklemiyor"
       location_failed: "Konum alınamadı. Lütfen manuel olarak bir şehir seçin."

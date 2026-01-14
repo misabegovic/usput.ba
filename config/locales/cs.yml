@@ -260,6 +260,7 @@ cs:
       search_placeholder: "Hledat město..."
       searching: "Hledání..."
       no_results: "Žádná města nenalezena"
+      manual_select: "nebo vyberte své město ručně"
     errors:
       geolocation_not_supported: "Váš prohlížeč nepodporuje geolokaci"
       location_failed: "Nepodařilo se získat polohu. Vyberte město ručně."

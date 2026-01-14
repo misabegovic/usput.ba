@@ -267,6 +267,7 @@ en:
       search_placeholder: "Search for a place..."
       searching: "Searching..."
       no_results: "No places found"
+      manual_select: "or select your city manually"
     errors:
       geolocation_not_supported: "Your browser does not support geolocation"
       location_failed: "Unable to get location. Please select a place manually."
@@ -617,7 +618,7 @@ en:
     ios_share_button: "(Share) button in your browser"
     ios_step2: "Scroll and select"
     ios_add_home: "Add to Home Screen"
-    ios_step3: "Tap \"Add\" in the top right corner"
+    ios_step3: 'Tap "Add" in the top right corner'
     benefits_title: "App benefits:"
     benefit_fast: "Faster access from home screen"
     benefit_offline: "Works offline"
@@ -786,7 +787,7 @@ en:
       text2: "Copying, distribution, modification, or creation of derivative works without our express written permission is not permitted."
     disclaimer:
       title: "Disclaimer"
-      text1: "The service is provided \"as is\" without any warranties, express or implied."
+      text1: 'The service is provided "as is" without any warranties, express or implied.'
       text2: "We do not guarantee:"
       item1: "Uninterrupted or secure availability of the service"
       item2: "Accuracy or completeness of information about locations and experiences"

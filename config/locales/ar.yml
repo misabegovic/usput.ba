@@ -259,6 +259,7 @@ ar:
       search_placeholder: "ابحث عن مدينة..."
       searching: "جاري البحث..."
       no_results: "لم يتم العثور على مدن"
+      manual_select: "أو اختر مدينتك يدوياً"
     errors:
       geolocation_not_supported: "متصفحك لا يدعم تحديد الموقع الجغرافي"
       location_failed: "تعذر الحصول على الموقع. يرجى اختيار مدينة يدوياً."
