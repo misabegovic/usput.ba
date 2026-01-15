@@ -492,11 +492,6 @@ class GeoapifyService
     # tourism.picnic_site, tourism.camp_site, tourism.sights.palace, tourism.sights.manor,
     # tourism.sights.statue, tourism.information.visitor_centre are invalid
     # They are mapped in find_matching_category
-
-    # Camping (valid Geoapify categories)
-    "camping" => "campground",
-    "camping.camp_site" => "campground",
-    "camping.caravan_site" => "rv_park"
   }.freeze
 
   def initialize
