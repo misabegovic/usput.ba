@@ -40,7 +40,7 @@ class User < ApplicationRecord
 
   # Permission helpers
   def can_curate?
-    curator?
+    curator? || admin?
   end
 
   def pending_curator_application?

@@ -1,0 +1,72 @@
+<div class="space-y-6">
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900"><%= t("curator.admin.curator_applications.title") %></h1>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-3 gap-2 sm:gap-4">
+    <div class="overflow-hidden rounded-lg bg-yellow-50 px-3 py-3 shadow sm:px-4 sm:py-5 sm:p-6">
+      <dt class="truncate text-xs sm:text-sm font-medium text-yellow-600"><%= t("admin.curator_applications.stats.pending") %></dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-yellow-900"><%= @stats[:pending] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-green-50 px-3 py-3 shadow sm:px-4 sm:py-5 sm:p-6">
+      <dt class="truncate text-xs sm:text-sm font-medium text-green-600"><%= t("admin.curator_applications.stats.approved") %></dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-green-900"><%= @stats[:approved] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-red-50 px-3 py-3 shadow sm:px-4 sm:py-5 sm:p-6">
+      <dt class="truncate text-xs sm:text-sm font-medium text-red-600"><%= t("admin.curator_applications.stats.rejected") %></dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-red-900"><%= @stats[:rejected] %></dd>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex flex-wrap gap-2">
+    <%= link_to t("common.all"), curator_admin_curator_applications_path,
+        class: "px-3 py-1 rounded-full text-xs sm:text-sm #{params[:status].blank? ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}" %>
+    <%= link_to t("admin.curator_applications.stats.pending"), curator_admin_curator_applications_path(status: :pending),
+        class: "px-3 py-1 rounded-full text-xs sm:text-sm #{params[:status] == 'pending' ? 'bg-yellow-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}" %>
+    <%= link_to t("admin.curator_applications.stats.approved"), curator_admin_curator_applications_path(status: :approved),
+        class: "px-3 py-1 rounded-full text-xs sm:text-sm #{params[:status] == 'approved' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}" %>
+    <%= link_to t("admin.curator_applications.stats.rejected"), curator_admin_curator_applications_path(status: :rejected),
+        class: "px-3 py-1 rounded-full text-xs sm:text-sm #{params[:status] == 'rejected' ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}" %>
+  </div>
+
+  <!-- Applications List -->
+  <div class="overflow-hidden rounded-lg bg-white shadow">
+    <ul class="divide-y divide-gray-200">
+      <% @applications.each do |application| %>
+        <li class="p-4 hover:bg-gray-50">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="font-medium text-gray-900"><%= application.user.username %></span>
+              <span class="ml-2">
+                <% case application.status %>
+                <% when "pending" %>
+                  <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">Pending</span>
+                <% when "approved" %>
+                  <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Approved</span>
+                <% when "rejected" %>
+                  <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">Rejected</span>
+                <% end %>
+              </span>
+              <p class="text-sm text-gray-500 mt-1"><%= application.created_at.strftime("%d.%m.%Y %H:%M") %></p>
+            </div>
+            <div class="flex gap-2">
+              <%= link_to "View", curator_admin_curator_application_path(application), class: "text-indigo-600 hover:text-indigo-900 text-sm" %>
+              <% if application.pending? %>
+                <%= button_to "Approve", approve_curator_admin_curator_application_path(application), method: :post, class: "text-green-600 hover:text-green-900 text-sm" %>
+                <%= button_to "Reject", reject_curator_admin_curator_application_path(application), method: :post, class: "text-red-600 hover:text-red-900 text-sm" %>
+              <% end %>
+            </div>
+          </div>
+        </li>
+      <% end %>
+
+      <% if @applications.empty? %>
+        <li class="p-8 text-center text-gray-500">
+          No curator applications found
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>

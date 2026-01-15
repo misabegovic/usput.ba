@@ -97,6 +97,34 @@ Rails.application.routes.draw do
       end
     end
     resources :photo_suggestions, only: [:index, :show]
+
+    # Admin features for admin users within curator dashboard
+    namespace :admin do
+      resources :photo_suggestions, only: [:index, :show] do
+        member do
+          post :approve
+          post :reject
+        end
+      end
+      resources :users, only: [:index, :show, :edit, :update] do
+        member do
+          post :unblock
+        end
+      end
+      resources :curator_applications, only: [:index, :show] do
+        member do
+          post :approve
+          post :reject
+        end
+      end
+      resources :content_changes, only: [:index, :show] do
+        member do
+          post :approve
+          post :reject
+        end
+      end
+    end
+
     root "dashboard#index"
   end
 

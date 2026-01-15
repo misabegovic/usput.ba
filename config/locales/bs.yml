@@ -1078,6 +1078,34 @@ bs:
         easy: "Lako"
         moderate: "Umjereno"
         challenging: "Zahtjevno"
+    admin:
+      nav:
+        photo_suggestions: "Odobrenje fotografija"
+        users: "Upravljanje korisnicima"
+        curator_applications: "Prijave za kuratora"
+        content_changes: "Odobrenje sadržaja"
+      photo_suggestions:
+        title: "Prijedlozi fotografija"
+        approved: "Prijedlog fotografije uspješno odobren"
+        rejected: "Prijedlog fotografije uspješno odbijen"
+        approval_failed: "Nije uspjelo odobrenje prijedloga fotografije"
+        already_reviewed: "Ovaj prijedlog fotografije je već pregledan"
+      users:
+        title: "Upravljanje korisnicima"
+        updated: "Korisnik uspješno ažuriran"
+        unblocked: "Korisnik uspješno deblokiran"
+        not_blocked: "Ovaj korisnik nije blokiran"
+      curator_applications:
+        title: "Prijave za kuratora"
+        approved: "%{username} je odobren kao kurator"
+        rejected: "Prijava korisnika %{username} je odbijena"
+        already_reviewed: "Ova prijava je već pregledana"
+      content_changes:
+        title: "Promjene sadržaja"
+        approved: "Promjena sadržaja odobrena i primijenjena uspješno"
+        rejected: "Promjena sadržaja uspješno odbijena"
+        approval_failed: "Nije uspjelo primjenjivanje promjene sadržaja"
+        already_reviewed: "Ova promjena sadržaja je već pregledana"
 
   # Admin Dashboard
   admin:

@@ -2,7 +2,7 @@ module Authenticatable
   extend ActiveSupport::Concern
 
   included do
-    helper_method :current_user, :logged_in?, :current_user_can_curate?
+    helper_method :current_user, :logged_in?, :current_user_can_curate?, :current_user_admin?
   end
 
   private
@@ -43,6 +43,20 @@ module Authenticatable
     unless current_user_can_curate?
       respond_to do |format|
         format.html { redirect_to root_path, alert: t("auth.curator_required") }
+        format.json { render json: { error: "Forbidden" }, status: :forbidden }
+      end
+    end
+  end
+
+  # Admin permission helpers
+  def current_user_admin?
+    current_user&.admin?
+  end
+
+  def require_admin
+    unless current_user_admin?
+      respond_to do |format|
+        format.html { redirect_to curator_root_path, alert: t("auth.admin_required") }
         format.json { render json: { error: "Forbidden" }, status: :forbidden }
       end
     end

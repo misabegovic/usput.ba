@@ -16,6 +16,14 @@ class CuratorActivity < ApplicationRecord
     photo_suggested
     resource_viewed
     login
+    approve_photo_suggestion
+    reject_photo_suggestion
+    update_user
+    unblock_user
+    approve_curator_application
+    reject_curator_application
+    approve_content_change
+    reject_content_change
   ].freeze
 
   validates :action, presence: true, inclusion: { in: ACTIONS }

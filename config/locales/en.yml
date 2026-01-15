@@ -1323,6 +1323,34 @@ en:
         create_content: "Create"
         update_content: "Update"
         delete_content: "Delete"
+    admin:
+      nav:
+        photo_suggestions: "Photo Approvals"
+        users: "User Management"
+        curator_applications: "Curator Applications"
+        content_changes: "Content Approvals"
+      photo_suggestions:
+        title: "Photo Suggestions"
+        approved: "Photo suggestion approved successfully"
+        rejected: "Photo suggestion rejected successfully"
+        approval_failed: "Failed to approve photo suggestion"
+        already_reviewed: "This photo suggestion has already been reviewed"
+      users:
+        title: "User Management"
+        updated: "User updated successfully"
+        unblocked: "User unblocked successfully"
+        not_blocked: "This user is not blocked"
+      curator_applications:
+        title: "Curator Applications"
+        approved: "%{username} has been approved as a curator"
+        rejected: "%{username}'s application has been rejected"
+        already_reviewed: "This application has already been reviewed"
+      content_changes:
+        title: "Content Changes"
+        approved: "Content change approved and applied successfully"
+        rejected: "Content change rejected successfully"
+        approval_failed: "Failed to apply content change"
+        already_reviewed: "This content change has already been reviewed"
 
   # Admin Dashboard
   admin:
