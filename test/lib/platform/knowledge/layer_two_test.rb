@@ -271,4 +271,163 @@ class Platform::Knowledge::LayerTwoTest < ActiveSupport::TestCase
 
     assert result.any?
   end
+
+  # Mocked AI client tests
+
+  test "generate_ai_cluster_proposals with mocked RubyLLM" do
+    sample_data = [{ id: 1, name: "Test", city: "Sarajevo", description: "Ottoman heritage location" }]
+
+    # Mock chat response
+    mock_chat = Object.new
+    mock_response = Object.new
+    mock_response.define_singleton_method(:content) do
+      '[{"slug": "test-ai", "name": "Test AI", "summary": "AI generated", "keywords": ["test"]}]'
+    end
+    mock_chat.define_singleton_method(:ask) { |_prompt| mock_response }
+
+    RubyLLM.stub(:chat, mock_chat) do
+      RubyLLM.config.stub(:default_model, "claude-sonnet-4-20250514") do
+        result = Platform::Knowledge::LayerTwo.send(:generate_ai_cluster_proposals, sample_data)
+
+        assert result.any?
+        assert_equal "test-ai", result.first[:slug]
+      end
+    end
+  end
+
+  test "generate_ai_cluster_proposals returns fallback when RubyLLM raises" do
+    sample_data = [{ id: 1, name: "Test", city: "Test", description: "Test" }]
+
+    RubyLLM.stub(:chat, ->(*) { raise "API Error" }) do
+      RubyLLM.config.stub(:default_model, "claude-sonnet-4-20250514") do
+        result = Platform::Knowledge::LayerTwo.send(:generate_ai_cluster_proposals, sample_data)
+
+        assert result.any?
+        # Should return fallback clusters
+        assert result.any? { |c| c[:slug] == "ottoman-heritage" }
+      end
+    end
+  end
+
+  test "generate_embedding with mocked OpenAI client" do
+    original_key = ENV["OPENAI_API_KEY"]
+    ENV["OPENAI_API_KEY"] = "test-key"
+
+    mock_response = { "data" => [{ "embedding" => [0.1, 0.2, 0.3] }] }
+    mock_client = Object.new
+    mock_client.define_singleton_method(:embeddings) { |**_args| mock_response }
+
+    OpenAI::Client.stub(:new, mock_client) do
+      result = Platform::Knowledge::LayerTwo.generate_embedding("test text")
+
+      assert_equal [0.1, 0.2, 0.3], result
+    end
+  ensure
+    ENV["OPENAI_API_KEY"] = original_key
+  end
+
+  test "generate_embedding handles API errors gracefully" do
+    original_key = ENV["OPENAI_API_KEY"]
+    ENV["OPENAI_API_KEY"] = "test-key"
+
+    mock_client = Object.new
+    mock_client.define_singleton_method(:embeddings) { |**_args| raise "API Error" }
+
+    OpenAI::Client.stub(:new, mock_client) do
+      result = Platform::Knowledge::LayerTwo.generate_embedding("test text")
+
+      assert_nil result
+    end
+  ensure
+    ENV["OPENAI_API_KEY"] = original_key
+  end
+
+  test "semantic_search with mocked pgvector and embedding" do
+    KnowledgeCluster.stub(:semantic_search_available?, true) do
+      # Mock embedding generation
+      Platform::Knowledge::LayerTwo.stub(:generate_embedding, [0.1, 0.2, 0.3]) do
+        mock_results = [KnowledgeCluster.new(slug: "test", name: "Test", member_count: 10)]
+
+        KnowledgeCluster.stub(:semantic_search, mock_results) do
+          result = Platform::Knowledge::LayerTwo.semantic_search("ottoman heritage")
+
+          assert result.any?
+          assert_equal "test", result.first.slug
+        end
+      end
+    end
+  end
+
+  test "semantic_search returns empty when embedding generation fails" do
+    KnowledgeCluster.stub(:semantic_search_available?, true) do
+      Platform::Knowledge::LayerTwo.stub(:generate_embedding, nil) do
+        result = Platform::Knowledge::LayerTwo.semantic_search("test query")
+
+        assert_equal [], result
+      end
+    end
+  end
+
+  test "generate_all_embeddings with mocked pgvector" do
+    KnowledgeCluster.create!(slug: "needs-embedding", name: "Needs Embedding", summary: "A test summary", embedding: nil)
+
+    KnowledgeCluster.stub(:semantic_search_available?, true) do
+      Platform::Knowledge::LayerTwo.stub(:generate_embedding, [0.1, 0.2, 0.3]) do
+        Platform::Knowledge::LayerTwo.generate_all_embeddings
+
+        cluster = KnowledgeCluster.find_by(slug: "needs-embedding")
+        # Embedding should have been set (if vector column exists)
+        assert cluster.present?
+      end
+    end
+  end
+
+  test "create_or_update_cluster handles validation errors" do
+    # Create a proposal with missing required fields that would fail validation
+    proposal = {
+      slug: nil, # Invalid - slug is required
+      name: nil,
+      summary: nil,
+      keywords: []
+    }
+
+    result = Platform::Knowledge::LayerTwo.send(:create_or_update_cluster, proposal)
+
+    # Should return nil on error
+    assert_nil result
+  end
+
+  test "assign_records_to_cluster handles duplicate membership errors" do
+    cluster = KnowledgeCluster.create!(
+      slug: "dupe-test",
+      name: "Dupe Test",
+      stats: { keywords: %w[most osmanski] }
+    )
+
+    # Create an existing membership
+    ClusterMembership.create!(
+      knowledge_cluster: cluster,
+      record_type: "Location",
+      record_id: @location1.id
+    )
+
+    # Should not raise when encountering duplicates
+    assert_nothing_raised do
+      Platform::Knowledge::LayerTwo.send(:assign_records_to_cluster, cluster)
+    end
+  end
+
+  test "assign_records_to_cluster with stats using string keys" do
+    cluster = KnowledgeCluster.create!(
+      slug: "string-keys-test",
+      name: "String Keys Test",
+      stats: { "keywords" => %w[džamija osmanski] }
+    )
+
+    Platform::Knowledge::LayerTwo.send(:assign_records_to_cluster, cluster)
+
+    cluster.reload
+    # Should work with string keys
+    assert cluster.member_count >= 0
+  end
 end

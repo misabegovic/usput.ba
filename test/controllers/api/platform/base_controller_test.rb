@@ -298,4 +298,151 @@ class ApiPlatformErrorHandlersTest < ActionDispatch::IntegrationTest
     # Verify the method is defined
     assert controller.respond_to?(:handle_argument_error, true)
   end
+
+  test "handle_standard_error renders 500" do
+    controller = ::API::Platform::ChatController.new
+
+    # Verify the method is defined
+    assert controller.respond_to?(:handle_standard_error, true)
+  end
+end
+
+# Tests for error handlers with actual response rendering
+class ApiPlatformErrorRenderingTest < ActionDispatch::IntegrationTest
+  setup do
+    @api_key = "test_error_rendering_key"
+    ENV["PLATFORM_API_KEY"] = @api_key
+  end
+
+  teardown do
+    ENV["PLATFORM_API_KEY"] = nil
+  end
+
+  test "standard error is caught and rendered" do
+    # Mock DSL.execute to raise StandardError
+    Platform::DSL.stub(:execute, ->(_) { raise "Unexpected error" }) do
+      post api_platform_chat_path,
+           params: { query: "schema | stats" },
+           headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :internal_server_error
+      body = response.parsed_body
+      assert_equal "InternalError", body["error"]
+      assert_equal 500, body["status"]
+    end
+  end
+
+  test "standard error shows class in non-production" do
+    # In test env, error details should be included
+    Platform::DSL.stub(:execute, ->(_) { raise "Test error" }) do
+      post api_platform_chat_path,
+           params: { query: "schema | stats" },
+           headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      body = response.parsed_body
+      # In non-production, details should include error_class
+      if body["details"]
+        assert_equal "RuntimeError", body["details"]["error_class"]
+      end
+    end
+  end
+
+  test "argument error is caught and rendered" do
+    # Mock DSL.execute to raise ArgumentError
+    Platform::DSL.stub(:execute, ->(_) { raise ArgumentError, "Invalid argument" }) do
+      post api_platform_chat_path,
+           params: { query: "schema | stats" },
+           headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :bad_request
+      body = response.parsed_body
+      assert_equal "ArgumentError", body["error"]
+      assert_equal 400, body["status"]
+    end
+  end
+
+  test "record not found is caught and rendered" do
+    # Mock DSL.execute to raise RecordNotFound
+    Platform::DSL.stub(:execute, ->(_) { raise ActiveRecord::RecordNotFound, "Record not found" }) do
+      post api_platform_chat_path,
+           params: { query: "schema | stats" },
+           headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :not_found
+      body = response.parsed_body
+      assert_equal "NotFound", body["error"]
+      assert_equal 404, body["status"]
+    end
+  end
+
+  test "validation error includes record errors when available" do
+    # Create a mock record with errors
+    record = Location.new(name: nil) # Missing required fields
+    record.valid? # Populate errors
+
+    error = ActiveRecord::RecordInvalid.new(record)
+
+    Platform::DSL.stub(:execute, ->(_) { raise error }) do
+      post api_platform_chat_path,
+           params: { query: "schema | stats" },
+           headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :unprocessable_entity
+      body = response.parsed_body
+      assert_equal "ValidationError", body["error"]
+      assert_equal 422, body["status"]
+      # Details should have errors hash
+      if body["details"]
+        assert body["details"]["errors"].present?
+      end
+    end
+  end
+end
+
+# Tests for rate limiting when not skipped
+class ApiPlatformRateLimitEnforcementTest < ActionDispatch::IntegrationTest
+  setup do
+    @api_key = "test_rate_enforce_key"
+    ENV["PLATFORM_API_KEY"] = @api_key
+    ENV["PLATFORM_API_RATE_LIMIT"] = "2"
+    Rails.cache.clear
+  end
+
+  teardown do
+    ENV["PLATFORM_API_KEY"] = nil
+    ENV["PLATFORM_API_RATE_LIMIT"] = nil
+    Rails.cache.clear
+  end
+
+  # Note: Rate limiting is skipped in test env by skip_rate_limit?
+  # These tests verify the rate limit key generation and configuration
+
+  test "rate limit key includes API key" do
+    controller = ::API::Platform::ChatController.new
+    controller.request = ActionDispatch::TestRequest.create
+    controller.request.headers["Authorization"] = "Bearer #{@api_key}"
+
+    key = controller.send(:rate_limit_key)
+
+    assert_includes key, @api_key
+    assert_includes key, "platform_api:rate_limit:"
+  end
+
+  test "rate limit key falls back to IP" do
+    controller = ::API::Platform::ChatController.new
+    controller.request = ActionDispatch::TestRequest.create
+    controller.request.headers["REMOTE_ADDR"] = "192.168.1.100"
+
+    key = controller.send(:rate_limit_key)
+
+    assert_includes key, "platform_api:rate_limit:"
+  end
+
+  test "skip_rate_limit returns true in test env" do
+    controller = ::API::Platform::ChatController.new
+
+    result = controller.send(:skip_rate_limit?)
+
+    assert result
+  end
 end

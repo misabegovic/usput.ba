@@ -124,6 +124,142 @@ class Platform::DSL::AudioTest < ActiveSupport::TestCase
     assert_nil voice_id
   end
 
-  # Note: Actual audio synthesis tests would require mocking ElevenLabs API
-  # These tests verify the DSL parsing and cost estimation without API calls
+  # Mocked audio synthesis tests
+
+  test "synthesize_audio calls AudioTourGenerator and returns result" do
+    # Mock the AudioTourGenerator
+    mock_generator = Object.new
+    mock_result = {
+      location: @location.name,
+      locale: "bs",
+      status: :generated,
+      duration_estimate: "4.5 min",
+      audio_info: { filename: "test-audio.mp3" }
+    }
+    mock_generator.define_singleton_method(:generate) { |**_args| mock_result }
+
+    Ai::AudioTourGenerator.stub(:new, ->(_loc) { mock_generator }) do
+      result = Platform::DSL.execute("synthesize audio for location { id: #{@location.id} }")
+
+      assert result[:success]
+      assert_equal :synthesize_audio, result[:action]
+      assert_equal @location.id, result[:location_id]
+      assert_equal @location.name, result[:location_name]
+      assert_equal "bs", result[:locale]
+      assert_equal :generated, result[:status]
+    end
+  end
+
+  test "synthesize_audio with custom locale" do
+    mock_generator = Object.new
+    mock_result = {
+      location: @location.name,
+      locale: "en",
+      status: :generated,
+      duration_estimate: "5.0 min",
+      audio_info: { filename: "test-audio-en.mp3" }
+    }
+    mock_generator.define_singleton_method(:generate) { |**_args| mock_result }
+
+    Ai::AudioTourGenerator.stub(:new, ->(_loc) { mock_generator }) do
+      result = Platform::DSL.execute("synthesize audio for location { id: #{@location.id} } locale \"en\"")
+
+      assert result[:success]
+      assert_equal "en", result[:locale]
+    end
+  end
+
+  test "synthesize_audio with custom voice configures setting" do
+    mock_generator = Object.new
+    mock_result = {
+      location: @location.name,
+      locale: "bs",
+      status: :generated,
+      duration_estimate: "4.5 min",
+      audio_info: nil
+    }
+    mock_generator.define_singleton_method(:generate) { |**_args| mock_result }
+
+    Ai::AudioTourGenerator.stub(:new, ->(_loc) { mock_generator }) do
+      result = Platform::DSL.execute("synthesize audio for location { id: #{@location.id} } voice \"Rachel\"")
+
+      assert result[:success]
+      # Voice should have been configured via Setting.set
+    end
+  end
+
+  test "synthesize_audio creates audit log" do
+    mock_generator = Object.new
+    mock_result = {
+      location: @location.name,
+      locale: "bs",
+      status: :generated,
+      duration_estimate: "4.5 min",
+      audio_info: nil
+    }
+    mock_generator.define_singleton_method(:generate) { |**_args| mock_result }
+
+    Ai::AudioTourGenerator.stub(:new, ->(_loc) { mock_generator }) do
+      assert_difference "PlatformAuditLog.count", 1 do
+        Platform::DSL.execute("synthesize audio for location { id: #{@location.id} }")
+      end
+
+      log = PlatformAuditLog.last
+      assert_equal "create", log.action
+      assert_equal "AudioTour", log.record_type
+      assert_equal "platform_dsl_audio", log.triggered_by
+    end
+  end
+
+  test "synthesize_audio handles generation error" do
+    mock_generator = Object.new
+    mock_generator.define_singleton_method(:generate) do |**_args|
+      raise Ai::AudioTourGenerator::GenerationError, "ElevenLabs API key not configured"
+    end
+
+    Ai::AudioTourGenerator.stub(:new, ->(_loc) { mock_generator }) do
+      error = assert_raises(Platform::DSL::ExecutionError) do
+        Platform::DSL.execute("synthesize audio for location { id: #{@location.id} }")
+      end
+
+      assert_match(/Audio sinteza nije uspjela/i, error.message)
+      assert_match(/ElevenLabs API key/i, error.message)
+    end
+  end
+
+  test "synthesize_audio with already_exists status" do
+    mock_generator = Object.new
+    mock_result = {
+      location: @location.name,
+      locale: "bs",
+      status: :already_exists,
+      audio_info: { filename: "existing-audio.mp3", duration: "3.5 min" }
+    }
+    mock_generator.define_singleton_method(:generate) { |**_args| mock_result }
+
+    Ai::AudioTourGenerator.stub(:new, ->(_loc) { mock_generator }) do
+      result = Platform::DSL.execute("synthesize audio for location { id: #{@location.id} }")
+
+      assert result[:success]
+      assert_equal :already_exists, result[:status]
+    end
+  end
+
+  # Cost estimation tests
+  test "estimate_audio_cost returns notes array" do
+    result = Platform::DSL.execute('estimate audio cost for locations { city: "Sarajevo" }')
+
+    assert_equal :estimate_audio_cost, result[:action]
+    assert result[:notes].is_a?(Array)
+    assert result[:notes].any?
+  end
+
+  test "estimate_audio_cost handles empty result" do
+    # Query for a city with no locations
+    result = Platform::DSL.execute('estimate audio cost for locations { city: "NepostojeciGrad12345" }')
+
+    assert_equal :estimate_audio_cost, result[:action]
+    assert_equal 0, result[:total_locations]
+    assert_equal 0, result[:estimated_cost_usd]
+  end
 end

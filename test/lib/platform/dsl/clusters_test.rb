@@ -210,4 +210,69 @@ class Platform::DSL::ClustersTest < ActiveSupport::TestCase
     assert_equal 0, result[:total]
     assert_equal [], result[:clusters]
   end
+
+  # Semantic search with mocked pgvector availability
+  test "semantic_search_clusters when pgvector is available" do
+    # Mock pgvector availability and search results
+    KnowledgeCluster.stub(:semantic_search_available?, true) do
+      mock_results = [
+        OpenStruct.new(slug: "test-cluster", name: "Test Cluster", member_count: 25, summary: "A test cluster summary")
+      ]
+
+      Platform::Knowledge::LayerTwo.stub(:semantic_search, mock_results) do
+        result = Platform::DSL::Executor.send(:semantic_search_clusters, "test query")
+
+        assert_equal "test query", result[:query]
+        assert result[:results].is_a?(Array)
+        assert_equal "test-cluster", result[:results].first[:slug]
+      end
+    end
+  end
+
+  test "semantic_search_clusters truncates long summaries" do
+    KnowledgeCluster.stub(:semantic_search_available?, true) do
+      long_summary = "A" * 200
+      mock_results = [
+        OpenStruct.new(slug: "long-summary", name: "Long", member_count: 10, summary: long_summary)
+      ]
+
+      Platform::Knowledge::LayerTwo.stub(:semantic_search, mock_results) do
+        result = Platform::DSL::Executor.send(:semantic_search_clusters, "test")
+
+        # Summary should be truncated to 100 chars
+        assert result[:results].first[:summary].length <= 103 # 100 + "..."
+      end
+    end
+  end
+
+  test "semantic search through DSL execute" do
+    KnowledgeCluster.stub(:semantic_search_available?, true) do
+      mock_results = [@cluster]
+
+      Platform::Knowledge::LayerTwo.stub(:semantic_search, mock_results) do
+        result = Platform::DSL.execute('clusters | semantic "ottoman"')
+
+        assert result.is_a?(Hash)
+        if result[:query]
+          assert_equal "ottoman", result[:query]
+        end
+      end
+    end
+  end
+
+  test "show_cluster_members with nil similarity_score" do
+    location = Location.create!(name: "No Score Loc", city: "Test", lat: 43.1, lng: 18.1)
+
+    ClusterMembership.create!(
+      knowledge_cluster: @cluster,
+      record_type: "Location",
+      record_id: location.id,
+      similarity_score: nil
+    )
+
+    result = Platform::DSL.execute('clusters { id: "test-cluster" } | members')
+
+    nil_score_member = result[:members].find { |m| m[:id] == location.id }
+    assert_nil nil_score_member[:similarity] if nil_score_member
+  end
 end

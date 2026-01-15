@@ -553,4 +553,163 @@ class Platform::MCPServerTest < ActiveSupport::TestCase
     assert_equal "2.0", output["jsonrpc"]
     assert_equal 1, output["id"]
   end
+
+  # ===================
+  # Additional Coverage Tests
+  # ===================
+
+  test "handle_request handles resources/read method" do
+    Platform::DSL.stub :execute, { data: "test" } do
+      request = {
+        "method" => "resources/read",
+        "params" => { "uri" => "platform://schema" },
+        "id" => 1
+      }
+      result = @server.send(:handle_request, request)
+
+      assert result[:result].present?
+    end
+  end
+
+  test "handle_request handles prompts/get method" do
+    request = {
+      "method" => "prompts/get",
+      "params" => { "name" => "analyze_location", "arguments" => { "location" => "Test" } },
+      "id" => 1
+    }
+    result = @server.send(:handle_request, request)
+
+    assert result[:result][:messages].present?
+  end
+
+  test "list_prompts handles errors" do
+    Platform::DSL.stub :execute, ->(_) { raise StandardError, "Query failed" } do
+      result = @server.send(:list_prompts, nil)
+
+      assert result[:isError]
+    end
+  end
+
+  test "prepare_fix handles errors" do
+    Platform::DSL.stub :execute, ->(_) { raise StandardError, "Creation failed" } do
+      result = @server.send(:prepare_fix, { "description" => "Fix bug" })
+
+      assert result[:isError]
+    end
+  end
+
+  test "prepare_feature handles errors" do
+    Platform::DSL.stub :execute, ->(_) { raise StandardError, "Creation failed" } do
+      result = @server.send(:prepare_feature, { "description" => "Add feature" })
+
+      assert result[:isError]
+    end
+  end
+
+  test "read_prompts handles errors" do
+    Platform::DSL.stub :execute, ->(_) { raise StandardError, "Query failed" } do
+      result = @server.send(:read_prompts)
+
+      assert result[:error].present?
+    end
+  end
+
+  test "read_infrastructure handles errors" do
+    Platform::DSL.stub :execute, ->(_) { raise StandardError, "Query failed" } do
+      result = @server.send(:read_infrastructure)
+
+      assert result[:error].present?
+    end
+  end
+
+  test "execute_dsl with empty string query" do
+    result = @server.send(:execute_dsl, "")
+
+    assert result[:isError]
+    assert_includes result[:content].first[:text], "required"
+  end
+
+  test "handle_tools_call with nil arguments" do
+    Platform::DSL.stub :execute, { status: "ok" } do
+      result = @server.send(:handle_tools_call, {
+        "name" => "platform_status"
+        # No "arguments" key
+      })
+
+      assert result[:content].present?
+    end
+  end
+
+  test "handle_prompts_get with empty arguments" do
+    result = @server.send(:handle_prompts_get, {
+      "name" => "analyze_location"
+      # No "arguments" key
+    })
+
+    assert result[:messages].present?
+  end
+
+  test "handle_request returns error result properly formatted" do
+    request = {
+      "method" => "tools/call",
+      "params" => { "name" => "unknown_tool" },
+      "id" => 1
+    }
+    result = @server.send(:handle_request, request)
+
+    assert result[:error].present?
+    assert_equal 1, result[:id]
+    assert_equal "2.0", result[:jsonrpc]
+  end
+
+  test "class method run creates and runs server" do
+    mock_server = Object.new
+    run_called = false
+    mock_server.define_singleton_method(:run) { run_called = true }
+
+    Platform::MCPServer.stub(:new, mock_server) do
+      # Simulate very quick run
+      Platform::MCPServer.run
+    end
+
+    assert run_called
+  end
+
+  test "write_error with nil id" do
+    io = StringIO.new
+    original_stdout = $stdout
+    begin
+      $stdout = io
+      @server.send(:write_error, -32600, "Invalid Request", nil)
+    ensure
+      $stdout = original_stdout
+    end
+
+    output = JSON.parse(io.string)
+
+    assert_nil output["id"]
+    assert_equal(-32600, output["error"]["code"])
+  end
+
+  test "prepare_fix with severity only" do
+    Platform::DSL.stub :execute, { prompt_id: 1 } do
+      result = @server.send(:prepare_fix, {
+        "description" => "Fix bug",
+        "severity" => "critical"
+      })
+
+      assert result[:content].present?
+    end
+  end
+
+  test "prepare_fix with file only" do
+    Platform::DSL.stub :execute, { prompt_id: 1 } do
+      result = @server.send(:prepare_fix, {
+        "description" => "Fix bug",
+        "file" => "app/models/test.rb"
+      })
+
+      assert result[:content].present?
+    end
+  end
 end
