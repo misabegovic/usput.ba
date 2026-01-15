@@ -10,9 +10,12 @@ class Platform::BrainTest < ActiveSupport::TestCase
       self
     end
 
-    RubyLLM.stub :chat, @mock_chat do
-      @conversation = Platform::Conversation.new
-      @brain = Platform::Brain.new(@conversation)
+    # Stub LayerZero to prevent database access that can abort transactions
+    Platform::Knowledge::LayerZero.stub :for_system_prompt, "" do
+      RubyLLM.stub :chat, @mock_chat do
+        @conversation = Platform::Conversation.new
+        @brain = Platform::Brain.new(@conversation)
+      end
     end
   end
 
@@ -137,5 +140,86 @@ class Platform::BrainTest < ActiveSupport::TestCase
 
     assert_includes formatted, "Greška"
     assert_includes formatted, "Parse error"
+  end
+
+  test "execute_dsl_queries executes valid queries" do
+    # Mock DSL.execute to avoid transaction issues
+    Platform::DSL.stub :execute, 42 do
+      queries = [{ query: "prompts | count", raw: "[DSL: prompts | count]" }]
+
+      results = @brain.send(:execute_dsl_queries, queries)
+
+      assert_equal 1, results.size
+      assert_equal true, results[0][:success]
+      assert_equal 42, results[0][:result]
+    end
+  end
+
+  test "load_conversation_history can be called" do
+    # Just verify the method can be called without error
+    # The method currently doesn't do much, but we test it exists and runs
+    assert_nothing_raised do
+      @brain.send(:load_conversation_history)
+    end
+  end
+
+  test "process returns response with DSL content" do
+    # Create a mock response with DSL
+    mock_response = Object.new
+    def mock_response.content
+      "Here are [DSL: prompts | count] prompts"
+    end
+
+    # Mock the chat.ask method
+    @mock_chat.define_singleton_method(:ask) { |_msg| mock_response }
+
+    # Mock DSL execution and LayerZero
+    Platform::DSL.stub :execute, 42 do
+      Platform::Knowledge::LayerZero.stub :for_system_prompt, "" do
+        RubyLLM.stub :chat, @mock_chat do
+          @brain = Platform::Brain.new(@conversation)
+          result = @brain.process("Show me prompts")
+
+          assert result.key?(:content)
+          assert result.key?(:dsl_queries)
+          assert_includes result[:dsl_queries], "prompts | count"
+          # DSL block should be replaced with actual result (count)
+          refute_includes result[:content], "[DSL:"
+        end
+      end
+    end
+  end
+
+  test "process handles response without DSL blocks" do
+    mock_response = Object.new
+    def mock_response.content
+      "Hello! I can help you with your platform."
+    end
+
+    @mock_chat.define_singleton_method(:ask) { |_msg| mock_response }
+
+    RubyLLM.stub :chat, @mock_chat do
+      @brain = Platform::Brain.new(@conversation)
+      result = @brain.process("Hello")
+
+      assert_equal "Hello! I can help you with your platform.", result[:content]
+      assert_empty result[:dsl_queries]
+    end
+  end
+
+  test "knowledge_layer_zero returns layer zero content" do
+    Platform::Knowledge::LayerZero.stub :for_system_prompt, "## Layer Zero Stats" do
+      result = @brain.send(:knowledge_layer_zero)
+
+      assert_includes result, "Layer Zero Stats"
+    end
+  end
+
+  test "knowledge_layer_zero returns empty for blank content" do
+    Platform::Knowledge::LayerZero.stub :for_system_prompt, "" do
+      result = @brain.send(:knowledge_layer_zero)
+
+      assert_equal "", result
+    end
   end
 end
