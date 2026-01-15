@@ -4,7 +4,16 @@ require "test_helper"
 
 class Platform::BrainTest < ActiveSupport::TestCase
   setup do
-    @conversation = Platform::Conversation.new
+    # Create a mock chat that responds to with_instructions
+    @mock_chat = Object.new
+    def @mock_chat.with_instructions(_prompt)
+      self
+    end
+
+    RubyLLM.stub :chat, @mock_chat do
+      @conversation = Platform::Conversation.new
+      @brain = Platform::Brain.new(@conversation)
+    end
   end
 
   test "DSL_BLOCK_REGEX extracts single DSL block" do
@@ -37,62 +46,54 @@ class Platform::BrainTest < ActiveSupport::TestCase
   end
 
   test "extract_dsl_queries returns empty array when no DSL blocks" do
-    brain = Platform::Brain.new(@conversation)
-    queries = brain.send(:extract_dsl_queries, "No DSL here")
+    queries = @brain.send(:extract_dsl_queries, "No DSL here")
 
     assert_empty queries
   end
 
   test "extract_dsl_queries extracts queries from content" do
-    brain = Platform::Brain.new(@conversation)
     content = "Result: [DSL: schema | stats]"
-    queries = brain.send(:extract_dsl_queries, content)
+    queries = @brain.send(:extract_dsl_queries, content)
 
     assert_equal 1, queries.size
     assert_equal "schema | stats", queries[0][:query]
   end
 
   test "format_result formats hash" do
-    brain = Platform::Brain.new(@conversation)
-    result = brain.send(:format_result, { locations: 100, experiences: 50 })
+    result = @brain.send(:format_result, { locations: 100, experiences: 50 })
 
     assert_includes result, "locations: 100"
     assert_includes result, "experiences: 50"
   end
 
   test "format_result formats array" do
-    brain = Platform::Brain.new(@conversation)
-    result = brain.send(:format_result, ["item1", "item2"])
+    result = @brain.send(:format_result, ["item1", "item2"])
 
     assert_includes result, "• item1"
     assert_includes result, "• item2"
   end
 
   test "format_result handles string" do
-    brain = Platform::Brain.new(@conversation)
-    result = brain.send(:format_result, "simple string")
+    result = @brain.send(:format_result, "simple string")
 
     assert_equal "simple string", result
   end
 
   test "format_result handles numeric" do
-    brain = Platform::Brain.new(@conversation)
-    result = brain.send(:format_result, 42)
+    result = @brain.send(:format_result, 42)
 
     assert_equal "42", result
   end
 
   test "system_prompt contains base prompt" do
-    brain = Platform::Brain.new(@conversation)
-    prompt = brain.send(:system_prompt)
+    prompt = @brain.send(:system_prompt)
 
     assert_includes prompt, "Usput.ba Platform"
     assert_includes prompt, "DSL"
   end
 
   test "base_prompt includes DSL documentation" do
-    brain = Platform::Brain.new(@conversation)
-    prompt = brain.send(:base_prompt)
+    prompt = @brain.send(:base_prompt)
 
     assert_includes prompt, "schema | stats"
     assert_includes prompt, "locations { city:"
@@ -101,20 +102,17 @@ class Platform::BrainTest < ActiveSupport::TestCase
   end
 
   test "knowledge_layer_zero returns empty on error" do
-    brain = Platform::Brain.new(@conversation)
-
     # Force an error by stubbing
     Platform::Knowledge::LayerZero.stub :for_system_prompt, -> { raise StandardError, "test error" } do
-      result = brain.send(:knowledge_layer_zero)
+      result = @brain.send(:knowledge_layer_zero)
       assert_equal "", result
     end
   end
 
   test "execute_dsl_queries handles parse errors" do
-    brain = Platform::Brain.new(@conversation)
     queries = [{ query: "invalid!!! query", raw: "[DSL: invalid!!! query]" }]
 
-    results = brain.send(:execute_dsl_queries, queries)
+    results = @brain.send(:execute_dsl_queries, queries)
 
     assert_equal 1, results.size
     assert_equal false, results[0][:success]
@@ -122,22 +120,20 @@ class Platform::BrainTest < ActiveSupport::TestCase
   end
 
   test "format_response_with_results replaces DSL blocks" do
-    brain = Platform::Brain.new(@conversation)
     original = "Count: [DSL: schema | stats]"
     results = [{ query: "schema | stats", success: true, result: { total: 100 } }]
 
-    formatted = brain.send(:format_response_with_results, original, results)
+    formatted = @brain.send(:format_response_with_results, original, results)
 
     assert_includes formatted, "total: 100"
     refute_includes formatted, "[DSL:"
   end
 
   test "format_response_with_results handles errors" do
-    brain = Platform::Brain.new(@conversation)
     original = "Result: [DSL: bad query]"
     results = [{ query: "bad query", success: false, error: "Parse error" }]
 
-    formatted = brain.send(:format_response_with_results, original, results)
+    formatted = @brain.send(:format_response_with_results, original, results)
 
     assert_includes formatted, "Greška"
     assert_includes formatted, "Parse error"

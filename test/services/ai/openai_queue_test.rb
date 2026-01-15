@@ -340,24 +340,36 @@ module Ai
     end
 
     test "gateway error detection identifies 502 Bad Gateway" do
-      queue = Ai::OpenaiQueue.new
-      assert queue.send(:gateway_error_content?, "<html><title>502 Bad Gateway</title></html>")
+      mock_chat = Minitest::Mock.new
+      RubyLLM.stub :chat, mock_chat do
+        queue = Ai::OpenaiQueue.new
+        assert queue.send(:gateway_error_content?, "<html><title>502 Bad Gateway</title></html>")
+      end
     end
 
     test "gateway error detection identifies 503 Service Unavailable" do
-      queue = Ai::OpenaiQueue.new
-      assert queue.send(:gateway_error_content?, "<html><title>503 Service Unavailable</title></html>")
+      mock_chat = Minitest::Mock.new
+      RubyLLM.stub :chat, mock_chat do
+        queue = Ai::OpenaiQueue.new
+        assert queue.send(:gateway_error_content?, "<html><title>503 Service Unavailable</title></html>")
+      end
     end
 
     test "gateway error detection identifies Cloudflare errors" do
-      queue = Ai::OpenaiQueue.new
-      assert queue.send(:gateway_error_content?, "<html><body>Cloudflare Error</body></html>")
+      mock_chat = Minitest::Mock.new
+      RubyLLM.stub :chat, mock_chat do
+        queue = Ai::OpenaiQueue.new
+        assert queue.send(:gateway_error_content?, "<html><body>Cloudflare Error</body></html>")
+      end
     end
 
     test "gateway error detection returns false for normal content" do
-      queue = Ai::OpenaiQueue.new
-      refute queue.send(:gateway_error_content?, '{"result": "success"}')
-      refute queue.send(:gateway_error_content?, "Plain text response")
+      mock_chat = Minitest::Mock.new
+      RubyLLM.stub :chat, mock_chat do
+        queue = Ai::OpenaiQueue.new
+        refute queue.send(:gateway_error_content?, '{"result": "success"}')
+        refute queue.send(:gateway_error_content?, "Plain text response")
+      end
     end
 
     # === SSL error handling tests ===

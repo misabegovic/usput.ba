@@ -78,7 +78,7 @@ module Platform
             end
             { blocked: true, reason: analysis[:reason], details: analysis }
           elsif analysis[:suspicious]
-            { warning: true, warning: analysis[:warning], details: analysis }
+            { warning: true, message: analysis[:warning], details: analysis }
           else
             { ok: true, details: analysis }
           end
