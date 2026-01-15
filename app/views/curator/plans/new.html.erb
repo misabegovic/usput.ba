@@ -4,5 +4,5 @@
     <%= link_to t("curator.plans.back_to_list"), curator_plans_path, class: "text-sm text-emerald-600 hover:text-emerald-900" %>
   </div>
 
-  <%= render "form", plan: @plan %>
+  <%= render "form", plan: @plan, city_names: @city_names %>
 </div>

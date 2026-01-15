@@ -55,10 +55,8 @@ linters:
     present: true
 
   # Partial-specific linting
-  # Disabled: Fixing would require refactoring all partials to use locals
-  # TODO: Enable and fix in future sprint
   PartialInstanceVariable:
-    enabled: false
+    enabled: true
 
   # No JavaScript protocol in href
   NoJavascriptTagHelper:

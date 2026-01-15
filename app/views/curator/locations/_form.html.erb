@@ -27,7 +27,7 @@
             placeholder: t("curator.locations.city_placeholder", default: "e.g. Sarajevo"),
             list: "city_suggestions" %>
         <datalist id="city_suggestions">
-          <% @city_names.each do |name| %>
+          <% city_names.each do |name| %>
             <option value="<%= name %>">
           <% end %>
         </datalist>
@@ -126,7 +126,7 @@
     <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.locations.sections.experiences", default: "Suitable Experience Types") %></h3>
     <p class="text-sm text-gray-500 mb-4"><%= t("curator.locations.experiences_hint", default: "Select what types of experiences this location is suitable for") %></p>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-      <% @experience_types.each do |exp_type| %>
+      <% experience_types.each do |exp_type| %>
         <label class="flex items-center space-x-2 cursor-pointer">
           <%= check_box_tag "location[suitable_experiences][]", exp_type.key, location.suitable_experiences.include?(exp_type.key), class: "rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" %>
           <span class="text-sm text-gray-700"><%= exp_type.name %></span>

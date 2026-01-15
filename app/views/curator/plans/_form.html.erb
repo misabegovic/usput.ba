@@ -29,7 +29,7 @@
         <div>
           <%= f.label :city_name, t("curator.plans.city"), class: "block text-sm font-medium text-gray-700" %>
           <%= f.select :city_name,
-              options_for_select([[t("curator.plans.select_city"), ""]] + @city_names.map { |c| [c, c] }, plan.city_name),
+              options_for_select([[t("curator.plans.select_city"), ""]] + city_names.map { |c| [c, c] }, plan.city_name),
               {},
               class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
         </div>

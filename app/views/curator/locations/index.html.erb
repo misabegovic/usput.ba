@@ -6,7 +6,7 @@
   </div>
 
   <!-- Pending Proposals -->
-  <%= render "curator/shared/pending_proposals" %>
+  <%= render "curator/shared/pending_proposals", pending_proposals: @pending_proposals %>
 
   <!-- Filters Section -->
   <div class="rounded-lg bg-white shadow" data-controller="curator-filters">

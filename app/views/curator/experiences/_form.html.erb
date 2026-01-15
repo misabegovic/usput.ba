@@ -23,7 +23,7 @@
       <div>
         <%= f.label :experience_category_id, t("curator.experiences.category"), class: "block text-sm font-medium text-gray-700" %>
         <%= f.select :experience_category_id,
-            options_for_select(@experience_categories.map { |c| [c.name, c.id] }, experience.experience_category_id),
+            options_for_select(experience_categories.map { |c| [c.name, c.id] }, experience.experience_category_id),
             { prompt: t("curator.experiences.select_category") },
             class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
       </div>
@@ -155,7 +155,7 @@
       <label class="block text-sm font-medium text-gray-700 mb-2"><%= t("curator.experiences.add_location", default: "Add Location") %></label>
       <select id="location-search" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm">
         <option value=""><%= t("curator.experiences.search_location", default: "Search and select a location...") %></option>
-        <% @locations.each do |loc| %>
+        <% locations.each do |loc| %>
           <option value="<%= loc.uuid %>" data-name="<%= loc.name %>" data-city="<%= loc.city&.name %>" <%= 'disabled' if current_location_ids.include?(loc.id) %>>
             <%= loc.name %> (<%= loc.city&.name %>)
           </option>

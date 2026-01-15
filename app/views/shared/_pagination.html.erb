@@ -1,5 +1,5 @@
 <%# Mobile-friendly pagination component %>
-<%# Usage: render "shared/pagination", collection: @items %>
+<%# Usage: render "shared/pagination", collection: items %>
 
 <% if collection.respond_to?(:total_pages) && collection.total_pages > 1 %>
   <nav aria-label="<%= t('pagination.aria_label', default: 'Pagination') %>" class="mt-8">
