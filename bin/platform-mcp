@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Platform MCP Server
+#
+# This script starts the Model Context Protocol server for Platform,
+# allowing Claude Desktop and other MCP-compatible clients to interact
+# with the Usput.ba Platform DSL.
+#
+# Usage:
+#   bin/platform-mcp
+#
+# For Claude Desktop, add to claude_desktop_config.json:
+#   {
+#     "mcpServers": {
+#       "platform": {
+#         "command": "/path/to/usput.ba/bin/platform-mcp"
+#       }
+#     }
+#   }
+
+require_relative "../config/environment"
+
+# Ensure we're in the right directory
+Dir.chdir(Rails.root)
+
+# Silence Rails logging for MCP (stdout is used for protocol)
+Rails.logger.level = :warn
+
+# Run the MCP server
+Platform::MCPServer.run

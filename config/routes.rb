@@ -179,6 +179,27 @@ Rails.application.routes.draw do
     root "dashboard#index"
   end
 
+  # Platform API
+  namespace :api do
+    namespace :platform do
+      # Chat/DSL execution
+      post "chat", to: "chat#create"
+      post "execute", to: "chat#execute"
+      get "parse", to: "chat#parse"
+
+      # Status and health
+      get "status", to: "status#index"
+      get "health", to: "status#health"
+      get "statistics", to: "status#statistics"
+      get "infrastructure", to: "status#infrastructure"
+      get "logs", to: "status#logs"
+
+      # Prompts
+      get "prompts", to: "status#prompts"
+      get "prompts/:id", to: "status#show_prompt"
+    end
+  end
+
   # Defines the root path route ("/")
   root "new_design#home"
 end
