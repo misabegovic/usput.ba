@@ -383,4 +383,181 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
     assert result.length <= 100
   end
+
+  # Additional coverage tests
+
+  test "check_api_keys returns missing when ENV not set" do
+    original_anthropic = ENV["ANTHROPIC_API_KEY"]
+    original_geoapify = ENV["GEOAPIFY_API_KEY"]
+    original_elevenlabs = ENV["ELEVENLABS_API_KEY"]
+
+    ENV["ANTHROPIC_API_KEY"] = nil
+    ENV["GEOAPIFY_API_KEY"] = nil
+    ENV["ELEVENLABS_API_KEY"] = nil
+
+    result = Platform::DSL::Executor.send(:check_api_keys)
+
+    assert_equal "missing", result[:anthropic]
+    assert_equal "missing", result[:geoapify]
+    assert_equal "missing", result[:elevenlabs]
+  ensure
+    ENV["ANTHROPIC_API_KEY"] = original_anthropic
+    ENV["GEOAPIFY_API_KEY"] = original_geoapify
+    ENV["ELEVENLABS_API_KEY"] = original_elevenlabs
+  end
+
+  test "check_api_keys returns configured when ENV set" do
+    original_anthropic = ENV["ANTHROPIC_API_KEY"]
+    ENV["ANTHROPIC_API_KEY"] = "test-key"
+
+    result = Platform::DSL::Executor.send(:check_api_keys)
+
+    assert_equal "configured", result[:anthropic]
+  ensure
+    ENV["ANTHROPIC_API_KEY"] = original_anthropic
+  end
+
+  test "check_storage_health handles errors" do
+    ActiveStorage::Blob.stub(:service, ->{ raise "Storage error" }) do
+      result = Platform::DSL::Executor.send(:check_storage_health)
+
+      assert_equal "error", result[:status]
+    end
+  end
+
+  test "check_database_health handles errors" do
+    ActiveRecord::Base.connection.stub(:execute, ->(_) { raise "DB error" }) do
+      result = Platform::DSL::Executor.send(:check_database_health)
+
+      assert_equal "error", result[:status]
+    end
+  end
+
+  test "check_queue_health handles errors" do
+    SolidQueue::Job.stub(:where, ->(_) { raise "Queue error" }) do
+      result = Platform::DSL::Executor.send(:check_queue_health)
+
+      assert_equal "error", result[:status]
+    end
+  end
+
+  test "resolve_model raises for unknown table" do
+    # Test with a table that's not in the mapping
+    assert_raises(Platform::DSL::ExecutionError) do
+      Platform::DSL::Executor.send(:resolve_model, "unknown_nonexistent_table")
+    end
+  end
+
+  test "build_stats uses cached data when available" do
+    # Create a fresh cached stat
+    PlatformStatistic.find_or_create_by!(key: "layer_zero").update!(
+      value: {
+        "stats" => { "locations" => 999 },
+        "by_city" => {},
+        "coverage" => {},
+        "computed_at" => Time.current.iso8601
+      },
+      computed_at: 1.minute.ago
+    )
+
+    result = Platform::DSL::Executor.send(:build_stats)
+
+    assert_equal :cached, result[:source]
+  end
+
+  # Apply operation edge cases - test with valid operations only
+  test "apply_operation with order operation" do
+    result = Platform::DSL::Executor.send(:apply_operation, Location.all, { name: :order, args: [:name, :asc] })
+
+    # Should return an ActiveRecord relation
+    assert result.is_a?(ActiveRecord::Relation)
+  end
+
+  test "apply_operation with show returns array" do
+    result = Platform::DSL::Executor.send(:apply_operation, Location.all, { name: :show })
+
+    assert result.is_a?(Array)
+  end
+
+  # Where condition edge cases
+  test "apply_where_condition with not equal" do
+    scope = Platform::DSL::Executor.send(:apply_where_condition, Location.all, "id != 999999")
+
+    assert scope.to_sql.include?("!=") || scope.to_sql.include?("<>")
+  end
+
+  test "apply_where_condition with greater than or equal" do
+    scope = Platform::DSL::Executor.send(:apply_where_condition, Location.all, "id >= 1")
+
+    assert scope.to_sql.include?(">=")
+  end
+
+  test "apply_where_condition with less than or equal" do
+    scope = Platform::DSL::Executor.send(:apply_where_condition, Location.all, "id <= 999999")
+
+    assert scope.to_sql.include?("<=")
+  end
+
+  test "apply_where_condition with decimal value" do
+    scope = Platform::DSL::Executor.send(:apply_where_condition, Location.all, "lat > 43.5")
+
+    assert scope.to_sql.include?(">")
+  end
+
+  # Infrastructure query
+  test "execute_infrastructure_query" do
+    result = Platform::DSL.execute("infrastructure | health")
+
+    assert result.is_a?(Hash)
+    assert result.key?(:database) || result.key?(:status)
+  end
+
+  # Format record edge cases
+  test "format_record for Review falls back to attributes" do
+    user = User.create!(username: "review_test_#{SecureRandom.hex(4)}", password: "password123")
+    review = Review.create!(
+      reviewable: @sarajevo_location,
+      user: user,
+      rating: 5
+    )
+
+    result = Platform::DSL::Executor.send(:format_record, review)
+
+    # Falls back to attributes.slice which returns string keys
+    assert_equal review.id, result["id"]
+    assert result.is_a?(Hash)
+  end
+
+  test "format_record for AudioTour falls back to attributes" do
+    audio_tour = AudioTour.create!(
+      location: @sarajevo_location,
+      locale: "bs",
+      script: "Test script"
+    )
+
+    result = Platform::DSL::Executor.send(:format_record, audio_tour)
+
+    # Falls back to attributes.slice which returns string keys
+    assert_equal audio_tour.id, result["id"]
+    assert result.is_a?(Hash)
+  end
+
+  # Execute type routing
+  test "execute routes proposals_query correctly" do
+    result = Platform::DSL.execute("proposals | count")
+
+    assert result.is_a?(Hash) || result.is_a?(Integer)
+  end
+
+  test "execute routes curators_query correctly" do
+    result = Platform::DSL.execute("curators | count")
+
+    assert result.is_a?(Hash) || result.is_a?(Integer)
+  end
+
+  test "execute routes logs_query correctly" do
+    result = Platform::DSL.execute("logs | list")
+
+    assert result.is_a?(Hash) || result.is_a?(Array)
+  end
 end

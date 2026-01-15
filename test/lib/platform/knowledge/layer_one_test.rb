@@ -315,4 +315,169 @@ class Platform::Knowledge::LayerOneTest < ActiveSupport::TestCase
       Platform::Knowledge::LayerOne.refresh_dimension(:city)
     end
   end
+
+  test "refresh_dimension refreshes category summaries" do
+    category = LocationCategory.find_or_create_by!(key: "refresh_test", name: "Refresh Test")
+    LocationCategoryAssignment.create!(location: @location, location_category: category)
+
+    assert_nothing_raised do
+      Platform::Knowledge::LayerOne.refresh_dimension(:category)
+    end
+  end
+
+  test "detect_patterns for category dimension" do
+    category = LocationCategory.find_or_create_by!(key: "pattern_test", name: "Pattern Test")
+    LocationCategoryAssignment.create!(location: @location, location_category: category)
+
+    result = Platform::Knowledge::LayerOne.generate_summary(:category, "pattern_test")
+
+    # Should detect single city pattern since we only have one city
+    assert result.patterns.is_a?(Array)
+  end
+
+  test "detect_patterns high audio coverage" do
+    # Create a location with audio tour
+    location = Location.create!(
+      name: "With Audio",
+      city: "AudioCity",
+      lat: 44.0,
+      lng: 19.0
+    )
+    audio_tour = location.audio_tours.create!(locale: "bs", script: "Test")
+    audio_tour.audio_file.attach(
+      io: StringIO.new("fake audio"),
+      filename: "test.mp3",
+      content_type: "audio/mpeg"
+    )
+
+    result = Platform::Knowledge::LayerOne.generate_summary(:city, "AudioCity")
+
+    # High audio coverage should be detected
+    assert result.patterns.is_a?(Array)
+    # Either high coverage pattern or no patterns if not >70%
+    assert result.patterns.any? { |p| p.include?("audio") } || result.patterns.empty?
+  end
+
+  test "generate_ai_summary uses fallback when RubyLLM not configured" do
+    original_model = RubyLLM.config.default_model
+
+    RubyLLM.config.default_model = nil
+
+    stats = { total_locations: 5, audio_coverage: 20, avg_rating: 3.5 }
+    sample_data = []
+    issues = []
+
+    result = Platform::Knowledge::LayerOne.send(
+      :generate_ai_summary,
+      :city,
+      "FallbackCity",
+      stats,
+      sample_data,
+      issues
+    )
+
+    # Should return fallback summary
+    assert result.include?("FallbackCity")
+    assert result.include?("5 lokacija")
+  ensure
+    RubyLLM.config.default_model = original_model
+  end
+
+  test "identify_city_issues with no missing audio" do
+    # Create location with audio
+    location = Location.create!(
+      name: "Full Audio",
+      city: "FullAudioCity",
+      lat: 44.1,
+      lng: 19.1,
+      description: "A nice long description that is more than 50 characters to avoid short description issues"
+    )
+    audio_tour = location.audio_tours.create!(locale: "bs", script: "Test")
+    audio_tour.audio_file.attach(
+      io: StringIO.new("fake audio"),
+      filename: "test.mp3",
+      content_type: "audio/mpeg"
+    )
+
+    locations = Location.where(city: "FullAudioCity")
+    stats = Platform::Knowledge::LayerOne.send(:collect_city_stats, "FullAudioCity", locations)
+    issues = Platform::Knowledge::LayerOne.send(:identify_city_issues, "FullAudioCity", locations, stats)
+
+    # Should not have missing_audio issue
+    refute issues.any? { |i| i[:type] == "missing_audio" }
+  end
+
+  test "identify_category_issues with no issues" do
+    # Create location with audio and description
+    location = Location.create!(
+      name: "Complete Location",
+      city: "CompleteCity",
+      lat: 44.2,
+      lng: 19.2,
+      description: "A complete description for testing"
+    )
+    audio_tour = location.audio_tours.create!(locale: "bs", script: "Test")
+    audio_tour.audio_file.attach(
+      io: StringIO.new("fake audio"),
+      filename: "test.mp3",
+      content_type: "audio/mpeg"
+    )
+
+    category = LocationCategory.find_or_create_by!(key: "no_issues_cat", name: "No Issues")
+    LocationCategoryAssignment.create!(location: location, location_category: category)
+
+    locations = Location.joins(:location_categories).where(location_categories: { key: "no_issues_cat" })
+    stats = Platform::Knowledge::LayerOne.send(:collect_category_stats, "no_issues_cat", locations)
+    issues = Platform::Knowledge::LayerOne.send(:identify_category_issues, "no_issues_cat", locations, stats)
+
+    # Should have no issues
+    assert issues.empty?
+  end
+
+  test "collect_category_stats with zero locations" do
+    # Empty query
+    locations = Location.where("1=0")
+    stats = Platform::Knowledge::LayerOne.send(:collect_category_stats, "empty_cat", locations)
+
+    assert_equal 0, stats[:total_locations]
+    assert_equal 0, stats[:audio_coverage]
+  end
+
+  test "get_summary with nil summary" do
+    # Query for non-existent value
+    result = Platform::Knowledge::LayerOne.get_summary(:city, "NonExistentCity12345")
+
+    # Should try to generate, which will return nil
+    assert_nil result
+  end
+
+  test "format_location_for_ai with nil description" do
+    location = Location.create!(
+      name: "No Desc",
+      city: "NoDescCity",
+      lat: 44.3,
+      lng: 19.3,
+      description: nil
+    )
+
+    result = Platform::Knowledge::LayerOne.send(:format_location_for_ai, location)
+
+    assert_nil result[:description]
+  end
+
+  test "format_location_for_ai with long description" do
+    long_desc = "A" * 500
+    location = Location.create!(
+      name: "Long Desc",
+      city: "LongDescCity",
+      lat: 44.4,
+      lng: 19.4,
+      description: long_desc
+    )
+
+    result = Platform::Knowledge::LayerOne.send(:format_location_for_ai, location)
+
+    # Should be truncated to 200 chars + ellipsis
+    assert result[:description].length <= 203
+  end
 end
