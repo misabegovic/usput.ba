@@ -206,7 +206,25 @@ module Platform
         end
       end
 
-      # Summaries command
+      # Summaries command and other command_type queries
+      # Command with just type (no filters, no operations)
+      rule(query: { command_type: simple(:cmd) }) do |dict|
+        {
+          type: :"#{dict[:cmd]}_query",
+          filters: {},
+          operations: []
+        }
+      end
+
+      # Command with filters only (no operations)
+      rule(query: { command_type: simple(:cmd), filters: subtree(:f) }) do |dict|
+        {
+          type: :"#{dict[:cmd]}_query",
+          filters: Transform.convert_filters(dict[:f]),
+          operations: []
+        }
+      end
+
       rule(query: { command_type: simple(:cmd), operations: subtree(:ops) }) do |dict|
         {
           type: :"#{dict[:cmd]}_query",

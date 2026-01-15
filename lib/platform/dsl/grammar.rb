@@ -277,13 +277,32 @@ module Platform
         block_curator_command | unblock_curator_command
       end
 
+      # Introspection commands
+      # code { file: "path" } | read_file
+      # code | search "pattern"
+      rule(:code_command) do
+        str("code").as(:command_type) >> space? >> filters.maybe >> space? >> operations.maybe
+      end
+
+      # logs { last: "24h" } | errors
+      # logs | slow_queries { threshold: 1000 }
+      rule(:logs_command) do
+        str("logs").as(:command_type) >> space? >> filters.maybe >> space? >> operations.maybe
+      end
+
+      # infrastructure | queue_status
+      # infrastructure | health
+      rule(:infrastructure_command) do
+        str("infrastructure").as(:command_type) >> space? >> filters.maybe >> space? >> operations.maybe
+      end
+
       # Full query
       rule(:table_query) do
         table_with_filters >> space? >> operations.maybe
       end
 
       rule(:query) do
-        space? >> (schema_command | summaries_command | clusters_command | external_command | proposals_command | applications_command | curators_command | approval_command | curator_management_command | create_command | update_command | delete_command | generation_command | audio_command | table_query).as(:query) >> space?
+        space? >> (schema_command | summaries_command | clusters_command | external_command | proposals_command | applications_command | curators_command | code_command | logs_command | infrastructure_command | approval_command | curator_management_command | create_command | update_command | delete_command | generation_command | audio_command | table_query).as(:query) >> space?
       end
 
       root(:query)

@@ -65,6 +65,12 @@ module Platform
             execute_curators_query(ast)
           when :curator_management
             execute_curator_management(ast)
+          when :code_query
+            execute_code_query(ast)
+          when :logs_query
+            execute_logs_query(ast)
+          when :infrastructure_query
+            execute_infrastructure_query(ast)
           else
             raise ExecutionError, "Nepoznat tip query-ja: #{ast[:type]}"
           end
@@ -2044,6 +2050,629 @@ module Platform
             curator_id: curator.id,
             username: curator.username,
             message: "Kurator je odblokiran"
+          }
+        end
+
+        # Code introspection queries
+        def execute_code_query(ast)
+          filters = ast[:filters] || {}
+          operation = ast[:operations]&.first
+
+          case operation&.dig(:name)
+          when :read_file
+            read_file(filters)
+          when :search
+            search_code(filters, operation[:args]&.first)
+          when :grep
+            grep_code(filters, operation[:args]&.first)
+          when :structure
+            show_code_structure(filters)
+          when :models
+            list_models
+          when :routes
+            list_routes
+          else
+            # Default: show code structure overview
+            code_overview
+          end
+        end
+
+        def read_file(filters)
+          file_path = filters[:file] || filters[:path]
+          raise ExecutionError, "Potreban filter: file ili path" unless file_path
+
+          # Security: Only allow reading files within the Rails root
+          full_path = Rails.root.join(file_path).to_s
+          unless full_path.start_with?(Rails.root.to_s)
+            raise ExecutionError, "Pristup fajlovima izvan projekta nije dozvoljen"
+          end
+
+          unless File.exist?(full_path)
+            raise ExecutionError, "Fajl nije pronađen: #{file_path}"
+          end
+
+          content = File.read(full_path)
+          lines = content.lines
+
+          # Apply line limits if specified
+          start_line = (filters[:from] || 1).to_i - 1
+          end_line = filters[:to] ? filters[:to].to_i : lines.size
+          selected_lines = lines[start_line...end_line]
+
+          {
+            action: :read_file,
+            path: file_path,
+            total_lines: lines.size,
+            showing: "#{start_line + 1}-#{[end_line, lines.size].min}",
+            content: selected_lines&.join || "",
+            file_type: File.extname(file_path).delete(".")
+          }
+        end
+
+        def search_code(filters, pattern)
+          raise ExecutionError, "Potreban search pattern" unless pattern
+
+          # Search using grep in the project
+          search_path = filters[:path] || "app lib"
+          file_type = filters[:type] || "rb"
+
+          results = []
+          search_path.split.each do |path|
+            full_path = Rails.root.join(path)
+            next unless Dir.exist?(full_path)
+
+            Dir.glob(full_path.join("**/*.#{file_type}")).each do |file|
+              File.readlines(file).each_with_index do |line, idx|
+                if line.include?(pattern)
+                  results << {
+                    file: file.sub("#{Rails.root}/", ""),
+                    line: idx + 1,
+                    content: line.strip.truncate(100)
+                  }
+                end
+              end
+            end
+          end
+
+          {
+            action: :search_code,
+            pattern: pattern,
+            file_type: file_type,
+            matches: results.size,
+            results: results.first(50)
+          }
+        end
+
+        def grep_code(filters, pattern)
+          search_code(filters, pattern)
+        end
+
+        def show_code_structure(filters)
+          path = filters[:path] || "app"
+          full_path = Rails.root.join(path)
+
+          unless Dir.exist?(full_path)
+            raise ExecutionError, "Direktorij nije pronađen: #{path}"
+          end
+
+          structure = {}
+          Dir.glob(full_path.join("**/*")).each do |item|
+            next if File.directory?(item)
+
+            relative = item.sub("#{full_path}/", "")
+            parts = relative.split("/")
+            current = structure
+
+            parts[0...-1].each do |dir|
+              current[dir] ||= {}
+              current = current[dir]
+            end
+
+            current[parts.last] = File.size(item)
+          end
+
+          {
+            action: :code_structure,
+            path: path,
+            structure: structure,
+            total_files: Dir.glob(full_path.join("**/*")).count { |f| File.file?(f) }
+          }
+        end
+
+        def list_models
+          models = Dir.glob(Rails.root.join("app/models/**/*.rb")).map do |file|
+            model_name = File.basename(file, ".rb").camelize
+            begin
+              model = model_name.constantize
+              next unless model < ApplicationRecord
+
+              {
+                name: model_name,
+                table: model.table_name,
+                columns: model.column_names.size,
+                associations: model.reflect_on_all_associations.map(&:name)
+              }
+            rescue => e
+              nil
+            end
+          end.compact
+
+          {
+            action: :list_models,
+            count: models.size,
+            models: models
+          }
+        end
+
+        def list_routes
+          routes = Rails.application.routes.routes.map do |route|
+            {
+              verb: route.verb,
+              path: route.path.spec.to_s.gsub("(.:format)", ""),
+              controller: route.defaults[:controller],
+              action: route.defaults[:action]
+            }
+          end.reject { |r| r[:controller].nil? }
+
+          {
+            action: :list_routes,
+            count: routes.size,
+            routes: routes.first(100)
+          }
+        end
+
+        def code_overview
+          {
+            action: :code_overview,
+            app: {
+              models: Dir.glob(Rails.root.join("app/models/**/*.rb")).size,
+              controllers: Dir.glob(Rails.root.join("app/controllers/**/*.rb")).size,
+              views: Dir.glob(Rails.root.join("app/views/**/*.erb")).size,
+              jobs: Dir.glob(Rails.root.join("app/jobs/**/*.rb")).size,
+              mailers: Dir.glob(Rails.root.join("app/mailers/**/*.rb")).size
+            },
+            lib: {
+              platform: Dir.glob(Rails.root.join("lib/platform/**/*.rb")).size,
+              services: Dir.glob(Rails.root.join("app/services/**/*.rb")).size
+            },
+            test: {
+              total: Dir.glob(Rails.root.join("test/**/*_test.rb")).size
+            },
+            config: {
+              routes: Rails.application.routes.routes.size,
+              initializers: Dir.glob(Rails.root.join("config/initializers/*.rb")).size
+            }
+          }
+        end
+
+        # Logs introspection queries
+        def execute_logs_query(ast)
+          filters = ast[:filters] || {}
+          operation = ast[:operations]&.first
+
+          case operation&.dig(:name)
+          when :errors
+            show_errors(filters)
+          when :slow_queries
+            show_slow_queries(filters)
+          when :recent
+            show_recent_logs(filters)
+          when :audit
+            show_audit_logs(filters)
+          when :dsl
+            show_dsl_logs(filters)
+          else
+            # Default: log summary
+            logs_summary(filters)
+          end
+        end
+
+        def show_errors(filters)
+          # Parse time filter
+          time_range = parse_time_range(filters[:last] || "24h")
+
+          # Get Rails logs errors (if accessible)
+          errors = []
+
+          # Check PlatformAuditLog for errors
+          audit_errors = PlatformAuditLog.where("created_at >= ?", time_range)
+                                         .where("change_data->>'error' IS NOT NULL")
+                                         .order(created_at: :desc)
+                                         .limit(50)
+
+          errors += audit_errors.map do |log|
+            {
+              type: "audit_error",
+              action: log.action,
+              record_type: log.record_type,
+              error: log.change_data["error"],
+              created_at: log.created_at.iso8601
+            }
+          end
+
+          # Check SolidQueue failed jobs
+          begin
+            if defined?(SolidQueue::Job) && SolidQueue::Job.table_exists?
+              failed_jobs = SolidQueue::Job.where("finished_at IS NOT NULL")
+                                           .where("created_at >= ?", time_range)
+                                           .order(created_at: :desc)
+                                           .limit(20)
+
+              errors += failed_jobs.map do |job|
+                {
+                  type: "failed_job",
+                  job_class: job.class_name,
+                  queue: job.queue_name,
+                  created_at: job.created_at.iso8601
+                }
+              end
+            end
+          rescue => e
+            # SolidQueue may not be set up
+          end
+
+          {
+            action: :show_errors,
+            time_range: filters[:last] || "24h",
+            count: errors.size,
+            errors: errors
+          }
+        end
+
+        def show_slow_queries(filters)
+          threshold_ms = (filters[:threshold] || 1000).to_i
+
+          # This would require ActiveRecord query logging to be enabled
+          # For now, return a placeholder that can be enhanced
+          {
+            action: :slow_queries,
+            threshold_ms: threshold_ms,
+            note: "Slow query logging requires ActiveRecord instrumentation",
+            suggestion: "Enable config.active_record.query_log_tags for query tracking",
+            recent_complex_queries: {
+              locations_with_audio: estimate_query_time("Location.with_audio.count"),
+              experience_aggregations: estimate_query_time("Experience.includes(:locations).count"),
+              knowledge_searches: estimate_query_time("KnowledgeCluster.semantic_search")
+            }
+          }
+        end
+
+        def show_recent_logs(filters)
+          limit = (filters[:limit] || 50).to_i
+
+          # Get recent audit logs
+          logs = PlatformAuditLog.order(created_at: :desc).limit(limit)
+
+          {
+            action: :recent_logs,
+            count: logs.size,
+            logs: logs.map do |log|
+              {
+                id: log.id,
+                action: log.action,
+                record_type: log.record_type,
+                record_id: log.record_id,
+                triggered_by: log.triggered_by,
+                created_at: log.created_at.iso8601
+              }
+            end
+          }
+        end
+
+        def show_audit_logs(filters)
+          scope = PlatformAuditLog.all
+
+          # Apply filters
+          scope = scope.where(action: filters[:action]) if filters[:action]
+          scope = scope.where(record_type: filters[:record_type]) if filters[:record_type]
+          scope = scope.where(triggered_by: filters[:triggered_by]) if filters[:triggered_by]
+
+          if filters[:last]
+            time_range = parse_time_range(filters[:last])
+            scope = scope.where("created_at >= ?", time_range)
+          end
+
+          logs = scope.order(created_at: :desc).limit(100)
+
+          {
+            action: :audit_logs,
+            count: logs.size,
+            total: scope.count,
+            by_action: PlatformAuditLog.group(:action).count,
+            by_record_type: PlatformAuditLog.group(:record_type).count,
+            logs: logs.map do |log|
+              {
+                id: log.id,
+                action: log.action,
+                record_type: log.record_type,
+                record_id: log.record_id,
+                changes: log.change_data&.keys,
+                triggered_by: log.triggered_by,
+                created_at: log.created_at.iso8601
+              }
+            end
+          }
+        end
+
+        def show_dsl_logs(filters)
+          # DSL-triggered actions
+          scope = PlatformAuditLog.where("triggered_by LIKE ?", "platform_dsl%")
+
+          if filters[:last]
+            time_range = parse_time_range(filters[:last])
+            scope = scope.where("created_at >= ?", time_range)
+          end
+
+          logs = scope.order(created_at: :desc).limit(50)
+
+          {
+            action: :dsl_logs,
+            count: logs.size,
+            by_trigger: scope.group(:triggered_by).count,
+            logs: logs.map do |log|
+              {
+                id: log.id,
+                action: log.action,
+                record_type: log.record_type,
+                record_id: log.record_id,
+                triggered_by: log.triggered_by,
+                created_at: log.created_at.iso8601
+              }
+            end
+          }
+        end
+
+        def logs_summary(filters)
+          time_range = parse_time_range(filters[:last] || "24h")
+
+          {
+            action: :logs_summary,
+            time_range: filters[:last] || "24h",
+            audit_logs: {
+              total: PlatformAuditLog.where("created_at >= ?", time_range).count,
+              by_action: PlatformAuditLog.where("created_at >= ?", time_range).group(:action).count,
+              by_record_type: PlatformAuditLog.where("created_at >= ?", time_range).group(:record_type).count,
+              dsl_triggered: PlatformAuditLog.where("created_at >= ? AND triggered_by LIKE ?", time_range, "platform_dsl%").count
+            },
+            queue: queue_summary
+          }
+        end
+
+        def parse_time_range(range_str)
+          case range_str.to_s.downcase
+          when /(\d+)h/
+            $1.to_i.hours.ago
+          when /(\d+)d/
+            $1.to_i.days.ago
+          when /(\d+)w/
+            $1.to_i.weeks.ago
+          when /(\d+)m/
+            $1.to_i.months.ago
+          else
+            24.hours.ago
+          end
+        end
+
+        def estimate_query_time(query_description)
+          # Placeholder for query time estimation
+          {
+            query: query_description,
+            estimated: "< 100ms",
+            note: "Actual timing requires profiling"
+          }
+        end
+
+        # Infrastructure introspection queries
+        def execute_infrastructure_query(ast)
+          filters = ast[:filters] || {}
+          operation = ast[:operations]&.first
+
+          case operation&.dig(:name)
+          when :queue_status
+            queue_status
+          when :health
+            infrastructure_health
+          when :processes
+            show_processes
+          when :storage
+            storage_status
+          when :database
+            database_status
+          when :cache
+            cache_status
+          else
+            # Default: full infrastructure status
+            infrastructure_overview
+          end
+        end
+
+        def queue_status
+          return { error: "SolidQueue not available" } unless defined?(SolidQueue::Job)
+
+          {
+            action: :queue_status,
+            jobs: {
+              pending: SolidQueue::Job.where(finished_at: nil).count,
+              scheduled: SolidQueue::ScheduledExecution.count,
+              failed: SolidQueue::FailedExecution.count
+            },
+            by_queue: SolidQueue::Job.where(finished_at: nil).group(:queue_name).count,
+            by_class: SolidQueue::Job.where(finished_at: nil).group(:class_name).count.first(10).to_h,
+            recent_failures: SolidQueue::FailedExecution.order(created_at: :desc).limit(5).map do |f|
+              {
+                job_class: f.job.class_name,
+                error: f.error&.truncate(100),
+                created_at: f.created_at.iso8601
+              }
+            end
+          }
+        rescue => e
+          { action: :queue_status, error: e.message }
+        end
+
+        def queue_summary
+          return {} unless defined?(SolidQueue::Job)
+
+          {
+            pending: SolidQueue::Job.where(finished_at: nil).count,
+            failed: SolidQueue::FailedExecution.count
+          }
+        rescue
+          {}
+        end
+
+        def infrastructure_health
+          {
+            action: :infrastructure_health,
+            database: check_database_health,
+            storage: check_storage_health,
+            queue: check_queue_health,
+            api_keys: check_api_keys,
+            memory: memory_status,
+            disk: disk_status
+          }
+        end
+
+        def show_processes
+          # Show Rails processes info
+          {
+            action: :processes,
+            ruby_version: RUBY_VERSION,
+            rails_version: Rails.version,
+            environment: Rails.env,
+            pid: Process.pid,
+            memory_mb: (`ps -o rss= -p #{Process.pid}`.to_i / 1024.0).round(2),
+            uptime: process_uptime
+          }
+        rescue => e
+          { action: :processes, error: e.message }
+        end
+
+        def storage_status
+          {
+            action: :storage_status,
+            service: ActiveStorage::Blob.service.class.name,
+            attachments_count: ActiveStorage::Attachment.count,
+            blobs_count: ActiveStorage::Blob.count,
+            total_size_mb: (ActiveStorage::Blob.sum(:byte_size) / 1_000_000.0).round(2),
+            by_content_type: ActiveStorage::Blob.group(:content_type).count.first(10).to_h
+          }
+        rescue => e
+          { action: :storage_status, error: e.message }
+        end
+
+        def database_status
+          conn = ActiveRecord::Base.connection
+
+          result = {
+            action: :database_status,
+            adapter: conn.adapter_name,
+            database: conn.current_database,
+            tables: conn.tables.size,
+            table_sizes: get_table_sizes
+          }
+
+          # Try to get migration info (may not be available in all environments)
+          begin
+            migrations = ActiveRecord::MigrationContext.new(Rails.root.join("db/migrate"))
+            result[:schema_version] = migrations.current_version
+            result[:pending_migrations] = migrations.needs_migration?
+          rescue => e
+            result[:schema_version] = "unavailable"
+            result[:pending_migrations] = "unavailable"
+          end
+
+          result
+        rescue => e
+          { action: :database_status, error: e.message }
+        end
+
+        def get_table_sizes
+          tables = %w[locations experiences plans users reviews content_changes knowledge_summaries]
+          tables.each_with_object({}) do |table, hash|
+            begin
+              hash[table] = ActiveRecord::Base.connection.execute("SELECT COUNT(*) FROM #{table}").first["count"]
+            rescue
+              hash[table] = "N/A"
+            end
+          end
+        end
+
+        def cache_status
+          {
+            action: :cache_status,
+            store: Rails.cache.class.name,
+            statistics: PlatformStatistic.count,
+            fresh_statistics: PlatformStatistic.where("updated_at >= ?", 5.minutes.ago).count
+          }
+        rescue => e
+          { action: :cache_status, error: e.message }
+        end
+
+        def memory_status
+          rss = `ps -o rss= -p #{Process.pid}`.to_i
+          {
+            rss_mb: (rss / 1024.0).round(2),
+            status: rss > 500_000 ? "high" : "normal"
+          }
+        rescue
+          { status: "unknown" }
+        end
+
+        def disk_status
+          df_output = `df -h #{Rails.root} 2>/dev/null`.lines.last&.split
+          if df_output && df_output.size >= 5
+            {
+              filesystem: df_output[0],
+              size: df_output[1],
+              used: df_output[2],
+              available: df_output[3],
+              use_percent: df_output[4]
+            }
+          else
+            { status: "unknown" }
+          end
+        rescue
+          { status: "unknown" }
+        end
+
+        def process_uptime
+          # Try to get process start time
+          start_time = File.stat("/proc/#{Process.pid}").ctime rescue nil
+          return "unknown" unless start_time
+
+          seconds = Time.now - start_time
+          if seconds < 3600
+            "#{(seconds / 60).to_i} minutes"
+          elsif seconds < 86400
+            "#{(seconds / 3600).to_i} hours"
+          else
+            "#{(seconds / 86400).to_i} days"
+          end
+        rescue
+          "unknown"
+        end
+
+        def infrastructure_overview
+          {
+            action: :infrastructure_overview,
+            environment: Rails.env,
+            ruby: RUBY_VERSION,
+            rails: Rails.version,
+            database: {
+              adapter: ActiveRecord::Base.connection.adapter_name,
+              tables: ActiveRecord::Base.connection.tables.size
+            },
+            storage: {
+              service: ActiveStorage::Blob.service.class.name,
+              attachments: ActiveStorage::Attachment.count
+            },
+            queue: queue_summary,
+            health: {
+              database: check_database_health[:status],
+              api_keys: check_api_keys.values.count("configured"),
+              total_api_keys: check_api_keys.size
+            }
           }
         end
       end
