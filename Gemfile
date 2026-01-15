@@ -110,6 +110,16 @@ group :test do
 
   # Pin minitest to 5.x - version 6.0 has breaking changes incompatible with Rails 8.1
   gem "minitest", "~> 5.25"
+
+  # Test coverage
+  gem "simplecov", require: false
+  gem "simplecov-lcov", require: false
+end
+
+# CI-only gems (require system dependencies like cmake, libgit2)
+group :ci do
+  # Coverage enforcement on PRs - requires cmake and libgit2-dev
+  gem "undercover"
 end
 
 gem "tailwindcss-rails", "~> 4.0"

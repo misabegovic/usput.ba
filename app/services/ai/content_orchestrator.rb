@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 module Ai
+  # @deprecated Use Platform DSL instead: bin/platform chat
+  #   This service will be removed in a future release.
+  #   Platform DSL provides the same functionality with better control.
+  #
   # Glavni orkestratar za autonomno AI generiranje sadržaja
   # Admin samo klikne jedan gumb - AI odlučuje SVE:
   # - Koje gradove obraditi

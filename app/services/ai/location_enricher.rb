@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 module Ai
+  # @deprecated Use Platform DSL instead: bin/platform chat
+  #   This service will be removed in a future release.
+  #   Use DSL: locations { id: X } | generate { style: "detailed" }
+  #
   # Obogaćuje lokaciju sa AI-generisanim sadržajem
   # Koristi postojeća polja Location modela bez migracija
   class LocationEnricher

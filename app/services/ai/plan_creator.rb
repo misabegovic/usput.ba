@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 module Ai
+  # @deprecated Use Platform DSL instead: bin/platform chat
+  #   This service will be removed in a future release.
+  #   Use DSL: plans | create { profile: "family", city: "Mostar" }
+  #
   # Kreira Plan-ove za različite profile turista
   # Koristi SVE dostupne Experience-e iz baze (ne samo nove)
   # Jedan Experience može biti u više Plan-ova

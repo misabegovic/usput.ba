@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 module Ai
+  # @deprecated Use Platform DSL instead: bin/platform chat
+  #   This service will be removed in a future release.
+  #   Use DSL: locations { city: "X" } | generate_experience
+  #
   # Kreira Experience-e od postojećih lokacija
   # Može kreirati lokalne (unutar grada) i tematske (cross-city) Experience-e
   # Poštuje max_experiences limit za kontrolu broja kreiranih Experience-a

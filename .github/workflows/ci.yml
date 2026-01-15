@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+env:
+  RAILS_ENV: test
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_HOST: localhost
+  POSTGRES_PORT: 5432
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history needed for undercover
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake libgit2-dev
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+        env:
+          BUNDLE_WITH: ci
+
+      - name: Create databases
+        run: |
+          psql -h localhost -U postgres -c "CREATE DATABASE klosaer_test;"
+          psql -h localhost -U postgres -c "CREATE DATABASE klosaer_queue_test;"
+          psql -h localhost -U postgres -d klosaer_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
+        env:
+          PGPASSWORD: postgres
+
+      - name: Setup database
+        run: bin/rails db:schema:load
+
+      - name: Run tests with coverage
+        run: bin/rails test
+        env:
+          COVERAGE: true
+
+      - name: Run Undercover (coverage check for changed files)
+        if: github.event_name == 'pull_request'
+        run: bundle exec undercover --compare origin/${{ github.base_ref }}
