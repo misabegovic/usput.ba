@@ -59,6 +59,9 @@ jobs:
       - name: Setup database
         run: bin/rails db:schema:load
 
+      - name: Run ERB lint
+        run: bundle exec erb_lint --lint-all
+
       - name: Run tests with coverage
         run: bin/rails test
         env:

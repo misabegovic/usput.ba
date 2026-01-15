@@ -20,15 +20,13 @@
         <div class="flex items-center gap-2 flex-shrink-0">
           <button
             data-action="click->pwa-install#install"
-            class="bg-white text-blue-600 font-semibold text-sm px-4 py-2 rounded-lg shadow-sm hover:bg-blue-50 transition-colors"
-          >
+            class="bg-white text-blue-600 font-semibold text-sm px-4 py-2 rounded-lg shadow-sm hover:bg-blue-50 transition-colors">
             <%= t('pwa.install_button', default: 'Instaliraj') %>
           </button>
           <button
             data-action="click->pwa-install#dismiss"
             class="text-white/80 hover:text-white p-2 transition-colors"
-            aria-label="<%= t('common.close', default: 'Zatvori') %>"
-          >
+            aria-label="<%= t('common.close', default: 'Zatvori') %>">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
@@ -63,8 +61,7 @@
         <button
           data-action="click->pwa-install#dismiss"
           class="text-white/80 hover:text-white p-2 transition-colors"
-          aria-label="<%= t('common.close', default: 'Zatvori') %>"
-        >
+          aria-label="<%= t('common.close', default: 'Zatvori') %>">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -78,8 +75,7 @@
     <%# Backdrop %>
     <div
       class="absolute inset-0 bg-black/50 backdrop-blur-sm"
-      data-action="click->pwa-install#hideIOSInstructions"
-    ></div>
+      data-action="click->pwa-install#hideIOSInstructions"></div>
 
     <%# Modal content %>
     <div class="relative bg-white dark:bg-gray-800 rounded-t-2xl w-full max-w-lg shadow-2xl animate-slide-in">
@@ -97,8 +93,7 @@
           </div>
           <button
             data-action="click->pwa-install#hideIOSInstructions"
-            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2"
-          >
+            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
@@ -178,8 +173,7 @@
         <%# Close button %>
         <button
           data-action="click->pwa-install#hideIOSInstructions"
-          class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors"
-        >
+          class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors">
           <%= t('pwa.got_it', default: 'Razumijem') %>
         </button>
       </div>

@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const msg = document.createElement('p');
       msg.className = 'text-sm text-gray-400 text-center py-4';
       msg.id = 'no-locations-message';
-      msg.textContent = '<%= t("curator.experiences.no_locations_selected", default: "No locations selected yet") %>';
+      msg.textContent = <%= t("curator.experiences.no_locations_selected", default: "No locations selected yet").to_json %>;
       selectedLocations.appendChild(msg);
     }
   });

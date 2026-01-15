@@ -83,8 +83,7 @@
             class="w-full hidden"
             preload="auto"
             data-audio-tour-target="player"
-            data-action="ended->audio-tour#onEnded"
-          >
+            data-action="ended->audio-tour#onEnded">
             <source src="<%= rails_blob_path(current_tour.audio_file) %>" type="<%= current_tour.audio_file.content_type %>">
             <%= t("locations.show.audio_not_supported", default: "Tvoj preglednik ne podržava audio player.") %>
           </audio>
@@ -96,8 +95,7 @@
               type="button"
               class="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
               data-action="click->audio-tour#rewind"
-              title="<%= t('locations.audio_tour.rewind', default: '-10s') %>"
-            >
+              title="<%= t('locations.audio_tour.rewind', default: '-10s') %>">
               <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"></path>
               </svg>
@@ -108,8 +106,7 @@
               type="button"
               class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 flex items-center justify-center shadow-lg transition-all transform hover:scale-105"
               data-action="click->audio-tour#togglePlay"
-              data-audio-tour-target="playButton"
-            >
+              data-audio-tour-target="playButton">
               <svg class="w-8 h-8 text-white" data-audio-tour-target="playIcon" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z"></path>
               </svg>
@@ -123,8 +120,7 @@
               type="button"
               class="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
               data-action="click->audio-tour#forward"
-              title="<%= t('locations.audio_tour.forward', default: '+10s') %>"
-            >
+              title="<%= t('locations.audio_tour.forward', default: '+10s') %>">
               <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z"></path>
               </svg>
@@ -140,8 +136,7 @@
               value="0"
               class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-emerald-400"
               data-audio-tour-target="progress"
-              data-action="input->audio-tour#seek"
-            >
+              data-action="input->audio-tour#seek">
             <div class="flex justify-between text-sm text-white/60">
               <span data-audio-tour-target="currentTime">0:00</span>
               <span data-audio-tour-target="duration">0:00</span>

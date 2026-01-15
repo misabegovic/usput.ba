@@ -96,6 +96,10 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # ERB linting [https://github.com/Shopify/erb-lint]
+  gem "erb_lint", require: false
+  gem "better_html", require: false
 end
 
 group :development do

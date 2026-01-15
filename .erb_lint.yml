@@ -1,0 +1,79 @@
+# ERB Lint Configuration
+# https://github.com/Shopify/erb-lint
+
+EnableDefaultLinters: true
+
+linters:
+  # Detects extra whitespace around ERB tags
+  SpaceAroundErbTag:
+    enabled: true
+    exclude: []
+
+  # Ensures consistent indentation
+  SpaceIndentation:
+    enabled: false  # Disable - conflicts with existing style
+
+  # Detects trailing whitespace
+  TrailingWhitespace:
+    enabled: true
+    exclude: []
+
+  # Detects deprecated classes
+  DeprecatedClasses:
+    enabled: false  # Enable when we have deprecated classes to track
+
+  # Self-closing HTML void elements
+  SelfClosingTag:
+    enabled: true
+    enforced_style: never  # HTML5 style: <br> not <br/>
+
+  # Detects closing tags for void elements
+  ClosingErbTagIndent:
+    enabled: false
+
+  # Ensure consistent erb tag style
+  ErbSafety:
+    enabled: true
+    better_html_config: .better_html.yml
+
+  # Detects hardcoded strings that should be translated
+  HardCodedString:
+    enabled: false  # Enable when ready for i18n audit
+
+  # Requires alt attribute on images
+  RequireInputAutocomplete:
+    enabled: false  # Not always applicable
+
+  # Requires presence of certain attributes
+  RightTrim:
+    enabled: true
+    enforced_style: '-'  # Prefer -%> over %>
+
+  # Detects final newlines
+  FinalNewline:
+    enabled: true
+    present: true
+
+  # Partial-specific linting
+  # Disabled: Fixing would require refactoring all partials to use locals
+  # TODO: Enable and fix in future sprint
+  PartialInstanceVariable:
+    enabled: false
+
+  # No JavaScript protocol in href
+  NoJavascriptTagHelper:
+    enabled: true
+
+  # Comments should use <%# not <% #
+  CommentSyntax:
+    enabled: true
+
+  # Detects allows inside form_with/form_for blocks
+  AllowedScriptType:
+    enabled: false
+
+# File exclusions
+exclude:
+  - '**/vendor/**/*'
+  - '**/node_modules/**/*'
+  - '**/tmp/**/*'

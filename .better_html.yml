@@ -1,0 +1,14 @@
+# Better HTML Configuration
+# https://github.com/Shopify/better-html
+
+# Allow Rails-specific patterns that would otherwise be flagged
+allow_single_quoted_attributes: false
+
+# Allow erb in certain attributes where it's commonly used
+javascript_safe_methods:
+  - j
+  - escape_javascript
+  - to_json
+
+# Allow unsafe output in script tags (for JSON data)
+allow_unquoted_attributes: false
