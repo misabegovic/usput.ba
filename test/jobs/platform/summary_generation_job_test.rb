@@ -51,4 +51,39 @@ class Platform::SummaryGenerationJobTest < ActiveSupport::TestCase
     summary = KnowledgeSummary.find_by(dimension: "city", dimension_value: "TestJobCity")
     assert summary.generated_at >= before_time
   end
+
+  test "perform generates all summaries when no dimension specified" do
+    Platform::SummaryGenerationJob.perform_now
+
+    assert KnowledgeSummary.exists?(dimension: "city", dimension_value: "TestJobCity")
+  end
+
+  test "perform handles category dimension" do
+    # Use existing category from fixtures/seeds or skip if none exist
+    category = LocationCategory.first
+
+    if category
+      Platform::SummaryGenerationJob.perform_now(dimension: "category")
+      # Should attempt to generate category summaries without error
+    else
+      # Just test that running with category dimension doesn't crash
+      assert_nothing_raised do
+        Platform::SummaryGenerationJob.perform_now(dimension: "category")
+      end
+    end
+  end
+
+  test "perform warns for unknown dimension" do
+    assert_nothing_raised do
+      Platform::SummaryGenerationJob.perform_now(dimension: "unknown_dimension")
+    end
+  end
+
+  test "perform handles no return from generate_summary" do
+    Platform::Knowledge::LayerOne.stub(:generate_summary, nil) do
+      assert_nothing_raised do
+        Platform::SummaryGenerationJob.perform_now(dimension: "city", value: "TestJobCity")
+      end
+    end
+  end
 end

@@ -198,4 +198,128 @@ class ApiPlatformChatControllerTest < ActionDispatch::IntegrationTest
     # Response should be text/event-stream for streaming
     assert_equal "text/event-stream", response.content_type.split(";").first
   end
+
+  test "stream with boolean true works" do
+    post api_platform_chat_path,
+         params: { query: "schema | stats", stream: true },
+         headers: { "Authorization" => "Bearer #{@api_key}" }
+
+    assert_equal "text/event-stream", response.content_type.split(";").first
+  end
+
+  test "stream without query or message returns error event" do
+    post api_platform_chat_path,
+         params: { stream: "true" },
+         headers: { "Authorization" => "Bearer #{@api_key}" }
+
+    assert_equal "text/event-stream", response.content_type.split(";").first
+    assert_includes response.body, "BadRequest"
+  end
+
+  # Natural language processing tests
+
+  test "executes natural language message via Brain" do
+    Platform::Brain.stub(:new, ->(**kwargs) {
+      mock = Minitest::Mock.new
+      mock.expect(:process, {
+        text: "Test response",
+        dsl_queries: [],
+        conversation_id: "test-123"
+      }, [String])
+      mock
+    }) do
+      post api_platform_chat_path,
+           params: { message: "How many locations are there?" },
+           headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :success
+      body = response.parsed_body
+
+      assert body["success"]
+      assert_equal "How many locations are there?", body["message"]
+      assert body["response"].present?
+    end
+  end
+
+  test "natural language with conversation_id passes it to Brain" do
+    received_conversation_id = nil
+    Platform::Brain.stub(:new, ->(**kwargs) {
+      received_conversation_id = kwargs[:conversation_id]
+      mock = Minitest::Mock.new
+      mock.expect(:process, {
+        text: "Test response",
+        dsl_queries: [],
+        conversation_id: "conv-456"
+      }, [String])
+      mock
+    }) do
+      post api_platform_chat_path,
+           params: { message: "Test message", conversation_id: "existing-conv-123" },
+           headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :success
+      assert_equal "existing-conv-123", received_conversation_id
+    end
+  end
+
+  # Parse endpoint tests - additional coverage
+
+  test "parse endpoint requires query parameter" do
+    get api_platform_parse_path,
+        params: {},
+        headers: { "Authorization" => "Bearer #{@api_key}" }
+
+    assert_response :bad_request
+    assert_includes response.parsed_body["error"], "BadRequest"
+    assert_includes response.parsed_body["message"], "query"
+  end
+
+  # Execute endpoint additional tests
+
+  test "execute endpoint handles execution errors" do
+    post api_platform_execute_path,
+         params: { query: "prompts { id: 99999999 } | show" },
+         headers: { "Authorization" => "Bearer #{@api_key}" }
+
+    assert_response :unprocessable_entity
+    assert_includes response.parsed_body["error"], "ExecutionError"
+  end
+
+  # API key extraction tests
+
+  test "accepts API key from params when no header" do
+    post api_platform_chat_path,
+         params: { query: "schema | stats", api_key: @api_key }
+
+    assert_response :success
+  end
+
+  test "rejects when API key is blank" do
+    post api_platform_chat_path,
+         params: { query: "schema | stats", api_key: "" }
+
+    assert_response :unauthorized
+  end
+
+  test "rejects when PLATFORM_API_KEY env is not set" do
+    ENV["PLATFORM_API_KEY"] = nil
+
+    post api_platform_chat_path,
+         params: { query: "schema | stats" },
+         headers: { "Authorization" => "Bearer some_key" }
+
+    assert_response :unauthorized
+  end
+
+  # Audit log edge case
+
+  test "continues even if audit log fails" do
+    PlatformAuditLog.stub(:create, ->(*args) { raise "DB error" }) do
+      post api_platform_chat_path,
+           params: { query: "schema | stats" },
+           headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :success
+    end
+  end
 end

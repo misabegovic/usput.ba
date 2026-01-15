@@ -117,6 +117,7 @@ class Curator::Admin::ContentChangesControllerTest < ActionDispatch::Integration
     assert_match /already.*reviewed/i, flash[:alert]
   end
 
+
   # Reject tests
   test "reject requires admin" do
     login_as(@curator)

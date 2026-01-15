@@ -143,6 +143,20 @@ class Curator::Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_match /not blocked/i, flash[:alert]
   end
 
+
+  # Show curator activities
+  test "show displays curator activities for curators" do
+    CuratorActivity.create!(
+      user: @curator,
+      action: "login",
+      recordable: @curator
+    )
+
+    login_as(@admin)
+    get curator_admin_user_path(@curator)
+    assert_response :success
+  end
+
   private
 
   def login_as(user)

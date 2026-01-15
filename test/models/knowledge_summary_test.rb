@@ -201,4 +201,174 @@ class KnowledgeSummaryTest < ActiveSupport::TestCase
     assert result.include?("missing_audio")
     assert result.include?("Pattern one")
   end
+
+  # Additional coverage tests
+
+  test "categories returns list of category dimension values" do
+    KnowledgeSummary.create!(dimension: "category", dimension_value: "restaurant")
+    KnowledgeSummary.create!(dimension: "category", dimension_value: "museum")
+    KnowledgeSummary.create!(dimension: "city", dimension_value: "Sarajevo")
+
+    result = KnowledgeSummary.categories
+
+    assert_includes result, "restaurant"
+    assert_includes result, "museum"
+    assert_not_includes result, "Sarajevo"
+  end
+
+  test "list_for_dimension returns ordered summaries" do
+    KnowledgeSummary.create!(dimension: "city", dimension_value: "Zenica")
+    KnowledgeSummary.create!(dimension: "city", dimension_value: "Banja Luka")
+    KnowledgeSummary.create!(dimension: "city", dimension_value: "Sarajevo")
+
+    result = KnowledgeSummary.list_for_dimension(:city)
+
+    # Should be ordered by dimension_value
+    values = result.map(&:dimension_value)
+    assert_equal values.sort, values
+  end
+
+  test "available_dimensions returns hash of dimensions" do
+    KnowledgeSummary.create!(dimension: "city", dimension_value: "Sarajevo")
+    KnowledgeSummary.create!(dimension: "city", dimension_value: "Mostar")
+    KnowledgeSummary.create!(dimension: "category", dimension_value: "restaurant")
+
+    result = KnowledgeSummary.available_dimensions
+
+    assert result.key?("city")
+    assert result.key?("category")
+    assert result.key?("region")
+    assert_includes result["city"], "Sarajevo"
+    assert_includes result["city"], "Mostar"
+    assert_includes result["category"], "restaurant"
+  end
+
+  test "format_hash handles nested hashes" do
+    summary = KnowledgeSummary.create!(
+      dimension: "city",
+      dimension_value: "Test",
+      stats: {
+        "outer" => {
+          "inner" => 42
+        }
+      }
+    )
+
+    result = summary.to_cli_format
+
+    assert result.include?("outer:")
+    assert result.include?("inner: 42")
+  end
+
+  test "to_cli_format handles nil stats" do
+    summary = KnowledgeSummary.create!(
+      dimension: "city",
+      dimension_value: "NoStats",
+      stats: nil
+    )
+
+    result = summary.to_cli_format
+
+    assert result.include?("City: NoStats")
+  end
+
+  test "to_cli_format handles empty patterns" do
+    summary = KnowledgeSummary.create!(
+      dimension: "city",
+      dimension_value: "NoPatterns",
+      patterns: []
+    )
+
+    result = summary.to_cli_format
+
+    # With empty patterns, we skip the Patterns section
+    # Check that it doesn't have pattern content (the section header might still be there)
+    assert result.include?("City: NoPatterns")
+  end
+
+  test "to_cli_format handles issue with message instead of count" do
+    summary = KnowledgeSummary.create!(
+      dimension: "city",
+      dimension_value: "MsgIssue",
+      issues: [{ type: "warning", message: "Custom warning message" }]
+    )
+
+    result = summary.to_cli_format
+
+    assert result.include?("Custom warning message")
+  end
+
+  test "to_short_format without issues" do
+    summary = KnowledgeSummary.create!(
+      dimension: "city",
+      dimension_value: "NoIssues",
+      source_count: 10,
+      issues: []
+    )
+
+    result = summary.to_short_format
+
+    assert result.include?("NoIssues")
+    assert result.include?("10 records")
+    assert_not result.include?("issues")
+  end
+
+  test "issues_count returns 0 for nil issues" do
+    summary = KnowledgeSummary.new(issues: nil)
+
+    assert_equal 0, summary.issues_count
+  end
+
+  test "fresh scope returns fresh summaries" do
+    fresh = KnowledgeSummary.create!(
+      dimension: "city",
+      dimension_value: "Fresh",
+      generated_at: 30.minutes.ago
+    )
+    stale = KnowledgeSummary.create!(
+      dimension: "city",
+      dimension_value: "Stale",
+      generated_at: 2.hours.ago
+    )
+
+    result = KnowledgeSummary.fresh(1.hour)
+
+    assert_includes result, fresh
+    assert_not_includes result, stale
+  end
+
+  test "stale scope returns stale summaries" do
+    fresh = KnowledgeSummary.create!(
+      dimension: "city",
+      dimension_value: "Fresh",
+      generated_at: 30.minutes.ago
+    )
+    stale = KnowledgeSummary.create!(
+      dimension: "city",
+      dimension_value: "Stale",
+      generated_at: 2.hours.ago
+    )
+
+    result = KnowledgeSummary.stale(1.hour)
+
+    assert_not_includes result, fresh
+    assert_includes result, stale
+  end
+
+  test "recent scope orders by generated_at desc" do
+    old = KnowledgeSummary.create!(
+      dimension: "city",
+      dimension_value: "Old",
+      generated_at: 2.hours.ago
+    )
+    new = KnowledgeSummary.create!(
+      dimension: "city",
+      dimension_value: "New",
+      generated_at: 10.minutes.ago
+    )
+
+    result = KnowledgeSummary.recent
+
+    assert_equal new, result.first
+  end
 end

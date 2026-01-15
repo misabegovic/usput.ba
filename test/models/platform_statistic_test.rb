@@ -178,4 +178,170 @@ class PlatformStatisticTest < ActiveSupport::TestCase
     assert formatted.include?("count")
     assert formatted.include?("42")
   end
+
+  # Compute method tests
+
+  test "compute_content_counts returns valid counts" do
+    result = PlatformStatistic.send(:compute_content_counts)
+
+    assert result.key?(:locations)
+    assert result.key?(:experiences)
+    assert result.key?(:plans)
+    assert result.key?(:audio_tours)
+    assert result.key?(:reviews)
+    assert result.key?(:users)
+    assert result.key?(:curators)
+  end
+
+  test "compute_by_city returns city hash" do
+    result = PlatformStatistic.send(:compute_by_city)
+
+    assert result.is_a?(Hash)
+  end
+
+  test "compute_coverage returns coverage metrics" do
+    result = PlatformStatistic.send(:compute_coverage)
+
+    assert result.key?(:cities_with_content)
+    assert result.key?(:locations_with_audio)
+    assert result.key?(:locations_with_description)
+    assert result.key?(:audio_coverage_percent)
+    assert result.key?(:description_coverage_percent)
+  end
+
+
+  test "check_database returns status ok" do
+    result = PlatformStatistic.send(:check_database)
+
+    assert_equal "ok", result[:status]
+  end
+
+  test "check_database handles errors" do
+    ActiveRecord::Base.connection.stub(:execute, ->(*) { raise "DB Error" }) do
+      result = PlatformStatistic.send(:check_database)
+
+      assert_equal "error", result[:status]
+    end
+  end
+
+  test "check_api_keys returns boolean values" do
+    result = PlatformStatistic.send(:check_api_keys)
+
+    assert [true, false].include?(result[:anthropic])
+    assert [true, false].include?(result[:openai])
+    assert [true, false].include?(result[:geoapify])
+    assert [true, false].include?(result[:elevenlabs])
+  end
+
+  test "check_queues returns queue counts" do
+    result = PlatformStatistic.send(:check_queues)
+
+    assert result.key?(:pending) || result.key?(:status)
+  end
+
+  test "check_storage returns service info" do
+    result = PlatformStatistic.send(:check_storage)
+
+    assert result.key?(:service) || result.key?(:status)
+  end
+
+  test "check_last_activity returns timestamps" do
+    result = PlatformStatistic.send(:check_last_activity)
+
+    assert result.key?(:last_location_update)
+    assert result.key?(:last_experience_update)
+    assert result.key?(:last_review)
+  end
+
+  test "top_rated_content returns locations and experiences" do
+    result = PlatformStatistic.send(:top_rated_content)
+
+    assert result.key?(:locations)
+    assert result.key?(:experiences)
+    assert result[:locations].is_a?(Array)
+    assert result[:experiences].is_a?(Array)
+  end
+
+  test "recent_changes returns change counts" do
+    result = PlatformStatistic.send(:recent_changes)
+
+    assert result.key?(:new_locations_7d)
+    assert result.key?(:new_reviews_7d)
+    assert result.key?(:updated_locations_7d)
+  end
+
+  test "compute returns empty hash for unknown key" do
+    result = PlatformStatistic.send(:compute, "unknown_key")
+
+    assert_equal({}, result)
+  end
+
+  test "compute routes to correct compute method for content_counts" do
+    assert PlatformStatistic.send(:compute, "content_counts").key?(:locations)
+  end
+
+  test "compute routes to correct compute method for by_city" do
+    assert PlatformStatistic.send(:compute, "by_city").is_a?(Hash)
+  end
+
+  test "compute routes to correct compute method for coverage" do
+    assert PlatformStatistic.send(:compute, "coverage").key?(:cities_with_content)
+  end
+
+  test "get creates new stat when none exists" do
+    PlatformStatistic.where(key: "content_counts").delete_all
+
+    result = PlatformStatistic.get("content_counts")
+
+    assert PlatformStatistic.exists?(key: "content_counts")
+    assert result.key?(:locations) || result.key?("locations")
+  end
+
+  # Additional coverage tests
+
+  test "compute_by_city sorts by count descending" do
+    # Create locations with different cities
+    Location.create!(name: "L1", city: "CityA", lat: 43.0, lng: 18.0)
+    Location.create!(name: "L2", city: "CityA", lat: 43.1, lng: 18.1)
+    Location.create!(name: "L3", city: "CityB", lat: 43.2, lng: 18.2)
+
+    result = PlatformStatistic.send(:compute_by_city)
+
+    # Should be sorted, CityA first (2 locations)
+    if result.any?
+      values = result.values
+      assert values == values.sort.reverse, "Cities should be sorted by count descending"
+    end
+  end
+
+  test "compute_coverage handles zero locations" do
+    Location.stub(:count, 0) do
+      result = PlatformStatistic.send(:compute_coverage)
+
+      assert_equal 0, result[:audio_coverage_percent]
+      assert_equal 0, result[:description_coverage_percent]
+    end
+  end
+
+  test "check_storage handles errors" do
+    ActiveStorage::Blob.stub(:service, ->(*) { raise "Storage Error" }) do
+      result = PlatformStatistic.send(:check_storage)
+
+      assert_equal "error", result[:status]
+    end
+  end
+
+  test "check_last_activity handles nil timestamps" do
+    Location.stub(:maximum, nil) do
+      Experience.stub(:maximum, nil) do
+        Review.stub(:maximum, nil) do
+          result = PlatformStatistic.send(:check_last_activity)
+
+          assert result.key?(:last_location_update)
+          # Values may be nil
+        end
+      end
+    end
+  end
+
 end

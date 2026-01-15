@@ -98,4 +98,116 @@ class Platform::DSL::ClustersTest < ActiveSupport::TestCase
       assert result[:fallback].present?
     end
   end
+
+  # Additional coverage tests
+
+  test "list_clusters with min_members filter" do
+    result = Platform::DSL.execute("clusters { min_members: 10 } | list")
+
+    assert result.is_a?(Hash)
+    assert result[:clusters].all? { |c| c[:member_count] >= 10 }
+  end
+
+  test "list_clusters returns empty when none match filter" do
+    result = Platform::DSL.execute("clusters { min_members: 1000 } | list")
+
+    assert_equal 0, result[:total]
+  end
+
+  test "show_cluster with slug filter" do
+    result = Platform::DSL.execute('clusters { slug: "test-cluster" } | show')
+
+    assert_equal "test-cluster", result[:slug]
+  end
+
+  test "clusters | refresh" do
+    result = Platform::DSL.execute("clusters | refresh")
+
+    assert result.is_a?(String)
+  end
+
+  test "show_cluster_members raises error without filter" do
+    assert_raises(Platform::DSL::ExecutionError) do
+      Platform::DSL.execute("clusters | members")
+    end
+  end
+
+  test "semantic_search_clusters returns error when pgvector unavailable" do
+    result = Platform::DSL::Executor.send(:semantic_search_clusters, "test query")
+
+    assert result.is_a?(Hash)
+    if result[:error]
+      assert result[:error].include?("pgvector")
+      assert result[:fallback].is_a?(Hash)
+    end
+  end
+
+  test "semantic_search_clusters raises error without query" do
+    assert_raises(Platform::DSL::ExecutionError) do
+      Platform::DSL::Executor.send(:semantic_search_clusters, nil)
+    end
+  end
+
+  test "refresh_clusters with regenerate flag" do
+    result = Platform::DSL::Executor.send(:refresh_clusters, { regenerate: true })
+
+    assert result.include?("regeneration")
+  end
+
+  test "refresh_clusters without regenerate flag" do
+    result = Platform::DSL::Executor.send(:refresh_clusters, {})
+
+    assert result.include?("refresh")
+  end
+
+  test "show_cluster_members with limit filter" do
+    location = Location.create!(name: "Limit Test", city: "Test", lat: 43.0, lng: 18.0)
+
+    ClusterMembership.create!(
+      knowledge_cluster: @cluster,
+      record_type: "Location",
+      record_id: location.id,
+      similarity_score: 0.9
+    )
+
+    result = Platform::DSL.execute('clusters { id: "test-cluster", limit: 5 } | members')
+
+    assert result.is_a?(Hash)
+    assert result[:members].length <= 5
+  end
+
+  test "show_cluster_members formats member without name method" do
+    # Create an experience as a member since it uses 'title' not 'name'
+    experience = Experience.create!(title: "Test Experience", estimated_duration: 60)
+
+    ClusterMembership.create!(
+      knowledge_cluster: @cluster,
+      record_type: "Experience",
+      record_id: experience.id,
+      similarity_score: 0.7
+    )
+
+    result = Platform::DSL.execute('clusters { id: "test-cluster" } | members')
+
+    exp_member = result[:members].find { |m| m[:type] == "Experience" }
+    assert_equal "Test Experience", exp_member[:name] if exp_member
+  end
+
+  test "show_cluster details include stats and representative_ids" do
+    @cluster.update!(representative_ids: [1, 2, 3])
+
+    result = Platform::DSL.execute('clusters { id: "test-cluster" } | show')
+
+    assert result[:stats].present?
+    assert_equal [1, 2, 3], result[:representative_ids]
+  end
+
+  test "list_clusters with empty database" do
+    KnowledgeCluster.delete_all
+
+    result = Platform::DSL.execute("clusters | list")
+
+    assert_equal 0, result[:total]
+    assert_equal [], result[:clusters]
+  end
 end

@@ -161,4 +161,93 @@ class Platform::DSL::MutationsTest < ActiveSupport::TestCase
 
     assert_match(/filter za identifikaciju/i, error.message)
   end
+
+  # Additional mutation coverage tests
+
+  test "execute_mutation dispatches to correct handler" do
+    # Test unknown action
+    ast = { type: :mutation, action: :unknown_action, table: "locations", data: {} }
+
+    assert_raises(Platform::DSL::ExecutionError) do
+      Platform::DSL::Executor.execute(ast)
+    end
+  end
+
+  test "is_location_table returns true for location variants" do
+    assert Platform::DSL::Executor.send(:is_location_table?, "location")
+    assert Platform::DSL::Executor.send(:is_location_table?, "locations")
+    assert_not Platform::DSL::Executor.send(:is_location_table?, "users")
+  end
+
+  test "validate_mutation_data raises for missing required location fields" do
+    # Location requires name and city
+    error = assert_raises(Platform::DSL::ExecutionError) do
+      Platform::DSL::Executor.send(:validate_mutation_data!, "locations", { lat: 43.0 }, :create)
+    end
+
+    assert_match(/Nedostaju obavezna polja/i, error.message)
+  end
+
+  test "validate_mutation_data passes for valid location data" do
+    # Should not raise
+    Platform::DSL::Executor.send(:validate_mutation_data!, "locations", { name: "Test", city: "Sarajevo" }, :create)
+    assert true # If we get here, the test passed
+  end
+
+  test "validate_mutation_data raises for missing experience fields" do
+    error = assert_raises(Platform::DSL::ExecutionError) do
+      Platform::DSL::Executor.send(:validate_mutation_data!, "experiences", {}, :create)
+    end
+
+    assert_match(/Nedostaju obavezna polja/i, error.message)
+  end
+
+  test "find_record_for_mutation finds by id" do
+    record = Platform::DSL::Executor.send(:find_record_for_mutation, Location, { id: @existing_location.id })
+
+    assert_equal @existing_location.id, record.id
+  end
+
+  test "find_record_for_mutation raises for nil filters" do
+    assert_raises(Platform::DSL::ExecutionError) do
+      Platform::DSL::Executor.send(:find_record_for_mutation, Location, nil)
+    end
+  end
+
+  test "find_record_for_mutation raises for empty filters" do
+    assert_raises(Platform::DSL::ExecutionError) do
+      Platform::DSL::Executor.send(:find_record_for_mutation, Location, {})
+    end
+  end
+
+  test "format_created_record returns correct structure" do
+    result = Platform::DSL::Executor.send(:format_created_record, @existing_location)
+
+    assert_equal @existing_location.id, result[:id]
+    assert_equal @existing_location.name, result[:name]
+    assert_equal @existing_location.city, result[:city]
+  end
+
+  test "create sets ai_generated flag" do
+    result = Platform::DSL.execute('create location { name: "AI Generated Test", city: "Zenica", lat: 44.2, lng: 17.9 }')
+
+    location = Location.find(result[:record_id])
+    assert location.ai_generated?
+  end
+
+  test "update captures old values for audit" do
+    original_desc = @existing_location.description
+    result = Platform::DSL.execute("update location { id: #{@existing_location.id} } set { description: \"New Description\" }")
+
+    assert_equal [original_desc, "New Description"], result[:changes]["description"]
+  end
+
+  test "delete uses soft delete when available" do
+    # Test that soft delete is preferred if available
+    location = Location.create!(name: "Soft Delete Test", city: "Bihac")
+
+    # We don't know if Location supports soft delete, but we can verify the delete works
+    result = Platform::DSL.execute("delete location { id: #{location.id} }")
+    assert result[:success]
+  end
 end

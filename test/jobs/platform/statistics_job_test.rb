@@ -36,4 +36,30 @@ class Platform::StatisticsJobTest < ActiveSupport::TestCase
       Platform::StatisticsJob.perform_now
     end
   end
+
+  test "perform with no keys refreshes all without error" do
+    assert_nothing_raised do
+      Platform::StatisticsJob.perform_now
+    end
+  end
+
+  test "perform logs summary when content_counts exists" do
+    PlatformStatistic.create!(
+      key: "content_counts",
+      value: { locations: 10, experiences: 5, reviews: 20 },
+      computed_at: Time.current
+    )
+
+    assert_nothing_raised do
+      Platform::StatisticsJob.perform_now(keys: ["content_counts"])
+    end
+  end
+
+  test "perform handles missing content_counts in log_summary" do
+    PlatformStatistic.delete_all
+
+    assert_nothing_raised do
+      Platform::StatisticsJob.perform_now(keys: ["by_city"])
+    end
+  end
 end

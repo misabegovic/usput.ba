@@ -126,4 +126,48 @@ class ClusterMembershipTest < ActiveSupport::TestCase
 
     assert_equal @location, membership.record
   end
+
+  test "records_for_cluster returns memberships for specific cluster" do
+    # Create membership for our cluster
+    membership = ClusterMembership.create!(
+      knowledge_cluster: @cluster,
+      record_type: "Location",
+      record_id: @location.id
+    )
+
+    # Create another cluster and membership
+    other_cluster = KnowledgeCluster.create!(slug: "other", name: "Other")
+    other_location = Location.create!(name: "Other", city: "Test", lat: 44.0, lng: 19.0)
+    other_membership = ClusterMembership.create!(
+      knowledge_cluster: other_cluster,
+      record_type: "Location",
+      record_id: other_location.id
+    )
+
+    result = ClusterMembership.records_for_cluster(@cluster)
+
+    assert_includes result, membership
+    assert_not_includes result, other_membership
+  end
+
+  test "for_experiences scope filters by experience record_type" do
+    experience = Experience.create!(title: "Test", description: "Test")
+
+    experience_membership = ClusterMembership.create!(
+      knowledge_cluster: @cluster,
+      record_type: "Experience",
+      record_id: experience.id
+    )
+
+    location_membership = ClusterMembership.create!(
+      knowledge_cluster: @cluster,
+      record_type: "Location",
+      record_id: @location.id
+    )
+
+    result = ClusterMembership.for_experiences
+
+    assert_includes result, experience_membership
+    assert_not_includes result, location_membership
+  end
 end

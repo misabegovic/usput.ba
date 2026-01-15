@@ -111,4 +111,84 @@ class Platform::DSL::ValidatorTest < ActiveSupport::TestCase
     assert_not_nil result[:ast]
     assert_equal :schema_query, result[:ast][:type]
   end
+
+  # Additional coverage tests
+
+  test "estimate_cost handles nil filters" do
+    ast = { type: :table_query, table: "locations", filters: nil, operations: nil }
+    cost = Platform::DSL::Validator.send(:estimate_cost, ast)
+
+    # Without filters or operations, cost should be high
+    assert_equal :high, cost
+  end
+
+  test "estimate_cost handles empty filters" do
+    ast = { type: :table_query, table: "locations", filters: {}, operations: nil }
+    cost = Platform::DSL::Validator.send(:estimate_cost, ast)
+
+    assert_equal :high, cost
+  end
+
+  test "estimate_cost handles nil operations" do
+    ast = { type: :table_query, table: "locations", filters: { city: "Sarajevo" }, operations: nil }
+    cost = Platform::DSL::Validator.send(:estimate_cost, ast)
+
+    # Has strong filter, should be low even without operations
+    assert_equal :low, cost
+  end
+
+  test "estimate_cost handles empty operations" do
+    ast = { type: :table_query, table: "locations", filters: { rating: 4.5 }, operations: [] }
+    cost = Platform::DSL::Validator.send(:estimate_cost, ast)
+
+    # Weak filter, no limit operations
+    assert_equal :medium, cost
+  end
+
+  test "validates summaries query" do
+    result = Platform::DSL::Validator.validate('summaries { dimension: "city" } | list')
+
+    assert result[:valid]
+  end
+
+  test "validates clusters query" do
+    result = Platform::DSL::Validator.validate("clusters | list")
+
+    assert result[:valid]
+  end
+
+  test "validates external query" do
+    # External queries may have different validation rules
+    result = Platform::DSL::Validator.validate("external { lat: 43.8, lng: 18.4 } | validate_location")
+
+    # Check that it parses at least (may have warnings/errors about operations)
+    assert_not_nil result
+  end
+
+  test "validates prompts query" do
+    result = Platform::DSL::Validator.validate("prompts | list")
+
+    assert result[:valid]
+  end
+
+  test "estimate_cost with id filter is low" do
+    ast = { type: :table_query, table: "locations", filters: { id: 1 }, operations: [] }
+    cost = Platform::DSL::Validator.send(:estimate_cost, ast)
+
+    assert_equal :low, cost
+  end
+
+  test "estimate_cost with status filter is low" do
+    ast = { type: :table_query, table: "proposals", filters: { status: "pending" }, operations: [] }
+    cost = Platform::DSL::Validator.send(:estimate_cost, ast)
+
+    assert_equal :low, cost
+  end
+
+  test "estimate_cost with type filter is low" do
+    ast = { type: :table_query, table: "locations", filters: { type: "place" }, operations: [] }
+    cost = Platform::DSL::Validator.send(:estimate_cost, ast)
+
+    assert_equal :low, cost
+  end
 end

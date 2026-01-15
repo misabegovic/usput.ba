@@ -177,4 +177,119 @@ class ApiPlatformStatusControllerTest < ActionDispatch::IntegrationTest
       assert_response :unauthorized, "Expected unauthorized for #{method.upcase} #{path}"
     end
   end
+
+  # Health status determination tests
+
+  test "health returns unhealthy when result is not a hash" do
+    Platform::DSL.stub(:execute, "invalid") do
+      get api_platform_health_path,
+          headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :success
+      assert_equal "unhealthy", response.parsed_body["status"]
+    end
+  end
+
+  test "health returns unhealthy when database status is not ok" do
+    Platform::DSL.stub(:execute, { database: { status: "error" } }) do
+      get api_platform_health_path,
+          headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :success
+      assert_equal "unhealthy", response.parsed_body["status"]
+    end
+  end
+
+  test "health returns degraded when less than half api keys configured" do
+    Platform::DSL.stub(:execute, {
+      database: { status: "ok" },
+      api_keys: { key1: "configured", key2: "missing", key3: "missing", key4: "missing" }
+    }) do
+      get api_platform_health_path,
+          headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :success
+      assert_equal "degraded", response.parsed_body["status"]
+    end
+  end
+
+  test "health returns healthy when all checks pass" do
+    Platform::DSL.stub(:execute, {
+      database: { status: "ok" },
+      api_keys: { key1: "configured", key2: "configured" }
+    }) do
+      get api_platform_health_path,
+          headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :success
+      assert_equal "healthy", response.parsed_body["status"]
+    end
+  end
+
+  # Quick statistics error handling
+
+  test "status handles statistics errors gracefully" do
+    Location.stub(:count, -> { raise "DB error" }) do
+      get api_platform_status_path,
+          headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :success
+      body = response.parsed_body
+
+      assert body["statistics"]["error"].present?
+    end
+  end
+
+  # Health check detail tests
+
+  test "health_check reports database error" do
+    ActiveRecord::Base.connection.stub(:execute, -> (*args) { raise "Connection failed" }) do
+      get api_platform_status_path,
+          headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :success
+      body = response.parsed_body
+
+      assert body["health"]["database"].start_with?("error:")
+    end
+  end
+
+  test "health_check reports storage error" do
+    ActiveStorage::Blob.stub(:count, -> { raise "Storage error" }) do
+      get api_platform_status_path,
+          headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :success
+      body = response.parsed_body
+
+      assert body["health"]["storage"].start_with?("error:")
+    end
+  end
+
+  # Version test
+
+  test "status includes version" do
+    get api_platform_status_path,
+        headers: { "Authorization" => "Bearer #{@api_key}" }
+
+    assert_response :success
+    assert_equal "1.0.0", response.parsed_body["version"]
+  end
+
+  test "status includes environment" do
+    get api_platform_status_path,
+        headers: { "Authorization" => "Bearer #{@api_key}" }
+
+    assert_response :success
+    assert_equal "test", response.parsed_body["environment"]
+  end
+
+  # Show prompt test
+
+  test "show_prompt endpoint returns prompt data" do
+    get api_platform_path(id: @prompt.id),
+        headers: { "Authorization" => "Bearer #{@api_key}" }
+
+    assert_response :success
+  end
 end
