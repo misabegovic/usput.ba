@@ -395,6 +395,35 @@ module Platform
           reason: reason_val
         }
       end
+
+      # Curator management commands
+      # block curator { id: 123 } reason "spam"
+      rule(query: { curator_cmd: simple(:cmd), curator_action: simple(:ca), filters: subtree(:f), rejection_reason: subtree(:r) }) do |dict|
+        reason_val = case dict[:r]
+                     when Hash
+                       inner = dict[:r][:string]
+                       inner.is_a?(Array) ? inner.join : inner.to_s
+                     when Array then dict[:r].empty? ? "" : dict[:r].join
+                     when Parslet::Slice then dict[:r].to_s
+                     else dict[:r]&.to_s
+                     end
+        {
+          type: :curator_management,
+          action: dict[:cmd].to_s.to_sym,
+          filters: Transform.convert_filters(dict[:f]),
+          reason: reason_val
+        }
+      end
+
+      # unblock curator { id: 123 }
+      rule(query: { curator_cmd: simple(:cmd), curator_action: simple(:ca), filters: subtree(:f) }) do |dict|
+        {
+          type: :curator_management,
+          action: dict[:cmd].to_s.to_sym,
+          filters: Transform.convert_filters(dict[:f]),
+          reason: nil
+        }
+      end
     end
   end
 end
