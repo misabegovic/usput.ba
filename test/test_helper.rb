@@ -12,6 +12,10 @@ if ENV["COVERAGE"] || ENV["CI"]
     add_filter "/test/"
     add_filter "/config/"
     add_filter "/vendor/"
+    add_filter "/db/"
+
+    # Enable branch coverage
+    enable_coverage :branch
   end
 end
 
@@ -22,8 +26,12 @@ require "minitest/mock"
 
 module ActiveSupport
   class TestCase
-    # Run tests in parallel with specified workers
-    parallelize(workers: :number_of_processors)
+    # Disable parallel tests when running with coverage (SimpleCov doesn't merge well)
+    if ENV["COVERAGE"] || ENV["CI"]
+      parallelize(workers: 1)
+    else
+      parallelize(workers: :number_of_processors)
+    end
 
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
