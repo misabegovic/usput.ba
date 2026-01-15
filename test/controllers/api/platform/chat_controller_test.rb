@@ -158,4 +158,44 @@ class ApiPlatformChatControllerTest < ActionDispatch::IntegrationTest
     assert_equal "ApiCall", log.record_type
     assert_equal "platform_api", log.triggered_by
   end
+
+  # Error response format tests
+
+  test "error responses include standard fields" do
+    post api_platform_chat_path,
+         params: { query: "invalid !!! query syntax" },
+         headers: { "Authorization" => "Bearer #{@api_key}" }
+
+    assert_response :bad_request
+    body = response.parsed_body
+
+    assert body["error"].present?
+    assert body["message"].present?
+    assert body["status"].present?
+    assert body["timestamp"].present?
+  end
+
+  test "unauthorized error includes standard fields" do
+    post api_platform_chat_path, params: { query: "schema | stats" }
+
+    assert_response :unauthorized
+    body = response.parsed_body
+
+    assert_equal "Unauthorized", body["error"]
+    assert_equal 401, body["status"]
+    assert body["timestamp"].present?
+  end
+
+  # Streaming tests (basic - just ensure endpoint accepts stream param)
+
+  test "stream parameter is accepted without error" do
+    # Note: Full streaming test would require EventSource/SSE client
+    # This test just ensures the endpoint doesn't crash with stream=true
+    post api_platform_chat_path,
+         params: { query: "schema | stats", stream: "true" },
+         headers: { "Authorization" => "Bearer #{@api_key}" }
+
+    # Response should be text/event-stream for streaming
+    assert_equal "text/event-stream", response.content_type.split(";").first
+  end
 end

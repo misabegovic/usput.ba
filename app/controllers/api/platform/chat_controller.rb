@@ -16,7 +16,13 @@ module API
     #   POST /api/platform/chat
     #   { "message": "How many locations are in Mostar?" }
     #
+    # @example Stream a response (SSE)
+    #   POST /api/platform/chat
+    #   { "message": "Generate content for Bihać", "stream": true }
+    #
     class ChatController < BaseController
+      include ActionController::Live
+
       # POST /api/platform/chat
       #
       # Execute a DSL query or natural language message
@@ -24,10 +30,13 @@ module API
       # @param query [String] DSL query to execute directly
       # @param message [String] Natural language message (requires Brain)
       # @param conversation_id [String] Optional conversation ID for context
+      # @param stream [Boolean] Enable SSE streaming for long operations
       #
-      # @return [JSON] Query result or error
+      # @return [JSON] Query result or error (or SSE stream if streaming)
       def create
-        if params[:query].present?
+        if params[:stream] == true || params[:stream] == "true"
+          stream_response
+        elsif params[:query].present?
           execute_dsl_query
         elsif params[:message].present?
           execute_natural_language
@@ -127,6 +136,61 @@ module API
         )
       rescue => e
         Rails.logger.warn "Failed to log API call: #{e.message}"
+      end
+
+      # Stream response using Server-Sent Events (SSE)
+      def stream_response
+        response.headers["Content-Type"] = "text/event-stream"
+        response.headers["Cache-Control"] = "no-cache"
+        response.headers["X-Accel-Buffering"] = "no"
+
+        message = params[:message] || params[:query]
+        conversation_id = params[:conversation_id]
+
+        unless message.present?
+          write_sse_event("error", { error: "BadRequest", message: "Either 'query' or 'message' parameter is required" })
+          response.stream.close
+          return
+        end
+
+        begin
+          write_sse_event("start", { status: "processing", message: message })
+
+          if params[:query].present?
+            # Execute DSL query with progress updates
+            result = ::Platform::DSL.execute(params[:query])
+            write_sse_event("result", { success: true, query: params[:query], result: result })
+          elsif defined?(::Platform::Brain)
+            brain = ::Platform::Brain.new(conversation_id: conversation_id)
+
+            # Stream brain processing with progress callbacks
+            brain_response = brain.process(message) do |event_type, data|
+              write_sse_event(event_type.to_s, data)
+            end
+
+            write_sse_event("result", {
+              success: true,
+              response: brain_response[:text],
+              dsl_queries: brain_response[:dsl_queries],
+              conversation_id: brain_response[:conversation_id]
+            })
+          else
+            write_sse_event("error", { error: "NotImplemented", message: "Brain not available" })
+          end
+
+          write_sse_event("done", { status: "completed" })
+        rescue => e
+          write_sse_event("error", { error: e.class.name, message: e.message })
+        ensure
+          response.stream.close
+        end
+      end
+
+      def write_sse_event(event, data)
+        response.stream.write("event: #{event}\n")
+        response.stream.write("data: #{data.to_json}\n\n")
+      rescue IOError
+        # Client disconnected
       end
     end
   end
