@@ -17,6 +17,12 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
       lat: 43.3438,
       lng: 17.8078
     )
+    # Create a test user for content changes
+    @test_user = User.create!(
+      username: "test_user_#{SecureRandom.hex(4)}",
+      password: "password123",
+      password_confirmation: "password123"
+    )
   end
 
   # No teardown needed - Rails transactions handle cleanup
@@ -559,5 +565,335 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     result = Platform::DSL.execute("logs | list")
 
     assert result.is_a?(Hash) || result.is_a?(Array)
+  end
+
+  # Proposals query tests
+  test "execute_proposals_query with list operation" do
+    result = Platform::DSL.execute("proposals | list")
+
+    assert result.is_a?(Hash)
+    assert result[:action] == :list_proposals
+  end
+
+  test "execute_proposals_query with show operation" do
+    content_change = ContentChange.create!(
+      changeable_type: "Location",
+      changeable_id: @sarajevo_location.id,
+      change_type: :update_content,
+      proposed_data: { name: "New Name" },
+      user: @test_user
+    )
+
+    result = Platform::DSL.execute("proposals { id: #{content_change.id} } | show")
+
+    assert result.is_a?(Hash)
+  end
+
+  test "execute_proposals_query with status filter" do
+    result = Platform::DSL.execute('proposals { status: "pending" } | count')
+
+    assert result.is_a?(Hash) || result.is_a?(Integer)
+  end
+
+  # Applications query tests
+  test "execute_applications_query with list" do
+    result = Platform::DSL.execute("applications | list")
+
+    assert result.is_a?(Hash)
+    assert result[:action] == :list_applications
+  end
+
+  # Curators query tests
+  test "execute_curators_query with list" do
+    result = Platform::DSL.execute("curators | list")
+
+    assert result.is_a?(Hash)
+    assert result[:action] == :list_curators
+  end
+
+  test "execute_curators_query with stats" do
+    result = Platform::DSL.execute("curators | stats")
+
+    assert result.is_a?(Hash)
+  end
+
+  # Curator management tests
+  test "execute_curator_management block command" do
+    curator = User.create!(
+      username: "curator_mgmt_test_#{SecureRandom.hex(4)}",
+      password: "password123",
+      password_confirmation: "password123",
+      user_type: :curator
+    )
+
+    result = Platform::DSL.execute("block curator { id: #{curator.id} } reason \"Test block\"")
+
+    assert result.is_a?(Hash)
+    assert_equal :block_curator, result[:action]
+
+    curator.reload
+    assert curator.spam_blocked?
+  end
+
+  test "execute_curator_management unblock command" do
+    curator = User.create!(
+      username: "curator_unblock_test_#{SecureRandom.hex(4)}",
+      password: "password123",
+      password_confirmation: "password123",
+      user_type: :curator,
+      spam_blocked_at: 1.hour.ago,
+      spam_blocked_until: 1.day.from_now
+    )
+
+    result = Platform::DSL.execute("unblock curator { id: #{curator.id} }")
+
+    assert result.is_a?(Hash)
+    assert_equal :unblock_curator, result[:action]
+
+    curator.reload
+    refute curator.spam_blocked?
+  end
+
+  # Code query tests
+  test "execute_code_query with list" do
+    result = Platform::DSL.execute("code | list")
+
+    assert result.is_a?(Hash)
+  end
+
+  # Prompts query tests
+  test "execute_prompts_query with show" do
+    prompt = PreparedPrompt.create!(
+      title: "Test Prompt",
+      content: "Test content",
+      prompt_type: :fix
+    )
+
+    result = Platform::DSL.execute("prompts { id: #{prompt.id} } | show")
+
+    assert result.is_a?(Hash)
+    assert_equal :show_prompt, result[:action]
+  end
+
+  # Improvement tests
+  test "execute_improvement with prepare fix" do
+    result = Platform::DSL.execute('prepare fix for "Test fix description"')
+
+    assert result.is_a?(Hash)
+    assert_equal :prepare_prompt, result[:action]
+    assert_equal "fix", result[:type]
+  end
+
+  test "execute_improvement with prepare feature" do
+    result = Platform::DSL.execute('prepare feature "Test feature description"')
+
+    assert result.is_a?(Hash)
+    assert_equal :prepare_prompt, result[:action]
+    assert_equal "feature", result[:type]
+  end
+
+  # Prompt action tests (note: only apply and reject are supported)
+  test "execute_prompt_action with apply" do
+    prompt = PreparedPrompt.create!(
+      title: "Apply Test",
+      content: "Test content",
+      prompt_type: :fix,
+      status: :in_progress
+    )
+
+    result = Platform::DSL.execute("apply prompt { id: #{prompt.id} }")
+
+    assert result.is_a?(Hash)
+    assert_equal :apply_prompt, result[:action]
+  end
+
+  test "execute_prompt_action with reject" do
+    prompt = PreparedPrompt.create!(
+      title: "Reject Test",
+      content: "Test content",
+      prompt_type: :fix,
+      status: :pending
+    )
+
+    result = Platform::DSL.execute("reject prompt { id: #{prompt.id} } reason \"Not needed\"")
+
+    assert result.is_a?(Hash)
+    assert_equal :reject_prompt, result[:action]
+  end
+
+  # Approval tests
+  test "execute_approval approve proposal" do
+    content_change = ContentChange.create!(
+      changeable_type: "Location",
+      changeable_id: @sarajevo_location.id,
+      change_type: :update_content,
+      proposed_data: { name: "New Name" },
+      status: :pending,
+      user: @test_user
+    )
+
+    result = Platform::DSL.execute("approve proposal { id: #{content_change.id} }")
+
+    assert result.is_a?(Hash)
+    assert_equal :approve_proposal, result[:action]
+  end
+
+  test "execute_approval reject proposal" do
+    content_change = ContentChange.create!(
+      changeable_type: "Location",
+      changeable_id: @sarajevo_location.id,
+      change_type: :update_content,
+      proposed_data: { name: "New Name" },
+      status: :pending,
+      user: @test_user
+    )
+
+    result = Platform::DSL.execute("reject proposal { id: #{content_change.id} } reason \"Invalid\"")
+
+    assert result.is_a?(Hash)
+    assert_equal :reject_proposal, result[:action]
+  end
+
+  # Geoapify service test
+  test "geoapify_service returns service instance" do
+    # This test just verifies the method exists and returns something
+    # The actual service may fail without API key
+    if ENV["GEOAPIFY_API_KEY"].present?
+      service = Platform::DSL::Executor.send(:geoapify_service)
+      assert service.is_a?(GeoapifyService)
+    end
+  end
+
+  # Get city coordinates tests
+  test "get_city_coordinates returns coords from existing location" do
+    result = Platform::DSL::Executor.send(:get_city_coordinates, "Sarajevo")
+
+    assert result.is_a?(Hash)
+    assert result.key?(:lat)
+    assert result.key?(:lng)
+  end
+
+  test "get_city_coordinates falls back for unknown city" do
+    # Mock GeoapifyService to avoid API call
+    mock_service = Object.new
+    mock_service.define_singleton_method(:text_search) do |**_args|
+      # Return result inside BiH boundary
+      [{ lat: 43.85, lng: 18.41, name: "TestCity" }]
+    end
+
+    GeoapifyService.stub(:new, mock_service) do
+      result = Platform::DSL::Executor.send(:get_city_coordinates, "NonExistentCity12345")
+
+      # Should return coords from the mock
+      assert result.is_a?(Hash)
+      assert result.key?(:lat)
+      assert result.key?(:lng)
+    end
+  end
+
+  # API keys check test (internal method)
+  test "check_api_keys returns status for all keys" do
+    result = Platform::DSL::Executor.send(:check_api_keys)
+
+    assert result.is_a?(Hash)
+    assert result.key?(:anthropic)
+    assert result.key?(:geoapify)
+    assert result.key?(:elevenlabs)
+    assert_includes %w[configured missing], result[:anthropic]
+  end
+
+  # Check queue health test (internal method)
+  test "check_queue_health returns queue statistics" do
+    result = Platform::DSL::Executor.send(:check_queue_health)
+
+    assert result.is_a?(Hash)
+    # Returns pending/failed or status/message on error
+    assert result.key?(:pending) || result.key?(:status)
+  end
+
+  # Format record fallback test (for record without specific format method)
+  test "format_record uses fallback for unknown record types" do
+    record = AudioTour.create!(
+      location: @sarajevo_location,
+      locale: "bs",
+      script: "Test script"
+    )
+
+    result = Platform::DSL::Executor.send(:format_record, record)
+
+    assert result.is_a?(Hash)
+    assert result.key?("id") || result.key?(:id)
+  end
+
+  # Estimate audio cost internal method test
+  test "estimate_audio_cost internal method" do
+    ast = { table: "locations", filters: { city: "Sarajevo" } }
+    result = Platform::DSL::Executor.send(:estimate_audio_cost, ast)
+
+    assert result.is_a?(Hash)
+    assert result.key?(:total_locations)
+    assert result.key?(:estimated_cost_usd)
+  end
+
+  # Logs query via DSL
+  test "execute_logs_query via DSL" do
+    result = Platform::DSL.execute("logs | recent")
+
+    assert result.is_a?(Hash) || result.is_a?(Array)
+  end
+
+  # Infrastructure query via DSL
+  test "execute_infrastructure_query via DSL" do
+    result = Platform::DSL.execute("infrastructure | health")
+
+    assert result.is_a?(Hash)
+  end
+
+  # Summaries query via DSL with valid syntax
+  test "execute_summaries_query via DSL" do
+    result = Platform::DSL.execute("summaries { dimension: \"city\" } | list")
+
+    assert result.is_a?(Hash) || result.is_a?(Array)
+  end
+
+  # Schema describe for different tables
+  test "schema describe shows table structure for experiences" do
+    result = Platform::DSL.execute("schema | describe experiences")
+
+    assert result.is_a?(Hash)
+    assert_equal "experiences", result[:table].to_s
+    assert result[:columns].any?
+  end
+
+  # Count with filters
+  test "count with city filter returns integer" do
+    result = Platform::DSL.execute('locations { city: "Sarajevo" } | count')
+
+    assert result.is_a?(Integer)
+  end
+
+  # Show single record - returns array of formatted records
+  test "show returns formatted location record" do
+    result = Platform::DSL.execute("locations { id: #{@sarajevo_location.id} } | show")
+
+    # Show returns array of formatted records for table queries
+    assert result.is_a?(Array)
+    assert result.size >= 1
+  end
+
+  # Sample operation test
+  test "sample returns limited records" do
+    result = Platform::DSL.execute("locations | sample 1")
+
+    assert result.is_a?(Array)
+    assert result.size <= 1
+  end
+
+  # Build stats directly test (tests specific internal method)
+  test "build_stats_directly returns complete schema stats" do
+    result = Platform::DSL::Executor.send(:build_stats_directly)
+
+    assert result.is_a?(Hash)
+    assert result[:content].key?(:locations) || result[:content].key?("locations")
   end
 end

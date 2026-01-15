@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "ostruct"
 
 class Platform::DSL::ClustersTest < ActiveSupport::TestCase
   setup do
