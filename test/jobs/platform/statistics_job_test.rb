@@ -1,0 +1,39 @@
+# frozen_string_literal: true
+
+require "test_helper"
+
+class Platform::StatisticsJobTest < ActiveSupport::TestCase
+  setup do
+    PlatformStatistic.delete_all
+  end
+
+  test "perform refreshes specific key" do
+    # Test with content_counts which has simpler queries
+    Platform::StatisticsJob.perform_now(keys: ["content_counts"])
+
+    assert PlatformStatistic.exists?(key: "content_counts")
+  end
+
+  test "perform can refresh specific keys" do
+    Platform::StatisticsJob.perform_now(keys: ["content_counts"])
+
+    assert PlatformStatistic.exists?(key: "content_counts")
+    assert_not PlatformStatistic.exists?(key: "by_city")
+  end
+
+  test "perform updates computed_at timestamp" do
+    before_time = Time.current
+
+    Platform::StatisticsJob.perform_now(keys: ["content_counts"])
+
+    stat = PlatformStatistic.find_by(key: "content_counts")
+    assert stat.computed_at >= before_time
+  end
+
+  test "perform handles errors gracefully" do
+    # Shouldn't raise even if something goes wrong internally
+    assert_nothing_raised do
+      Platform::StatisticsJob.perform_now
+    end
+  end
+end

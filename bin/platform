@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+require_relative "../config/boot"
+
+ENV["RAILS_ENV"] ||= "development"
+require_relative "../config/environment"
+
+require "platform/cli"
+Platform::CLI.start(ARGV)

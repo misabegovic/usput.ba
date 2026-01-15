@@ -52,6 +52,18 @@ gem "rubyzip", require: "zip"
 # AI/LLM integration for experience generation [https://github.com/crmne/ruby_llm]
 gem "ruby_llm"
 
+# OpenAI API client for embeddings [https://github.com/alexrudall/ruby-openai]
+gem "ruby-openai"
+
+# CLI framework for Platform [https://github.com/rails/thor]
+gem "thor"
+
+# PEG parser for Platform DSL [https://github.com/kschiess/parslet]
+gem "parslet"
+
+# Vector similarity search with pgvector [https://github.com/ankane/neighbor]
+gem "neighbor"
+
 # HTTP client for Geoapify API
 gem "faraday"
 gem "faraday-follow_redirects"  # Follow HTTP redirects for image downloads

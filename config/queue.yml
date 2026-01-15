@@ -6,6 +6,16 @@ default: &default
     - polling_interval: 1
       batch_size: 500
       concurrency_maintenance_interval: 300
+  recurring:
+    platform_statistics:
+      class: Platform::StatisticsJob
+      schedule: every 5 minutes
+    platform_summaries:
+      class: Platform::SummaryGenerationJob
+      schedule: every 1 hour
+    platform_clusters:
+      class: Platform::ClusterGenerationJob
+      schedule: every day at 3am
   workers:
     # AI generation queue - single thread to respect OpenAI rate limits (200k TPM)
     # Jobs that make OpenAI API calls should use this queue
