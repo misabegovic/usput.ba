@@ -442,6 +442,88 @@ module Platform
           reason: nil
         }
       end
+
+      # Improvement commands
+      # prepare fix for "description"
+      rule(query: { improvement_cmd: simple(:cmd), improvement_type: simple(:t), prompt_description: subtree(:desc) }) do |dict|
+        desc_val = dict[:desc].is_a?(Hash) ? dict[:desc][:string]&.to_s : dict[:desc]&.to_s
+        {
+          type: :improvement,
+          improvement_type: dict[:t].to_s.to_sym,
+          description: desc_val,
+          severity: nil,
+          target_file: nil
+        }
+      end
+
+      # prepare fix for "description" severity "high"
+      rule(query: { improvement_cmd: simple(:cmd), improvement_type: simple(:t), prompt_description: subtree(:desc), prompt_severity: subtree(:sev) }) do |dict|
+        desc_val = dict[:desc].is_a?(Hash) ? dict[:desc][:string]&.to_s : dict[:desc]&.to_s
+        sev_val = dict[:sev].is_a?(Hash) ? dict[:sev][:string]&.to_s : dict[:sev]&.to_s
+        {
+          type: :improvement,
+          improvement_type: dict[:t].to_s.to_sym,
+          description: desc_val,
+          severity: sev_val,
+          target_file: nil
+        }
+      end
+
+      # prepare fix for "description" file "path"
+      rule(query: { improvement_cmd: simple(:cmd), improvement_type: simple(:t), prompt_description: subtree(:desc), target_file: subtree(:f) }) do |dict|
+        desc_val = dict[:desc].is_a?(Hash) ? dict[:desc][:string]&.to_s : dict[:desc]&.to_s
+        file_val = dict[:f].is_a?(Hash) ? dict[:f][:string]&.to_s : dict[:f]&.to_s
+        {
+          type: :improvement,
+          improvement_type: dict[:t].to_s.to_sym,
+          description: desc_val,
+          severity: nil,
+          target_file: file_val
+        }
+      end
+
+      # prepare fix for "description" severity "high" file "path"
+      rule(query: { improvement_cmd: simple(:cmd), improvement_type: simple(:t), prompt_description: subtree(:desc), prompt_severity: subtree(:sev), target_file: subtree(:f) }) do |dict|
+        desc_val = dict[:desc].is_a?(Hash) ? dict[:desc][:string]&.to_s : dict[:desc]&.to_s
+        sev_val = dict[:sev].is_a?(Hash) ? dict[:sev][:string]&.to_s : dict[:sev]&.to_s
+        file_val = dict[:f].is_a?(Hash) ? dict[:f][:string]&.to_s : dict[:f]&.to_s
+        {
+          type: :improvement,
+          improvement_type: dict[:t].to_s.to_sym,
+          description: desc_val,
+          severity: sev_val,
+          target_file: file_val
+        }
+      end
+
+      # Prompt action commands
+      # apply prompt { id: 123 }
+      rule(query: { prompt_action: simple(:action), filters: subtree(:f) }) do |dict|
+        {
+          type: :prompt_action,
+          action: dict[:action].to_s.to_sym,
+          filters: Transform.convert_filters(dict[:f]),
+          reason: nil
+        }
+      end
+
+      # reject prompt { id: 123 } reason "..."
+      rule(query: { prompt_action: simple(:action), filters: subtree(:f), rejection_reason: subtree(:r) }) do |dict|
+        reason_val = case dict[:r]
+                     when Hash
+                       inner = dict[:r][:string]
+                       inner.is_a?(Array) ? inner.join : inner.to_s
+                     when Array then dict[:r].empty? ? "" : dict[:r].join
+                     when Parslet::Slice then dict[:r].to_s
+                     else dict[:r]&.to_s
+                     end
+        {
+          type: :prompt_action,
+          action: dict[:action].to_s.to_sym,
+          filters: Transform.convert_filters(dict[:f]),
+          reason: reason_val
+        }
+      end
     end
   end
 end

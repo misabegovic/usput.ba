@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_15_163345) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_15_171026) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -523,6 +523,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_163345) do
     t.index ["key"], name: "index_platform_statistics_on_key", unique: true
   end
 
+  create_table "prepared_prompts", force: :cascade do |t|
+    t.text "analysis"
+    t.text "content", null: false
+    t.uuid "conversation_id"
+    t.datetime "created_at", null: false
+    t.jsonb "metadata", default: {}
+    t.string "prompt_type", null: false
+    t.string "severity"
+    t.text "solution"
+    t.string "status", default: "pending"
+    t.string "target_file"
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["prompt_type"], name: "index_prepared_prompts_on_prompt_type"
+    t.index ["severity"], name: "index_prepared_prompts_on_severity"
+    t.index ["status"], name: "index_prepared_prompts_on_status"
+    t.index ["user_id"], name: "index_prepared_prompts_on_user_id"
+  end
+
   create_table "reviews", force: :cascade do |t|
     t.string "author_name"
     t.text "comment"
@@ -612,5 +632,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_163345) do
   add_foreign_key "plan_experiences", "experiences"
   add_foreign_key "plan_experiences", "plans"
   add_foreign_key "plans", "users"
+  add_foreign_key "prepared_prompts", "users"
   add_foreign_key "reviews", "users"
 end
