@@ -13,17 +13,27 @@ module Platform
     #
     class Executor
       # Mapiranje DSL table names na Rails modele
+      # Includes both singular and plural forms for mutations
       TABLE_MAP = {
         "locations" => "Location",
+        "location" => "Location",
         "experiences" => "Experience",
+        "experience" => "Experience",
         "plans" => "Plan",
+        "plan" => "Plan",
         "audio_tours" => "AudioTour",
+        "audio_tour" => "AudioTour",
         "users" => "User",
+        "user" => "User",
         "reviews" => "Review",
+        "review" => "Review",
         "translations" => "Translation",
+        "translation" => "Translation",
         "browse" => "Browse",
         "curator_applications" => "CuratorApplication",
-        "content_changes" => "ContentChange"
+        "curator_application" => "CuratorApplication",
+        "content_changes" => "ContentChange",
+        "content_change" => "ContentChange"
       }.freeze
 
       class << self
@@ -37,6 +47,20 @@ module Platform
             execute_summaries_query(ast)
           when :clusters_query
             execute_clusters_query(ast)
+          when :external_query
+            execute_external_query(ast)
+          when :mutation
+            execute_mutation(ast)
+          when :generation
+            execute_generation(ast)
+          when :audio
+            execute_audio(ast)
+          when :proposals_query
+            execute_proposals_query(ast)
+          when :applications_query
+            execute_applications_query(ast)
+          when :approval
+            execute_approval(ast)
           else
             raise ExecutionError, "Nepoznat tip query-ja: #{ast[:type]}"
           end
@@ -583,6 +607,1200 @@ module Platform
             Platform::ClusterGenerationJob.perform_later
             "Queued cluster membership refresh"
           end
+        end
+
+        # External queries (Geoapify, geocoding, etc.)
+        def execute_external_query(ast)
+          filters = ast[:filters] || {}
+          operation = ast[:operations]&.first
+
+          case operation&.dig(:name)
+          when :search_pois
+            search_pois(filters, operation[:args])
+          when :geocode
+            geocode_address(filters)
+          when :reverse_geocode
+            reverse_geocode_coords(filters)
+          when :validate_location, :validate
+            validate_location(filters)
+          when :check_duplicate, :dedupe
+            check_duplicate(filters)
+          else
+            raise ExecutionError, "Nepoznata external operacija: #{operation&.dig(:name)}"
+          end
+        end
+
+        # Search for POIs using Geoapify
+        def search_pois(filters, args)
+          city = filters[:city]
+          raise ExecutionError, "search_pois zahtijeva filter: city" unless city
+
+          # Get coordinates for the city
+          coords = get_city_coordinates(city)
+          raise ExecutionError, "Nije moguće pronaći koordinate za grad: #{city}" unless coords
+
+          radius = filters[:radius] || 15_000 # default 15km
+          max_results = filters[:limit] || 50
+          categories = filters[:categories] || args&.first
+
+          # Use rate limiting
+          results = Ai::RateLimiter.with_delay(delay: 0.25) do
+            geoapify_service.search_nearby(
+              lat: coords[:lat],
+              lng: coords[:lng],
+              radius: radius,
+              types: Array(categories).map(&:to_s),
+              max_results: max_results
+            )
+          end
+
+          # Filter to only BiH locations
+          bih_results = results.select do |place|
+            Geo::BihBoundaryValidator.inside_bih?(place[:lat], place[:lng])
+          end
+
+          {
+            city: city,
+            center: coords,
+            radius: radius,
+            total_found: results.size,
+            in_bih: bih_results.size,
+            filtered_out: results.size - bih_results.size,
+            results: bih_results.map { |p| format_poi_result(p) }
+          }
+        end
+
+        # Geocode an address to coordinates
+        def geocode_address(filters)
+          address = filters[:address] || filters[:query]
+          raise ExecutionError, "geocode zahtijeva filter: address" unless address
+
+          results = Ai::RateLimiter.with_delay(delay: 0.25) do
+            geoapify_service.text_search(query: address)
+          end
+
+          return { address: address, found: false, results: [] } if results.empty?
+
+          # Filter and format results
+          formatted = results.map do |r|
+            in_bih = Geo::BihBoundaryValidator.inside_bih?(r[:lat], r[:lng])
+            {
+              name: r[:name],
+              address: r[:address],
+              lat: r[:lat],
+              lng: r[:lng],
+              in_bih: in_bih,
+              type: r[:primary_type]
+            }
+          end
+
+          {
+            query: address,
+            found: true,
+            count: formatted.size,
+            in_bih_count: formatted.count { |r| r[:in_bih] },
+            results: formatted
+          }
+        end
+
+        # Reverse geocode coordinates to address
+        def reverse_geocode_coords(filters)
+          lat = filters[:lat]
+          lng = filters[:lng]
+          raise ExecutionError, "reverse_geocode zahtijeva filtere: lat, lng" unless lat && lng
+
+          result = Ai::RateLimiter.with_delay(delay: 0.25) do
+            geoapify_service.reverse_geocode(lat: lat.to_f, lng: lng.to_f)
+          end
+
+          in_bih = Geo::BihBoundaryValidator.inside_bih?(lat, lng)
+
+          {
+            lat: lat.to_f,
+            lng: lng.to_f,
+            in_bih: in_bih,
+            address: result[:formatted],
+            city: result[:city] || result[:town] || result[:village],
+            country: result[:country],
+            country_code: result[:country_code]
+          }
+        end
+
+        # Validate if location is in BiH
+        def validate_location(filters)
+          lat = filters[:lat]
+          lng = filters[:lng]
+          raise ExecutionError, "validate_location zahtijeva filtere: lat, lng" unless lat && lng
+
+          lat_f = lat.to_f
+          lng_f = lng.to_f
+          in_bih = Geo::BihBoundaryValidator.inside_bih?(lat_f, lng_f)
+
+          result = {
+            lat: lat_f,
+            lng: lng_f,
+            in_bih: in_bih,
+            valid: in_bih
+          }
+
+          unless in_bih
+            result[:distance_to_border_km] = Geo::BihBoundaryValidator.distance_to_border(lat_f, lng_f).round(2)
+            result[:message] = "Lokacija je van granica Bosne i Hercegovine"
+          end
+
+          result
+        end
+
+        # Check for duplicate locations
+        def check_duplicate(filters)
+          name = filters[:name]
+          lat = filters[:lat]
+          lng = filters[:lng]
+
+          raise ExecutionError, "check_duplicate zahtijeva filter: name ili (lat, lng)" unless name || (lat && lng)
+
+          duplicates = []
+
+          # Check by name similarity
+          if name
+            similar = Location.where("LOWER(name) LIKE ?", "%#{name.downcase}%").limit(10)
+            duplicates += similar.map do |loc|
+              {
+                id: loc.id,
+                name: loc.name,
+                city: loc.city,
+                match_type: :name,
+                lat: loc.lat,
+                lng: loc.lng
+              }
+            end
+          end
+
+          # Check by proximity (within 100m) using haversine distance
+          # Note: PostGIS would be faster for large datasets but requires extension
+          if lat && lng
+            target_lat = lat.to_f
+            target_lng = lng.to_f
+
+            nearby = Location.all.select do |loc|
+              next false unless loc.lat && loc.lng
+              distance = haversine_distance(target_lat, target_lng, loc.lat, loc.lng)
+              distance < 0.1 # 100m = 0.1km
+            end.first(10)
+
+            duplicates += nearby.map do |loc|
+              {
+                id: loc.id,
+                name: loc.name,
+                city: loc.city,
+                match_type: :proximity,
+                lat: loc.lat,
+                lng: loc.lng,
+                distance_m: (haversine_distance(lat.to_f, lng.to_f, loc.lat, loc.lng) * 1000).round
+              }
+            end
+          end
+
+          {
+            query: { name: name, lat: lat, lng: lng }.compact,
+            has_duplicates: duplicates.any?,
+            count: duplicates.uniq { |d| d[:id] }.size,
+            duplicates: duplicates.uniq { |d| d[:id] }
+          }
+        end
+
+        # Helper methods for external queries
+
+        def geoapify_service
+          @geoapify_service ||= GeoapifyService.new
+        end
+
+        def get_city_coordinates(city)
+          # Try to find from existing locations first
+          location = Location.where(city: city).first
+          return { lat: location.lat, lng: location.lng } if location&.lat && location&.lng
+
+          # Fallback to geocoding
+          results = geoapify_service.text_search(query: "#{city}, Bosnia and Herzegovina")
+          return nil if results.empty?
+
+          bih_result = results.find { |r| Geo::BihBoundaryValidator.inside_bih?(r[:lat], r[:lng]) }
+          return nil unless bih_result
+
+          { lat: bih_result[:lat], lng: bih_result[:lng] }
+        end
+
+        def format_poi_result(place)
+          {
+            place_id: place[:place_id],
+            name: place[:name],
+            address: place[:address],
+            lat: place[:lat],
+            lng: place[:lng],
+            type: place[:primary_type],
+            types: place[:types],
+            rating: place[:rating],
+            website: place[:website]
+          }
+        end
+
+        def haversine_distance(lat1, lng1, lat2, lng2)
+          r = 6371 # Earth's radius in kilometers
+          dlat = to_radians(lat2 - lat1)
+          dlng = to_radians(lng2 - lng1)
+          a = Math.sin(dlat / 2)**2 +
+              Math.cos(to_radians(lat1)) * Math.cos(to_radians(lat2)) *
+              Math.sin(dlng / 2)**2
+          c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+          r * c
+        end
+
+        def to_radians(degrees)
+          degrees * Math::PI / 180
+        end
+
+        # Mutation queries (create, update, delete)
+        def execute_mutation(ast)
+          action = ast[:action]
+          table = ast[:table]
+
+          case action
+          when :create
+            execute_create(table, ast[:data])
+          when :update
+            execute_update(table, ast[:filters], ast[:data])
+          when :delete
+            execute_delete(table, ast[:filters] || ast[:data])
+          else
+            raise ExecutionError, "Nepoznata mutacija: #{action}"
+          end
+        end
+
+        # Create a new record
+        def execute_create(table, data)
+          model = resolve_model(table)
+          validate_mutation_data!(table, data, :create)
+
+          # For locations, validate BiH boundary
+          if is_location_table?(table) && data[:lat] && data[:lng]
+            unless Geo::BihBoundaryValidator.inside_bih?(data[:lat], data[:lng])
+              raise ExecutionError, "Lokacija mora biti unutar granica BiH (lat: #{data[:lat]}, lng: #{data[:lng]})"
+            end
+          end
+
+          record = model.new(data)
+
+          unless record.save
+            raise ExecutionError, "Kreiranje nije uspjelo: #{record.errors.full_messages.join(', ')}"
+          end
+
+          # Log the action
+          PlatformAuditLog.log_create(record, triggered_by: "platform_dsl")
+
+          {
+            success: true,
+            action: :create,
+            record_type: model.name,
+            record_id: record.id,
+            data: format_created_record(record)
+          }
+        end
+
+        # Update an existing record
+        def execute_update(table, filters, data)
+          model = resolve_model(table)
+
+          # Find the record
+          record = find_record_for_mutation(model, filters)
+
+          # For locations, validate BiH boundary if coordinates are being updated
+          if is_location_table?(table) && (data[:lat] || data[:lng])
+            new_lat = data[:lat] || record.lat
+            new_lng = data[:lng] || record.lng
+            unless Geo::BihBoundaryValidator.inside_bih?(new_lat, new_lng)
+              raise ExecutionError, "Lokacija mora biti unutar granica BiH (lat: #{new_lat}, lng: #{new_lng})"
+            end
+          end
+
+          # Capture changes before update
+          old_values = data.keys.each_with_object({}) do |key, hash|
+            hash[key] = record.send(key) if record.respond_to?(key)
+          end
+
+          unless record.update(data)
+            raise ExecutionError, "Ažuriranje nije uspjelo: #{record.errors.full_messages.join(', ')}"
+          end
+
+          # Build changes hash
+          changes = data.keys.each_with_object({}) do |key, hash|
+            hash[key.to_s] = [old_values[key], record.send(key)]
+          end
+
+          # Log the action
+          PlatformAuditLog.log_update(record, changes: changes, triggered_by: "platform_dsl")
+
+          {
+            success: true,
+            action: :update,
+            record_type: model.name,
+            record_id: record.id,
+            changes: changes
+          }
+        end
+
+        # Delete a record (soft delete if supported)
+        def execute_delete(table, filters)
+          model = resolve_model(table)
+          record = find_record_for_mutation(model, filters)
+
+          # Log before delete
+          PlatformAuditLog.log_delete(record, triggered_by: "platform_dsl")
+
+          # Try soft delete first, fall back to hard delete
+          if record.respond_to?(:discard)
+            record.discard
+          elsif record.respond_to?(:soft_delete)
+            record.soft_delete
+          else
+            record.destroy
+          end
+
+          {
+            success: true,
+            action: :delete,
+            record_type: model.name,
+            record_id: record.id,
+            message: "Record deleted"
+          }
+        end
+
+        # Find a single record for mutation
+        def find_record_for_mutation(model, filters)
+          raise ExecutionError, "Potreban filter za identifikaciju zapisa (npr. id)" if filters.nil? || filters.empty?
+
+          if filters[:id]
+            record = model.find_by(id: filters[:id])
+            raise ExecutionError, "#{model.name} sa id=#{filters[:id]} nije pronađen" unless record
+            record
+          else
+            records = apply_filters(model, filters)
+            raise ExecutionError, "Nijedan #{model.name} nije pronađen sa zadanim filterima" if records.empty?
+            raise ExecutionError, "Pronađeno više zapisa (#{records.count}). Koristi id za preciznu selekciju." if records.count > 1
+            records.first
+          end
+        end
+
+        # Validate mutation data
+        def validate_mutation_data!(table, data, action)
+          if is_location_table?(table) && action == :create
+            required = [:name, :city]
+            missing = required.select { |f| data[f].blank? }
+            raise ExecutionError, "Nedostaju obavezna polja: #{missing.join(', ')}" if missing.any?
+          elsif is_experience_table?(table) && action == :create
+            required = [:title]
+            missing = required.select { |f| data[f].blank? }
+            raise ExecutionError, "Nedostaju obavezna polja: #{missing.join(', ')}" if missing.any?
+          end
+        end
+
+        # Table type helpers
+        def is_location_table?(table)
+          %w[location locations].include?(table.to_s.downcase)
+        end
+
+        def is_experience_table?(table)
+          %w[experience experiences].include?(table.to_s.downcase)
+        end
+
+        # Format created record for response
+        def format_created_record(record)
+          case record
+          when Location
+            {
+              id: record.id,
+              name: record.name,
+              city: record.city,
+              lat: record.lat,
+              lng: record.lng,
+              description: record.description&.truncate(100)
+            }
+          when Experience
+            {
+              id: record.id,
+              title: record.title,
+              description: record.description&.truncate(100)
+            }
+          else
+            record.attributes.slice("id", "name", "title", "created_at")
+          end
+        end
+
+        # Generation queries
+        def execute_generation(ast)
+          case ast[:gen_type]
+          when :description
+            generate_description(ast)
+          when :translations
+            generate_translations(ast)
+          when :experience
+            generate_experience(ast)
+          else
+            raise ExecutionError, "Nepoznat tip generacije: #{ast[:gen_type]}"
+          end
+        end
+
+        # Generate description for a record
+        def generate_description(ast)
+          model = resolve_model(ast[:table])
+          record = find_record_for_mutation(model, ast[:filters])
+          style = ast[:style] || "informative"
+
+          unless record.respond_to?(:description)
+            raise ExecutionError, "#{model.name} nema polje 'description'"
+          end
+
+          # Use RubyLLM for generation
+          prompt = build_description_prompt(record, style)
+          description = generate_with_llm(prompt)
+
+          # Update the record
+          old_description = record.description
+          record.update!(description: description)
+
+          # Log the change
+          PlatformAuditLog.log_update(
+            record,
+            changes: { "description" => [old_description, description] },
+            triggered_by: "platform_dsl_generation"
+          )
+
+          {
+            success: true,
+            action: :generate_description,
+            record_type: model.name,
+            record_id: record.id,
+            style: style,
+            description: description.truncate(200)
+          }
+        end
+
+        # Generate translations for a record
+        def generate_translations(ast)
+          model = resolve_model(ast[:table])
+          record = find_record_for_mutation(model, ast[:filters])
+          locales = ast[:locales]
+
+          unless record.respond_to?(:set_translation)
+            raise ExecutionError, "#{model.name} ne podržava prijevode"
+          end
+
+          # Validate locales
+          valid_locales = Translation::SUPPORTED_LOCALES
+          invalid = locales - valid_locales
+          raise ExecutionError, "Nepodržani jezici: #{invalid.join(', ')}" if invalid.any?
+
+          # Get translatable fields
+          translatable_fields = if record.class.respond_to?(:translatable_fields)
+            record.class.translatable_fields
+          else
+            [:name, :description].select { |f| record.respond_to?(f) }
+          end
+
+          translations_created = []
+
+          locales.each do |locale|
+            translatable_fields.each do |field|
+              source_text = record.send(field)
+              next if source_text.blank?
+
+              prompt = build_translation_prompt(source_text, locale, field)
+              translated = generate_with_llm(prompt)
+
+              record.set_translation(field, translated, locale)
+              translations_created << { locale: locale, field: field }
+            end
+          end
+
+          # Log
+          PlatformAuditLog.create!(
+            action: "update",
+            record_type: model.name,
+            record_id: record.id,
+            change_data: { translations_added: translations_created },
+            triggered_by: "platform_dsl_generation"
+          )
+
+          {
+            success: true,
+            action: :generate_translations,
+            record_type: model.name,
+            record_id: record.id,
+            locales: locales,
+            fields_translated: translatable_fields,
+            translations_count: translations_created.size
+          }
+        end
+
+        # Generate experience from locations
+        def generate_experience(ast)
+          location_ids = ast[:location_ids]
+          raise ExecutionError, "Potrebne su bar 2 lokacije za generisanje iskustva" if location_ids.size < 2
+
+          locations = Location.where(id: location_ids)
+          missing = location_ids - locations.pluck(:id)
+          raise ExecutionError, "Lokacije nisu pronađene: #{missing.join(', ')}" if missing.any?
+
+          # Build experience prompt
+          prompt = build_experience_prompt(locations)
+          experience_data = generate_experience_with_llm(prompt, locations)
+
+          # Create experience
+          # estimated_duration is in minutes
+          duration_minutes = (experience_data[:duration_hours] || locations.size) * 60
+          experience = Experience.new(
+            title: experience_data[:title],
+            description: experience_data[:description],
+            estimated_duration: duration_minutes,
+            ai_generated: true
+          )
+
+          unless experience.save
+            raise ExecutionError, "Kreiranje iskustva nije uspjelo: #{experience.errors.full_messages.join(', ')}"
+          end
+
+          # Link locations
+          locations.each_with_index do |loc, idx|
+            experience.experience_locations.create!(location: loc, position: idx + 1)
+          end
+
+          # Log
+          PlatformAuditLog.log_create(experience, triggered_by: "platform_dsl_generation")
+
+          {
+            success: true,
+            action: :generate_experience,
+            experience_id: experience.id,
+            title: experience.title,
+            locations_count: locations.size,
+            description: experience.description&.truncate(150)
+          }
+        end
+
+        # LLM helpers
+        def generate_with_llm(prompt)
+          chat = RubyLLM.chat(model: "claude-sonnet-4-20250514")
+          response = chat.ask(prompt)
+          response.content.strip
+        rescue => e
+          raise ExecutionError, "LLM greška: #{e.message}"
+        end
+
+        def build_description_prompt(record, style)
+          context = case record
+          when Location
+            "lokacija u Bosni i Hercegovini: #{record.name}, grad: #{record.city}"
+          when Experience
+            "turističko iskustvo: #{record.title}"
+          else
+            "#{record.class.name}: #{record.try(:name) || record.try(:title)}"
+          end
+
+          style_instruction = case style.to_s.downcase
+          when "vivid"
+            "Koristi živopisan, emotivan jezik koji inspiriše posjetioce."
+          when "formal"
+            "Koristi formalan, informativan ton pogodan za vodiče."
+          when "casual"
+            "Koristi opušten, prijateljski ton."
+          else
+            "Koristi informativan, ali privlačan ton."
+          end
+
+          <<~PROMPT
+            Napiši opis za #{context}.
+
+            #{style_instruction}
+
+            Pravila:
+            - Piši na bosanskom jeziku (ijekavica)
+            - Opis treba biti 2-3 paragrafa (150-250 riječi)
+            - Uključi historijski kontekst ako je relevantan
+            - Fokusiraj se na ono što čini ovo mjesto posebnim
+            - Ne koristi klišeje poput "raj na zemlji" ili "must-see"
+
+            Vrati SAMO tekst opisa, bez naslova ili dodatnih komentara.
+          PROMPT
+        end
+
+        def build_translation_prompt(text, locale, field)
+          locale_name = {
+            "en" => "engleski",
+            "de" => "njemački",
+            "fr" => "francuski",
+            "es" => "španski",
+            "it" => "italijanski",
+            "hr" => "hrvatski",
+            "sr" => "srpski",
+            "sl" => "slovenski",
+            "cs" => "češki",
+            "sk" => "slovački",
+            "pl" => "poljski",
+            "nl" => "holandski",
+            "pt" => "portugalski",
+            "tr" => "turski",
+            "ar" => "arapski"
+          }[locale.to_s] || locale
+
+          <<~PROMPT
+            Prevedi sljedeći tekst na #{locale_name} jezik.
+
+            Originalni tekst (#{field}):
+            #{text}
+
+            Pravila:
+            - Zadrži ton i stil originala
+            - Zadrži nazive mjesta i lokacija nepromijenjene
+            - Za hrvatski koristi ijekavicu
+            - Za srpski koristi ćirilicu samo ako je to standardno
+
+            Vrati SAMO preveden tekst, bez dodatnih komentara.
+          PROMPT
+        end
+
+        def build_experience_prompt(locations)
+          location_list = locations.map do |loc|
+            "- #{loc.name} (#{loc.city}): #{loc.description&.truncate(100) || 'bez opisa'}"
+          end.join("\n")
+
+          <<~PROMPT
+            Kreiraj turističko iskustvo koje povezuje sljedeće lokacije:
+
+            #{location_list}
+
+            Vrati JSON format:
+            {
+              "title": "Naslov iskustva (kreativan, privlačan)",
+              "description": "Opis iskustva (2-3 paragrafa, opisuje put i šta posjetilac može očekivati)",
+              "duration_hours": broj_sati_potrebnih
+            }
+
+            Pravila:
+            - Piši na bosanskom jeziku (ijekavica)
+            - Naslov treba biti kratak i pamtljiv
+            - Opis treba logično povezati lokacije u priču
+            - Procijeni realno trajanje bazirano na broju lokacija
+
+            Vrati SAMO JSON, bez dodatnog teksta.
+          PROMPT
+        end
+
+        def generate_experience_with_llm(prompt, locations)
+          response = generate_with_llm(prompt)
+
+          # Parse JSON response
+          begin
+            data = JSON.parse(response, symbolize_names: true)
+            {
+              title: data[:title] || "Iskustvo: #{locations.first.city}",
+              description: data[:description] || "Iskustvo koje uključuje #{locations.size} lokacija.",
+              duration_hours: data[:duration_hours] || locations.size
+            }
+          rescue JSON::ParserError
+            # Fallback if JSON parsing fails
+            {
+              title: "Iskustvo: #{locations.map(&:city).uniq.join(' - ')}",
+              description: response.truncate(500),
+              duration_hours: locations.size
+            }
+          end
+        end
+
+        # Audio queries
+        def execute_audio(ast)
+          case ast[:action]
+          when :synthesize
+            synthesize_audio(ast)
+          when :estimate
+            estimate_audio_cost(ast)
+          else
+            raise ExecutionError, "Nepoznata audio akcija: #{ast[:action]}"
+          end
+        end
+
+        # Synthesize audio for a location
+        def synthesize_audio(ast)
+          model = resolve_model(ast[:table])
+          raise ExecutionError, "Audio sinteza je dostupna samo za lokacije" unless model == Location
+
+          record = find_record_for_mutation(model, ast[:filters])
+          locale = ast[:locale] || "bs"
+          voice = ast[:voice]
+
+          # Configure voice if specified
+          if voice.present?
+            voice_id = find_voice_id(voice)
+            Setting.set("tts.elevenlabs_voice_id", voice_id) if voice_id
+          end
+
+          # Use the existing AudioTourGenerator
+          generator = Ai::AudioTourGenerator.new(record)
+          result = generator.generate(locale: locale, force: false)
+
+          # Log the action
+          PlatformAuditLog.create!(
+            action: "create",
+            record_type: "AudioTour",
+            record_id: record.audio_tours.find_by(locale: locale)&.id,
+            change_data: { location_id: record.id, locale: locale },
+            triggered_by: "platform_dsl_audio"
+          )
+
+          {
+            success: true,
+            action: :synthesize_audio,
+            location_id: record.id,
+            location_name: record.name,
+            locale: locale,
+            status: result[:status],
+            duration: result[:duration_estimate],
+            audio_info: result[:audio_info]
+          }
+        rescue Ai::AudioTourGenerator::GenerationError => e
+          raise ExecutionError, "Audio sinteza nije uspjela: #{e.message}"
+        end
+
+        # Estimate audio cost for multiple locations
+        def estimate_audio_cost(ast)
+          model = resolve_model(ast[:table])
+          raise ExecutionError, "Procjena troškova je dostupna samo za lokacije" unless model == Location
+
+          records = apply_filters(model, ast[:filters])
+
+          # Filter to only those missing audio
+          if ast[:filters][:missing_audio]
+            records = records.select { |loc| !loc.audio_tours.with_audio.exists? }
+          end
+
+          # ElevenLabs pricing (approximate)
+          # ~$0.30 per 1000 characters for standard voices
+          # Average tour script: ~800 words = ~4000 characters
+          chars_per_tour = 4000
+          cost_per_1000_chars = 0.30
+
+          total_locations = records.count
+          total_chars = total_locations * chars_per_tour
+          estimated_cost = (total_chars / 1000.0) * cost_per_1000_chars
+
+          # Break down by city
+          by_city = records.group_by(&:city).transform_values(&:count)
+
+          {
+            action: :estimate_audio_cost,
+            total_locations: total_locations,
+            estimated_characters: total_chars,
+            estimated_cost_usd: estimated_cost.round(2),
+            cost_per_location: (estimated_cost / [total_locations, 1].max).round(2),
+            by_city: by_city,
+            notes: [
+              "Procjena bazirana na prosječnom skriptu od #{chars_per_tour} karaktera",
+              "ElevenLabs cijena: ~$#{cost_per_1000_chars}/1000 karaktera",
+              "Stvarni troškovi mogu varirati ovisno o dužini opisa"
+            ]
+          }
+        end
+
+        # Find voice ID by name
+        def find_voice_id(voice_name)
+          voices = Ai::AudioTourGenerator::ELEVENLABS_VOICES
+          match = voices.find { |id, info| info[:name].downcase == voice_name.downcase }
+          match&.first
+        end
+
+        # Proposals queries (ContentChange)
+        def execute_proposals_query(ast)
+          filters = ast[:filters] || {}
+          operation = ast[:operations]&.first
+
+          case operation&.dig(:name)
+          when :list, nil
+            list_proposals(filters)
+          when :show
+            show_proposal(filters)
+          when :count
+            count_proposals(filters)
+          else
+            list_proposals(filters)
+          end
+        end
+
+        def list_proposals(filters)
+          scope = ContentChange.all
+
+          # Apply status filter
+          if filters[:status]
+            status = filters[:status].to_s
+            scope = scope.where(status: status) if ContentChange.statuses.key?(status)
+          else
+            # Default to pending if no status specified
+            scope = scope.pending
+          end
+
+          # Apply type filter
+          if filters[:change_type] || filters[:type]
+            change_type = (filters[:change_type] || filters[:type]).to_s
+            scope = scope.where(change_type: change_type) if ContentChange.change_types.key?(change_type)
+          end
+
+          # Apply content type filter
+          if filters[:content_type]
+            scope = scope.where(changeable_type: filters[:content_type].to_s.classify)
+          end
+
+          proposals = scope.order(created_at: :desc).limit(50)
+
+          {
+            action: :list_proposals,
+            count: proposals.size,
+            total_pending: ContentChange.pending.count,
+            proposals: proposals.map { |p| format_proposal(p) }
+          }
+        end
+
+        def show_proposal(filters)
+          proposal = find_proposal(filters)
+
+          {
+            action: :show_proposal,
+            id: proposal.id,
+            status: proposal.status,
+            change_type: proposal.change_type,
+            changeable_type: proposal.changeable_type || proposal.changeable_class,
+            changeable_id: proposal.changeable_id,
+            description: proposal.description,
+            proposed_data: proposal.proposed_data,
+            original_data: proposal.original_data,
+            changes_diff: proposal.changes_diff,
+            proposer: {
+              id: proposal.user_id,
+              username: proposal.user.username
+            },
+            contributors: proposal.all_contributors.map { |u| { id: u.id, username: u.username } },
+            reviews: proposal.curator_reviews.map do |r|
+              {
+                user: r.user.username,
+                recommendation: r.recommendation,
+                comment: r.comment.truncate(100)
+              }
+            end,
+            recommendation_summary: proposal.recommendation_summary,
+            created_at: proposal.created_at.iso8601,
+            reviewed_at: proposal.reviewed_at&.iso8601,
+            reviewed_by: proposal.reviewed_by&.username
+          }
+        end
+
+        def count_proposals(filters)
+          scope = ContentChange.all
+
+          if filters[:status]
+            status = filters[:status].to_s
+            scope = scope.where(status: status) if ContentChange.statuses.key?(status)
+          end
+
+          {
+            pending: ContentChange.pending.count,
+            approved: ContentChange.approved.count,
+            rejected: ContentChange.rejected.count,
+            total: ContentChange.count,
+            by_type: ContentChange.group(:change_type).count,
+            by_content_type: ContentChange.group(:changeable_type).count
+          }
+        end
+
+        def find_proposal(filters)
+          raise ExecutionError, "Potreban filter: id" unless filters[:id]
+
+          proposal = ContentChange.find_by(id: filters[:id])
+          raise ExecutionError, "Proposal sa id=#{filters[:id]} nije pronađen" unless proposal
+
+          proposal
+        end
+
+        def format_proposal(proposal)
+          {
+            id: proposal.id,
+            status: proposal.status,
+            change_type: proposal.change_type,
+            description: proposal.description,
+            content_type: proposal.changeable_type || proposal.changeable_class,
+            proposer: proposal.user.username,
+            contributors_count: proposal.all_contributors.size,
+            reviews_count: proposal.curator_reviews.count,
+            recommendation_summary: proposal.recommendation_summary,
+            created_at: proposal.created_at.iso8601
+          }
+        end
+
+        # Applications queries (CuratorApplication)
+        def execute_applications_query(ast)
+          filters = ast[:filters] || {}
+          operation = ast[:operations]&.first
+
+          case operation&.dig(:name)
+          when :list, nil
+            list_applications(filters)
+          when :show
+            show_application(filters)
+          when :count
+            count_applications(filters)
+          else
+            list_applications(filters)
+          end
+        end
+
+        def list_applications(filters)
+          scope = CuratorApplication.all
+
+          # Apply status filter
+          if filters[:status]
+            status = filters[:status].to_s
+            scope = scope.where(status: status) if CuratorApplication.statuses.key?(status)
+          else
+            # Default to pending
+            scope = scope.pending
+          end
+
+          applications = scope.recent.limit(50)
+
+          {
+            action: :list_applications,
+            count: applications.size,
+            total_pending: CuratorApplication.pending.count,
+            applications: applications.map { |a| format_application(a) }
+          }
+        end
+
+        def show_application(filters)
+          application = find_application(filters)
+
+          {
+            action: :show_application,
+            id: application.id,
+            status: application.status,
+            user: {
+              id: application.user_id,
+              username: application.user.username
+            },
+            motivation: application.motivation,
+            experience: application.experience,
+            created_at: application.created_at.iso8601,
+            reviewed_at: application.reviewed_at&.iso8601,
+            reviewed_by: application.reviewed_by&.username,
+            admin_notes: application.admin_notes
+          }
+        end
+
+        def count_applications(filters)
+          {
+            pending: CuratorApplication.pending.count,
+            approved: CuratorApplication.approved.count,
+            rejected: CuratorApplication.rejected.count,
+            total: CuratorApplication.count
+          }
+        end
+
+        def find_application(filters)
+          raise ExecutionError, "Potreban filter: id" unless filters[:id]
+
+          application = CuratorApplication.find_by(id: filters[:id])
+          raise ExecutionError, "Application sa id=#{filters[:id]} nije pronađena" unless application
+
+          application
+        end
+
+        def format_application(application)
+          {
+            id: application.id,
+            status: application.status,
+            user: {
+              id: application.user_id,
+              username: application.user.username
+            },
+            motivation_preview: application.motivation.truncate(100),
+            created_at: application.created_at.iso8601
+          }
+        end
+
+        # Approval commands (approve/reject)
+        def execute_approval(ast)
+          action = ast[:action]
+          type = ast[:approval_type]
+          filters = ast[:filters]
+
+          case action
+          when :approve
+            if type == :proposal
+              approve_proposal(filters, ast[:notes])
+            else
+              approve_application(filters, ast[:notes])
+            end
+          when :reject
+            if type == :proposal
+              reject_proposal(filters, ast[:reason])
+            else
+              reject_application(filters, ast[:reason])
+            end
+          else
+            raise ExecutionError, "Nepoznata approval akcija: #{action}"
+          end
+        end
+
+        def approve_proposal(filters, notes)
+          proposal = find_proposal(filters)
+
+          unless proposal.pending?
+            raise ExecutionError, "Proposal nije u pending statusu (trenutni status: #{proposal.status})"
+          end
+
+          # Create a platform admin user for approval
+          admin = platform_admin_user
+
+          success = proposal.approve!(admin, notes: notes)
+
+          unless success
+            raise ExecutionError, "Odobravanje prijedloga nije uspjelo"
+          end
+
+          # Log the action
+          PlatformAuditLog.create!(
+            action: "approve",
+            record_type: "ContentChange",
+            record_id: proposal.id,
+            change_data: { notes: notes, approved_by: "platform_dsl" },
+            triggered_by: "platform_dsl_approval"
+          )
+
+          {
+            success: true,
+            action: :approve_proposal,
+            proposal_id: proposal.id,
+            change_type: proposal.change_type,
+            content_type: proposal.changeable_type || proposal.changeable_class,
+            notes: notes,
+            message: "Prijedlog je odobren i promjene su primijenjene"
+          }
+        end
+
+        def reject_proposal(filters, reason)
+          proposal = find_proposal(filters)
+
+          unless proposal.pending?
+            raise ExecutionError, "Proposal nije u pending statusu (trenutni status: #{proposal.status})"
+          end
+
+          raise ExecutionError, "Potreban razlog za odbijanje" if reason.blank?
+
+          admin = platform_admin_user
+          proposal.reject!(admin, notes: reason)
+
+          # Log the action
+          PlatformAuditLog.create!(
+            action: "reject",
+            record_type: "ContentChange",
+            record_id: proposal.id,
+            change_data: { reason: reason, rejected_by: "platform_dsl" },
+            triggered_by: "platform_dsl_approval"
+          )
+
+          {
+            success: true,
+            action: :reject_proposal,
+            proposal_id: proposal.id,
+            reason: reason,
+            message: "Prijedlog je odbijen"
+          }
+        end
+
+        def approve_application(filters, notes)
+          application = find_application(filters)
+
+          unless application.pending?
+            raise ExecutionError, "Application nije u pending statusu (trenutni status: #{application.status})"
+          end
+
+          admin = platform_admin_user
+          application.approve!(admin)
+
+          # Log the action
+          PlatformAuditLog.create!(
+            action: "approve",
+            record_type: "CuratorApplication",
+            record_id: application.id,
+            change_data: { notes: notes, approved_by: "platform_dsl", user_id: application.user_id },
+            triggered_by: "platform_dsl_approval"
+          )
+
+          {
+            success: true,
+            action: :approve_application,
+            application_id: application.id,
+            user: {
+              id: application.user_id,
+              username: application.user.username
+            },
+            message: "Prijava za kuratora je odobrena. Korisnik je sada kurator."
+          }
+        end
+
+        def reject_application(filters, reason)
+          application = find_application(filters)
+
+          unless application.pending?
+            raise ExecutionError, "Application nije u pending statusu (trenutni status: #{application.status})"
+          end
+
+          raise ExecutionError, "Potreban razlog za odbijanje" if reason.blank?
+
+          admin = platform_admin_user
+          application.reject!(admin, reason)
+
+          # Log the action
+          PlatformAuditLog.create!(
+            action: "reject",
+            record_type: "CuratorApplication",
+            record_id: application.id,
+            change_data: { reason: reason, rejected_by: "platform_dsl" },
+            triggered_by: "platform_dsl_approval"
+          )
+
+          {
+            success: true,
+            action: :reject_application,
+            application_id: application.id,
+            reason: reason,
+            message: "Prijava za kuratora je odbijena"
+          }
+        end
+
+        # Get or create platform admin user for approvals
+        def platform_admin_user
+          User.find_by(user_type: :admin) || User.find_by(username: "platform_system") || create_platform_user
+        end
+
+        def create_platform_user
+          # Try to find any admin, or create a minimal platform user record
+          admin = User.admin.first
+          return admin if admin
+
+          # Fallback: create a platform system user
+          User.create!(
+            username: "platform_system",
+            user_type: :admin,
+            password: SecureRandom.hex(32)
+          )
+        rescue => e
+          Rails.logger.error "Failed to create platform user: #{e.message}"
+          raise ExecutionError, "Nije moguće pronaći admin korisnika za odobravanje"
         end
       end
     end

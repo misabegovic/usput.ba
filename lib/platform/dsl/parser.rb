@@ -222,6 +222,179 @@ module Platform
           operations: Array(dict[:ops])
         }
       end
+
+      # Mutation commands
+      # create location { ... }
+      rule(query: { mutation: simple(:m), table: simple(:t), filters: subtree(:f) }) do |dict|
+        {
+          type: :mutation,
+          action: dict[:m].to_s.to_sym,
+          table: dict[:t].to_s,
+          data: Transform.convert_filters(dict[:f])
+        }
+      end
+
+      # update location { id: 123 } set { ... }
+      rule(query: { mutation: simple(:m), table: simple(:t), filters: subtree(:f), set_values: subtree(:sv) }) do |dict|
+        {
+          type: :mutation,
+          action: dict[:m].to_s.to_sym,
+          table: dict[:t].to_s,
+          filters: Transform.convert_filters(dict[:f]),
+          data: Transform.convert_filters(dict[:sv])
+        }
+      end
+
+      # Generation commands
+      # generate description for location { id: 123 }
+      rule(query: { generation: simple(:g), gen_type: simple(:gt), table: simple(:t), filters: subtree(:f), style_value: subtree(:sv) }) do |dict|
+        style_val = dict[:sv].is_a?(Hash) ? dict[:sv][:string]&.to_s : dict[:sv]&.to_s
+        {
+          type: :generation,
+          gen_type: dict[:gt].to_s.to_sym,
+          table: dict[:t].to_s,
+          filters: Transform.convert_filters(dict[:f]),
+          style: style_val
+        }
+      end
+
+      # generate description without style
+      rule(query: { generation: simple(:g), gen_type: simple(:gt), table: simple(:t), filters: subtree(:f) }) do |dict|
+        # Only match if gen_type is description (not translations which has locales)
+        next unless dict[:gt].to_s == "description"
+        {
+          type: :generation,
+          gen_type: :description,
+          table: dict[:t].to_s,
+          filters: Transform.convert_filters(dict[:f]),
+          style: nil
+        }
+      end
+
+      # generate translations for location { id: 123 } to [en, de]
+      rule(query: { generation: simple(:g), gen_type: simple(:gt), table: simple(:t), filters: subtree(:f), locales: subtree(:locs) }) do |dict|
+        locales = Array(dict[:locs]).map { |l| l.is_a?(Hash) ? l[:string]&.to_s : l.to_s }
+        {
+          type: :generation,
+          gen_type: dict[:gt].to_s.to_sym,
+          table: dict[:t].to_s,
+          filters: Transform.convert_filters(dict[:f]),
+          locales: locales
+        }
+      end
+
+      # generate experience from locations [1, 2, 3]
+      rule(query: { generation: simple(:g), gen_type: simple(:gt), location_ids: subtree(:ids) }) do |dict|
+        ids = Array(dict[:ids]).map { |id| id.is_a?(Integer) ? id : id.to_i }
+        {
+          type: :generation,
+          gen_type: dict[:gt].to_s.to_sym,
+          location_ids: ids
+        }
+      end
+
+      # Audio commands
+      # synthesize audio for location { id: 123 }
+      rule(query: { audio_cmd: simple(:cmd), audio_type: simple(:at), table: simple(:t), filters: subtree(:f) }) do |dict|
+        {
+          type: :audio,
+          action: dict[:cmd].to_s.to_sym,
+          audio_type: dict[:at].to_s.to_sym,
+          table: dict[:t].to_s,
+          filters: Transform.convert_filters(dict[:f]),
+          locale: nil,
+          voice: nil
+        }
+      end
+
+      # synthesize audio for location { id: 123 } locale "en"
+      rule(query: { audio_cmd: simple(:cmd), audio_type: simple(:at), table: simple(:t), filters: subtree(:f), audio_locale: subtree(:loc) }) do |dict|
+        locale_val = dict[:loc].is_a?(Hash) ? dict[:loc][:string]&.to_s : dict[:loc]&.to_s
+        {
+          type: :audio,
+          action: dict[:cmd].to_s.to_sym,
+          audio_type: dict[:at].to_s.to_sym,
+          table: dict[:t].to_s,
+          filters: Transform.convert_filters(dict[:f]),
+          locale: locale_val,
+          voice: nil
+        }
+      end
+
+      # synthesize audio for location { id: 123 } voice "Rachel"
+      rule(query: { audio_cmd: simple(:cmd), audio_type: simple(:at), table: simple(:t), filters: subtree(:f), voice_name: subtree(:v) }) do |dict|
+        voice_val = dict[:v].is_a?(Hash) ? dict[:v][:string]&.to_s : dict[:v]&.to_s
+        {
+          type: :audio,
+          action: dict[:cmd].to_s.to_sym,
+          audio_type: dict[:at].to_s.to_sym,
+          table: dict[:t].to_s,
+          filters: Transform.convert_filters(dict[:f]),
+          locale: nil,
+          voice: voice_val
+        }
+      end
+
+      # synthesize audio for location { id: 123 } locale "en" voice "Rachel"
+      rule(query: { audio_cmd: simple(:cmd), audio_type: simple(:at), table: simple(:t), filters: subtree(:f), audio_locale: subtree(:loc), voice_name: subtree(:v) }) do |dict|
+        locale_val = dict[:loc].is_a?(Hash) ? dict[:loc][:string]&.to_s : dict[:loc]&.to_s
+        voice_val = dict[:v].is_a?(Hash) ? dict[:v][:string]&.to_s : dict[:v]&.to_s
+        {
+          type: :audio,
+          action: dict[:cmd].to_s.to_sym,
+          audio_type: dict[:at].to_s.to_sym,
+          table: dict[:t].to_s,
+          filters: Transform.convert_filters(dict[:f]),
+          locale: locale_val,
+          voice: voice_val
+        }
+      end
+
+      # Approval commands
+      # approve proposal { id: 123 }
+      rule(query: { approval_cmd: simple(:cmd), approval_type: simple(:at), filters: subtree(:f) }) do |dict|
+        {
+          type: :approval,
+          action: dict[:cmd].to_s.to_sym,
+          approval_type: dict[:at].to_s.to_sym,
+          filters: Transform.convert_filters(dict[:f]),
+          notes: nil,
+          reason: nil
+        }
+      end
+
+      # approve proposal { id: 123 } notes "..."
+      rule(query: { approval_cmd: simple(:cmd), approval_type: simple(:at), filters: subtree(:f), approval_notes: subtree(:n) }) do |dict|
+        notes_val = dict[:n].is_a?(Hash) ? dict[:n][:string]&.to_s : dict[:n]&.to_s
+        {
+          type: :approval,
+          action: dict[:cmd].to_s.to_sym,
+          approval_type: dict[:at].to_s.to_sym,
+          filters: Transform.convert_filters(dict[:f]),
+          notes: notes_val,
+          reason: nil
+        }
+      end
+
+      # reject proposal { id: 123 } reason "..."
+      rule(query: { approval_cmd: simple(:cmd), approval_type: simple(:at), filters: subtree(:f), rejection_reason: subtree(:r) }) do |dict|
+        reason_val = case dict[:r]
+                     when Hash
+                       inner = dict[:r][:string]
+                       inner.is_a?(Array) ? inner.join : inner.to_s
+                     when Array then dict[:r].empty? ? "" : dict[:r].join
+                     when Parslet::Slice then dict[:r].to_s
+                     else dict[:r]&.to_s
+                     end
+        {
+          type: :approval,
+          action: dict[:cmd].to_s.to_sym,
+          approval_type: dict[:at].to_s.to_sym,
+          filters: Transform.convert_filters(dict[:f]),
+          notes: nil,
+          reason: reason_val
+        }
+      end
     end
   end
 end

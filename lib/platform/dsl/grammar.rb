@@ -125,13 +125,141 @@ module Platform
         str("clusters").as(:command_type) >> space? >> filters.maybe >> space? >> operations
       end
 
+      # External commands (Geoapify, geocoding, etc.)
+      rule(:external_command) do
+        str("external").as(:command_type) >> space? >> filters.maybe >> space? >> operations
+      end
+
+      # Mutation commands
+      # create location { name: "...", city: "...", lat: ..., lng: ... }
+      rule(:create_command) do
+        str("create").as(:mutation) >> space >> table_name >> space? >> filters
+      end
+
+      # update location { id: 123 } set { description: "..." }
+      rule(:set_clause) do
+        str("set") >> space? >> filters.as(:set_values)
+      end
+
+      rule(:update_command) do
+        str("update").as(:mutation) >> space >> table_name >> space? >> filters >> space >> set_clause
+      end
+
+      # delete location { id: 123 }
+      rule(:delete_command) do
+        str("delete").as(:mutation) >> space >> table_name >> space? >> filters
+      end
+
+      # Generation commands
+      # generate description for location { id: 123 }
+      # generate description for location { id: 123 } style "vivid"
+      rule(:style_clause) do
+        space >> str("style") >> space >> string.as(:style_value)
+      end
+
+      rule(:generate_description_command) do
+        str("generate").as(:generation) >> space >>
+        str("description").as(:gen_type) >> space >>
+        str("for") >> space >> table_name >> space? >> filters >>
+        style_clause.maybe
+      end
+
+      # generate translations for location { id: 123 } to [en, de, fr]
+      rule(:generate_translations_command) do
+        str("generate").as(:generation) >> space >>
+        str("translations").as(:gen_type) >> space >>
+        str("for") >> space >> table_name >> space? >> filters >>
+        space >> str("to") >> space >> array.as(:locales)
+      end
+
+      # generate experience from locations [1, 2, 3]
+      rule(:generate_experience_command) do
+        str("generate").as(:generation) >> space >>
+        str("experience").as(:gen_type) >> space >>
+        str("from") >> space >> str("locations") >> space >> array.as(:location_ids)
+      end
+
+      rule(:generation_command) do
+        generate_description_command | generate_translations_command | generate_experience_command
+      end
+
+      # Audio commands
+      # synthesize audio for location { id: 123 }
+      # synthesize audio for location { id: 123 } locale "en"
+      # synthesize audio for location { id: 123 } voice "Rachel"
+      rule(:locale_clause) do
+        space >> str("locale") >> space >> string.as(:audio_locale)
+      end
+
+      rule(:voice_clause) do
+        space >> str("voice") >> space >> string.as(:voice_name)
+      end
+
+      rule(:synthesize_audio_command) do
+        str("synthesize").as(:audio_cmd) >> space >>
+        str("audio").as(:audio_type) >> space >>
+        str("for") >> space >> table_name >> space? >> filters >>
+        locale_clause.maybe >> voice_clause.maybe
+      end
+
+      # estimate audio cost for locations { city: "Mostar" }
+      rule(:estimate_audio_command) do
+        str("estimate").as(:audio_cmd) >> space >>
+        str("audio") >> space >> str("cost").as(:audio_type) >> space >>
+        str("for") >> space >> table_name >> space? >> filters
+      end
+
+      rule(:audio_command) do
+        synthesize_audio_command | estimate_audio_command
+      end
+
+      # Approval commands
+      # proposals { status: "pending" } | list
+      # proposals { id: 123 } | show
+      rule(:proposals_command) do
+        str("proposals").as(:command_type) >> space? >> filters.maybe >> space? >> operations.maybe
+      end
+
+      # applications { status: "pending" } | list
+      # applications { id: 123 } | show
+      rule(:applications_command) do
+        str("applications").as(:command_type) >> space? >> filters.maybe >> space? >> operations.maybe
+      end
+
+      # approve proposal { id: 123 }
+      # approve proposal { id: 123 } notes "..."
+      rule(:approval_notes_clause) do
+        space >> str("notes") >> space >> string.as(:approval_notes)
+      end
+
+      rule(:approve_command) do
+        str("approve").as(:approval_cmd) >> space >>
+        (str("proposal") | str("application")).as(:approval_type) >> space? >> filters >>
+        approval_notes_clause.maybe
+      end
+
+      # reject proposal { id: 123 } reason "..."
+      rule(:rejection_reason_clause) do
+        space >> str("reason") >> space >> string.as(:rejection_reason)
+      end
+
+      rule(:reject_command) do
+        str("reject").as(:approval_cmd) >> space >>
+        (str("proposal") | str("application")).as(:approval_type) >> space? >> filters >>
+        rejection_reason_clause
+      end
+
+      rule(:approval_command) do
+        approve_command | reject_command
+      end
+
       # Full query
       rule(:table_query) do
         table_with_filters >> space? >> operations.maybe
       end
 
       rule(:query) do
-        space? >> (schema_command | summaries_command | clusters_command | table_query).as(:query) >> space?
+        space? >> (schema_command | summaries_command | clusters_command | external_command | proposals_command | applications_command | approval_command | create_command | update_command | delete_command | generation_command | audio_command | table_query).as(:query) >> space?
       end
 
       root(:query)

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_15_155627) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_15_163345) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -488,6 +488,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_155627) do
     t.index ["user_id"], name: "index_plans_on_user_id"
     t.index ["uuid"], name: "index_plans_on_uuid", unique: true
     t.index ["visibility"], name: "index_plans_on_visibility"
+  end
+
+  create_table "platform_audit_logs", force: :cascade do |t|
+    t.string "action", null: false
+    t.jsonb "change_data", default: {}
+    t.uuid "conversation_id"
+    t.datetime "created_at", null: false
+    t.bigint "record_id"
+    t.string "record_type"
+    t.string "triggered_by", null: false
+    t.datetime "updated_at", null: false
+    t.index ["action"], name: "index_platform_audit_logs_on_action"
+    t.index ["conversation_id"], name: "index_platform_audit_logs_on_conversation_id"
+    t.index ["record_type", "record_id"], name: "index_platform_audit_logs_on_record_type_and_record_id"
+    t.index ["triggered_by"], name: "index_platform_audit_logs_on_triggered_by"
   end
 
   create_table "platform_conversations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
