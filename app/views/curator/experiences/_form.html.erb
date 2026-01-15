@@ -134,7 +134,7 @@
                   </svg>
                 </span>
                 <span class="text-sm font-medium text-gray-900"><%= loc.name %></span>
-                <span class="text-xs text-gray-500">(<%= loc.city&.name %>)</span>
+                <span class="text-xs text-gray-500">(<%= loc.city %>)</span>
               </div>
               <button type="button" class="remove-location text-gray-400 hover:text-red-500" data-location-id="<%= loc.uuid %>">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -156,8 +156,8 @@
       <select id="location-search" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm">
         <option value=""><%= t("curator.experiences.search_location", default: "Search and select a location...") %></option>
         <% locations.each do |loc| %>
-          <option value="<%= loc.uuid %>" data-name="<%= loc.name %>" data-city="<%= loc.city&.name %>" <%= 'disabled' if current_location_ids.include?(loc.id) %>>
-            <%= loc.name %> (<%= loc.city&.name %>)
+          <option value="<%= loc.uuid %>" data-name="<%= loc.name %>" data-city="<%= loc.city %>" <%= 'disabled' if current_location_ids.include?(loc.id) %>>
+            <%= loc.name %> (<%= loc.city %>)
           </option>
         <% end %>
       </select>

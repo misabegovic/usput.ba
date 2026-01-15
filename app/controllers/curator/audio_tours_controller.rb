@@ -105,7 +105,7 @@ module Curator
     private
 
     def set_audio_tour
-      @audio_tour = AudioTour.find(params[:id])
+      @audio_tour = AudioTour.find_by_public_id!(params[:id])
     end
 
     def editable_attributes
