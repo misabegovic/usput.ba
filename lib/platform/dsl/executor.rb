@@ -906,6 +906,12 @@ module Platform
 
           record = model.new(data)
 
+          # Mark as AI-generated for models that support this flag
+          # Content created via Platform DSL is considered AI-generated
+          if record.respond_to?(:ai_generated=)
+            record.ai_generated = true
+          end
+
           unless record.save
             raise ExecutionError, "Kreiranje nije uspjelo: #{record.errors.full_messages.join(', ')}"
           end
