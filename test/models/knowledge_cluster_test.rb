@@ -105,10 +105,13 @@ class KnowledgeClusterTest < ActiveSupport::TestCase
   end
 
   test "semantic_search_available? checks for embedding column" do
-    # In test environment without pgvector, should return false
-    # The column won't exist since we couldn't enable pgvector
     available = KnowledgeCluster.semantic_search_available?
 
-    assert_not available unless KnowledgeCluster.column_names.include?("embedding")
+    # Result depends on whether pgvector/embedding column exists
+    if KnowledgeCluster.column_names.include?("embedding")
+      assert available, "Should be available when embedding column exists"
+    else
+      assert_not available, "Should not be available without embedding column"
+    end
   end
 end

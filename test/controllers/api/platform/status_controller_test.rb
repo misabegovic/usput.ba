@@ -97,8 +97,11 @@ class ApiPlatformStatusControllerTest < ActionDispatch::IntegrationTest
     get api_platform_prompts_path(id: @prompt.id),
         headers: { "Authorization" => "Bearer #{@api_key}" }
 
-    # Note: This route maps to show_prompt action
-    # Due to route conflict, we test via the prompts/:id route
+    assert_response :success
+    body = response.parsed_body
+
+    assert body["prompt"].present? || body["prompts"].present?,
+           "Response should contain prompt data"
   end
 
   # Statistics endpoint tests

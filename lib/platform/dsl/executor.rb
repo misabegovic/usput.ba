@@ -134,6 +134,11 @@ module Platform
               audio_tours: AudioTour.count,
               reviews: Review.count
             },
+            ai_generated: {
+              locations: { ai: Location.where(ai_generated: true).count, human: Location.where(ai_generated: false).count },
+              experiences: { ai: Experience.where(ai_generated: true).count, human: Experience.where(ai_generated: false).count },
+              plans: { ai: Plan.where(ai_generated: true).count, human: Plan.where(ai_generated: false).count }
+            },
             by_city: Location.group(:city).count.sort_by { |_, v| -v }.first(10).to_h,
             coverage: {
               cities_with_content: Location.distinct.pluck(:city).compact.size,
