@@ -6,25 +6,19 @@ module Platform
   module DSL
     # Executor - Izvršava DSL AST
     #
-    # Refactored architecture:
+    # Modular architecture:
     # - Core executor delegates to specialized modules
-    # - Each module handles one domain (schema, tables, infrastructure, prompts)
-    # - Unused features archived in executors/future/
+    # - Each module handles one domain
     #
-    # Supported query types:
-    # - schema_query: stats, describe, health
-    # - table_query: dynamic queries on tables
-    # - infrastructure_query: system health, queue status
-    # - logs_query: audit logs, errors
-    # - prompts_query: prompt management
-    # - improvement: prepare fix/feature
-    # - prompt_action: apply/reject prompts
-    #
-    # Archived (not currently used):
-    # - summaries_query, clusters_query, external_query
-    # - mutation, generation, audio
-    # - proposals_query, applications_query, approval
-    # - curators_query, curator_management, code_query
+    # Modules:
+    # - Schema: stats, describe, health
+    # - TableQuery: dynamic queries on tables
+    # - Infrastructure: system health, queue status, logs
+    # - Prompts: prompt management, improvement, prompt actions
+    # - Content: mutations, generation, audio
+    # - Curator: proposals, applications, approval, curator management
+    # - Knowledge: summaries, clusters
+    # - External: external APIs, code introspection
     #
     class Executor
       # Re-export TABLE_MAP for backwards compatibility
@@ -33,15 +27,21 @@ module Platform
       class << self
         def execute(ast)
           case ast[:type]
-          # Active query types - delegated to modules
+          # Schema queries
           when :schema_query
             Executors::Schema.execute(ast)
+
+          # Table queries
           when :table_query
             Executors::TableQuery.execute(ast)
+
+          # Infrastructure queries
           when :infrastructure_query
             Executors::Infrastructure.execute_infrastructure(ast)
           when :logs_query
             Executors::Infrastructure.execute_logs(ast)
+
+          # Prompts queries
           when :prompts_query
             Executors::Prompts.execute_prompts_query(ast)
           when :improvement
@@ -49,31 +49,38 @@ module Platform
           when :prompt_action
             Executors::Prompts.execute_prompt_action(ast)
 
-          # Archived query types - return not available message
-          when :summaries_query
-            not_available(:summaries_query, "Knowledge summaries queries")
-          when :clusters_query
-            not_available(:clusters_query, "Knowledge cluster queries")
-          when :external_query
-            not_available(:external_query, "External API queries (Geoapify)")
+          # Content queries (mutations, generation, audio)
           when :mutation
-            not_available(:mutation, "Data mutations (create/update/delete)")
+            Executors::Content.execute_mutation(ast)
           when :generation
-            not_available(:generation, "AI content generation")
+            Executors::Content.execute_generation(ast)
           when :audio
-            not_available(:audio, "Audio synthesis")
+            Executors::Content.execute_audio(ast)
+
+          # Curator queries
           when :proposals_query
-            not_available(:proposals_query, "Curator proposal queries")
+            Executors::Curator.execute_proposals_query(ast)
           when :applications_query
-            not_available(:applications_query, "Curator application queries")
+            Executors::Curator.execute_applications_query(ast)
           when :approval
-            not_available(:approval, "Content approval actions")
+            Executors::Curator.execute_approval(ast)
           when :curators_query
-            not_available(:curators_query, "Curator management queries")
+            Executors::Curator.execute_curators_query(ast)
           when :curator_management
-            not_available(:curator_management, "Curator management actions")
+            Executors::Curator.execute_curator_management(ast)
+
+          # Knowledge queries
+          when :summaries_query
+            Executors::Knowledge.execute_summaries_query(ast)
+          when :clusters_query
+            Executors::Knowledge.execute_clusters_query(ast)
+
+          # External queries
+          when :external_query
+            Executors::External.execute_external_query(ast)
           when :code_query
-            not_available(:code_query, "Code introspection queries")
+            Executors::External.execute_code_query(ast)
+
           else
             raise ExecutionError, "Nepoznat tip query-ja: #{ast[:type]}"
           end
@@ -82,16 +89,6 @@ module Platform
         # Legacy helper methods for backwards compatibility
         def resolve_model(table_name)
           Executors::TableQuery.resolve_model(table_name)
-        end
-
-        # Helper to generate not available message
-        def not_available(query_type, description)
-          {
-            error: "not_available",
-            query_type: query_type,
-            message: "#{description} nisu trenutno dostupni.",
-            hint: "Ova funkcionalnost je planirana za buduće verzije. Pogledajte .claude/planning/IMPLEMENTATION.md za roadmap."
-          }
         end
 
         # For backwards compatibility with tests that stub generate_with_llm
@@ -143,6 +140,50 @@ module Platform
         def list_prompts(filters) = Executors::Prompts.send(:list_prompts, filters)
         def show_prompt(filters) = Executors::Prompts.send(:show_prompt, filters)
         def count_prompts(filters) = Executors::Prompts.send(:count_prompts, filters)
+
+        # Content delegations
+        def execute_mutation(ast) = Executors::Content.execute_mutation(ast)
+        def execute_generation(ast) = Executors::Content.execute_generation(ast)
+        def execute_audio(ast) = Executors::Content.execute_audio(ast)
+        def find_voice_id(name) = Executors::Content.send(:find_voice_id, name)
+        def is_location_table?(table) = Executors::Content.send(:is_location_table?, table)
+        def is_experience_table?(table) = Executors::Content.send(:is_experience_table?, table)
+        def validate_mutation_data!(table, data, action) = Executors::Content.send(:validate_mutation_data!, table, data, action)
+        def find_record_for_mutation(model, filters) = Executors::Content.send(:find_record_for_mutation, model, filters)
+        def format_created_record(record) = Executors::Content.send(:format_created_record, record)
+
+        # Curator delegations
+        def execute_proposals_query(ast) = Executors::Curator.execute_proposals_query(ast)
+        def execute_applications_query(ast) = Executors::Curator.execute_applications_query(ast)
+        def execute_approval(ast) = Executors::Curator.execute_approval(ast)
+        def execute_curators_query(ast) = Executors::Curator.execute_curators_query(ast)
+        def execute_curator_management(ast) = Executors::Curator.execute_curator_management(ast)
+        def list_proposals(filters) = Executors::Curator.send(:list_proposals, filters)
+        def list_applications(filters) = Executors::Curator.send(:list_applications, filters)
+        def list_curators(filters) = Executors::Curator.send(:list_curators, filters)
+
+        # Knowledge delegations
+        def execute_summaries_query(ast) = Executors::Knowledge.execute_summaries_query(ast)
+        def execute_clusters_query(ast) = Executors::Knowledge.execute_clusters_query(ast)
+        def list_summaries(filters) = Executors::Knowledge.send(:list_summaries, filters)
+        def list_clusters(filters) = Executors::Knowledge.send(:list_clusters, filters)
+        def extract_dimension_and_value(filters) = Executors::Knowledge.send(:extract_dimension_and_value, filters)
+        def semantic_search_clusters(query) = Executors::Knowledge.send(:semantic_search_clusters, query)
+        def refresh_clusters(filters) = Executors::Knowledge.send(:refresh_clusters, filters)
+
+        # External delegations
+        def execute_external_query(ast) = Executors::External.execute_external_query(ast)
+        def execute_code_query(ast) = Executors::External.execute_code_query(ast)
+        def validate_location(filters) = Executors::External.send(:validate_location, filters)
+        def check_duplicate(filters) = Executors::External.send(:check_duplicate, filters)
+        def geocode_address(filters) = Executors::External.send(:geocode_address, filters)
+        def reverse_geocode_coords(filters) = Executors::External.send(:reverse_geocode_coords, filters)
+        def search_pois(filters, args) = Executors::External.send(:search_pois, filters, args)
+        def get_city_coordinates(city) = Executors::External.send(:get_city_coordinates, city)
+        def haversine_distance(lat1, lng1, lat2, lng2) = Executors::External.send(:haversine_distance, lat1, lng1, lat2, lng2)
+        def to_radians(degrees) = Executors::External.send(:to_radians, degrees)
+        def geoapify_service = Executors::External.send(:geoapify_service)
+        def format_poi_result(place) = Executors::External.send(:format_poi_result, place)
 
         # Schema query execution for tests
         def execute_schema_query(ast) = Executors::Schema.execute(ast)

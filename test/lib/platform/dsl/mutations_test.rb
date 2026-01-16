@@ -3,10 +3,7 @@
 require "test_helper"
 
 class Platform::DSL::MutationsTest < ActiveSupport::TestCase
-  # ARCHIVED: Data mutations are not currently available
-  # See: .claude/planning/decisions/ADR-2026-01-16-executor-simplification.md
   setup do
-    skip "Archived: Data mutations not currently available"
     @existing_location = Location.create!(
       name: "Test Lokacija",
       city: "Sarajevo",

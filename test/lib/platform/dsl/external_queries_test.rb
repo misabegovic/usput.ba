@@ -3,10 +3,7 @@
 require "test_helper"
 
 class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
-  # ARCHIVED: External API queries are not currently available
-  # See: .claude/planning/decisions/ADR-2026-01-16-executor-simplification.md
   setup do
-    skip "Archived: External API queries not currently available"
     @location = Location.create!(
       name: "Test Location Sarajevo",
       city: "Sarajevo",

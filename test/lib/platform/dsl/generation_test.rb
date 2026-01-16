@@ -3,10 +3,7 @@
 require "test_helper"
 
 class Platform::DSL::GenerationTest < ActiveSupport::TestCase
-  # ARCHIVED: AI generation functionality is not currently available
-  # See: .claude/planning/decisions/ADR-2026-01-16-executor-simplification.md
   setup do
-    skip "Archived: AI generation functionality not currently available"
     @location = Location.create!(
       name: "Test Lokacija",
       city: "Sarajevo",
