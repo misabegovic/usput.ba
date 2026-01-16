@@ -9,7 +9,7 @@ module Curator
 
       def index
         @users = User.order(created_at: :desc)
-        @users = @users.where(user_type: params[:user_type]) if params[:user_type].present?
+        @users = @users.where(user_type: params[:user_type]) if valid_user_type?(params[:user_type])
         @users = @users.where("spam_blocked_until > ?", Time.current) if params[:blocked] == "true"
 
         @stats = {
@@ -58,6 +58,10 @@ module Curator
 
       def user_params
         params.require(:user).permit(:user_type)
+      end
+
+      def valid_user_type?(user_type)
+        user_type.present? && User.user_types.key?(user_type.to_s)
       end
     end
   end

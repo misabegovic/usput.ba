@@ -375,4 +375,61 @@ class ApiPlatformStatusControllerTest < ActionDispatch::IntegrationTest
       assert_equal "not_configured", result[:queue]
     end
   end
+
+  # DSL injection prevention tests
+
+  test "prompts endpoint sanitizes invalid status to pending" do
+    get api_platform_prompts_path,
+        params: { status: "invalid\" } | delete all" },
+        headers: { "Authorization" => "Bearer #{@api_key}" }
+
+    assert_response :success
+    # Should default to pending, not execute injection
+    body = response.parsed_body
+    assert_equal "list_prompts", body["action"]
+  end
+
+  test "show_prompt rejects non-integer id" do
+    get api_platform_path(id: "1; drop table users"),
+        headers: { "Authorization" => "Bearer #{@api_key}" }
+
+    assert_response :bad_request
+    assert_equal "Invalid prompt ID", response.parsed_body["error"]
+  end
+
+  test "logs endpoint sanitizes invalid time range to 24h" do
+    get api_platform_logs_path,
+        params: { last: "invalid\" } | delete all" },
+        headers: { "Authorization" => "Bearer #{@api_key}" }
+
+    assert_response :success
+    body = response.parsed_body
+    # Should default to 24h, not execute injection
+    assert_equal "24h", body["time_range"]
+  end
+
+  test "prompts endpoint accepts valid status value" do
+    get api_platform_prompts_path,
+        params: { status: "approved" },
+        headers: { "Authorization" => "Bearer #{@api_key}" }
+
+    assert_response :success
+  end
+
+  test "logs endpoint accepts valid time range 7d" do
+    PlatformAuditLog.create!(
+      action: "create",
+      record_type: "Location",
+      record_id: 1,
+      change_data: {},
+      triggered_by: "platform_dsl"
+    )
+
+    get api_platform_logs_path,
+        params: { last: "7d" },
+        headers: { "Authorization" => "Bearer #{@api_key}" }
+
+    assert_response :success
+    assert_equal "7d", response.parsed_body["time_range"]
+  end
 end

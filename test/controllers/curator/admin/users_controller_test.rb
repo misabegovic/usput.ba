@@ -61,6 +61,13 @@ class Curator::Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "index ignores invalid user_type and returns all users" do
+    login_as(@admin)
+    # This should not crash with ArgumentError
+    get curator_admin_users_path(user_type: "invalid_type")
+    assert_response :success
+  end
+
   # Show tests
   test "show displays user details" do
     login_as(@admin)

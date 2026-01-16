@@ -44,7 +44,7 @@ module API
       #
       # List pending prompts
       def prompts
-        status_filter = params[:status] || "pending"
+        status_filter = sanitize_status(params[:status])
         result = ::Platform::DSL.execute("prompts { status: \"#{status_filter}\" } | list")
 
         render json: result
@@ -54,7 +54,10 @@ module API
       #
       # Get prompt details
       def show_prompt
-        result = ::Platform::DSL.execute("prompts { id: #{params[:id]} } | show")
+        prompt_id = sanitize_integer(params[:id])
+        return render json: { error: "Invalid prompt ID" }, status: :bad_request unless prompt_id
+
+        result = ::Platform::DSL.execute("prompts { id: #{prompt_id} } | show")
 
         render json: result
       end
@@ -81,13 +84,32 @@ module API
       #
       # Get recent audit logs
       def logs
-        time_range = params[:last] || "24h"
+        time_range = sanitize_time_range(params[:last])
         result = ::Platform::DSL.execute("logs { last: \"#{time_range}\" }")
 
         render json: result
       end
 
       private
+
+      # Sanitization helpers to prevent DSL injection
+      ALLOWED_STATUSES = %w[pending approved rejected executed expired all].freeze
+      ALLOWED_TIME_RANGES = %w[1h 6h 12h 24h 48h 7d 30d].freeze
+
+      def sanitize_status(status)
+        return "pending" if status.blank?
+        ALLOWED_STATUSES.include?(status.to_s.downcase) ? status.to_s.downcase : "pending"
+      end
+
+      def sanitize_integer(value)
+        return nil if value.blank?
+        Integer(value, 10) rescue nil
+      end
+
+      def sanitize_time_range(range)
+        return "24h" if range.blank?
+        ALLOWED_TIME_RANGES.include?(range.to_s.downcase) ? range.to_s.downcase : "24h"
+      end
 
       def platform_version
         # Could be read from a version file or constant
