@@ -109,6 +109,33 @@ Koristi za:
 - Balansiranje regionalnog sadržaja
 - Kvalitetu turističkog sadržaja
 
+### Historian (Historičar)
+**Fajl:** `.claude/personas/historian.md`
+
+Koristi za:
+- Historijski kontekst lokacija
+- Činjenice, datumi, događaji
+- Period-specifične informacije
+- Provjeru historijske tačnosti
+
+### Guide (Vodič)
+**Fajl:** `.claude/personas/guide.md`
+
+Koristi za:
+- Praktične savjete (parking, cijene, vrijeme)
+- Planiranje ruta i itinerera
+- Insider tips i lokalno znanje
+- Logistiku putovanja
+
+### Robert
+**Fajl:** `.claude/personas/robert.md`
+
+Koristi za:
+- Zabavne, karizmatične opise
+- Lokalni štih i autentičnost
+- Priče koje se pamte
+- Toplinu i humor u sadržaju
+
 ---
 
 ## Multi-Persona Mode
@@ -122,13 +149,19 @@ Radi u multi-persona modu:
 - [TL] = Tech Lead - arhitektura, review
 - [PM] = Product Manager - features, prioriteti
 - [DEV] = Developer - implementacija
-- [CUR] = Curator - sadržaj, tekstovi, turizam
+- [CUR] = Curator - sadržaj, balans regija
+- [HIS] = Historian - historijski kontekst
+- [GUI] = Guide - praktični savjeti, logistika
+- [ROB] = Robert - zabavne priče, lokalni štih
 
 Primjer:
 [PM] Koja je user story za search?
 [TL] Kako strukturirati search tool?
 [DEV] Implementiraj search tool.
 [CUR] Napiši opis za novu lokaciju.
+[HIS] Dodaj historijski kontekst za Stari most.
+[GUI] Koji su praktični savjeti za posjetioce?
+[ROB] Ispričaj to na zabavan način!
 ```
 
 ---
