@@ -311,23 +311,51 @@ class ApiPlatformStatusControllerTest < ActionDispatch::IntegrationTest
 
   # Test health_check queue check when SolidQueue is available
   test "health_check reports queue ok when SolidQueue is available" do
-    controller = ::API::Platform::StatusController.new
+    # Skip if SolidQueue::Job is not actually defined
+    # This test is for when SolidQueue is present and configured
+    if defined?(SolidQueue::Job) && SolidQueue::Job.table_exists?
+      get api_platform_status_path,
+          headers: { "Authorization" => "Bearer #{@api_key}" }
 
-    # Create a mock SolidQueue::Job that says table exists
+      assert_response :success
+      body = response.parsed_body
+
+      assert_equal "ok", body["health"]["queue"]
+    else
+      skip "SolidQueue::Job not available"
+    end
+  end
+
+  # Test health_check queue when SolidQueue::Job exists but table is missing
+  test "health_check reports not_configured when SolidQueue table missing" do
+    # Create a mock that defines SolidQueue::Job but returns false for table_exists?
     mock_job = Class.new do
       def self.table_exists?
-        true
+        false
       end
     end
 
-    # Stub SolidQueue::Job
-    SolidQueue.stub(:const_get, ->(_) { mock_job }) do
-      Object.stub(:const_defined?, ->(name, _inherit = true) {
-        name.to_s.include?("SolidQueue::Job") || Object.const_defined?(name)
-      }) do
-        result = controller.send(:health_check)
-        # Queue check depends on whether SolidQueue is actually defined
-        assert %w[ok not_configured].include?(result[:queue])
+    original_const = defined?(::SolidQueue::Job) ? ::SolidQueue::Job : nil
+
+    begin
+      # Define SolidQueue module and Job class
+      unless defined?(::SolidQueue)
+        Object.const_set(:SolidQueue, Module.new)
+      end
+      ::SolidQueue.const_set(:Job, mock_job)
+
+      controller = ::API::Platform::StatusController.new
+      result = controller.send(:health_check)
+
+      # When table doesn't exist, should return not_configured
+      assert_equal "not_configured", result[:queue]
+    ensure
+      # Restore original
+      if original_const
+        ::SolidQueue.send(:remove_const, :Job) if defined?(::SolidQueue::Job)
+        ::SolidQueue.const_set(:Job, original_const)
+      elsif defined?(::SolidQueue::Job)
+        ::SolidQueue.send(:remove_const, :Job)
       end
     end
   end

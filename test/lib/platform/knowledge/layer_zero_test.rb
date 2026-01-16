@@ -79,6 +79,16 @@ class Platform::Knowledge::LayerZeroTest < ActiveSupport::TestCase
     end
   end
 
+  test "refresh! calls PlatformStatistic.refresh_all" do
+    # Mock PlatformStatistic.refresh_all to verify it's called
+    called = false
+    PlatformStatistic.stub(:refresh_all, -> { called = true }) do
+      Platform::Knowledge::LayerZero.refresh!
+    end
+
+    assert called, "refresh! should delegate to PlatformStatistic.refresh_all"
+  end
+
   test "for_system_prompt returns formatted string" do
     PlatformStatistic.create!(
       key: "layer_zero",

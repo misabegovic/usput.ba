@@ -335,4 +335,67 @@ class ApiPlatformChatControllerTest < ActionDispatch::IntegrationTest
       assert_includes response.body, "error"
     end
   end
+
+  # Test natural language when Brain is not defined
+  test "returns not implemented when Brain is not available for natural language" do
+    # Hide Platform::Brain temporarily
+    original_brain = Platform::Brain
+    Platform.send(:remove_const, :Brain)
+
+    begin
+      post api_platform_chat_path,
+           params: { message: "How many locations?" },
+           headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :not_implemented
+      body = response.parsed_body
+      assert_equal "NotImplemented", body["error"]
+      assert_includes body["message"], "Platform::Brain"
+    ensure
+      # Restore Platform::Brain
+      Platform.const_set(:Brain, original_brain)
+    end
+  end
+
+  # Test streaming with Brain message (not query)
+  test "stream with message uses Brain for processing" do
+    mock_brain = Object.new
+    mock_brain.define_singleton_method(:process) do |_message, &block|
+      # Actually yield to the block to cover line 168
+      block.call("progress", { step: "thinking" }) if block
+      {
+        text: "Streamed response",
+        dsl_queries: ["locations | count"],
+        conversation_id: "stream-123"
+      }
+    end
+
+    Platform::Brain.stub(:new, ->(**_kwargs) { mock_brain }) do
+      post api_platform_chat_path,
+           params: { message: "Test streaming", stream: true },
+           headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_equal "text/event-stream", response.content_type.split(";").first
+      assert_includes response.body, "start"
+      assert_includes response.body, "progress"
+    end
+  end
+
+  # Test streaming when Brain is not defined
+  test "stream returns not implemented when Brain is not available" do
+    original_brain = Platform::Brain
+    Platform.send(:remove_const, :Brain)
+
+    begin
+      post api_platform_chat_path,
+           params: { message: "Test message", stream: true },
+           headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_equal "text/event-stream", response.content_type.split(";").first
+      assert_includes response.body, "NotImplemented"
+      assert_includes response.body, "Brain not available"
+    ensure
+      Platform.const_set(:Brain, original_brain)
+    end
+  end
 end

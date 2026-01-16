@@ -552,4 +552,129 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
     ast = Platform::DSL::Parser.parse("prompts { id: 1 } | export")
     assert_equal :prompts_query, ast[:type]
   end
+
+  # Additional Transform rule coverage tests
+
+  # Audio with locale
+  test "parses synthesize audio with locale" do
+    ast = Platform::DSL::Parser.parse('synthesize audio for location { id: 1 } locale "en"')
+    assert_equal :audio, ast[:type]
+    assert_equal "en", ast[:locale]
+  end
+
+  # Audio with voice
+  test "parses synthesize audio with voice" do
+    ast = Platform::DSL::Parser.parse('synthesize audio for location { id: 1 } voice "Rachel"')
+    assert_equal :audio, ast[:type]
+    assert_equal "Rachel", ast[:voice]
+  end
+
+  # Audio with both locale and voice
+  test "parses synthesize audio with locale and voice" do
+    ast = Platform::DSL::Parser.parse('synthesize audio for location { id: 1 } locale "en" voice "Rachel"')
+    assert_equal :audio, ast[:type]
+    assert_equal "en", ast[:locale]
+    assert_equal "Rachel", ast[:voice]
+  end
+
+  # Improvement with severity
+  test "parses prepare fix with severity" do
+    ast = Platform::DSL::Parser.parse('prepare fix for "Bug description" severity "high"')
+    assert_equal :improvement, ast[:type]
+    assert_equal :fix, ast[:improvement_type]
+    assert_equal "high", ast[:severity]
+  end
+
+  # Improvement with file
+  test "parses prepare fix with file" do
+    ast = Platform::DSL::Parser.parse('prepare fix for "Bug description" file "app/models/user.rb"')
+    assert_equal :improvement, ast[:type]
+    assert_equal :fix, ast[:improvement_type]
+    assert_equal "app/models/user.rb", ast[:target_file]
+  end
+
+  # Improvement with severity and file
+  test "parses prepare fix with severity and file" do
+    ast = Platform::DSL::Parser.parse('prepare fix for "Bug description" severity "critical" file "app/models/user.rb"')
+    assert_equal :improvement, ast[:type]
+    assert_equal :fix, ast[:improvement_type]
+    assert_equal "critical", ast[:severity]
+    assert_equal "app/models/user.rb", ast[:target_file]
+  end
+
+  # Generation with translations and locales
+  test "parses generate translations with locales" do
+    ast = Platform::DSL::Parser.parse('generate translations for location { id: 1 } to ["en", "de"]')
+    assert_equal :generation, ast[:type]
+    assert_equal :translations, ast[:gen_type]
+    assert ast[:locales].is_a?(Array)
+    assert_includes ast[:locales], "en"
+    assert_includes ast[:locales], "de"
+  end
+
+  # Generation of experience from locations
+  test "parses generate experience from locations" do
+    ast = Platform::DSL::Parser.parse("generate experience from locations [1, 2, 3]")
+    assert_equal :generation, ast[:type]
+    assert_equal :experience, ast[:gen_type]
+    assert ast[:location_ids].is_a?(Array)
+    assert_includes ast[:location_ids], 1
+    assert_includes ast[:location_ids], 2
+    assert_includes ast[:location_ids], 3
+  end
+
+  # Test function call with args
+  test "parses aggregate with function having arguments" do
+    ast = Platform::DSL::Parser.parse("locations | aggregate avg(rating)")
+    op = ast[:operations].first
+    assert_equal :aggregate, op[:name]
+    assert op[:args].any? { |a| a.include?("avg") && a.include?("rating") }
+  end
+
+  # Test reject prompt with empty reason string
+  test "parses reject prompt with simple reason" do
+    ast = Platform::DSL::Parser.parse('reject prompt { id: 1 } reason "spam"')
+    assert_equal :prompt_action, ast[:type]
+    assert_equal :reject, ast[:action]
+    assert_equal "spam", ast[:reason]
+  end
+
+  # Test operation without any args
+  test "parses simple operation name" do
+    ast = Platform::DSL::Parser.parse("locations | count")
+    op = ast[:operations].first
+    assert_equal :count, op[:name]
+  end
+
+  # Test filters rule with array of filter items
+  test "parses many filters as sequence" do
+    ast = Platform::DSL::Parser.parse('locations { a: 1, b: "two", c: true, d: 4.5 }')
+    assert_equal 1, ast[:filters][:a]
+    assert_equal "two", ast[:filters][:b]
+    assert_equal true, ast[:filters][:c]
+    assert_equal 4.5, ast[:filters][:d]
+  end
+
+  # Test schema describe
+  test "parses schema describe" do
+    ast = Platform::DSL::Parser.parse("schema | describe locations")
+    assert_equal :schema_query, ast[:type]
+    op = ast[:operations].find { |o| o[:name] == :describe }
+    assert op
+  end
+
+  # Test schema health
+  test "parses schema health" do
+    ast = Platform::DSL::Parser.parse("schema | health")
+    assert_equal :schema_query, ast[:type]
+    assert_equal :health, ast[:operations].first[:name]
+  end
+
+  # Test operations without args defaulting
+  test "parses operation without group_by" do
+    ast = Platform::DSL::Parser.parse("locations | aggregate count()")
+    op = ast[:operations].first
+    assert_equal :aggregate, op[:name]
+    assert_nil op[:group_by]
+  end
 end

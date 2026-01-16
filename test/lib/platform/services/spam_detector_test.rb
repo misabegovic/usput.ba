@@ -530,4 +530,49 @@ class Platform::Services::SpamDetectorTest < ActiveSupport::TestCase
 
     test_curator.destroy
   end
+
+  test "analyze_activity triggers suspicious_ip_changes warning" do
+    # Create activities with more than 5 unique IPs to trigger suspicious_ip_changes
+    # Use different valid action types to avoid duplicate detection
+    actions = %w[proposal_created proposal_updated proposal_contributed review_added photo_suggested resource_viewed]
+    6.times do |i|
+      CuratorActivity.create!(
+        user: @curator,
+        action: actions[i],
+        recordable: @location,
+        ip_address: "192.168.1.#{10 + i}",  # 6 unique IPs
+        created_at: (i + 1).minutes.ago  # Recent activities
+      )
+    end
+
+    result = Platform::Services::SpamDetector.analyze_activity(@curator)
+
+    # Should trigger suspicious_ip_changes branch
+    assert result[:patterns][:suspicious_ip_changes],
+           "Expected suspicious_ip_changes to be true with 6 unique IPs"
+    # The suspicious_ip_changes only sets suspicious=true if no other condition hit first
+    assert result[:suspicious], "Expected suspicious to be true"
+    assert_equal "Multiple IP address changes detected", result[:warning]
+  end
+
+  test "check_curator returns warning for suspicious IP changes" do
+    # Create activities with more than 5 unique IPs
+    # Use different valid action types to avoid duplicate detection
+    actions = %w[proposal_created proposal_updated proposal_contributed review_added photo_suggested resource_viewed]
+    6.times do |i|
+      CuratorActivity.create!(
+        user: @curator,
+        action: actions[i],
+        recordable: @location,
+        ip_address: "10.0.0.#{100 + i}",  # 6 unique IPs
+        created_at: (i + 1).minutes.ago  # Recent activities
+      )
+    end
+
+    result = Platform::Services::SpamDetector.check_curator(@curator)
+
+    # Should return warning: true
+    assert result[:warning], "Expected warning to be true for suspicious IP changes"
+    assert_equal "Multiple IP address changes detected", result[:message]
+  end
 end

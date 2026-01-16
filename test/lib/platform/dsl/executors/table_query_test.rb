@@ -330,4 +330,115 @@ class Platform::DSL::Executors::TableQueryTest < ActiveSupport::TestCase
 
     assert result.is_a?(Array) || result.is_a?(ActiveRecord::Relation)
   end
+
+  # ===================
+  # Additional format_record Tests
+  # ===================
+
+  test "format_record for Experience" do
+    location = Location.create!(
+      name: "Exp Location",
+      city: "Mostar",
+      lat: 43.5,
+      lng: 17.8
+    )
+
+    experience = Experience.create!(
+      title: "Test Experience",
+      estimated_duration: 120
+    )
+    experience.locations << location
+
+    result = Platform::DSL::Executors::TableQuery.send(:format_record, experience)
+
+    assert result.is_a?(Hash)
+    assert_equal experience.id, result[:id]
+    assert_equal "Test Experience", result[:title]
+    assert_equal 120, result[:duration]
+    assert_equal 1, result[:locations_count]
+  end
+
+  test "format_record for Plan" do
+    plan = Plan.create!(title: "Test Plan")
+
+    result = Platform::DSL::Executors::TableQuery.send(:format_record, plan)
+
+    assert result.is_a?(Hash)
+    assert_equal plan.id, result[:id]
+    assert_equal "Test Plan", result[:title]
+  end
+
+  test "format_record for User" do
+    user = User.create!(
+      username: "test_format_user_#{SecureRandom.hex(4)}",
+      password: "password123",
+      user_type: :curator
+    )
+
+    result = Platform::DSL::Executors::TableQuery.send(:format_record, user)
+
+    assert result.is_a?(Hash)
+    assert_equal user.id, result[:id]
+    assert_includes result[:username], "test_format_user"
+    assert_equal "curator", result[:user_type]
+  end
+
+  test "format_record for generic record" do
+    # Use Review as a generic record type
+    user = User.create!(
+      username: "reviewer_#{SecureRandom.hex(4)}",
+      password: "password123"
+    )
+    location = Location.create!(name: "Review Location", city: "Tuzla", lat: 44.5, lng: 18.6)
+
+    review = Review.create!(
+      user: user,
+      reviewable: location,
+      comment: "Nice place",
+      rating: 5
+    )
+
+    result = Platform::DSL::Executors::TableQuery.send(:format_record, review)
+
+    assert result.is_a?(Hash)
+    assert result.key?("id")
+    assert result.key?("created_at")
+  end
+
+  # ===================
+  # aggregate "count()" string test
+  # ===================
+
+  test "apply_aggregate with count() string" do
+    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: ["count()"] })
+    assert result.is_a?(Integer)
+  end
+
+  test "apply_aggregate with count() string and group_by" do
+    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: ["count()"], group_by: :city })
+    assert result.is_a?(Hash)
+  end
+
+  # ===================
+  # apply_filters with nil
+  # ===================
+
+  test "apply_filters with nil returns all" do
+    result = Platform::DSL::Executors::TableQuery.send(:apply_filters, Location, nil)
+    assert result.is_a?(ActiveRecord::Relation)
+  end
+
+  test "apply_filters with empty hash returns all" do
+    result = Platform::DSL::Executors::TableQuery.send(:apply_filters, Location, {})
+    assert result.is_a?(ActiveRecord::Relation)
+  end
+
+  # ===================
+  # order operation alias test
+  # ===================
+
+  test "apply_operation with order alias" do
+    result = Platform::DSL::Executors::TableQuery.send(:apply_operation, Location.all, { name: :order, args: [:name, :desc] })
+    assert result.is_a?(ActiveRecord::Relation)
+  end
 end

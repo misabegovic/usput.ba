@@ -712,4 +712,181 @@ class Platform::MCPServerTest < ActiveSupport::TestCase
       assert result[:content].present?
     end
   end
+
+  # ===================
+  # Run Method Tests (stdin loop)
+  # ===================
+
+  test "run processes json lines from stdin" do
+    # Create a mock stdin with valid JSON request
+    input = StringIO.new(%({"method": "initialize", "params": {}, "id": 1}\n))
+    output = StringIO.new
+
+    original_stdin = $stdin
+    original_stdout = $stdout
+
+    begin
+      $stdin = input
+      $stdout = output
+
+      server = Platform::MCPServer.new
+      server.run  # Will process one line and stop (no more input)
+
+      # Check that something was written to output
+      assert output.string.present?, "Expected output to be written"
+      response = JSON.parse(output.string)
+      assert_equal "2.0", response["jsonrpc"]
+      assert_equal 1, response["id"]
+    ensure
+      $stdin = original_stdin
+      $stdout = original_stdout
+    end
+  end
+
+  test "run handles json parse errors" do
+    # Create a mock stdin with invalid JSON
+    input = StringIO.new("not valid json\n")
+    output = StringIO.new
+
+    original_stdin = $stdin
+    original_stdout = $stdout
+
+    begin
+      $stdin = input
+      $stdout = output
+
+      server = Platform::MCPServer.new
+      server.run  # Will process one line with parse error
+
+      # Check that error response was written
+      assert output.string.present?, "Expected error output"
+      response = JSON.parse(output.string)
+      assert_equal(-32700, response["error"]["code"])
+      assert_includes response["error"]["message"], "Parse error"
+    ensure
+      $stdin = original_stdin
+      $stdout = original_stdout
+    end
+  end
+
+  test "run handles internal errors" do
+    # Create a mock stdin with JSON that will cause internal error
+    input = StringIO.new(%({"method": "tools/call", "params": {"name": "platform_execute", "arguments": {"query": "test"}}, "id": 1}\n))
+    output = StringIO.new
+
+    original_stdin = $stdin
+    original_stdout = $stdout
+
+    begin
+      $stdin = input
+      $stdout = output
+
+      # Make DSL.execute raise a generic error that's caught in the outer rescue
+      Platform::DSL.stub(:execute, ->(_) { raise "Something unexpected" }) do
+        server = Platform::MCPServer.new
+        server.run
+      end
+
+      # Check that response was written (could be success or error)
+      assert output.string.present?
+    ensure
+      $stdin = original_stdin
+      $stdout = original_stdout
+    end
+  end
+
+  test "run stops when running is set to false" do
+    # Create a mock stdin with shutdown command
+    input = StringIO.new(%({"method": "shutdown", "params": {}, "id": 1}\n{"method": "initialize", "params": {}, "id": 2}\n))
+    output = StringIO.new
+
+    original_stdin = $stdin
+    original_stdout = $stdout
+
+    begin
+      $stdin = input
+      $stdout = output
+
+      server = Platform::MCPServer.new
+      server.run
+
+      # Only shutdown response should be present (second request not processed)
+      lines = output.string.strip.split("\n")
+      # Should have processed at least shutdown
+      assert lines.size >= 1
+
+      # Parse first response
+      first_response = JSON.parse(lines[0])
+      assert_equal 1, first_response["id"]
+    ensure
+      $stdin = original_stdin
+      $stdout = original_stdout
+    end
+  end
+
+  test "run processes multiple requests" do
+    requests = [
+      %({"method": "initialize", "params": {}, "id": 1}),
+      %({"method": "tools/list", "params": {}, "id": 2})
+    ].join("\n") + "\n"
+
+    input = StringIO.new(requests)
+    output = StringIO.new
+
+    original_stdin = $stdin
+    original_stdout = $stdout
+
+    begin
+      $stdin = input
+      $stdout = output
+
+      server = Platform::MCPServer.new
+      server.run
+
+      # Both responses should be present
+      lines = output.string.strip.split("\n")
+      assert lines.size >= 2
+
+      first_response = JSON.parse(lines[0])
+      second_response = JSON.parse(lines[1])
+
+      assert_equal 1, first_response["id"]
+      assert_equal 2, second_response["id"]
+    ensure
+      $stdin = original_stdin
+      $stdout = original_stdout
+    end
+  end
+
+  test "run handles unexpected internal errors in handle_request" do
+    # Create a request that will cause handle_request to raise an unexpected error
+    input = StringIO.new(%({"method": "initialize", "params": {}, "id": 1}\n))
+    output = StringIO.new
+
+    original_stdin = $stdin
+    original_stdout = $stdout
+
+    begin
+      $stdin = input
+      $stdout = output
+
+      server = Platform::MCPServer.new
+
+      # Stub handle_request to raise an internal error
+      server.define_singleton_method(:handle_request) do |_request|
+        raise RuntimeError, "Unexpected internal failure"
+      end
+
+      server.run
+
+      # Should write internal error response
+      assert output.string.present?, "Expected error output"
+      response = JSON.parse(output.string)
+      assert_equal(-32603, response["error"]["code"])
+      assert_includes response["error"]["message"], "Internal error"
+    ensure
+      $stdin = original_stdin
+      $stdout = original_stdout
+    end
+  end
 end
