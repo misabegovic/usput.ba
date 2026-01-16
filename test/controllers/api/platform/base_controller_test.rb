@@ -608,9 +608,13 @@ class ApiPlatformProductionErrorHandlingTest < ActionDispatch::IntegrationTest
 
   teardown do
     ENV["PLATFORM_API_KEY"] = nil
+    ENV["PLATFORM_CHAT_API_ENABLED"] = nil
   end
 
   test "handle_standard_error hides message in production mode" do
+    # Enable Chat API in production for this test
+    ENV["PLATFORM_CHAT_API_ENABLED"] = "true"
+
     # Stub Rails.env.production? to return true
     Rails.env.stub(:production?, true) do
       Platform::DSL.stub(:execute, ->(_) { raise "Secret error details" }) do

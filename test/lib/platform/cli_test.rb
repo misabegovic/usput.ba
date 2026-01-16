@@ -42,14 +42,6 @@ class Platform::CLITest < ActiveSupport::TestCase
     end
   end
 
-  test "status shows RubyLLM status" do
-    output = capture_output { @cli.status }
-
-    assert_includes output, "RubyLLM:"
-    # Should show either "Učitan" or "Nije učitan" depending on whether RubyLLM is defined
-    assert(output.include?("Učitan") || output.include?("Nije učitan"))
-  end
-
   test "query executes DSL and outputs JSON" do
     output = capture_output { @cli.query("schema | stats") }
 
@@ -70,71 +62,35 @@ class Platform::CLITest < ActiveSupport::TestCase
     assert_includes output, "Greška u izvršavanju"
   end
 
-  private
+  test "exec executes DSL and outputs JSON" do
+    output = capture_output { @cli.exec("schema | stats") }
 
-  def capture_output
-    old_stdout = $stdout
-    $stdout = StringIO.new
-
-    yield
-
-    $stdout.string
-  ensure
-    $stdout = old_stdout
-  end
-end
-
-class Platform::CLIPrivateMethodsTest < ActiveSupport::TestCase
-  # Test private methods by using send
-
-  setup do
-    @cli = Platform::CLI.new
+    # Should output valid JSON
+    parsed = JSON.parse(output.strip)
+    assert parsed.is_a?(Hash)
+    assert parsed["success"]
   end
 
-  test "print_banner outputs welcome message" do
-    output = capture_output { @cli.send(:print_banner) }
-
-    assert_includes output, "Usput.ba Platform"
-    assert_includes output, "Zdravo!"
-    assert_includes output, "help"
-    assert_includes output, "exit"
-  end
-
-  test "print_help outputs help information" do
-    output = capture_output { @cli.send(:print_help) }
-
-    assert_includes output, "Pomoć"
-    assert_includes output, "Primjeri"
-    assert_includes output, "DSL komande"
-    assert_includes output, "schema | stats"
-  end
-
-  test "load_or_create_conversation creates new conversation when no id" do
-    conversation = @cli.send(:load_or_create_conversation, nil)
-
-    assert_instance_of Platform::Conversation, conversation
-  end
-
-  test "load_or_create_conversation creates new when id not found" do
+  test "exec handles errors gracefully" do
     output = capture_output do
-      conversation = @cli.send(:load_or_create_conversation, "nonexistent-id")
-      assert_instance_of Platform::Conversation, conversation
+      # Use SystemExit rescue to prevent test from exiting
+      begin
+        @cli.exec("invalid !!! query")
+      rescue SystemExit
+        # expected
+      end
     end
 
-    assert_includes output, "nije pronađena"
+    parsed = JSON.parse(output.strip)
+    assert_equal false, parsed["success"]
+    assert_equal "parse_error", parsed["error"]
   end
 
-  test "load_or_create_conversation loads existing conversation" do
-    platform_conv = PlatformConversation.create!(
-      context: { test: true }
-    )
-
-    output = capture_output do
-      conversation = @cli.send(:load_or_create_conversation, platform_conv.id)
-      assert_instance_of Platform::Conversation, conversation
+  test "production_guard! allows in non-production" do
+    # In test environment, should not exit
+    assert_nothing_raised do
+      Platform::CLI.production_guard!
     end
-
-    assert_includes output, "Nastavljam konverzaciju"
   end
 
   private
