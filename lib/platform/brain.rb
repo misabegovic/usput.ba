@@ -19,8 +19,8 @@ module Platform
     # Može biti Claude ili GPT ovisno o dostupnim API ključevima
     MODEL = RubyLLM.config.default_model
 
-    # Regex za detekciju DSL blokova u odgovoru
-    DSL_BLOCK_REGEX = /\[DSL:\s*(.+?)\]/m
+    # Marker za početak DSL bloka
+    DSL_START = "[DSL:"
 
     attr_reader :conversation, :chat
 
@@ -60,9 +60,33 @@ module Platform
 
     def extract_dsl_queries(content)
       queries = []
-      content.scan(DSL_BLOCK_REGEX) do |match|
-        queries << { query: match[0].strip, raw: "[DSL: #{match[0]}]" }
+      start_idx = 0
+
+      while (idx = content.index(DSL_START, start_idx))
+        # Pronađi kraj DSL bloka poštujući balansirane zagrade
+        query_start = idx + DSL_START.length
+        bracket_count = 1
+        pos = query_start
+
+        while pos < content.length && bracket_count > 0
+          case content[pos]
+          when "["
+            bracket_count += 1
+          when "]"
+            bracket_count -= 1
+          end
+          pos += 1
+        end
+
+        if bracket_count == 0
+          query = content[query_start...pos - 1].strip
+          raw = content[idx...pos]
+          queries << { query: query, raw: raw }
+        end
+
+        start_idx = pos
       end
+
       queries
     end
 
@@ -158,6 +182,26 @@ module Platform
         - `| sort field asc/desc` - sortiranje
         - `| limit N` - ograničenje
 
+        **Mutacije (create/update/delete):**
+        ```
+        create location { name: "Sebilj", city: "Sarajevo", lat: 43.86, lng: 18.43 }
+        update location { id: 5 } set { description: "Novi opis" }
+        delete location { id: 99 }
+        ```
+
+        **Generisanje sadržaja:**
+        ```
+        generate description for location { id: 5 } style vivid
+        generate translations for location { id: 5 } to [en, de, fr]
+        generate experience from locations [1, 2, 3]
+        ```
+
+        **Audio sinteza:**
+        ```
+        synthesize audio for location { id: 5 } locale bs
+        estimate audio cost for locations { city: "Mostar" }
+        ```
+
         ## Primjeri razgovora
 
         **Korisnik:** Koliko imam lokacija u Sarajevu?
@@ -171,6 +215,10 @@ module Platform
         - Mostar: 47 lokacija, 18 iskustava
         ...
 
+        **Korisnik:** Kreiraj iskustvo od lokacija Baščaršija, Sebilj i restoran Dveri
+        **Ti:** [DSL: generate experience from locations [3, 8, 1]]
+        Kreirao sam novo iskustvo "Šetnja kroz staru čaršiju" koje povezuje 3 lokacije...
+
         ## Pravila
         1. Koristi DSL za sve upite nad podacima - ne izmišljaj brojeve
         2. Odgovaraj na bosanskom jeziku
@@ -179,12 +227,14 @@ module Platform
         5. Za osjetljive teme (rat, genocid) - upozori da treba ljudska obrada
 
         ## Trenutno stanje
-        DSL sistem je u ranoj fazi. Zasad podržava:
+        DSL sistem je funkcionalan. Podržava:
         - Schema queries (stats, describe, health)
-        - Basic table queries sa filterima
-        - Agregacije i sample
+        - Table queries sa filterima i operacijama
+        - Mutacije (CREATE, UPDATE, DELETE)
+        - Generisanje sadržaja (opisi, prijevodi, iskustva)
+        - Audio sinteza (ElevenLabs TTS)
 
-        Za kompleksnije operacije (generisanje, mutacije) - reci korisniku da će biti uskoro dostupno.
+        Za kreiranje lokacija koristi Geoapify za tačne koordinate.
       PROMPT
     end
 
