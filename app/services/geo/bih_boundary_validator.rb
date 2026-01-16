@@ -45,23 +45,26 @@ module Geo
       [44.87, 18.95],
 
       # Eastern border - Drina river (critical for excluding Serbia)
-      # This section has more points for precision
+      # Updated 2026-01-16: Fixed to include Srebrenica and Potočari
+      # The Drina river meanders significantly - traced from actual river course
       [44.80, 19.03],
-      [44.70, 19.08],
-      [44.60, 19.10],
-      [44.50, 19.12],  # Near Zvornik
-      [44.40, 19.10],
-      [44.30, 19.08],
-      [44.20, 19.15],
-      [44.10, 19.22],
-      [44.00, 19.28],
-      [43.90, 19.32],
-      [43.80, 19.35],  # Near Višegrad
-      [43.70, 19.38],
-      [43.60, 19.35],
-      [43.50, 19.28],
-      [43.40, 19.20],
-      [43.30, 19.08],  # Near Foča
+      [44.70, 19.05],
+      [44.60, 19.08],  # North of Zvornik
+      [44.50, 19.10],  # Zvornik area - river is narrow here
+      [44.40, 19.10],  # South of Zvornik - Drina at ~19.10-19.11
+      [44.35, 19.18],  # Drina bends east toward Bratunac
+      [44.30, 19.32],  # Near Bratunac - river bends significantly east
+      [44.20, 19.35],  # Bratunac area
+      [44.15, 19.37],  # Between Bratunac and Srebrenica
+      [44.10, 19.38],  # Srebrenica area - include Potočari (19.30)
+      [44.00, 19.40],  # Near Skelani
+      [43.90, 19.40],
+      [43.80, 19.38],  # Near Višegrad
+      [43.70, 19.40],
+      [43.60, 19.38],
+      [43.50, 19.32],
+      [43.40, 19.22],
+      [43.30, 19.12],  # Near Foča
 
       # Southeast - border with Montenegro
       [43.20, 18.95],
@@ -109,7 +112,7 @@ module Geo
       min_lat: 42.50,
       max_lat: 45.30,
       min_lng: 15.70,
-      max_lng: 19.45
+      max_lng: 19.50  # Extended to cover Drina border accurately
     }.freeze
 
     class << self

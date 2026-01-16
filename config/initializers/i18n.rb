@@ -5,9 +5,12 @@
 
 Rails.application.config.after_initialize do
   I18n.fallbacks = {
-    hr: [ :hr, :bs, :sr, :en ],      # Croatian -> Bosnian -> Serbian -> English
-    bs: [ :bs, :hr, :sr, :en ],      # Bosnian -> Croatian -> Serbian -> English
-    sr: [ :sr, :hr, :bs, :en ],      # Serbian -> Croatian -> Bosnian -> English
+    # South Slavic languages - script-aware fallbacks
+    # Bosnian/Croatian use Latin script, Serbian uses Cyrillic
+    # Don't fall back from Latin to Cyrillic scripts
+    hr: [ :hr, :bs, :en ],           # Croatian -> Bosnian -> English (skip Serbian/Cyrillic)
+    bs: [ :bs, :hr, :en ],           # Bosnian -> Croatian -> English (skip Serbian/Cyrillic)
+    sr: [ :sr, :en ],                # Serbian -> English (don't fall back to Latin scripts)
     sl: [ :sl, :hr, :en ],           # Slovenian -> Croatian -> English
     de: [ :de, :en ],                # German -> English
     es: [ :es, :pt, :en ],           # Spanish -> Portuguese -> English

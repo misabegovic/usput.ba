@@ -23,7 +23,9 @@ module Platform
       # @return [String] The generated content, stripped of whitespace
       # @raise [ExecutionError] If the LLM call fails
       def generate_with_llm(prompt)
-        chat = RubyLLM.chat(model: "claude-sonnet-4-20250514")
+        # Use configured default model (supports both OpenAI and Anthropic)
+        model = RubyLLM.config.default_model
+        chat = RubyLLM.chat(model: model)
         response = chat.ask(prompt)
         response.content.strip
       rescue StandardError => e

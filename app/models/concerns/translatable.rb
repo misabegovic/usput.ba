@@ -54,6 +54,10 @@ module Translatable
   # @param field [Symbol, String] the field name
   # @param locale [Symbol, String] the locale (defaults to I18n.locale)
   # @return [String, nil] the translated value or original value
+  # Source locales - content is natively in Bosnian/Croatian (Latin script)
+  # For these locales, prefer original content over fallback translations
+  SOURCE_LOCALES = %w[bs hr].freeze
+
   def translate(field, locale = I18n.locale)
     locale = locale.to_s
     field = field.to_s
@@ -62,7 +66,14 @@ module Translatable
     translation = translations.find_by(field_name: field, locale: locale)
     return translation.value if translation&.value.present?
 
-    # Try fallback locales
+    # For source locales (bs, hr), prefer original content over fallback translations
+    # This ensures Bosnian/Croatian users see Latin script content, not Cyrillic or English
+    if SOURCE_LOCALES.include?(locale)
+      original = send(field) if respond_to?(field)
+      return original if original.present?
+    end
+
+    # Try fallback locales (for non-source locales like de, fr, etc.)
     fallback_locales = I18n.fallbacks[locale.to_sym] rescue [ locale.to_sym, :en ]
     fallback_locales.each do |fallback_locale|
       next if fallback_locale.to_s == locale

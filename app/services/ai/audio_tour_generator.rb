@@ -303,7 +303,7 @@ module Ai
 
         LOCATION DETAILS:
         - Name: #{@location.name}
-        - City: #{@location.city&.name || 'Bosnia and Herzegovina'}
+        - City: #{@location.city || 'Bosnia and Herzegovina'}
         - Type: #{@location.location_type}
         - Description: #{@location.translate(:description, locale)}
         - Historical Context: #{@location.translate(:historical_context, locale) || 'N/A'}
