@@ -76,6 +76,36 @@ class Platform::ConversationTest < ActiveSupport::TestCase
     assert_includes result, "Došlo je do greške"
   end
 
+  test "send_message saves user message" do
+    record = PlatformConversation.create!
+    conv = create_conversation_with_mock_brain(record)
+
+    # Call send_message - it may succeed or handle error depending on implementation
+    conv.send_message("Hello")
+
+    record.reload
+    # Should have at least user message
+    assert record.messages.size >= 1
+    assert_equal "user", record.messages[0]["role"]
+    assert_equal "Hello", record.messages[0]["content"]
+  end
+
+  test "send_message handles brain errors gracefully" do
+    record = PlatformConversation.create!
+    conv = create_conversation_with_mock_brain(record)
+
+    # Replace brain with one that raises an error
+    error_brain = Object.new
+    error_brain.define_singleton_method(:process) { |_| raise StandardError, "Brain error" }
+    conv.instance_variable_set(:@brain, error_brain)
+
+    result = conv.send_message("Hello")
+
+    record.reload
+    assert_equal "error", record.status
+    assert_includes result, "Brain error"
+  end
+
   private
 
   # Creates a Conversation with a mock Brain to avoid RubyLLM initialization

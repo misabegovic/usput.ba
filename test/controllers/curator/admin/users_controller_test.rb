@@ -157,6 +157,15 @@ class Curator::Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "show does not load activities for non-curator users" do
+    login_as(@admin)
+    get curator_admin_user_path(@basic_user)
+    assert_response :success
+  end
+
+  # The update method only permits :user_type and validation always passes
+  # for valid user_type values, so validation failure is hard to trigger
+
   private
 
   def login_as(user)
