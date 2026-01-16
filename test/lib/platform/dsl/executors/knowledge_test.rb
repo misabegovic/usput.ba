@@ -413,4 +413,32 @@ class Platform::DSL::Executors::KnowledgeTest < ActiveSupport::TestCase
     assert_nil dimension
     assert_nil value
   end
+
+  # Additional branch coverage tests
+
+  test "execute_summaries_query with nil operations" do
+    ast = {
+      filters: {},
+      operations: nil
+    }
+
+    error = assert_raises(Platform::DSL::ExecutionError) do
+      Platform::DSL::Executors::Knowledge.execute_summaries_query(ast)
+    end
+
+    assert_match(/Nepoznata summaries operacija/i, error.message)
+  end
+
+  test "execute_clusters_query with nil operations" do
+    ast = {
+      filters: {},
+      operations: nil
+    }
+
+    error = assert_raises(Platform::DSL::ExecutionError) do
+      Platform::DSL::Executors::Knowledge.execute_clusters_query(ast)
+    end
+
+    assert_match(/Nepoznata clusters operacija/i, error.message)
+  end
 end
