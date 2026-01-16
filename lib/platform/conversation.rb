@@ -33,7 +33,7 @@ module Platform
       record.add_message(
         role: "assistant",
         content: response[:content],
-        dsl_queries: response[:dsl_queries]
+        metadata: { dsl_queries: response[:dsl_queries] }
       )
 
       response[:content]

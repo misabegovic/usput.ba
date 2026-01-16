@@ -11,7 +11,7 @@ module Platform
       # - audio: audio synthesis for locations
       #
       module Content
-        extend LLMHelper
+        extend Platform::DSL::LLMHelper
 
         class << self
           # Execute mutation (create, update, delete)
@@ -86,6 +86,7 @@ module Platform
             end
 
             PlatformAuditLog.log_create(record, triggered_by: "platform_dsl")
+            PlatformStatistic.invalidate_content_stats
 
             {
               success: true,
@@ -124,6 +125,7 @@ module Platform
             end
 
             PlatformAuditLog.log_update(record, changes: changes, triggered_by: "platform_dsl")
+            PlatformStatistic.invalidate_content_stats
 
             {
               success: true,
@@ -148,6 +150,8 @@ module Platform
             else
               record.destroy
             end
+
+            PlatformStatistic.invalidate_content_stats
 
             {
               success: true,
@@ -331,6 +335,7 @@ module Platform
             end
 
             PlatformAuditLog.log_create(experience, triggered_by: "platform_dsl_generation")
+            PlatformStatistic.invalidate_content_stats
 
             {
               success: true,

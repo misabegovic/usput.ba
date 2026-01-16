@@ -45,6 +45,11 @@ class PlatformStatistic < ApplicationRecord
       end
     end
 
+    # Invalidate content-related stats (call when content changes)
+    def invalidate_content_stats
+      where(key: %w[content_counts by_city coverage layer_zero]).update_all(computed_at: nil)
+    end
+
     # Dohvati kompletan Layer 0 za system prompt
     def layer_zero(max_age: 5.minutes)
       get("layer_zero", max_age: max_age)

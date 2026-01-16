@@ -128,8 +128,14 @@ module Platform
               field = operation[:args]&.first || :id
               direction = operation[:args]&.[](1) || :asc
               return scope.order(field => direction)
-            when :show
+            when :show, :list
               return scope.limit(100).to_a.map { |r| format_record(r) }
+            when :first
+              record = scope.first
+              return record ? format_record(record) : nil
+            when :last
+              record = scope.last
+              return record ? format_record(record) : nil
             else
               raise ExecutionError, "Nepoznata operacija: #{operation[:name]}"
             end

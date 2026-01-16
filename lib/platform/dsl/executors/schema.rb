@@ -16,12 +16,20 @@ module Platform
             operation = ast[:operations].first
             case operation[:name]
             when :stats
-              build_stats
+              # Check for "live" flag in args: schema | stats live
+              live_mode = operation[:args]&.first&.to_s == "live"
+              build_stats(live: live_mode)
+            when :stats_live
+              build_stats(live: true)
             when :describe
               table = operation[:args]&.first
               describe_table(table)
             when :health
               build_health
+            when :refresh
+              # Force refresh all stats
+              PlatformStatistic.refresh_all
+              { action: :refresh, status: :ok, message: "Stats refreshed" }
             else
               raise ExecutionError, "Nepoznata schema operacija: #{operation[:name]}"
             end
@@ -29,7 +37,10 @@ module Platform
 
           private
 
-          def build_stats
+          def build_stats(live: false)
+            # Force live query if requested
+            return build_stats_directly if live
+
             # Use cached statistics if available
             cached = PlatformStatistic.find_by(key: "layer_zero")
             if cached&.fresh?(5.minutes)
