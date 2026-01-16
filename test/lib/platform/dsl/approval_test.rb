@@ -3,7 +3,10 @@
 require "test_helper"
 
 class Platform::DSL::ApprovalTest < ActiveSupport::TestCase
+  # ARCHIVED: Approval functionality is not currently available
+  # See: .claude/planning/decisions/ADR-2026-01-16-executor-simplification.md
   setup do
+    skip "Archived: Approval functionality not currently available"
     @admin = User.create!(
       username: "test_admin_#{SecureRandom.hex(4)}",
       user_type: :admin,

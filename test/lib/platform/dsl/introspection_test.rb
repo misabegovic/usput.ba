@@ -3,6 +3,13 @@
 require "test_helper"
 
 class Platform::DSL::IntrospectionTest < ActiveSupport::TestCase
+  # ARCHIVED: Code introspection functionality is not currently available
+  # See: .claude/planning/decisions/ADR-2026-01-16-executor-simplification.md
+
+  setup do
+    skip "Archived: Code introspection functionality not currently available"
+  end
+
   # ============================================
   # Code Introspection - Parser Tests
   # ============================================

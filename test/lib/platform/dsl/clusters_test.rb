@@ -4,7 +4,10 @@ require "test_helper"
 require "ostruct"
 
 class Platform::DSL::ClustersTest < ActiveSupport::TestCase
+  # ARCHIVED: Knowledge cluster queries are not currently available
+  # See: .claude/planning/decisions/ADR-2026-01-16-executor-simplification.md
   setup do
+    skip "Archived: Knowledge cluster queries not currently available"
     KnowledgeCluster.delete_all
     ClusterMembership.delete_all
 

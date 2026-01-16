@@ -3,7 +3,10 @@
 require "test_helper"
 
 class Platform::DSL::AudioTest < ActiveSupport::TestCase
+  # ARCHIVED: Audio synthesis functionality is not currently available
+  # See: .claude/planning/decisions/ADR-2026-01-16-executor-simplification.md
   setup do
+    skip "Archived: Audio synthesis functionality not currently available"
     @location = Location.create!(
       name: "Test Lokacija",
       city: "Sarajevo",

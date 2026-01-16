@@ -117,6 +117,7 @@ Architecture Decision Records (ADR) - dokumentovane ključne odluke.
 |-------|--------|--------|------|
 | 2025-01-15 | DSL-First Architecture | ✅ Accepted | `decisions/2025-01-15-dsl-first-architecture.md` |
 | 2025-01-15 | Implementation Decisions | ✅ Accepted | `decisions/2025-01-15-implementation-decisions.md` |
+| 2026-01-16 | Executor Simplification | ✅ Accepted | `decisions/ADR-2026-01-16-executor-simplification.md` |
 | 2025-01-15 | Full Introspection in P0 | ✅ Accepted | `decisions/2025-01-15-full-introspection-p0.md` |
 
 ### Ključne odluke

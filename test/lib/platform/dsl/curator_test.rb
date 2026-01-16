@@ -3,7 +3,10 @@
 require "test_helper"
 
 class Platform::DSL::CuratorTest < ActiveSupport::TestCase
+  # ARCHIVED: Curator management functionality is not currently available
+  # See: .claude/planning/decisions/ADR-2026-01-16-executor-simplification.md
   setup do
+    skip "Archived: Curator management functionality not currently available"
     @curator = User.create!(
       username: "test_curator_#{SecureRandom.hex(4)}",
       user_type: :curator,

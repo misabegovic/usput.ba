@@ -3,7 +3,10 @@
 require "test_helper"
 
 class Platform::DSL::SummariesTest < ActiveSupport::TestCase
+  # ARCHIVED: Knowledge summaries queries are not currently available
+  # See: .claude/planning/decisions/ADR-2026-01-16-executor-simplification.md
   setup do
+    skip "Archived: Knowledge summaries queries not currently available"
     KnowledgeSummary.delete_all
 
     # Create test summary
