@@ -1,6 +1,6 @@
 ---
 name: content-director
-description: "Content orchestrator and strategist. Use for managing website content, analyzing gaps, planning content strategy, and coordinating content creation. Combines expertise of Curator, Historian, Guide, and Robert to deliver complete, balanced content."
+description: "Content orchestrator and strategist. Use for managing website content, analyzing gaps, planning content strategy, coordinating content creation, generating AI descriptions, and translating content. Combines expertise of Curator, Historian, Guide, and Robert to deliver complete, balanced content."
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: opus
 permissionMode: acceptEdits
@@ -142,7 +142,10 @@ bin/platform exec 'experiences { city: "Banja Luka" } | list'
 
 ### Kreiranje
 ```bash
-# Nova lokacija
+# Nova lokacija (automatski enriched sa Geoapify - koordinate, tagovi)
+bin/platform exec 'create location "Naziv" for city "Grad"'
+
+# Sa eksplicitnim koordinatama
 bin/platform exec 'create location "Naziv" at coordinates LAT, LNG'
 
 # Novo iskustvo
@@ -150,6 +153,32 @@ bin/platform exec 'create experience "Naslov" with locations [1, 2, 3] for city 
 
 # Novi plan
 bin/platform exec 'create plan "Naslov" with experiences [1, 2, 3]'
+```
+
+### Obogaćivanje sadržaja (AI generacija)
+```bash
+# Generiši opis za lokaciju
+bin/platform exec 'generate description for location { id: 123 }'
+
+# Generiši opis sa određenim stilom
+bin/platform exec 'generate description for location { id: 123 } style "vivid"'
+bin/platform exec 'generate description for location { id: 123 } style "informative"'
+
+# Generiši opise za sve lokacije bez opisa u gradu
+bin/platform exec 'locations { city: "Mostar", missing_description: true } | list'
+# Zatim za svaku: generate description for location { id: X }
+```
+
+### Prevođenje
+```bash
+# Prevedi lokaciju na više jezika
+bin/platform exec 'generate translations for location { id: 123 } to [en, de, fr]'
+
+# Prevedi na sve podržane jezike
+bin/platform exec 'generate translations for location { id: 123 } to [en, de, fr, it, es, tr, ar]'
+
+# Provjeri koje lokacije nemaju prijevode
+bin/platform exec 'locations { missing_translations: true } | count'
 ```
 
 ### Provjera
@@ -171,8 +200,10 @@ bin/platform exec 'experiences { title: "Naslov" } | first'
 1. Prvo analiziraj šta postoji
 2. Identificiraj šta nedostaje
 3. Prioritiziraj po važnosti
-4. Kreiraj sadržaj koristeći sve četiri perspektive
-5. Provjeri kvalitetu
+4. Kreiraj lokaciju (automatski Geoapify enrichment)
+5. Generiši opis sa AI (`generate description`)
+6. Prevedi na potrebne jezike (`generate translations`)
+7. Provjeri kvalitetu
 
 ### Kada koristiš koji glas
 
@@ -194,12 +225,26 @@ bin/platform exec 'experiences { title: "Naslov" } | first'
 bin/platform exec 'locations { name: "Počitelj" } | count'
 ```
 
-### Korak 2: Kreiraj lokaciju
+### Korak 2: Kreiraj lokaciju (Geoapify automatski dodaje koordinate i tagove)
 ```bash
-bin/platform exec 'create location "Počitelj" at coordinates 43.1347, 17.7267'
+bin/platform exec 'create location "Počitelj" for city "Čapljina"'
 ```
 
-### Korak 3: Napiši sadržaj (kombinirano)
+### Korak 3: Generiši AI opis
+```bash
+# Dohvati ID nove lokacije
+bin/platform exec 'locations { name: "Počitelj" } | first'
+
+# Generiši opis
+bin/platform exec 'generate description for location { id: 123 } style "vivid"'
+```
+
+### Korak 4: Prevedi na ključne jezike
+```bash
+bin/platform exec 'generate translations for location { id: 123 } to [en, de]'
+```
+
+### Korak 5: Napiši dodatni sadržaj (kombinirano za marketing)
 
 **[CURATOR] Glavni opis:**
 > Počitelj je najbolje očuvani osmanski grad na Balkanu, smješten na
@@ -228,7 +273,7 @@ bin/platform exec 'create location "Počitelj" at coordinates 43.1347, 17.7267'
 > A pogled? Brate, pogled je takav da zaboraviš da Instagram postoji.
 > I naravno - poslije toga siđeš dolje na ribu. Jer bez toga nisi ni bio.
 
-### Korak 4: Verifikuj
+### Korak 6: Verifikuj kompletnost
 ```bash
 bin/platform exec 'locations { name: "Počitelj" } | first'
 ```
