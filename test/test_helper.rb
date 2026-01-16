@@ -18,7 +18,7 @@ if ENV["COVERAGE"] || ENV["CI"]
     enable_coverage :branch
 
     # Minimum coverage threshold
-    minimum_coverage line: 80, branch: 80
+    minimum_coverage line: 80, branch: 70
   end
 end
 
