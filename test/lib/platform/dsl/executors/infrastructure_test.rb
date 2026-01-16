@@ -1,0 +1,302 @@
+# frozen_string_literal: true
+
+require "test_helper"
+
+class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
+  # ===================
+  # Infrastructure Query Tests
+  # ===================
+
+  test "execute_infrastructure returns overview by default" do
+    ast = { filters: {}, operations: nil }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_infrastructure(ast)
+
+    assert_equal :infrastructure_overview, result[:action]
+    assert_equal Rails.env, result[:environment]
+    assert_equal RUBY_VERSION, result[:ruby]
+  end
+
+  test "execute_infrastructure returns queue_status" do
+    ast = { filters: {}, operations: [{ name: :queue_status }] }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_infrastructure(ast)
+
+    assert_equal :queue_status, result[:action]
+  end
+
+  test "execute_infrastructure returns health" do
+    ast = { filters: {}, operations: [{ name: :health }] }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_infrastructure(ast)
+
+    assert_equal :infrastructure_health, result[:action]
+    assert result[:database].present?
+    assert result[:api_keys].present?
+  end
+
+  test "execute_infrastructure returns processes" do
+    ast = { filters: {}, operations: [{ name: :processes }] }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_infrastructure(ast)
+
+    assert_equal :processes, result[:action]
+    assert_equal RUBY_VERSION, result[:ruby_version]
+    assert_equal Rails.version, result[:rails_version]
+    assert_equal Rails.env, result[:environment]
+    assert_equal Process.pid, result[:pid]
+  end
+
+  test "execute_infrastructure returns storage" do
+    ast = { filters: {}, operations: [{ name: :storage }] }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_infrastructure(ast)
+
+    assert_equal :storage_status, result[:action]
+  end
+
+  test "execute_infrastructure returns database" do
+    ast = { filters: {}, operations: [{ name: :database }] }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_infrastructure(ast)
+
+    assert_equal :database_status, result[:action]
+    assert result[:adapter].present?
+  end
+
+  test "execute_infrastructure returns cache" do
+    ast = { filters: {}, operations: [{ name: :cache }] }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_infrastructure(ast)
+
+    assert_equal :cache_status, result[:action]
+    assert result[:store].present?
+  end
+
+  # ===================
+  # Logs Query Tests
+  # ===================
+
+  test "execute_logs returns summary by default" do
+    ast = { filters: {}, operations: nil }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
+
+    assert_equal :logs_summary, result[:action]
+    assert result[:audit_logs].present?
+  end
+
+  test "execute_logs shows errors" do
+    ast = { filters: {}, operations: [{ name: :errors }] }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
+
+    assert_equal :show_errors, result[:action]
+    assert result[:errors].is_a?(Array)
+  end
+
+  test "execute_logs shows errors with time filter" do
+    ast = { filters: { last: "24h" }, operations: [{ name: :errors }] }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
+
+    assert_equal :show_errors, result[:action]
+    assert_equal "24h", result[:time_range]
+  end
+
+  test "execute_logs shows slow_queries" do
+    ast = { filters: {}, operations: [{ name: :slow_queries }] }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
+
+    assert_equal :slow_queries, result[:action]
+  end
+
+  test "execute_logs shows slow_queries with threshold" do
+    ast = { filters: { threshold: 500 }, operations: [{ name: :slow_queries }] }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
+
+    assert_equal :slow_queries, result[:action]
+    assert_equal 500, result[:threshold_ms]
+  end
+
+  test "execute_logs shows recent logs" do
+    PlatformAuditLog.create!(
+      action: "create",
+      record_type: "Test",
+      record_id: 1,
+      triggered_by: "test"
+    )
+
+    ast = { filters: {}, operations: [{ name: :recent }] }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
+
+    assert_equal :recent_logs, result[:action]
+    assert result[:logs].is_a?(Array)
+  end
+
+  test "execute_logs shows recent logs with limit" do
+    ast = { filters: { limit: 10 }, operations: [{ name: :recent }] }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
+
+    assert_equal :recent_logs, result[:action]
+  end
+
+  test "execute_logs shows audit logs" do
+    ast = { filters: {}, operations: [{ name: :audit }] }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
+
+    assert_equal :audit_logs, result[:action]
+    assert result[:by_action].is_a?(Hash)
+    assert result[:by_record_type].is_a?(Hash)
+  end
+
+  test "execute_logs shows audit logs with filters" do
+    PlatformAuditLog.create!(
+      action: "create",
+      record_type: "Location",
+      record_id: 1,
+      triggered_by: "platform_dsl"
+    )
+
+    ast = {
+      filters: { action: "create", record_type: "Location" },
+      operations: [{ name: :audit }]
+    }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
+
+    assert_equal :audit_logs, result[:action]
+  end
+
+  test "execute_logs shows dsl logs" do
+    PlatformAuditLog.create!(
+      action: "create",
+      record_type: "Location",
+      record_id: 1,
+      triggered_by: "platform_dsl"
+    )
+
+    ast = { filters: {}, operations: [{ name: :dsl }] }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
+
+    assert_equal :dsl_logs, result[:action]
+    assert result[:logs].is_a?(Array)
+  end
+
+  test "execute_logs shows dsl logs with time filter" do
+    ast = { filters: { last: "7d" }, operations: [{ name: :dsl }] }
+
+    result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
+
+    assert_equal :dsl_logs, result[:action]
+  end
+
+  # ===================
+  # Helper Method Tests
+  # ===================
+
+  test "check_database_health returns ok status" do
+    result = Platform::DSL::Executors::Infrastructure.send(:check_database_health)
+
+    assert_equal "ok", result[:status]
+    assert result[:adapter].present?
+  end
+
+  test "check_api_keys returns configuration status" do
+    result = Platform::DSL::Executors::Infrastructure.send(:check_api_keys)
+
+    assert %w[configured missing].include?(result[:anthropic])
+    assert %w[configured missing].include?(result[:geoapify])
+    assert %w[configured missing].include?(result[:elevenlabs])
+  end
+
+  test "memory_status returns memory information" do
+    result = Platform::DSL::Executors::Infrastructure.send(:memory_status)
+
+    assert result[:status].present? || result[:rss_mb].present?
+  end
+
+  test "disk_status returns disk information" do
+    result = Platform::DSL::Executors::Infrastructure.send(:disk_status)
+
+    # Either returns disk info or status: unknown
+    assert result[:status].present? || result[:filesystem].present?
+  end
+
+  test "process_uptime returns uptime string" do
+    result = Platform::DSL::Executors::Infrastructure.send(:process_uptime)
+
+    assert result.is_a?(String)
+  end
+
+  test "get_table_sizes returns hash with table counts" do
+    result = Platform::DSL::Executors::Infrastructure.send(:get_table_sizes)
+
+    assert result.is_a?(Hash)
+    assert result.key?("locations")
+    assert result.key?("users")
+  end
+
+  test "parse_time_range parses hours" do
+    result = Platform::DSL::Executors::Infrastructure.send(:parse_time_range, "12h")
+
+    assert_in_delta 12.hours.ago.to_i, result.to_i, 5
+  end
+
+  test "parse_time_range parses days" do
+    result = Platform::DSL::Executors::Infrastructure.send(:parse_time_range, "7d")
+
+    assert_in_delta 7.days.ago.to_i, result.to_i, 5
+  end
+
+  test "parse_time_range parses weeks" do
+    result = Platform::DSL::Executors::Infrastructure.send(:parse_time_range, "2w")
+
+    assert_in_delta 2.weeks.ago.to_i, result.to_i, 5
+  end
+
+  test "parse_time_range parses months" do
+    result = Platform::DSL::Executors::Infrastructure.send(:parse_time_range, "1m")
+
+    assert_in_delta 1.month.ago.to_i, result.to_i, 5
+  end
+
+  test "parse_time_range defaults to 24 hours for unknown format" do
+    result = Platform::DSL::Executors::Infrastructure.send(:parse_time_range, "unknown")
+
+    assert_in_delta 24.hours.ago.to_i, result.to_i, 5
+  end
+
+  test "estimate_query_time returns query info" do
+    result = Platform::DSL::Executors::Infrastructure.send(:estimate_query_time, "Test query")
+
+    assert_equal "Test query", result[:query]
+    assert result[:estimated].present?
+  end
+
+  test "queue_summary returns queue info" do
+    result = Platform::DSL::Executors::Infrastructure.send(:queue_summary)
+
+    # SolidQueue might not be available in test environment
+    assert result.is_a?(Hash)
+  end
+
+  test "check_queue_health returns queue health" do
+    result = Platform::DSL::Executors::Infrastructure.send(:check_queue_health)
+
+    # Either returns job counts or error status
+    assert result.is_a?(Hash)
+  end
+
+  test "check_storage_health returns storage info" do
+    result = Platform::DSL::Executors::Infrastructure.send(:check_storage_health)
+
+    assert result.is_a?(Hash)
+  end
+end
