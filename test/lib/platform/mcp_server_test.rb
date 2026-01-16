@@ -889,4 +889,29 @@ class Platform::MCPServerTest < ActiveSupport::TestCase
       $stdout = original_stdout
     end
   end
+
+  # ===================
+  # Production Guard Tests
+  # ===================
+
+  test "production_guard! allows in non-production environment" do
+    # In test environment, should not exit
+    assert_nothing_raised do
+      Platform::MCPServer.production_guard!
+    end
+  end
+
+  test "production_guard! allows when PLATFORM_MCP_ENABLED is true in production" do
+    original_env = ENV["PLATFORM_MCP_ENABLED"]
+    ENV["PLATFORM_MCP_ENABLED"] = "true"
+
+    # Mock production environment
+    Rails.stub(:env, ActiveSupport::EnvironmentInquirer.new("production")) do
+      assert_nothing_raised do
+        Platform::MCPServer.production_guard!
+      end
+    end
+  ensure
+    ENV["PLATFORM_MCP_ENABLED"] = original_env
+  end
 end

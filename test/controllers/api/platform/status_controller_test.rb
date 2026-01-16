@@ -397,6 +397,13 @@ class ApiPlatformStatusControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Invalid prompt ID", response.parsed_body["error"]
   end
 
+  test "show_prompt accepts valid integer id" do
+    get api_platform_path(id: @prompt.id.to_s),
+        headers: { "Authorization" => "Bearer #{@api_key}" }
+
+    assert_response :success
+  end
+
   test "logs endpoint sanitizes invalid time range to 24h" do
     get api_platform_logs_path,
         params: { last: "invalid\" } | delete all" },
@@ -431,5 +438,23 @@ class ApiPlatformStatusControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal "7d", response.parsed_body["time_range"]
+  end
+
+  # Unit tests for private sanitization methods
+  test "sanitize_integer returns nil for blank value" do
+    controller = ::API::Platform::StatusController.new
+    assert_nil controller.send(:sanitize_integer, nil)
+    assert_nil controller.send(:sanitize_integer, "")
+  end
+
+  test "sanitize_integer returns integer for valid string" do
+    controller = ::API::Platform::StatusController.new
+    assert_equal 123, controller.send(:sanitize_integer, "123")
+  end
+
+  test "sanitize_integer returns nil for non-numeric string" do
+    controller = ::API::Platform::StatusController.new
+    assert_nil controller.send(:sanitize_integer, "abc")
+    assert_nil controller.send(:sanitize_integer, "12.34")
   end
 end

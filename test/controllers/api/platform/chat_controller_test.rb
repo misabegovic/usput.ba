@@ -398,4 +398,23 @@ class ApiPlatformChatControllerTest < ActionDispatch::IntegrationTest
       Platform.const_set(:Brain, original_brain)
     end
   end
+
+  # Production guard test
+  test "production guard returns forbidden in production without env var" do
+    original_env = Rails.env
+    Rails.instance_variable_set(:@_env, ActiveSupport::EnvironmentInquirer.new("production"))
+
+    begin
+      post api_platform_chat_path,
+           params: { query: "schema | stats" },
+           headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :forbidden
+      body = response.parsed_body
+      assert_equal "Forbidden", body["error"]
+      assert_includes body["message"], "Platform Chat API nije dostupan u produkciji"
+    ensure
+      Rails.instance_variable_set(:@_env, ActiveSupport::EnvironmentInquirer.new(original_env.to_s))
+    end
+  end
 end
