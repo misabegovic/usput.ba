@@ -52,7 +52,7 @@ class PlatformRecord < ApplicationRecord
     return [] unless platform_database_configured?
 
     column_names
-  rescue StandardError
+  rescue ActiveRecord::StatementInvalid, PG::UndefinedTable, StandardError
     []
   end
 
