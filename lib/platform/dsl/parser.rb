@@ -51,6 +51,7 @@ module Platform
       rule(integer: simple(:x)) { x.to_i }
       rule(float: simple(:x)) { x.to_f }
       rule(string: simple(:x)) { x.to_s }
+      rule(string: sequence(:chars)) { chars.join }  # Handle empty strings: "" produces []
       rule(boolean: simple(:x)) { x.to_s == "true" }
       rule(identifier: simple(:x)) { x.to_s.to_sym }
       rule(array: subtree(:items)) { Array(items).flatten }
@@ -64,52 +65,26 @@ module Platform
       end
 
       # Filter pair - convert key/value to hash entry
-      rule(key: simple(:k), value: simple(:v)) do
-        { k.to_s.to_sym => v }
-      end
+      # Note: value is always a subtree after literal transforms run bottom-up
       rule(key: simple(:k), value: subtree(:v)) do
-        val = v.is_a?(Hash) && v.key?(:string) ? v[:string].to_s : v
-        { k.to_s.to_sym => val }
+        { k.to_s.to_sym => v }
       end
 
       # Filters - handles both single filter and multiple filters
+      # Note: filter pairs are already transformed to hashes by the key/value rule
       rule(filters: sequence(:filter_list)) do
-        # Multiple filters - array of transformed hashes
-        filter_list.reduce({}) { |acc, h| acc.merge(h.is_a?(Hash) ? h : {}) }
+        filter_list.reduce({}, :merge)
       end
+
       rule(filters: subtree(:data)) do
-        # Single filter or other structure
         case data
-        when Hash
-          if data.key?(:key) && data.key?(:value)
-            # Raw key/value pair not yet transformed
-            val = data[:value]
-            val = val[:string].to_s if val.is_a?(Hash) && val.key?(:string)
-            { data[:key].to_s.to_sym => val }
-          else
-            # Already a proper hash
-            data
-          end
-        when Array
-          data.reduce({}) do |acc, item|
-            if item.is_a?(Hash) && item.key?(:key)
-              val = item[:value]
-              val = val[:string].to_s if val.is_a?(Hash) && val.key?(:string)
-              acc.merge(item[:key].to_s.to_sym => val)
-            else
-              acc.merge(item.is_a?(Hash) ? item : {})
-            end
-          end
-        else
-          {}
+        when Hash then data
+        when Array then data.reduce({}, :merge)
+        else {}
         end
       end
 
-      # Operation
-      rule(operation: simple(:op)) do
-        { name: op.to_s.to_sym }
-      end
-
+      # Operation - args is always present (may be empty) due to grammar structure
       rule(operation: simple(:op), args: subtree(:args)) do
         { name: op.to_s.to_sym, args: Array(args) }
       end
@@ -118,35 +93,13 @@ module Platform
         { name: op.to_s.to_sym, args: Array(args), group_by: gb.to_s.to_sym }
       end
 
-      rule(operation: simple(:op), group_by: simple(:gb)) do
-        { name: op.to_s.to_sym, group_by: gb.to_s.to_sym }
-      end
-
       # Helper to convert raw filters to hash
+      # Note: filters are already transformed by the time they reach here
       def self.convert_filters(raw_filters)
         case raw_filters
-        when Hash
-          if raw_filters.key?(:key) && raw_filters.key?(:value)
-            val = raw_filters[:value]
-            val = val[:string].to_s if val.is_a?(Hash) && val.key?(:string)
-            { raw_filters[:key].to_s.to_sym => val }
-          else
-            raw_filters
-          end
-        when Array
-          raw_filters.reduce({}) do |acc, item|
-            if item.is_a?(Hash) && item.key?(:key)
-              val = item[:value]
-              val = val[:string].to_s if val.is_a?(Hash) && val.key?(:string)
-              acc.merge(item[:key].to_s.to_sym => val)
-            elsif item.is_a?(Hash)
-              acc.merge(item)
-            else
-              acc
-            end
-          end
-        else
-          {}
+        when Hash then raw_filters
+        when Array then raw_filters.reduce({}, :merge)
+        else {}
         end
       end
 
@@ -266,13 +219,12 @@ module Platform
       # Generation commands
       # generate description for location { id: 123 }
       rule(query: { generation: simple(:g), gen_type: simple(:gt), table: simple(:t), filters: subtree(:f), style_value: subtree(:sv) }) do |dict|
-        style_val = dict[:sv].is_a?(Hash) ? dict[:sv][:string]&.to_s : dict[:sv]&.to_s
         {
           type: :generation,
           gen_type: dict[:gt].to_s.to_sym,
           table: dict[:t].to_s,
           filters: Transform.convert_filters(dict[:f]),
-          style: style_val
+          style: dict[:sv]&.to_s
         }
       end
 
@@ -291,13 +243,12 @@ module Platform
 
       # generate translations for location { id: 123 } to [en, de]
       rule(query: { generation: simple(:g), gen_type: simple(:gt), table: simple(:t), filters: subtree(:f), locales: subtree(:locs) }) do |dict|
-        locales = Array(dict[:locs]).map { |l| l.is_a?(Hash) ? l[:string]&.to_s : l.to_s }
         {
           type: :generation,
           gen_type: dict[:gt].to_s.to_sym,
           table: dict[:t].to_s,
           filters: Transform.convert_filters(dict[:f]),
-          locales: locales
+          locales: Array(dict[:locs]).map(&:to_s)
         }
       end
 
@@ -327,21 +278,19 @@ module Platform
 
       # synthesize audio for location { id: 123 } locale "en"
       rule(query: { audio_cmd: simple(:cmd), audio_type: simple(:at), table: simple(:t), filters: subtree(:f), audio_locale: subtree(:loc) }) do |dict|
-        locale_val = dict[:loc].is_a?(Hash) ? dict[:loc][:string]&.to_s : dict[:loc]&.to_s
         {
           type: :audio,
           action: dict[:cmd].to_s.to_sym,
           audio_type: dict[:at].to_s.to_sym,
           table: dict[:t].to_s,
           filters: Transform.convert_filters(dict[:f]),
-          locale: locale_val,
+          locale: dict[:loc]&.to_s,
           voice: nil
         }
       end
 
       # synthesize audio for location { id: 123 } voice "Rachel"
       rule(query: { audio_cmd: simple(:cmd), audio_type: simple(:at), table: simple(:t), filters: subtree(:f), voice_name: subtree(:v) }) do |dict|
-        voice_val = dict[:v].is_a?(Hash) ? dict[:v][:string]&.to_s : dict[:v]&.to_s
         {
           type: :audio,
           action: dict[:cmd].to_s.to_sym,
@@ -349,22 +298,20 @@ module Platform
           table: dict[:t].to_s,
           filters: Transform.convert_filters(dict[:f]),
           locale: nil,
-          voice: voice_val
+          voice: dict[:v]&.to_s
         }
       end
 
       # synthesize audio for location { id: 123 } locale "en" voice "Rachel"
       rule(query: { audio_cmd: simple(:cmd), audio_type: simple(:at), table: simple(:t), filters: subtree(:f), audio_locale: subtree(:loc), voice_name: subtree(:v) }) do |dict|
-        locale_val = dict[:loc].is_a?(Hash) ? dict[:loc][:string]&.to_s : dict[:loc]&.to_s
-        voice_val = dict[:v].is_a?(Hash) ? dict[:v][:string]&.to_s : dict[:v]&.to_s
         {
           type: :audio,
           action: dict[:cmd].to_s.to_sym,
           audio_type: dict[:at].to_s.to_sym,
           table: dict[:t].to_s,
           filters: Transform.convert_filters(dict[:f]),
-          locale: locale_val,
-          voice: voice_val
+          locale: dict[:loc]&.to_s,
+          voice: dict[:v]&.to_s
         }
       end
 
@@ -383,53 +330,36 @@ module Platform
 
       # approve proposal { id: 123 } notes "..."
       rule(query: { approval_cmd: simple(:cmd), approval_type: simple(:at), filters: subtree(:f), approval_notes: subtree(:n) }) do |dict|
-        notes_val = dict[:n].is_a?(Hash) ? dict[:n][:string]&.to_s : dict[:n]&.to_s
         {
           type: :approval,
           action: dict[:cmd].to_s.to_sym,
           approval_type: dict[:at].to_s.to_sym,
           filters: Transform.convert_filters(dict[:f]),
-          notes: notes_val,
+          notes: dict[:n]&.to_s,
           reason: nil
         }
       end
 
       # reject proposal { id: 123 } reason "..."
       rule(query: { approval_cmd: simple(:cmd), approval_type: simple(:at), filters: subtree(:f), rejection_reason: subtree(:r) }) do |dict|
-        reason_val = case dict[:r]
-                     when Hash
-                       inner = dict[:r][:string]
-                       inner.is_a?(Array) ? inner.join : inner.to_s
-                     when Array then dict[:r].empty? ? "" : dict[:r].join
-                     when Parslet::Slice then dict[:r].to_s
-                     else dict[:r]&.to_s
-                     end
         {
           type: :approval,
           action: dict[:cmd].to_s.to_sym,
           approval_type: dict[:at].to_s.to_sym,
           filters: Transform.convert_filters(dict[:f]),
           notes: nil,
-          reason: reason_val
+          reason: dict[:r]&.to_s
         }
       end
 
       # Curator management commands
       # block curator { id: 123 } reason "spam"
       rule(query: { curator_cmd: simple(:cmd), curator_action: simple(:ca), filters: subtree(:f), rejection_reason: subtree(:r) }) do |dict|
-        reason_val = case dict[:r]
-                     when Hash
-                       inner = dict[:r][:string]
-                       inner.is_a?(Array) ? inner.join : inner.to_s
-                     when Array then dict[:r].empty? ? "" : dict[:r].join
-                     when Parslet::Slice then dict[:r].to_s
-                     else dict[:r]&.to_s
-                     end
         {
           type: :curator_management,
           action: dict[:cmd].to_s.to_sym,
           filters: Transform.convert_filters(dict[:f]),
-          reason: reason_val
+          reason: dict[:r]&.to_s
         }
       end
 
@@ -446,11 +376,10 @@ module Platform
       # Improvement commands
       # prepare fix for "description"
       rule(query: { improvement_cmd: simple(:cmd), improvement_type: simple(:t), prompt_description: subtree(:desc) }) do |dict|
-        desc_val = dict[:desc].is_a?(Hash) ? dict[:desc][:string]&.to_s : dict[:desc]&.to_s
         {
           type: :improvement,
           improvement_type: dict[:t].to_s.to_sym,
-          description: desc_val,
+          description: dict[:desc]&.to_s,
           severity: nil,
           target_file: nil
         }
@@ -458,41 +387,34 @@ module Platform
 
       # prepare fix for "description" severity "high"
       rule(query: { improvement_cmd: simple(:cmd), improvement_type: simple(:t), prompt_description: subtree(:desc), prompt_severity: subtree(:sev) }) do |dict|
-        desc_val = dict[:desc].is_a?(Hash) ? dict[:desc][:string]&.to_s : dict[:desc]&.to_s
-        sev_val = dict[:sev].is_a?(Hash) ? dict[:sev][:string]&.to_s : dict[:sev]&.to_s
         {
           type: :improvement,
           improvement_type: dict[:t].to_s.to_sym,
-          description: desc_val,
-          severity: sev_val,
+          description: dict[:desc]&.to_s,
+          severity: dict[:sev]&.to_s,
           target_file: nil
         }
       end
 
       # prepare fix for "description" file "path"
       rule(query: { improvement_cmd: simple(:cmd), improvement_type: simple(:t), prompt_description: subtree(:desc), target_file: subtree(:f) }) do |dict|
-        desc_val = dict[:desc].is_a?(Hash) ? dict[:desc][:string]&.to_s : dict[:desc]&.to_s
-        file_val = dict[:f].is_a?(Hash) ? dict[:f][:string]&.to_s : dict[:f]&.to_s
         {
           type: :improvement,
           improvement_type: dict[:t].to_s.to_sym,
-          description: desc_val,
+          description: dict[:desc]&.to_s,
           severity: nil,
-          target_file: file_val
+          target_file: dict[:f]&.to_s
         }
       end
 
       # prepare fix for "description" severity "high" file "path"
       rule(query: { improvement_cmd: simple(:cmd), improvement_type: simple(:t), prompt_description: subtree(:desc), prompt_severity: subtree(:sev), target_file: subtree(:f) }) do |dict|
-        desc_val = dict[:desc].is_a?(Hash) ? dict[:desc][:string]&.to_s : dict[:desc]&.to_s
-        sev_val = dict[:sev].is_a?(Hash) ? dict[:sev][:string]&.to_s : dict[:sev]&.to_s
-        file_val = dict[:f].is_a?(Hash) ? dict[:f][:string]&.to_s : dict[:f]&.to_s
         {
           type: :improvement,
           improvement_type: dict[:t].to_s.to_sym,
-          description: desc_val,
-          severity: sev_val,
-          target_file: file_val
+          description: dict[:desc]&.to_s,
+          severity: dict[:sev]&.to_s,
+          target_file: dict[:f]&.to_s
         }
       end
 
@@ -509,19 +431,11 @@ module Platform
 
       # reject prompt { id: 123 } reason "..."
       rule(query: { prompt_action: simple(:action), filters: subtree(:f), rejection_reason: subtree(:r) }) do |dict|
-        reason_val = case dict[:r]
-                     when Hash
-                       inner = dict[:r][:string]
-                       inner.is_a?(Array) ? inner.join : inner.to_s
-                     when Array then dict[:r].empty? ? "" : dict[:r].join
-                     when Parslet::Slice then dict[:r].to_s
-                     else dict[:r]&.to_s
-                     end
         {
           type: :prompt_action,
           action: dict[:action].to_s.to_sym,
           filters: Transform.convert_filters(dict[:f]),
-          reason: reason_val
+          reason: dict[:r]&.to_s
         }
       end
     end
