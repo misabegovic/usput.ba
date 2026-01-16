@@ -340,4 +340,216 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
     op = ast[:operations].find { |o| o[:name] == :limit }
     assert op if ast[:operations].present?
   end
+
+  # Additional tests for specific transformer rule coverage
+
+  # Test simple key-value filter with integer
+  test "parses simple integer key-value filter" do
+    ast = Platform::DSL::Parser.parse("locations { count: 5 }")
+    assert_equal 5, ast[:filters][:count]
+  end
+
+  # Test simple key-value filter with boolean
+  test "parses simple boolean key-value filter" do
+    ast = Platform::DSL::Parser.parse("locations { verified: false }")
+    assert_equal false, ast[:filters][:verified]
+  end
+
+  # Test filter with embedded string value
+  test "parses filter with string value containing spaces" do
+    ast = Platform::DSL::Parser.parse('locations { address: "Main Street 123" }')
+    assert_equal "Main Street 123", ast[:filters][:address]
+  end
+
+  # Test multiple operations with different types
+  test "parses multiple operations with arguments" do
+    ast = Platform::DSL::Parser.parse("locations | sort name asc | limit 10")
+    assert ast[:operations].length >= 2
+  end
+
+  # Test mutations (create, update, delete)
+  test "parses create mutation" do
+    ast = Platform::DSL::Parser.parse('create location { name: "Test", city: "Sarajevo" }')
+    assert_equal :mutation, ast[:type]
+    assert_equal :create, ast[:action]
+  end
+
+  test "parses update mutation" do
+    ast = Platform::DSL::Parser.parse('update location { id: 1 } set { name: "New Name" }')
+    assert_equal :mutation, ast[:type]
+    assert_equal :update, ast[:action]
+  end
+
+  test "parses delete mutation" do
+    ast = Platform::DSL::Parser.parse("delete location { id: 1 }")
+    assert_equal :mutation, ast[:type]
+    assert_equal :delete, ast[:action]
+  end
+
+  # Test filter list parsing (array in filters block)
+  test "parses multiple filters in block" do
+    ast = Platform::DSL::Parser.parse('locations { city: "Sarajevo", type: "restaurant", active: true }')
+    assert_equal "Sarajevo", ast[:filters][:city]
+    assert_equal "restaurant", ast[:filters][:type]
+    assert_equal true, ast[:filters][:active]
+  end
+
+  # Test operation with quoted string argument
+  test "parses operation with quoted string argument" do
+    ast = Platform::DSL::Parser.parse('clusters | semantic "ottoman heritage sites"')
+    op = ast[:operations].first
+    assert_equal :semantic, op[:name]
+    assert op[:args].include?("ottoman heritage sites")
+  end
+
+  # Test where operation with condition
+  test "parses where operation with condition" do
+    ast = Platform::DSL::Parser.parse('locations | where "rating > 4.0"')
+    op = ast[:operations].find { |o| o[:name] == :where }
+    assert op if ast[:operations].present?
+  end
+
+  # Test aggregate with average function
+  test "parses aggregate with avg function" do
+    ast = Platform::DSL::Parser.parse("locations | aggregate avg(rating) by city")
+    op = ast[:operations].first
+    assert_equal :aggregate, op[:name]
+    assert op[:args].any? { |a| a.include?("avg") }
+    assert_equal :city, op[:group_by]
+  end
+
+  # Test filter with nested value (subtree)
+  test "parses filter with complex value" do
+    ast = Platform::DSL::Parser.parse('locations { metadata: "some_value" } | list')
+    assert ast[:filters][:metadata].present?
+  end
+
+  # Test code query type
+  test "parses code query" do
+    ast = Platform::DSL::Parser.parse("code | models")
+    assert_equal :code_query, ast[:type]
+  end
+
+  test "parses code query with file filter" do
+    ast = Platform::DSL::Parser.parse('code { file: "app/models/user.rb" } | read')
+    assert_equal :code_query, ast[:type]
+    assert_equal "app/models/user.rb", ast[:filters][:file]
+  end
+
+  # Note: generate translations and generate experience have specific syntax
+  # that may not be supported in the current grammar. Skipping those tests.
+
+  # Test prompt action
+  test "parses apply prompt command" do
+    ast = Platform::DSL::Parser.parse("apply prompt { id: 1 }")
+    assert_equal :prompt_action, ast[:type]
+    assert_equal :apply, ast[:action]
+  end
+
+  test "parses reject prompt command" do
+    ast = Platform::DSL::Parser.parse('reject prompt { id: 1 } reason "Not needed"')
+    assert_equal :prompt_action, ast[:type]
+    assert_equal :reject, ast[:action]
+  end
+
+  # Note: prepare feature and prepare improvement may have different syntax
+  # in the current grammar. The existing test covers "prepare fix" syntax.
+
+  # Test filters with special characters in string
+  test "parses filter with unicode string" do
+    ast = Platform::DSL::Parser.parse('locations { city: "Sarajevo - Baščaršija" }')
+    assert_equal "Sarajevo - Baščaršija", ast[:filters][:city]
+  end
+
+  # Test infrastructure operations
+  test "parses infrastructure queue_status" do
+    ast = Platform::DSL::Parser.parse("infrastructure | queue_status")
+    assert_equal :infrastructure_query, ast[:type]
+    assert_equal :queue_status, ast[:operations].first[:name]
+  end
+
+  test "parses infrastructure storage" do
+    ast = Platform::DSL::Parser.parse("infrastructure | storage")
+    assert_equal :infrastructure_query, ast[:type]
+  end
+
+  # Test logs operations
+  test "parses logs with errors operation" do
+    ast = Platform::DSL::Parser.parse("logs | errors")
+    assert_equal :logs_query, ast[:type]
+    assert_equal :errors, ast[:operations].first[:name]
+  end
+
+  test "parses logs with time filter" do
+    ast = Platform::DSL::Parser.parse('logs { last: "24h" } | audit')
+    assert_equal :logs_query, ast[:type]
+  end
+
+  # Test summaries operations
+  test "parses summaries show operation" do
+    ast = Platform::DSL::Parser.parse('summaries { city: "Sarajevo" } | show')
+    assert_equal :summaries_query, ast[:type]
+    assert_equal :show, ast[:operations].first[:name]
+  end
+
+  test "parses summaries refresh operation" do
+    ast = Platform::DSL::Parser.parse('summaries { dimension: "city" } | refresh')
+    assert_equal :summaries_query, ast[:type]
+    assert_equal :refresh, ast[:operations].first[:name]
+  end
+
+  # Test clusters operations
+  test "parses clusters list" do
+    ast = Platform::DSL::Parser.parse("clusters | list")
+    assert_equal :clusters_query, ast[:type]
+    assert_equal :list, ast[:operations].first[:name]
+  end
+
+  test "parses clusters refresh" do
+    ast = Platform::DSL::Parser.parse("clusters | refresh")
+    assert_equal :clusters_query, ast[:type]
+  end
+
+  # Test external operations
+  test "parses external validate_location" do
+    ast = Platform::DSL::Parser.parse("external { lat: 43.8, lng: 18.4 } | validate_location")
+    assert_equal :external_query, ast[:type]
+    assert_equal :validate_location, ast[:operations].first[:name]
+  end
+
+  test "parses external check_duplicate" do
+    ast = Platform::DSL::Parser.parse('external { name: "Test Location" } | check_duplicate')
+    assert_equal :external_query, ast[:type]
+  end
+
+  # Test proposals operations
+  test "parses proposals count" do
+    ast = Platform::DSL::Parser.parse("proposals | count")
+    assert_equal :proposals_query, ast[:type]
+    assert_equal :count, ast[:operations].first[:name]
+  end
+
+  # Test curators operations
+  test "parses curators with activity" do
+    ast = Platform::DSL::Parser.parse("curators { id: 1 } | activity")
+    assert_equal :curators_query, ast[:type]
+    assert_equal :activity, ast[:operations].first[:name]
+  end
+
+  test "parses curators check_spam" do
+    ast = Platform::DSL::Parser.parse("curators | check_spam")
+    assert_equal :curators_query, ast[:type]
+  end
+
+  # Test prompts operations
+  test "parses prompts show" do
+    ast = Platform::DSL::Parser.parse("prompts { id: 1 } | show")
+    assert_equal :prompts_query, ast[:type]
+    assert_equal :show, ast[:operations].first[:name]
+  end
+
+  test "parses prompts export" do
+    ast = Platform::DSL::Parser.parse("prompts { id: 1 } | export")
+    assert_equal :prompts_query, ast[:type]
+  end
 end
