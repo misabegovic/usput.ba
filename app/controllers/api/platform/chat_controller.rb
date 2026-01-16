@@ -22,6 +22,7 @@ module API
     #
     class ChatController < BaseController
       include ActionController::Live
+      before_action :production_guard!
 
       # POST /api/platform/chat
       #
@@ -83,6 +84,17 @@ module API
       end
 
       private
+
+      # Check if chat API is allowed in current environment
+      def production_guard!
+        return unless Rails.env.production?
+        return if ENV["PLATFORM_CHAT_API_ENABLED"] == "true"
+
+        render json: {
+          error: "Forbidden",
+          message: "Platform Chat API nije dostupan u produkciji. Postavi PLATFORM_CHAT_API_ENABLED=true za omogućavanje."
+        }, status: :forbidden
+      end
 
       def execute_dsl_query
         query = params[:query]

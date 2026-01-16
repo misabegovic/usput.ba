@@ -20,8 +20,19 @@ module Platform
 
     class << self
       def run
+        production_guard!
         server = new
         server.run
+      end
+
+      # Check if MCP server is allowed in current environment
+      def production_guard!
+        return unless defined?(Rails) && Rails.env.production?
+        return if ENV["PLATFORM_MCP_ENABLED"] == "true"
+
+        $stderr.puts "❌ Platform MCP server nije dostupan u produkciji."
+        $stderr.puts "   Postavi PLATFORM_MCP_ENABLED=true za omogućavanje."
+        exit 1
       end
     end
 

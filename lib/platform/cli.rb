@@ -5,26 +5,27 @@ require "thor"
 module Platform
   # Thor CLI za Platform
   #
-  # Ulazna tačka za konverzacijski interface sa Platform-om.
+  # Omogućava direktno izvršavanje DSL komandi za Claude Code integraciju.
+  # NAPOMENA: Nije dostupno u produkciji po defaultu (PLATFORM_CLI_ENABLED=true za omogućavanje)
   #
   # Primjeri:
-  #   bin/platform chat          # Pokreni interaktivnu sesiju
-  #   bin/platform status        # Provjeri status sistema
-  #   bin/platform version       # Prikaži verziju
+  #   bin/platform exec 'schema | stats'
+  #   bin/platform exec 'locations { city: "Mostar" } | count'
+  #   bin/platform status
   #
   class CLI < Thor
     def self.exit_on_failure?
       true
     end
 
-    desc "chat", "Pokreni interaktivnu chat sesiju sa Platform-om"
-    option :conversation_id, type: :string, aliases: "-c", desc: "Nastavi postojeću konverzaciju"
-    def chat
-      print_banner
-      conversation = load_or_create_conversation(options[:conversation_id])
-      run_chat_loop(conversation)
-    rescue Interrupt
-      puts "\n\n👋 Doviđenja!"
+    # Check if CLI is allowed in current environment
+    def self.production_guard!
+      return unless Rails.env.production?
+      return if ENV["PLATFORM_CLI_ENABLED"] == "true"
+
+      puts "❌ Platform CLI nije dostupan u produkciji."
+      puts "   Postavi PLATFORM_CLI_ENABLED=true za omogućavanje."
+      exit 1
     end
 
     desc "status", "Prikaži status Platform sistema"
@@ -44,14 +45,6 @@ module Platform
       rescue => e
         puts "  Status: ❌ Greška (#{e.message})"
       end
-      puts
-      puts "RubyLLM:"
-      if defined?(RubyLLM)
-        puts "  Status: ✅ Učitan"
-        puts "  Model: #{RubyLLM.config.default_model rescue 'nije konfigurisan'}"
-      else
-        puts "  Status: ❌ Nije učitan"
-      end
     end
 
     desc "version", "Prikaži verziju Platform-a"
@@ -62,8 +55,9 @@ module Platform
     desc "query QUERY", "Izvrši DSL query direktno"
     option :json, type: :boolean, default: true, aliases: "-j", desc: "Output kao JSON"
     def query(dsl_query)
+      self.class.production_guard!
+
       result = Platform::DSL.execute(dsl_query)
-      # Default to JSON output (options[:json] is true by default, nil means default)
       use_json = options[:json] != false
       if use_json
         puts result.to_json
@@ -81,6 +75,8 @@ module Platform
     option :pretty, type: :boolean, default: false, aliases: "-p", desc: "Pretty-print JSON"
     option :batch, type: :string, aliases: "-b", desc: "Izvrši komande iz fajla (jedna po liniji)"
     def exec(dsl_query = nil)
+      self.class.production_guard!
+
       if options[:batch]
         execute_batch(options[:batch])
       elsif dsl_query
@@ -143,7 +139,6 @@ module Platform
     end
 
     def normalize_result(result)
-      # Wrap raw values in success structure
       case result
       when Hash
         result[:success] = true unless result.key?(:success)
@@ -162,7 +157,7 @@ module Platform
     end
 
     def format_output(data)
-      if options[:json] != false # Default je true za exec
+      if options[:json] != false
         if options[:pretty]
           JSON.pretty_generate(data)
         else
@@ -211,76 +206,6 @@ module Platform
       else
         value.to_s
       end
-    end
-
-    # ===================
-    # Chat command helpers
-    # ===================
-
-    def print_banner
-      puts
-      puts "🏔️  Usput.ba Platform v#{Platform.version}"
-      puts "─" * 40
-      puts "Zdravo! Ja sam Usput.ba platforma."
-      puts "Kako ti mogu pomoći?"
-      puts
-      puts "Savjeti:"
-      puts "  - Upiši 'help' za pomoć"
-      puts "  - Upiši 'exit' ili Ctrl+C za izlaz"
-      puts
-    end
-
-    def load_or_create_conversation(conversation_id)
-      if conversation_id
-        conv = PlatformConversation.find_by(id: conversation_id)
-        if conv
-          puts "📂 Nastavljam konverzaciju #{conv.id[0..7]}..."
-          Platform::Conversation.new(conv)
-        else
-          puts "⚠️  Konverzacija #{conversation_id} nije pronađena, kreiram novu."
-          Platform::Conversation.new
-        end
-      else
-        Platform::Conversation.new
-      end
-    end
-
-    def run_chat_loop(conversation)
-      loop do
-        print "\n💬 Ti: "
-        input = $stdin.gets&.strip
-
-        break if input.nil? || input.empty? || %w[exit quit q].include?(input.downcase)
-
-        if input.downcase == "help"
-          print_help
-          next
-        end
-
-        response = conversation.send_message(input)
-        puts "\n🏔️  Usput: #{response}"
-      end
-    end
-
-    def print_help
-      puts
-      puts "📚 Pomoć"
-      puts "─" * 30
-      puts
-      puts "Možeš me pitati bilo šta o Usput.ba platformi:"
-      puts
-      puts "Primjeri:"
-      puts "  • Koliko imam lokacija u Sarajevu?"
-      puts "  • Prikaži statistike po gradovima"
-      puts "  • Koje lokacije nemaju audio ture?"
-      puts "  • Generiši sadržaj za Bihać"
-      puts
-      puts "DSL komande (napredni korisnici):"
-      puts "  • schema | stats"
-      puts "  • locations { city: \"Mostar\" } | sample 10"
-      puts "  • summaries { region: \"sarajevo\" } | show"
-      puts
-      puts "Upiši 'exit' ili Ctrl+C za izlaz."
     end
   end
 end
