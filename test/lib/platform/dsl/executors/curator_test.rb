@@ -666,4 +666,172 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
 
     assert_equal :list_curators, result[:action]
   end
+
+  # Additional branch coverage tests for specific uncovered branches
+
+  test "list_proposals with invalid status filter ignores it" do
+    ast = { filters: { status: "invalid_status_xyz" } }
+
+    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
+
+    # Should still return results (invalid status is ignored)
+    assert_equal :list_proposals, result[:action]
+    assert result[:proposals].is_a?(Array)
+  end
+
+  test "list_applications with invalid status filter ignores it" do
+    ast = { filters: { status: "invalid_status_xyz" } }
+
+    result = Platform::DSL::Executors::Curator.execute_applications_query(ast)
+
+    # Should still return results (invalid status is ignored)
+    assert_equal :list_applications, result[:action]
+    assert result[:applications].is_a?(Array)
+  end
+
+  test "show_proposal for reviewed proposal includes reviewed_at" do
+    @content_change.update!(status: :approved, reviewed_at: Time.current)
+
+    ast = {
+      filters: { id: @content_change.id },
+      operations: [{ name: :show }]
+    }
+
+    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
+
+    assert_equal :show_proposal, result[:action]
+    assert result[:reviewed_at].present?
+  end
+
+  test "show_application for reviewed application includes reviewed_at" do
+    @curator_application.update!(status: :approved, reviewed_at: Time.current)
+
+    ast = {
+      filters: { id: @curator_application.id },
+      operations: [{ name: :show }]
+    }
+
+    result = Platform::DSL::Executors::Curator.execute_applications_query(ast)
+
+    assert_equal :show_application, result[:action]
+    assert result[:reviewed_at].present?
+  end
+
+  test "approve_proposal raises when approval fails" do
+    # Create a mock proposal that returns false for approve!
+    mock_proposal = @content_change
+    mock_proposal.define_singleton_method(:approve!) { |_admin, **_opts| false }
+
+    Platform::DSL::Executors::Curator.stub(:find_proposal, ->(_filters) { mock_proposal }) do
+      ast = {
+        action: :approve,
+        approval_type: :proposal,
+        filters: { id: @content_change.id },
+        notes: "Should fail"
+      }
+
+      error = assert_raises(Platform::DSL::ExecutionError) do
+        Platform::DSL::Executors::Curator.execute_approval(ast)
+      end
+
+      assert_match(/nije uspjelo/i, error.message)
+    end
+  end
+
+  test "reject_proposal raises for non-pending proposal" do
+    @content_change.update!(status: :approved)
+
+    ast = {
+      action: :reject,
+      approval_type: :proposal,
+      filters: { id: @content_change.id },
+      reason: "Some reason"
+    }
+
+    error = assert_raises(Platform::DSL::ExecutionError) do
+      Platform::DSL::Executors::Curator.execute_approval(ast)
+    end
+
+    assert_match(/nije u pending statusu/i, error.message)
+  end
+
+  test "reject_application raises for non-pending application" do
+    @curator_application.update!(status: :approved)
+
+    ast = {
+      action: :reject,
+      approval_type: :application,
+      filters: { id: @curator_application.id },
+      reason: "Some reason"
+    }
+
+    error = assert_raises(Platform::DSL::ExecutionError) do
+      Platform::DSL::Executors::Curator.execute_approval(ast)
+    end
+
+    assert_match(/nije u pending statusu/i, error.message)
+  end
+
+  test "reject_application raises without reason" do
+    ast = {
+      action: :reject,
+      approval_type: :application,
+      filters: { id: @curator_application.id },
+      reason: ""
+    }
+
+    error = assert_raises(Platform::DSL::ExecutionError) do
+      Platform::DSL::Executors::Curator.execute_approval(ast)
+    end
+
+    assert_match(/razlog/i, error.message)
+  end
+
+  test "list_curators with high_activity filter" do
+    # Set curator with high activity
+    @curator.update!(activity_count_today: User::MAX_ACTIVITIES_PER_DAY)
+
+    ast = { filters: { high_activity: true } }
+
+    result = Platform::DSL::Executors::Curator.execute_curators_query(ast)
+
+    assert_equal :list_curators, result[:action]
+    assert result[:curators].is_a?(Array)
+  end
+
+  test "show_curator for blocked curator includes spam_blocked_until" do
+    @curator.update!(spam_blocked_until: 1.day.from_now, spam_block_reason: "Test block")
+
+    ast = {
+      filters: { id: @curator.id },
+      operations: [{ name: :show }]
+    }
+
+    result = Platform::DSL::Executors::Curator.execute_curators_query(ast)
+
+    assert_equal :show_curator, result[:action]
+    assert result[:spam_blocked_until].present?
+  end
+
+  test "create_platform_user handles error when no admin exists" do
+    # This is tricky to test directly - let's test via stub
+    User.stub(:admin, User.none) do
+      User.stub(:create!, ->(_opts) { raise "Failed to create" }) do
+        error = assert_raises(Platform::DSL::ExecutionError) do
+          Platform::DSL::Executors::Curator.send(:create_platform_user)
+        end
+
+        assert_match(/Nije moguće pronaći admin korisnika/i, error.message)
+      end
+    end
+  end
+
+  test "list_proposals with type alias filter" do
+    # Test the :type alias for :change_type
+    ast = { filters: { type: "update_content" } }
+
+    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
+
+    assert_equal :list_proposals, result[:action]
+  end
 end
