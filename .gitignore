@@ -26,6 +26,9 @@
 /config/master.key
 /config/credentials/*.key
 
+# Local environment overrides (production credentials)
+.env.local
+
 
 # Ignore node modules
 /node_modules

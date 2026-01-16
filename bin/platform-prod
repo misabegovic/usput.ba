@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Platform CLI with production database connection
+#
+# Usage:
+#   bin/platform-prod exec 'locations | count'
+#   bin/platform-prod exec 'schema | stats'
+#
+# Requires PROD_DATABASE_URL to be set in .env.local or environment
+#
+# Create .env.local with:
+#   PROD_DATABASE_URL=postgres://user:pass@host:port/dbname
+#
+
+set -e
+
+# Load .env.local if it exists (contains production credentials)
+if [ -f ".env.local" ]; then
+  export $(grep -v '^#' .env.local | grep -v '^$' | xargs)
+fi
+
+# Check if PROD_DATABASE_URL is set
+if [ -z "$PROD_DATABASE_URL" ]; then
+  echo "❌ PROD_DATABASE_URL nije postavljen."
+  echo ""
+  echo "Kreiraj .env.local fajl sa:"
+  echo "  PROD_DATABASE_URL=postgres://user:pass@host:port/dbname"
+  echo ""
+  echo "Ili postavi direktno:"
+  echo "  PROD_DATABASE_URL=... bin/platform-prod exec 'locations | count'"
+  exit 1
+fi
+
+echo "🔗 Connecting to production database..."
+echo ""
+
+# Run platform CLI with production database
+exec bin/platform "$@"

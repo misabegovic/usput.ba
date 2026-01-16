@@ -11,19 +11,27 @@ default: &default
 development:
   primary:
     <<: *default
+    <% if ENV["PROD_DATABASE_URL"] %>
+    url: <%= ENV["PROD_DATABASE_URL"] %>
+    <% else %>
     database: klosaer_development
     username: <%= ENV.fetch("POSTGRES_USER") { "postgres" } %>
     password: <%= ENV.fetch("POSTGRES_PASSWORD") { "" } %>
     host: <%= ENV.fetch("POSTGRES_HOST") { "localhost" } %>
     port: <%= ENV.fetch("POSTGRES_PORT") { 5432 } %>
+    <% end %>
   queue:
     <<: *default
+    <% if ENV["PROD_QUEUE_DATABASE_URL"] %>
+    url: <%= ENV["PROD_QUEUE_DATABASE_URL"] %>
+    <% else %>
     database: klosaer_queue_development
-    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 10 } %>
     username: <%= ENV.fetch("POSTGRES_USER") { "postgres" } %>
     password: <%= ENV.fetch("POSTGRES_PASSWORD") { "" } %>
     host: <%= ENV.fetch("POSTGRES_HOST") { "localhost" } %>
     port: <%= ENV.fetch("POSTGRES_PORT") { 5432 } %>
+    <% end %>
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 10 } %>
     migrations_paths: db/queue_migrate
 
 test:
