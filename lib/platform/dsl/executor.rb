@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "executors"
+require_relative "llm_helper"
 
 module Platform
   module DSL
@@ -21,6 +22,7 @@ module Platform
     # - External: external APIs, code introspection
     #
     class Executor
+      extend LLMHelper
       # Re-export TABLE_MAP for backwards compatibility
       TABLE_MAP = Executors::TableQuery::TABLE_MAP
 
@@ -91,14 +93,7 @@ module Platform
           Executors::TableQuery.resolve_model(table_name)
         end
 
-        # For backwards compatibility with tests that stub generate_with_llm
-        def generate_with_llm(prompt)
-          chat = RubyLLM.chat(model: "claude-sonnet-4-20250514")
-          response = chat.ask(prompt)
-          response.content.strip
-        rescue => e
-          raise ExecutionError, "LLM greška: #{e.message}"
-        end
+        # generate_with_llm is provided by LLMHelper
 
         private
 

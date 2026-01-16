@@ -155,14 +155,6 @@ class Platform::BrainTest < ActiveSupport::TestCase
     end
   end
 
-  test "load_conversation_history can be called" do
-    # Just verify the method can be called without error
-    # The method currently doesn't do much, but we test it exists and runs
-    assert_nothing_raised do
-      @brain.send(:load_conversation_history)
-    end
-  end
-
   test "process returns response with DSL content" do
     # Create a mock response with DSL
     mock_response = Object.new

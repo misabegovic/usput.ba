@@ -13,6 +13,8 @@ module Platform
       #   apply prompt { id: 1 }
       #
       class Prompts
+        extend LLMHelper
+
         class << self
           def execute_prompts_query(ast)
             filters = ast[:filters] || {}
@@ -303,13 +305,7 @@ module Platform
             end
           end
 
-          def generate_with_llm(prompt)
-            chat = RubyLLM.chat(model: "claude-sonnet-4-20250514")
-            response = chat.ask(prompt)
-            response.content.strip
-          rescue => e
-            raise ExecutionError, "LLM greška: #{e.message}"
-          end
+          # generate_with_llm is provided by LLMHelper
         end
       end
     end

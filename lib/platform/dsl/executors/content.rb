@@ -11,6 +11,8 @@ module Platform
       # - audio: audio synthesis for locations
       #
       module Content
+        extend LLMHelper
+
         class << self
           # Execute mutation (create, update, delete)
           def execute_mutation(ast)
@@ -340,14 +342,7 @@ module Platform
             }
           end
 
-          # LLM helpers
-          def generate_with_llm(prompt)
-            chat = RubyLLM.chat(model: "claude-sonnet-4-20250514")
-            response = chat.ask(prompt)
-            response.content.strip
-          rescue => e
-            raise ExecutionError, "LLM greška: #{e.message}"
-          end
+          # generate_with_llm is provided by LLMHelper
 
           def build_description_prompt(record, style)
             context = case record

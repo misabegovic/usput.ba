@@ -32,9 +32,6 @@ module Platform
 
     # Procesiraj korisničku poruku
     def process(user_message)
-      # Dodaj kontekst iz historije
-      load_conversation_history
-
       # Pošalji poruku LLM-u
       response = chat.ask(user_message)
 
@@ -59,18 +56,6 @@ module Platform
 
     def setup_system_prompt
       chat.with_instructions(system_prompt)
-    end
-
-    def load_conversation_history
-      # Dodaj prethodne poruke u chat kontekst
-      conversation.messages.each do |msg|
-        case msg["role"]
-        when "user"
-          # Ne dodajemo ponovo jer ćemo dodati novu poruku
-        when "assistant"
-          # Isto
-        end
-      end
     end
 
     def extract_dsl_queries(content)
