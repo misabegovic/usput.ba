@@ -2,9 +2,12 @@
 
 # If running the rails server then prepare all databases
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
-  # Prepare primary, queue, and platform databases
+  # Prepare primary and queue databases
   ./bin/rails db:prepare
-  ./bin/rails db:prepare:platform
+
+  # Prepare platform database (create if not exists, then migrate)
+  ./bin/rails db:create:platform || true
+  ./bin/rails db:migrate:platform
 fi
 
 exec "$@"
