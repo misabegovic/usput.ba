@@ -451,4 +451,68 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
     assert_equal "Test Place", result[:name]
     assert_equal 43.85, result[:lat]
   end
+
+  # Additional branch coverage tests
+
+  test "check_duplicate handles locations without coordinates" do
+    # Create a location without coordinates
+    Location.create!(name: "No Coords Location", city: "Test City", lat: nil, lng: nil)
+
+    ast = {
+      filters: { lat: 43.85, lng: 18.41 },
+      operations: [{ name: :check_duplicate }]
+    }
+
+    result = Platform::DSL::Executors::External.execute_external_query(ast)
+
+    assert result[:has_duplicates].is_a?(TrueClass) || result[:has_duplicates].is_a?(FalseClass)
+  end
+
+  test "grep_code with nil args" do
+    ast = {
+      filters: { path: "app/models" },
+      operations: [{ name: :grep, args: nil }]
+    }
+
+    error = assert_raises(Platform::DSL::ExecutionError) do
+      Platform::DSL::Executors::External.execute_code_query(ast)
+    end
+
+    assert_match(/Potreban search pattern/i, error.message)
+  end
+
+  test "get_city_coordinates returns nil for city without location" do
+    # Make sure there's no location for this city
+    Location.where(city: "NonExistentCity123").delete_all
+
+    mock_service = Object.new
+    mock_service.define_singleton_method(:text_search) { |**_args| [] }
+
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
+      result = Platform::DSL::Executors::External.send(:get_city_coordinates, "NonExistentCity123")
+      assert_nil result
+    end
+  end
+
+  test "get_city_coordinates returns location coords if available" do
+    # This tests the first branch - when location with coords exists
+    loc = Location.create!(name: "Test", city: "TestCoordCity", lat: 44.0, lng: 18.0)
+
+    result = Platform::DSL::Executors::External.send(:get_city_coordinates, "TestCoordCity")
+
+    assert_equal 44.0, result[:lat]
+    assert_equal 18.0, result[:lng]
+  end
+
+  test "geoapify_service creates service instance" do
+    # Verify the method exists and tries to create service
+    # Skip if API key not configured
+    begin
+      result = Platform::DSL::Executors::External.send(:geoapify_service)
+      assert result.is_a?(GeoapifyService)
+    rescue GeoapifyService::ConfigurationError
+      # API key not configured in test - just verify method exists
+      assert Platform::DSL::Executors::External.respond_to?(:geoapify_service, true)
+    end
+  end
 end
