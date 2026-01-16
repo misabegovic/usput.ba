@@ -1042,9 +1042,14 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     ENV["ELEVENLABS_API_KEY"] = original_elevenlabs
   end
 
-  # Format created record for Experience - ARCHIVED
+  # Format created record for Experience
   test "format_created_record for Experience returns hash" do
-    skip "Archived: mutation functionality not currently available"
+    experience = Experience.create!(title: "Test Experience", estimated_duration: 60)
+    result = Platform::DSL::Executors::Content.send(:format_created_record, experience)
+
+    assert result.is_a?(Hash)
+    assert_equal experience.id, result[:id]
+    assert_equal "Test Experience", result[:title]
   end
 
   # Apply filter special cases
@@ -1203,9 +1208,13 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     end
   end
 
-  # Test estimate_audio_cost - ARCHIVED
+  # Test estimate_audio_cost
   test "estimate_audio_cost returns cost estimate" do
-    skip "Archived: audio functionality not currently available"
+    result = Platform::DSL.execute('estimate audio cost for locations { city: "Sarajevo" }')
+
+    assert_equal :estimate_audio_cost, result[:action]
+    assert result.key?(:total_locations)
+    assert result.key?(:estimated_cost_usd)
   end
 
   # Test format_proposal returns hash with required keys
@@ -1227,7 +1236,18 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
   # Test show_proposal includes reviews array
   test "show_proposal includes reviews array" do
-    skip "Archived: proposals_query functionality not currently available"
+    proposal = ContentChange.create!(
+      user: @test_user,
+      change_type: :create_content,
+      changeable_class: "Location",
+      proposed_data: { name: "Test Proposal" },
+      status: :pending
+    )
+
+    result = Platform::DSL::Executors::Curator.send(:show_proposal, { id: proposal.id })
+
+    assert result.is_a?(Hash)
+    assert result.key?(:reviews)
   end
 
   # Test execute_schema_query with unknown operation
@@ -1325,9 +1345,27 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert result.is_a?(Hash)
   end
 
-  # Test show_proposal with curator reviews - ARCHIVED
+  # Test show_proposal with curator reviews
   test "show_proposal with curator reviews maps them correctly" do
-    skip "Archived: proposals_query functionality not currently available"
+    proposal = ContentChange.create!(
+      user: @test_user,
+      change_type: :create_content,
+      changeable_class: "Location",
+      proposed_data: { name: "Test" },
+      status: :pending
+    )
+
+    CuratorReview.create!(
+      content_change: proposal,
+      user: @test_user,
+      recommendation: :recommend_approve,
+      comment: "Looks good"
+    )
+
+    result = Platform::DSL::Executors::Curator.send(:show_proposal, { id: proposal.id })
+
+    assert result[:reviews].is_a?(Array)
+    assert result[:reviews].any? { |r| r[:recommendation] == "recommend_approve" }
   end
 
   # Test apply_filter with Range value
@@ -1350,9 +1388,12 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert true
   end
 
-  # Test estimate_audio_cost with city filter - ARCHIVED
+  # Test estimate_audio_cost with city filter
   test "estimate_audio_cost with city filter" do
-    skip "Archived: audio functionality not currently available"
+    result = Platform::DSL.execute('estimate audio cost for locations { city: "Mostar" }')
+
+    assert_equal :estimate_audio_cost, result[:action]
+    assert result.key?(:by_city)
   end
 
   # Test apply_operation with where
@@ -1372,60 +1413,124 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert result[:columns].include?("name")
   end
 
-  # Test execute_delete directly - ARCHIVED
+  # Test execute_delete directly
   test "execute_delete directly" do
-    skip "Archived: mutation functionality not currently available"
+    location = Location.create!(name: "To Delete", city: "Test", lat: 43.5, lng: 18.5)
+
+    result = Platform::DSL::Executors::Content.send(:execute_delete, "locations", { id: location.id })
+
+    assert result[:success]
+    assert_equal :delete, result[:action]
   end
 
-  # Test find_record_for_mutation with empty filters - ARCHIVED
+  # Test find_record_for_mutation with empty filters
   test "find_record_for_mutation raises with empty filters" do
-    skip "Archived: mutation functionality not currently available"
+    assert_raises(Platform::DSL::ExecutionError) do
+      Platform::DSL::Executors::Content.send(:find_record_for_mutation, Location, {})
+    end
   end
 
-  # Test find_record_for_mutation with non-id filter - ARCHIVED
+  # Test find_record_for_mutation with non-id filter
   test "find_record_for_mutation with non-id filter" do
-    skip "Archived: mutation functionality not currently available"
+    location = Location.create!(name: "Find By Name Test", city: "Test", lat: 43.6, lng: 18.6)
+
+    result = Platform::DSL::Executors::Content.send(:find_record_for_mutation, Location, { name: "Find By Name Test" })
+
+    assert_equal location.id, result.id
   end
 
-  # Test execute_update operation - ARCHIVED
+  # Test execute_update operation
   test "execute_update updates record" do
-    skip "Archived: mutation functionality not currently available"
+    location = Location.create!(name: "Original Name", city: "Test", lat: 43.7, lng: 18.7)
+
+    result = Platform::DSL::Executors::Content.send(:execute_update, "locations", { id: location.id }, { name: "Updated Name" })
+
+    assert result[:success]
+    assert_equal :update, result[:action]
+    location.reload
+    assert_equal "Updated Name", location.name
   end
 
-  # Test execute_delete with soft delete - ARCHIVED
+  # Test execute_delete with soft delete (Review model supports soft delete via discarded_at)
   test "execute_delete soft deletes when available" do
-    skip "Archived: mutation functionality not currently available"
+    location = Location.create!(name: "For Review", city: "Test", lat: 43.75, lng: 18.75)
+    review = Review.create!(reviewable: location, user: @test_user, rating: 4, comment: "Good review")
+
+    result = Platform::DSL::Executors::Content.send(:execute_delete, "reviews", { id: review.id })
+
+    assert result[:success]
   end
 
-  # Test count_proposals returns statistics - ARCHIVED
+  # Test count_proposals returns statistics
   test "count_proposals returns statistics hash" do
-    skip "Archived: proposals_query functionality not currently available"
+    ContentChange.create!(
+      user: @test_user,
+      change_type: :create_content,
+      changeable_class: "Location",
+      proposed_data: { name: "Count Test" },
+      status: :pending
+    )
+
+    result = Platform::DSL::Executors::Curator.send(:count_proposals, {})
+
+    assert result.is_a?(Hash)
+    assert result.key?(:total)
+    assert result.key?(:pending)
   end
 
-  # Test list_curators returns curators with stats - ARCHIVED
+  # Test list_curators returns curators with stats
   test "list_curators returns curators list" do
-    skip "Archived: curators_query functionality not currently available"
+    User.create!(
+      username: "curator_list_test_#{SecureRandom.hex(4)}",
+      password: "password123",
+      password_confirmation: "password123",
+      user_type: :curator
+    )
+
+    result = Platform::DSL::Executors::Curator.send(:list_curators, {})
+
+    assert result.is_a?(Hash)
+    assert result.key?(:curators)
+    assert result[:curators].is_a?(Array)
   end
 
-  # Test count_applications through DSL - ARCHIVED
+  # Test count_applications through DSL
   test "count_applications returns statistics" do
-    skip "Archived: applications_query functionality not currently available"
+    result = Platform::DSL::Executors::Curator.send(:count_applications, {})
+
+    assert result.is_a?(Hash)
+    assert result.key?(:total)
+    assert result.key?(:pending)
   end
 
-  # Test find_application - ARCHIVED
+  # Test find_application raises for missing id
   test "find_application raises for missing id" do
-    skip "Archived: applications_query functionality not currently available"
+    assert_raises(Platform::DSL::ExecutionError) do
+      Platform::DSL::Executors::Curator.send(:find_application, {})
+    end
   end
 
-  # Test format_application with real application - ARCHIVED
+  # Test format_application with real application
   test "format_application returns formatted application" do
-    skip "Archived: applications_query functionality not currently available"
+    application = CuratorApplication.create!(
+      user: @test_user,
+      motivation: "I want to help curate content for this platform. I have experience with tourism and content curation.",
+      status: :pending
+    )
+
+    result = Platform::DSL::Executors::Curator.send(:format_application, application)
+
+    assert result.is_a?(Hash)
     assert result.key?(:motivation_preview)
   end
 
-  # Test grep_code - ARCHIVED
+  # Test grep_code
   test "grep_code returns search results" do
-    skip "Archived: code_query functionality not currently available"
+    result = Platform::DSL::Executors::External.send(:grep_code, {}, "class Location")
+
+    assert result.is_a?(Hash)
+    assert result.key?(:pattern)
+    assert result.key?(:results)
   end
 
   # Test show_slow_queries
@@ -1610,8 +1715,12 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert result.is_a?(ActiveRecord::Relation)
   end
 
-  # Test get_city_coordinates with existing location - ARCHIVED
+  # Test get_city_coordinates with existing location
   test "get_city_coordinates returns coordinates from existing location" do
-    skip "Archived: external_query functionality not currently available"
+    result = Platform::DSL::Executors::External.send(:get_city_coordinates, "Sarajevo")
+
+    assert result.is_a?(Hash)
+    assert result.key?(:lat)
+    assert result.key?(:lng)
   end
 end
