@@ -430,4 +430,90 @@ class Platform::Knowledge::LayerTwoTest < ActiveSupport::TestCase
     # Should work with string keys
     assert cluster.member_count >= 0
   end
+
+  # Additional tests for uncovered branches
+
+  test "semantic_search when pgvector is not available returns empty array" do
+    KnowledgeCluster.stub(:semantic_search_available?, false) do
+      result = Platform::Knowledge::LayerTwo.semantic_search("test query")
+      assert_equal [], result
+    end
+  end
+
+  test "generate_all_embeddings skips clusters with blank summary" do
+    KnowledgeCluster.create!(slug: "blank-summary", name: "Blank Summary", summary: nil, embedding: nil)
+
+    KnowledgeCluster.stub(:semantic_search_available?, true) do
+      # Should not try to generate embedding for blank summary
+      assert_nothing_raised do
+        Platform::Knowledge::LayerTwo.generate_all_embeddings
+      end
+    end
+  end
+
+  test "generate_all_embeddings handles error gracefully" do
+    cluster = KnowledgeCluster.create!(slug: "error-test", name: "Error Test", summary: "Some summary", embedding: nil)
+
+    KnowledgeCluster.stub(:semantic_search_available?, true) do
+      # Mock generate_embedding to raise
+      Platform::Knowledge::LayerTwo.stub(:generate_embedding, ->(_text) { raise StandardError, "Test error" }) do
+        # Should not raise, just log warning
+        assert_nothing_raised do
+          Platform::Knowledge::LayerTwo.generate_all_embeddings
+        end
+      end
+    end
+  end
+
+  test "propose_clusters handles AI errors gracefully" do
+    locations = [
+      Location.new(id: 1, name: "Test", city: "City", description: "Description")
+    ]
+
+    # Stub generate_ai_cluster_proposals to raise
+    Platform::Knowledge::LayerTwo.stub(:generate_ai_cluster_proposals, ->(_data) { raise StandardError, "AI error" }) do
+      result = Platform::Knowledge::LayerTwo.send(:propose_clusters, locations)
+
+      # Should return fallback clusters
+      assert result.any?
+    end
+  end
+
+  test "propose_clusters handles locations with nil description" do
+    location_without_desc = Location.create!(
+      name: "No Description",
+      city: "Test City",
+      lat: 43.5,
+      lng: 18.2,
+      description: nil
+    )
+
+    Platform::Knowledge::LayerTwo.stub(:generate_ai_cluster_proposals, ->(_data) { [{ slug: "test", name: "Test" }] }) do
+      result = Platform::Knowledge::LayerTwo.send(:propose_clusters, [location_without_desc])
+
+      # Should handle nil description gracefully (truncate with &.)
+      assert result.any?
+    end
+  end
+
+  test "parse_cluster_response handles JSON parse error" do
+    # Valid JSON array format but with malformed inner content that causes parse error
+    content = '[{"slug: malformed json'
+
+    result = Platform::Knowledge::LayerTwo.send(:parse_cluster_response, content)
+
+    # Should return empty array on parse error
+    assert_equal [], result
+  end
+
+  test "generate_ai_cluster_proposals without RubyLLM model configured" do
+    sample_data = [{ id: 1, name: "Test", city: "City", description: "Desc" }]
+
+    RubyLLM.config.stub(:default_model, nil) do
+      result = Platform::Knowledge::LayerTwo.send(:generate_ai_cluster_proposals, sample_data)
+
+      # Should return fallback clusters
+      assert result.any?
+    end
+  end
 end
