@@ -834,4 +834,57 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
 
     assert_equal :list_proposals, result[:action]
   end
+
+  test "list_proposals with invalid change_type filter ignores it" do
+    # Test line 131: if ContentChange.change_types.key?(change_type) - false branch
+    ast = { filters: { change_type: "invalid_change_type_xyz" } }
+
+    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
+
+    # Should still return results (invalid change_type is ignored)
+    assert_equal :list_proposals, result[:action]
+    assert result[:proposals].is_a?(Array)
+  end
+
+  test "create_platform_user creates new user when no admin exists" do
+    # Test line 422-428: when User.admin.first returns nil
+    # Remove all admins
+    User.where(user_type: :admin).destroy_all
+
+    result = Platform::DSL::Executors::Curator.send(:create_platform_user)
+
+    # Should have created a new admin user
+    assert result.admin?
+    assert_equal "platform_system", result.username
+  end
+
+  test "show_proposal for unreviewed proposal has nil reviewed_at" do
+    # Test line 176: reviewed_at&.iso8601 when nil
+    @content_change.update_column(:reviewed_at, nil)
+
+    ast = {
+      filters: { id: @content_change.id },
+      operations: [{ name: :show }]
+    }
+
+    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
+
+    assert_equal :show_proposal, result[:action]
+    assert_nil result[:reviewed_at]
+  end
+
+  test "show_application for unreviewed application has nil reviewed_at" do
+    # Test line 254: reviewed_at&.iso8601 when nil
+    @curator_application.update_column(:reviewed_at, nil)
+
+    ast = {
+      filters: { id: @curator_application.id },
+      operations: [{ name: :show }]
+    }
+
+    result = Platform::DSL::Executors::Curator.execute_applications_query(ast)
+
+    assert_equal :show_application, result[:action]
+    assert_nil result[:reviewed_at]
+  end
 end

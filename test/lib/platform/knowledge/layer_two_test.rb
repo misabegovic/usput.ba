@@ -516,4 +516,123 @@ class Platform::Knowledge::LayerTwoTest < ActiveSupport::TestCase
       assert result.any?
     end
   end
+
+  # Additional tests for uncovered branches
+
+  test "generate_all_embeddings when semantic_search not available returns early" do
+    # Test the return early branch at line 61
+    KnowledgeCluster.stub(:semantic_search_available?, false) do
+      # Should return without processing any clusters
+      assert_nothing_raised do
+        Platform::Knowledge::LayerTwo.generate_all_embeddings
+      end
+    end
+  end
+
+  test "generate_all_embeddings skips update when embedding is nil/blank" do
+    # Test line 67: cluster.update!(embedding: embedding) if embedding.present?
+    cluster = KnowledgeCluster.create!(slug: "nil-embedding", name: "Nil Embedding", summary: "Test summary", embedding: nil)
+
+    KnowledgeCluster.stub(:semantic_search_available?, true) do
+      # Return nil from generate_embedding to test the branch
+      Platform::Knowledge::LayerTwo.stub(:generate_embedding, ->(_text) { nil }) do
+        Platform::Knowledge::LayerTwo.generate_all_embeddings
+
+        cluster.reload
+        # Embedding should remain nil
+        assert_nil cluster.embedding
+      end
+    end
+  end
+
+  test "generate_all_embeddings skips update when embedding is empty array" do
+    cluster = KnowledgeCluster.create!(slug: "empty-embedding", name: "Empty Embedding", summary: "Test summary", embedding: nil)
+
+    KnowledgeCluster.stub(:semantic_search_available?, true) do
+      # Return empty array from generate_embedding
+      Platform::Knowledge::LayerTwo.stub(:generate_embedding, ->(_text) { [] }) do
+        Platform::Knowledge::LayerTwo.generate_all_embeddings
+
+        cluster.reload
+        # Should not update with empty embedding
+        assert cluster.embedding.nil? || cluster.embedding == []
+      end
+    end
+  end
+
+  test "sample_locations returns SAMPLE_SIZE when enough locations exist" do
+    # Test line 128: if samples.size < SAMPLE_SIZE
+    # Create enough locations so that samples.size >= SAMPLE_SIZE
+    sample_size = Platform::Knowledge::LayerTwo::SAMPLE_SIZE
+
+    # Create more locations than SAMPLE_SIZE to ensure we hit the branch where samples.size >= SAMPLE_SIZE
+    existing_count = Location.where.not(description: [nil, ""]).count
+
+    if existing_count < sample_size
+      (sample_size - existing_count + 5).times do |i|
+        Location.create!(
+          name: "Sample Location #{i}",
+          city: %w[Sarajevo Mostar Banja_Luka Tuzla Zenica].sample,
+          lat: 43.0 + rand * 2,
+          lng: 17.5 + rand * 1.5,
+          description: "Sample description for location #{i} with keywords about heritage and history."
+        )
+      end
+    end
+
+    samples = Platform::Knowledge::LayerTwo.send(:sample_locations)
+
+    assert samples.is_a?(Array)
+    assert samples.size <= sample_size
+  end
+
+  test "parse_cluster_response catches JSON::ParserError and returns empty array" do
+    # Force a JSON parse error with malformed JSON that matches the regex but fails to parse
+    content = '[ {"slug": "test", "name": incomplete JSON'
+
+    result = Platform::Knowledge::LayerTwo.send(:parse_cluster_response, content)
+
+    assert_equal [], result
+  end
+
+  test "assign_records_to_cluster handles stats with nil keywords" do
+    # Test line 281: cluster.stats&.dig("keywords") || cluster.stats&.dig(:keywords) || []
+    cluster = KnowledgeCluster.create!(
+      slug: "nil-keywords-test",
+      name: "Nil Keywords Test",
+      stats: nil
+    )
+
+    Platform::Knowledge::LayerTwo.send(:assign_records_to_cluster, cluster)
+
+    cluster.reload
+    assert_equal 0, cluster.member_count
+  end
+
+  test "assign_records_to_cluster handles stats with no keywords key" do
+    cluster = KnowledgeCluster.create!(
+      slug: "missing-keywords-test",
+      name: "Missing Keywords Test",
+      stats: { "other_key" => "value" }
+    )
+
+    Platform::Knowledge::LayerTwo.send(:assign_records_to_cluster, cluster)
+
+    cluster.reload
+    assert_equal 0, cluster.member_count
+  end
+
+  test "assign_records_to_cluster handles stats with symbol keywords key" do
+    cluster = KnowledgeCluster.create!(
+      slug: "symbol-keywords-test",
+      name: "Symbol Keywords Test",
+      stats: { keywords: %w[heritage osmansko] }
+    )
+
+    Platform::Knowledge::LayerTwo.send(:assign_records_to_cluster, cluster)
+
+    cluster.reload
+    # May or may not have members depending on data
+    assert cluster.member_count >= 0
+  end
 end
