@@ -509,13 +509,20 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
 
   test "queue_summary returns empty hash when SolidQueue raises" do
     # This tests the rescue branch
-    if defined?(SolidQueue::Job)
-      SolidQueue::Job.stub(:where, -> { raise "Queue error" }) do
+    # SolidQueue may be partially defined but not fully loaded in test env
+    begin
+      if defined?(SolidQueue::Job) && SolidQueue::Job.respond_to?(:where)
+        SolidQueue::Job.stub(:where, -> { raise "Queue error" }) do
+          result = Platform::DSL::Executors::Infrastructure.send(:queue_summary)
+          assert_equal({}, result)
+        end
+      else
+        # SolidQueue not fully available, should return empty hash
         result = Platform::DSL::Executors::Infrastructure.send(:queue_summary)
         assert_equal({}, result)
       end
-    else
-      # SolidQueue not defined, should return empty hash
+    rescue NameError
+      # SolidQueue partially defined but dependencies missing
       result = Platform::DSL::Executors::Infrastructure.send(:queue_summary)
       assert_equal({}, result)
     end
