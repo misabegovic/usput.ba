@@ -264,12 +264,16 @@ class Platform::Services::SpamDetectorTest < ActiveSupport::TestCase
   end
 
   test "statistics with high activity curators" do
-    # Create a curator with high activity
-    @curator.update_column(:activity_count_today, 100)
+    # Create a curator with high activity above the 50% threshold
+    # MAX_ACTIVITIES_PER_DAY is 300, so 50% is 150
+    @curator.update_column(:activity_count_today, 200)
 
     stats = Platform::Services::SpamDetector.statistics
 
     assert stats[:high_activity_curators].is_a?(Array)
+    # Should include our high-activity curator
+    assert stats[:high_activity_curators].any? { |c| c[:id] == @curator.id }
+    assert stats[:high_activity_curators].any? { |c| c[:username] == @curator.username }
   end
 
   test "log_spam_block creates audit log" do
