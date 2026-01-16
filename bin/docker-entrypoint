@@ -1,8 +1,14 @@
 #!/bin/bash -e
 
-# If running the rails server then prepare database
+# If running the rails server then prepare all databases
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
+  # Prepare primary and queue databases
   ./bin/rails db:prepare
+
+  # Prepare platform database (if PLATFORM_DATABASE_URL is set)
+  if [ -n "$PLATFORM_DATABASE_URL" ]; then
+    ./bin/rails db:prepare:platform
+  fi
 fi
 
 exec "$@"

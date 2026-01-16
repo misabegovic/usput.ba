@@ -52,12 +52,15 @@ jobs:
         run: |
           psql -h localhost -U postgres -c "CREATE DATABASE klosaer_test;"
           psql -h localhost -U postgres -c "CREATE DATABASE klosaer_queue_test;"
-          psql -h localhost -U postgres -d klosaer_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
+          psql -h localhost -U postgres -c "CREATE DATABASE klosaer_platform_test;"
+          psql -h localhost -U postgres -d klosaer_platform_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
         env:
           PGPASSWORD: postgres
 
-      - name: Setup database
-        run: bin/rails db:schema:load
+      - name: Setup databases
+        run: |
+          bin/rails db:schema:load
+          bin/rails db:schema:load:platform
 
       - name: Run ERB lint
         run: bundle exec erb_lint --lint-all
