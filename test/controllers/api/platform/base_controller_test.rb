@@ -397,6 +397,26 @@ class ApiPlatformErrorRenderingTest < ActionDispatch::IntegrationTest
       end
     end
   end
+
+  test "validation error handles nil record" do
+    # Create an error without a record to test the nil branch
+    error = ActiveRecord::RecordInvalid.allocate
+    error.instance_variable_set(:@record, nil)
+
+    # Define message method since we allocated without initialization
+    error.define_singleton_method(:message) { "Validation failed" }
+
+    Platform::DSL.stub(:execute, ->(_) { raise error }) do
+      post api_platform_chat_path,
+           params: { query: "schema | stats" },
+           headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :unprocessable_entity
+      body = response.parsed_body
+      assert_equal "ValidationError", body["error"]
+      assert_equal 422, body["status"]
+    end
+  end
 end
 
 # Tests for rate limiting when not skipped

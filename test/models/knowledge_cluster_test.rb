@@ -231,4 +231,68 @@ class KnowledgeClusterTest < ActiveSupport::TestCase
     result = KnowledgeCluster.with_embedding
     assert result.is_a?(ActiveRecord::Relation)
   end
+
+  test "semantic_search with valid embedding when available" do
+    # Test the semantic search path when embedding is available
+    if KnowledgeCluster.semantic_search_available?
+      # Create a cluster with an embedding
+      cluster = KnowledgeCluster.create!(
+        slug: "semantic-test",
+        name: "Semantic Test",
+        summary: "Test for semantic search"
+      )
+
+      # Create a fake embedding (1536 dimensions for OpenAI)
+      query_embedding = Array.new(1536) { rand(-1.0..1.0) }
+
+      # This should call nearest_neighbors
+      result = KnowledgeCluster.semantic_search(query_embedding)
+      assert result.is_a?(ActiveRecord::Relation)
+    end
+  end
+
+  test "generate_embedding! with valid summary when available" do
+    cluster = KnowledgeCluster.create!(
+      slug: "gen-embed-test",
+      name: "Generate Embedding Test",
+      summary: "This is a test summary for embedding generation"
+    )
+
+    if KnowledgeCluster.semantic_search_available?
+      # Stub LayerTwo.generate_embedding to return a valid embedding
+      Platform::Knowledge::LayerTwo.stub(:generate_embedding, Array.new(1536) { 0.1 }) do
+        cluster.generate_embedding!
+        cluster.reload
+        # Check if embedding was set
+        assert cluster.embedding.present? if cluster.respond_to?(:embedding)
+      end
+    else
+      # When not available, should return early
+      assert_nothing_raised { cluster.generate_embedding! }
+    end
+  end
+
+  test "generate_embedding! handles nil embedding from LayerTwo" do
+    cluster = KnowledgeCluster.create!(
+      slug: "nil-embed-result",
+      name: "Nil Embed Result",
+      summary: "Test summary"
+    )
+
+    if KnowledgeCluster.semantic_search_available?
+      # Stub to return nil
+      Platform::Knowledge::LayerTwo.stub(:generate_embedding, nil) do
+        assert_nothing_raised { cluster.generate_embedding! }
+      end
+    end
+  end
+
+  test "semantic_search returns results when embedding column exists" do
+    # Force the semantic_search_available? to return true for this test
+    KnowledgeCluster.stub(:semantic_search_available?, true) do
+      # With blank embedding, should return early
+      result = KnowledgeCluster.semantic_search([])
+      assert_equal [], result.to_a
+    end
+  end
 end

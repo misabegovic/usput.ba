@@ -135,6 +135,15 @@ class Curator::Admin::PhotoSuggestionsControllerTest < ActionDispatch::Integrati
     assert_equal "reject_photo_suggestion", activity.action
   end
 
+  test "reject fails for already reviewed suggestion" do
+    @suggestion.update!(status: :rejected, reviewed_by: @admin, reviewed_at: Time.current)
+
+    login_as(@admin)
+    post reject_curator_admin_photo_suggestion_path(@suggestion)
+    assert_redirected_to curator_admin_photo_suggestions_path
+    assert_match /already.*reviewed/i, flash[:alert]
+  end
+
   private
 
   def login_as(user)

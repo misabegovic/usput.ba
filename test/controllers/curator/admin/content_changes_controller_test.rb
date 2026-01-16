@@ -117,6 +117,10 @@ class Curator::Admin::ContentChangesControllerTest < ActionDispatch::Integration
     assert_match /already.*reviewed/i, flash[:alert]
   end
 
+  # Note: The approval_failed branch (lines 33-34 in controller) is only reachable
+  # in a race condition where another request changes the status between the
+  # pending? check and the approve! call. This is defensive code that cannot
+  # be easily tested through integration tests without race conditions.
 
   # Reject tests
   test "reject requires admin" do

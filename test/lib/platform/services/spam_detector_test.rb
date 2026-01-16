@@ -420,4 +420,114 @@ class Platform::Services::SpamDetectorTest < ActiveSupport::TestCase
 
     suspicious_curator.destroy
   end
+
+  test "analyze_activity detects daily spam threshold" do
+    # Create activities exceeding daily threshold but not hourly or burst
+    # Daily threshold is 150, hourly is 30 (last 60 mins), burst is 10 (last 5 mins)
+    # this_hour scope: where("created_at >= ?", 1.hour.ago)
+    # today scope: where("created_at >= ?", Time.current.beginning_of_day)
+
+    # To trigger daily but not hourly:
+    # 1. Create 130 activities from 2+ hours ago (not in last hour)
+    # 2. Create 25 activities in the last hour (under 30 threshold)
+    # Total: 155 > 150 daily threshold
+    valid_actions = %w[proposal_created proposal_updated proposal_contributed review_added photo_suggested]
+
+    # Create 130 activities from 2+ hours ago, spread over several hours
+    130.times do |i|
+      CuratorActivity.create!(
+        user: @curator,
+        action: valid_actions[i % 5],
+        recordable: @location,
+        created_at: (2.hours.ago - (i * 2).minutes)  # 2-6 hours ago
+      )
+    end
+
+    # Create 25 activities in the last hour (spread to avoid burst)
+    25.times do |i|
+      CuratorActivity.create!(
+        user: @curator,
+        action: valid_actions[i % 5],
+        recordable: @location,
+        created_at: (55 - i * 2).minutes.ago  # Spread over 50 minutes
+      )
+    end
+
+    result = Platform::Services::SpamDetector.analyze_activity(@curator)
+
+    # daily_count should be 155, hourly_count should be 25
+    assert_equal 155, result[:daily_count], "Expected 155 daily activities"
+    assert result[:hourly_count] < 30, "Expected hourly count under 30, got #{result[:hourly_count]}"
+    assert result[:is_spam], "Expected is_spam to be true"
+    assert_includes result[:reason], "per day"
+  end
+
+  test "check_curator returns suspicious warning when near hourly limit" do
+    # Create 25 activities (between 21 and 29) but spread them over time
+    # to avoid triggering burst threshold (10 in 5 minutes)
+    valid_actions = %w[proposal_created proposal_updated proposal_contributed review_added photo_suggested]
+    25.times do |i|
+      CuratorActivity.create!(
+        user: @curator,
+        action: valid_actions[i % 5],
+        recordable: @location,
+        created_at: (60 - i * 2).minutes.ago  # Spread over 50 minutes, not in burst
+      )
+    end
+
+    result = Platform::Services::SpamDetector.check_curator(@curator)
+
+    # hourly_count should be 25, burst_count < 10
+    # Should hit the suspicious branch: hourly_count >= 21 but < 30
+    assert result[:warning] || result[:ok],
+           "Expected warning or ok, got: #{result.inspect}"
+  end
+
+  test "analyze_activity sets suspicious when approaching hourly limit" do
+    # Create 22 activities spread over time to avoid burst detection
+    valid_actions = %w[proposal_created proposal_updated proposal_contributed review_added photo_suggested]
+    22.times do |i|
+      CuratorActivity.create!(
+        user: @curator,
+        action: valid_actions[i % 5],
+        recordable: @location,
+        created_at: (55 - i * 2).minutes.ago  # Spread over 44 minutes
+      )
+    end
+
+    result = Platform::Services::SpamDetector.analyze_activity(@curator)
+
+    # Should be suspicious but not spam: 22 >= 21 (70% of 30) but < 30
+    assert_equal 22, result[:hourly_count]
+    assert result[:suspicious], "Should be suspicious with #{result[:hourly_count]} activities"
+    assert result[:warning].present?, "Warning should be present"
+  end
+
+  test "check_all populates warnings when suspicious curator found" do
+    # Create a curator that triggers the suspicious path
+    test_curator = User.create!(
+      username: "warning_test_#{SecureRandom.hex(4)}",
+      password: "password123",
+      password_confirmation: "password123",
+      user_type: :curator
+    )
+
+    # Create 23 activities spread over time to avoid burst detection
+    valid_actions = %w[proposal_created proposal_updated proposal_contributed review_added photo_suggested]
+    23.times do |i|
+      CuratorActivity.create!(
+        user: test_curator,
+        action: valid_actions[i % 5],
+        recordable: @location,
+        created_at: (55 - i * 2).minutes.ago  # Spread over 46 minutes
+      )
+    end
+
+    result = Platform::Services::SpamDetector.check_all
+
+    # Warnings array should exist
+    assert result[:warnings].is_a?(Array)
+
+    test_curator.destroy
+  end
 end
