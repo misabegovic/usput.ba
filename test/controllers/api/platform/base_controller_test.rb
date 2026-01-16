@@ -599,3 +599,118 @@ class ApiPlatformChatExecuteTest < ActionDispatch::IntegrationTest
   end
 end
 
+# Test production mode error handling
+class ApiPlatformProductionErrorHandlingTest < ActionDispatch::IntegrationTest
+  setup do
+    @api_key = "test_production_key"
+    ENV["PLATFORM_API_KEY"] = @api_key
+  end
+
+  teardown do
+    ENV["PLATFORM_API_KEY"] = nil
+  end
+
+  test "handle_standard_error hides message in production mode" do
+    # Stub Rails.env.production? to return true
+    Rails.env.stub(:production?, true) do
+      Platform::DSL.stub(:execute, ->(_) { raise "Secret error details" }) do
+        post api_platform_chat_path,
+             params: { query: "schema | stats" },
+             headers: { "Authorization" => "Bearer #{@api_key}" }
+
+        assert_response :internal_server_error
+        body = response.parsed_body
+        assert_equal "InternalError", body["error"]
+        # In production, message should be generic
+        assert_equal "An unexpected error occurred", body["message"]
+        # In production, details should be nil
+        assert_nil body["details"]
+      end
+    end
+  end
+
+  test "handle_standard_error shows details in non-production" do
+    # Verify non-production behavior (test env)
+    Platform::DSL.stub(:execute, ->(_) { raise "Test error details" }) do
+      post api_platform_chat_path,
+           params: { query: "schema | stats" },
+           headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :internal_server_error
+      body = response.parsed_body
+      # In test env, message should show actual error
+      assert_includes body["message"], "Test error details"
+      # In test env, details should include error class
+      assert body["details"].present?
+      assert_equal "RuntimeError", body["details"]["error_class"]
+    end
+  end
+end
+
+# Test actual rate limit exceeded response
+class ApiPlatformRateLimitActualExceededTest < ActionDispatch::IntegrationTest
+  setup do
+    @api_key = "test_actual_rate_key"
+    ENV["PLATFORM_API_KEY"] = @api_key
+    ENV["PLATFORM_API_RATE_LIMIT"] = "2"
+    Rails.cache.clear
+  end
+
+  teardown do
+    ENV["PLATFORM_API_KEY"] = nil
+    ENV["PLATFORM_API_RATE_LIMIT"] = nil
+    Rails.cache.clear
+  end
+
+  test "returns 429 when rate limit is exceeded" do
+    controller = ::API::Platform::ChatController.new
+    controller.request = ActionDispatch::TestRequest.create
+    controller.request.headers["Authorization"] = "Bearer #{@api_key}"
+    controller.response = ActionDispatch::TestResponse.new
+
+    # Track what was rendered
+    render_called = false
+    render_status = nil
+    render_json = nil
+
+    controller.define_singleton_method(:render) do |**opts|
+      render_called = true
+      render_status = opts[:status]
+      render_json = opts[:json]
+    end
+
+    # Stub skip_rate_limit? and cache.increment to simulate exceeded limit
+    controller.stub(:skip_rate_limit?, false) do
+      Rails.cache.stub(:increment, 100) do
+        controller.send(:check_rate_limit!)
+      end
+    end
+
+    assert render_called, "render should have been called"
+    assert_equal :too_many_requests, render_status
+    assert_equal "RateLimitExceeded", render_json[:error]
+    assert render_json[:details][:limit].present?
+    assert render_json[:details][:retry_after].present?
+  end
+
+  test "check_rate_limit does not render when within limit" do
+    controller = ::API::Platform::ChatController.new
+    controller.request = ActionDispatch::TestRequest.create
+    controller.request.headers["Authorization"] = "Bearer #{@api_key}"
+    controller.response = ActionDispatch::TestResponse.new
+
+    render_called = false
+    controller.define_singleton_method(:render) { |**_opts| render_called = true }
+
+    controller.stub(:skip_rate_limit?, false) do
+      Rails.cache.stub(:increment, 1) do
+        controller.send(:check_rate_limit!)
+      end
+    end
+
+    assert_not render_called, "render should not have been called when within limit"
+    # Headers should be set
+    assert controller.response.headers["X-RateLimit-Limit"].present?
+  end
+end
+

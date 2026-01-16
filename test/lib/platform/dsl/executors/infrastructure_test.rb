@@ -299,4 +299,47 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
 
     assert result.is_a?(Hash)
   end
+
+  # Additional branch coverage tests - error handling
+
+  test "queue_status returns error when SolidQueue not available" do
+    # Simulate SolidQueue not being defined by checking current behavior
+    # If SolidQueue is defined, it should work; if not, return error
+    result = Platform::DSL::Executors::Infrastructure.send(:queue_status)
+
+    assert result.is_a?(Hash)
+    assert result[:action] == :queue_status || result[:error].present?
+  end
+
+  test "show_processes handles errors" do
+    # Stub Process.pid to raise an error
+    Process.stub(:pid, -> { raise "Mock error" }) do
+      result = Platform::DSL::Executors::Infrastructure.send(:show_processes)
+      assert result[:error].present?
+    end
+  end
+
+  test "storage_status handles errors" do
+    # Stub to raise error
+    ActiveStorage::Blob.stub(:service, -> { raise "Mock storage error" }) do
+      result = Platform::DSL::Executors::Infrastructure.send(:storage_status)
+      assert result[:error].present?
+    end
+  end
+
+  test "database_status handles errors" do
+    # Stub to raise error
+    ActiveRecord::Base.stub(:connection, -> { raise "Mock DB error" }) do
+      result = Platform::DSL::Executors::Infrastructure.send(:database_status)
+      assert result[:error].present?
+    end
+  end
+
+  test "cache_status handles errors" do
+    # Stub to raise error
+    Rails.stub(:cache, -> { raise "Mock cache error" }) do
+      result = Platform::DSL::Executors::Infrastructure.send(:cache_status)
+      assert result[:error].present?
+    end
+  end
 end

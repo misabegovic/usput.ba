@@ -295,4 +295,27 @@ class KnowledgeClusterTest < ActiveSupport::TestCase
       assert_equal [], result.to_a
     end
   end
+
+  # Tests for uncovered branches when semantic_search is not available
+  test "semantic_search returns none when semantic_search_available returns false" do
+    KnowledgeCluster.stub(:semantic_search_available?, false) do
+      result = KnowledgeCluster.semantic_search([0.1, 0.2, 0.3])
+      assert_equal [], result.to_a
+    end
+  end
+
+  test "generate_embedding! returns early when semantic_search_available returns false" do
+    cluster = KnowledgeCluster.create!(
+      slug: "no-semantic",
+      name: "No Semantic",
+      summary: "Test summary"
+    )
+
+    # This ensures we hit the first return branch in generate_embedding!
+    KnowledgeCluster.stub(:semantic_search_available?, false) do
+      # Should return early without calling LayerTwo
+      result = cluster.generate_embedding!
+      assert_nil result
+    end
+  end
 end

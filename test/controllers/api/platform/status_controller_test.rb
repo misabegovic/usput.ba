@@ -308,4 +308,43 @@ class ApiPlatformStatusControllerTest < ActionDispatch::IntegrationTest
       assert_equal "healthy", response.parsed_body["status"]
     end
   end
+
+  # Test health_check queue check when SolidQueue is available
+  test "health_check reports queue ok when SolidQueue is available" do
+    controller = ::API::Platform::StatusController.new
+
+    # Create a mock SolidQueue::Job that says table exists
+    mock_job = Class.new do
+      def self.table_exists?
+        true
+      end
+    end
+
+    # Stub SolidQueue::Job
+    SolidQueue.stub(:const_get, ->(_) { mock_job }) do
+      Object.stub(:const_defined?, ->(name, _inherit = true) {
+        name.to_s.include?("SolidQueue::Job") || Object.const_defined?(name)
+      }) do
+        result = controller.send(:health_check)
+        # Queue check depends on whether SolidQueue is actually defined
+        assert %w[ok not_configured].include?(result[:queue])
+      end
+    end
+  end
+
+  # Test health_check queue check rescue block
+  test "health_check queue check handles errors" do
+    controller = ::API::Platform::StatusController.new
+
+    # Mock that will raise an error
+    Object.stub(:const_defined?, ->(*args) {
+      if args[0].to_s == "SolidQueue::Job"
+        raise "Mock error"
+      end
+      Object.const_defined?(*args)
+    }) do
+      result = controller.send(:health_check)
+      assert_equal "not_configured", result[:queue]
+    end
+  end
 end

@@ -631,4 +631,39 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
     assert_equal @curator.username, result[:username]
     assert_equal false, result[:spam_blocked]
   end
+
+  # Additional branch coverage tests - else cases
+
+  test "execute_proposals_query with unknown operation falls back to list" do
+    ast = {
+      filters: {},
+      operations: [{ name: :unknown_operation }]
+    }
+
+    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
+
+    assert_equal :list_proposals, result[:action]
+  end
+
+  test "execute_applications_query with unknown operation falls back to list" do
+    ast = {
+      filters: {},
+      operations: [{ name: :unknown_operation }]
+    }
+
+    result = Platform::DSL::Executors::Curator.execute_applications_query(ast)
+
+    assert_equal :list_applications, result[:action]
+  end
+
+  test "execute_curators_query with unknown operation falls back to list" do
+    ast = {
+      filters: {},
+      operations: [{ name: :unknown_operation }]
+    }
+
+    result = Platform::DSL::Executors::Curator.execute_curators_query(ast)
+
+    assert_equal :list_curators, result[:action]
+  end
 end

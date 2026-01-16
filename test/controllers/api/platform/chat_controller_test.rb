@@ -322,4 +322,17 @@ class ApiPlatformChatControllerTest < ActionDispatch::IntegrationTest
       assert_response :success
     end
   end
+
+  # Test stream_response error handling
+  test "stream handles errors gracefully" do
+    Platform::DSL.stub(:execute, ->(_) { raise "Unexpected stream error" }) do
+      post api_platform_chat_path,
+           params: { query: "schema | stats", stream: true },
+           headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_equal "text/event-stream", response.content_type.split(";").first
+      # Error should be in the stream output
+      assert_includes response.body, "error"
+    end
+  end
 end
