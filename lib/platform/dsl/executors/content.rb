@@ -79,6 +79,21 @@ module Platform
               end
             end
 
+            # For locations, check for existing by coordinates first (find-or-create pattern)
+            if is_location_table?(table) && data[:lat] && data[:lng]
+              existing = Location.find_by_coordinates_fuzzy(data[:lat], data[:lng])
+              if existing
+                return {
+                  success: true,
+                  action: :found_existing,
+                  record_type: model.name,
+                  record_id: existing.id,
+                  message: "Lokacija već postoji na tim koordinatama",
+                  data: format_created_record(existing)
+                }
+              end
+            end
+
             record = model.new(data)
 
             # Mark as AI-generated for models that support this flag
@@ -244,19 +259,84 @@ module Platform
                 enriched[:lng] = best_match[:lng]
               end
 
-              # Merge tags from Geoapify categories
-              if best_match[:types].present?
-                geoapify_tags = best_match[:types].map { |t| t.to_s.split(".").last }.compact.uniq
-                existing_tags = Array(data[:tags])
-                enriched[:tags] = (existing_tags + geoapify_tags).uniq
+              # Try to get more detailed place info if we have place_id
+              place_details = nil
+              if best_match[:place_id].present?
+                begin
+                  place_details = service.get_place_details(best_match[:place_id])
+                rescue StandardError => e
+                  Rails.logger.debug "[DSL::Content] Could not get place details: #{e.message}"
+                end
               end
 
-              Rails.logger.info "[DSL::Content] Enriched location '#{name}' with Geoapify: lat=#{enriched[:lat]}, lng=#{enriched[:lng]}"
+              # Merge tags from Geoapify categories (from details or text_search)
+              all_types = []
+              all_types += Array(place_details[:types]) if place_details.present?
+              all_types += Array(best_match[:types])
+              all_types += [best_match[:primary_type]] if best_match[:primary_type].present?
+
+              if all_types.present?
+                # Clean up tags - remove dots, underscores, get meaningful parts
+                geoapify_tags = all_types.flat_map do |t|
+                  parts = t.to_s.split(".")
+                  # Include both full category and last part
+                  [parts.last, parts[-2]].compact.map { |p| p.gsub("_", " ") }
+                end.compact.uniq.reject(&:blank?)
+
+                existing_tags = Array(data[:tags])
+                enriched[:tags] = (existing_tags + geoapify_tags).uniq.first(15) # Limit to 15 tags
+              end
+
+              # Infer budget from price_level if not set
+              unless data[:budget].present?
+                price_level = place_details&.dig(:price_level) || best_match[:price_level]
+                if price_level.present?
+                  enriched[:budget] = case price_level.to_s.to_sym
+                  when :low, :cheap, :inexpensive then :low
+                  when :high, :expensive then :high
+                  else :medium
+                  end
+                end
+              end
+
+              # Infer seasons based on location type (outdoor activities are seasonal)
+              unless data[:seasons].present?
+                enriched[:seasons] = infer_seasons_from_types(all_types)
+              end
+
+              Rails.logger.info "[DSL::Content] Enriched location '#{name}' with Geoapify: lat=#{enriched[:lat]}, lng=#{enriched[:lng]}, tags=#{enriched[:tags]&.join(', ')}"
               enriched
             rescue StandardError => e
               Rails.logger.warn "[DSL::Content] Geoapify enrichment failed for '#{name}': #{e.message}"
               data # Return original data if Geoapify fails
             end
+          end
+
+          # Infer appropriate seasons based on location types
+          # @param types [Array<String>] Location types/categories
+          # @return [Array<String>] Inferred seasons (empty = year-round)
+          def infer_seasons_from_types(types)
+            return [] if types.blank?
+
+            type_str = types.join(" ").downcase
+
+            # Outdoor/summer activities
+            if type_str.match?(/beach|swimming|water_park|rafting|kayak|outdoor/)
+              return %w[spring summer]
+            end
+
+            # Winter activities
+            if type_str.match?(/ski|ice_rink|winter/)
+              return %w[winter]
+            end
+
+            # Nature activities (best in spring/summer/fall)
+            if type_str.match?(/hiking|mountain|peak|trail|nature|forest|national_park/)
+              return %w[spring summer fall]
+            end
+
+            # Indoor activities - year-round
+            [] # Empty means year-round
           end
 
           def format_created_record(record)
@@ -268,13 +348,21 @@ module Platform
                 city: record.city,
                 lat: record.lat,
                 lng: record.lng,
+                tags: record.tags,
+                budget: record.budget,
+                seasons: record.seasons,
+                experience_types: record.experience_types.pluck(:key),
                 description: record.description&.truncate(100)
               }
             when Experience
               {
                 id: record.id,
                 title: record.title,
-                description: record.description&.truncate(100)
+                description: record.description&.truncate(100),
+                estimated_duration: record.estimated_duration,
+                formatted_duration: record.formatted_duration,
+                seasons: record.seasons,
+                locations_count: record.locations_count
               }
             else
               record.attributes.slice("id", "name", "title", "created_at")
@@ -373,18 +461,26 @@ module Platform
             location_ids = ast[:location_ids]
             raise ExecutionError, "Potrebne su bar 2 lokacije za generisanje iskustva" if location_ids.size < 2
 
-            locations = Location.where(id: location_ids)
-            missing = location_ids - locations.pluck(:id)
+            locations = Location.where(id: location_ids).to_a
+            # Maintain order from input
+            locations = location_ids.map { |id| locations.find { |l| l.id == id } }.compact
+            missing = location_ids - locations.map(&:id)
             raise ExecutionError, "Lokacije nisu pronađene: #{missing.join(', ')}" if missing.any?
 
             prompt = build_experience_prompt(locations)
             experience_data = generate_experience_with_llm(prompt, locations)
 
-            duration_minutes = (experience_data[:duration_hours] || locations.size) * 60
+            # Calculate realistic duration based on distances and visit time
+            duration_minutes = calculate_experience_duration(locations, experience_data[:duration_hours])
+
+            # Infer seasons from locations
+            experience_seasons = infer_experience_seasons(locations)
+
             experience = Experience.new(
               title: experience_data[:title],
               description: experience_data[:description],
               estimated_duration: duration_minutes,
+              seasons: experience_seasons,
               ai_generated: true
             )
 
@@ -405,8 +501,82 @@ module Platform
               experience_id: experience.id,
               title: experience.title,
               locations_count: locations.size,
+              estimated_duration: duration_minutes,
+              formatted_duration: experience.formatted_duration,
+              seasons: experience_seasons,
               description: experience.description&.truncate(150)
             }
+          end
+
+          # Calculate realistic experience duration based on:
+          # - Travel time between locations (driving ~60km/h average with stops)
+          # - Visit time per location (30-60min depending on type)
+          # - Buffer time for transitions
+          #
+          # @param locations [Array<Location>] Ordered list of locations
+          # @param llm_estimate [Integer, nil] LLM's estimate in hours (used as minimum)
+          # @return [Integer] Duration in minutes
+          def calculate_experience_duration(locations, llm_estimate = nil)
+            return (llm_estimate || 2) * 60 if locations.size < 2
+
+            total_distance_km = 0
+            total_visit_time = 0
+
+            locations.each_cons(2) do |loc1, loc2|
+              if loc1.geocoded? && loc2.geocoded?
+                distance = loc1.distance_from(loc2.lat, loc2.lng)
+                total_distance_km += distance if distance
+              end
+            end
+
+            # Visit time per location (base 30min + extra for museums/historical sites)
+            locations.each do |loc|
+              visit_time = 30 # Base visit time
+              tags = loc.tags.join(" ").downcase
+
+              if tags.match?(/museum|gallery|historical|castle|fort|monastery/)
+                visit_time = 60 # Longer visit for cultural sites
+              elsif tags.match?(/restaurant|cafe|catering/)
+                visit_time = 45 # Meal time
+              elsif tags.match?(/viewpoint|memorial|monument/)
+                visit_time = 20 # Quick stops
+              end
+
+              total_visit_time += visit_time
+            end
+
+            # Travel time: assume 50km/h average (accounting for local roads, stops)
+            travel_time_minutes = (total_distance_km / 50.0 * 60).round
+
+            # Buffer time (15min per transition)
+            buffer_time = (locations.size - 1) * 15
+
+            calculated_duration = travel_time_minutes + total_visit_time + buffer_time
+
+            # Use LLM estimate as a sanity check (minimum)
+            llm_minutes = (llm_estimate || 0) * 60
+            [calculated_duration, llm_minutes, 60].max # At least 1 hour
+          end
+
+          # Infer experience seasons from location seasons
+          # Experience is available when ALL locations are available
+          #
+          # @param locations [Array<Location>] Locations in the experience
+          # @return [Array<String>] Common seasons (empty = year-round)
+          def infer_experience_seasons(locations)
+            all_seasons = Location::SEASONS
+
+            # Collect seasons from each location
+            location_seasons = locations.map(&:seasons)
+
+            # If any location is year-round (empty seasons), use all seasons for intersection
+            location_seasons = location_seasons.map { |s| s.empty? ? all_seasons : s }
+
+            # Find intersection - experience available only when all locations are available
+            common_seasons = location_seasons.reduce(all_seasons) { |acc, s| acc & s }
+
+            # If all seasons are available, return empty (year-round)
+            common_seasons.sort == all_seasons.sort ? [] : common_seasons
           end
 
           # generate_with_llm is provided by LLMHelper
@@ -513,20 +683,46 @@ module Platform
           def generate_experience_with_llm(prompt, locations)
             response = generate_with_llm(prompt)
 
+            # Extract JSON from response (may be wrapped in markdown code blocks)
+            json_str = extract_json_from_response(response)
+
             begin
-              data = JSON.parse(response, symbolize_names: true)
+              data = JSON.parse(json_str, symbolize_names: true)
               {
                 title: data[:title] || "Iskustvo: #{locations.first.city}",
                 description: data[:description] || "Iskustvo koje uključuje #{locations.size} lokacija.",
                 duration_hours: data[:duration_hours] || locations.size
               }
             rescue JSON::ParserError
+              # If JSON parsing still fails, try to extract meaningful content
               {
                 title: "Iskustvo: #{locations.map(&:city).uniq.join(' - ')}",
-                description: response.truncate(500),
+                description: clean_llm_response(response).truncate(500),
                 duration_hours: locations.size
               }
             end
+          end
+
+          # Extract JSON from LLM response that may include markdown code blocks
+          def extract_json_from_response(response)
+            # Remove markdown code blocks (```json ... ``` or ``` ... ```)
+            cleaned = response.gsub(/```(?:json)?\s*\n?/i, "").strip
+
+            # Try to find JSON object in response
+            if match = cleaned.match(/\{[\s\S]*\}/)
+              match[0]
+            else
+              cleaned
+            end
+          end
+
+          # Clean LLM response for use as plain text
+          def clean_llm_response(response)
+            response
+              .gsub(/```(?:json)?\s*\n?/i, "")  # Remove code blocks
+              .gsub(/^\s*\{[\s\S]*\}\s*$/m, "") # Remove JSON objects
+              .gsub(/\n{3,}/, "\n\n")           # Normalize whitespace
+              .strip
           end
 
           # ===================

@@ -19,6 +19,8 @@ module Platform
           "experience" => "Experience",
           "plans" => "Plan",
           "plan" => "Plan",
+          "plan_experiences" => "PlanExperience",
+          "plan_experience" => "PlanExperience",
           "audio_tours" => "AudioTour",
           "audio_tour" => "AudioTour",
           "users" => "User",

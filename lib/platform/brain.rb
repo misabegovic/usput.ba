@@ -22,6 +22,10 @@ module Platform
     # Marker za početak DSL bloka
     DSL_START = "[DSL:"
 
+    # Regex za jednostavno matchiranje DSL blokova (za testiranje i jednostavne slučajeve)
+    # Za kompleksnije slučajeve sa ugniježdenim zagradama koristi extract_dsl_queries
+    DSL_BLOCK_REGEX = /\[DSL:\s*([^\[\]]*(?:\{[^}]*\}[^\[\]]*)*)\]/m
+
     attr_reader :conversation, :chat
 
     def initialize(conversation)
