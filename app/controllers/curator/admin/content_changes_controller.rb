@@ -41,10 +41,14 @@ module Curator
 
       def reject
         if @content_change.pending?
-          @content_change.reject!(current_user, notes: params[:admin_notes])
-          record_activity(:reject_content_change, recordable: @content_change)
-          redirect_to curator_admin_content_changes_path,
-            notice: t("curator.admin.content_changes.rejected")
+          if @content_change.reject!(current_user, notes: params[:admin_notes])
+            record_activity(:reject_content_change, recordable: @content_change)
+            redirect_to curator_admin_content_changes_path,
+              notice: t("curator.admin.content_changes.rejected")
+          else
+            redirect_to curator_admin_content_change_path(@content_change),
+              alert: t("curator.admin.content_changes.rejection_failed")
+          end
         else
           redirect_to curator_admin_content_changes_path,
             alert: t("curator.admin.content_changes.already_reviewed")

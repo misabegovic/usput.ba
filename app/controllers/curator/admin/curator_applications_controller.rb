@@ -23,10 +23,14 @@ module Curator
 
       def approve
         if @application.pending?
-          @application.approve!(current_user)
-          record_activity(:approve_curator_application, recordable: @application)
-          redirect_to curator_admin_curator_applications_path,
-            notice: t("curator.admin.curator_applications.approved", username: @application.user.username)
+          if @application.approve!(current_user)
+            record_activity(:approve_curator_application, recordable: @application)
+            redirect_to curator_admin_curator_applications_path,
+              notice: t("curator.admin.curator_applications.approved", username: @application.user.username)
+          else
+            redirect_to curator_admin_curator_application_path(@application),
+              alert: t("curator.admin.curator_applications.approval_failed")
+          end
         else
           redirect_to curator_admin_curator_applications_path,
             alert: t("curator.admin.curator_applications.already_reviewed")
@@ -35,10 +39,14 @@ module Curator
 
       def reject
         if @application.pending?
-          @application.reject!(current_user, params[:admin_notes])
-          record_activity(:reject_curator_application, recordable: @application)
-          redirect_to curator_admin_curator_applications_path,
-            notice: t("curator.admin.curator_applications.rejected", username: @application.user.username)
+          if @application.reject!(current_user, params[:admin_notes])
+            record_activity(:reject_curator_application, recordable: @application)
+            redirect_to curator_admin_curator_applications_path,
+              notice: t("curator.admin.curator_applications.rejected", username: @application.user.username)
+          else
+            redirect_to curator_admin_curator_application_path(@application),
+              alert: t("curator.admin.curator_applications.rejection_failed")
+          end
         else
           redirect_to curator_admin_curator_applications_path,
             alert: t("curator.admin.curator_applications.already_reviewed")

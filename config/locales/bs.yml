@@ -1096,6 +1096,7 @@ bs:
         approved: Prijedlog fotografije uspješno odobren
         rejected: Prijedlog fotografije uspješno odbijen
         approval_failed: Nije uspjelo odobrenje prijedloga fotografije
+        rejection_failed: Nije uspjelo odbijanje prijedloga fotografije
         already_reviewed: Ovaj prijedlog fotografije je već pregledan
       users:
         title: Upravljanje korisnicima
@@ -1106,12 +1107,15 @@ bs:
         title: Prijave za kuratora
         approved: "%{username} je odobren kao kurator"
         rejected: Prijava korisnika %{username} je odbijena
+        approval_failed: Nije uspjelo odobrenje prijave
+        rejection_failed: Nije uspjelo odbijanje prijave
         already_reviewed: Ova prijava je već pregledana
       content_changes:
         title: Promjene sadržaja
         approved: Promjena sadržaja odobrena i primijenjena uspješno
         rejected: Promjena sadržaja uspješno odbijena
         approval_failed: Nije uspjelo primjenjivanje promjene sadržaja
+        rejection_failed: Nije uspjelo odbijanje promjene sadržaja
         already_reviewed: Ova promjena sadržaja je već pregledana
   travel_profile:
     checking_location: Provjeravamo vašu lokaciju...

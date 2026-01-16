@@ -1342,6 +1342,7 @@ en:
         approved: Photo suggestion approved successfully
         rejected: Photo suggestion rejected successfully
         approval_failed: Failed to approve photo suggestion
+        rejection_failed: Failed to reject photo suggestion
         already_reviewed: This photo suggestion has already been reviewed
       users:
         title: User Management
@@ -1352,12 +1353,15 @@ en:
         title: Curator Applications
         approved: "%{username} has been approved as a curator"
         rejected: "%{username}'s application has been rejected"
+        approval_failed: Failed to approve application
+        rejection_failed: Failed to reject application
         already_reviewed: This application has already been reviewed
       content_changes:
         title: Content Changes
         approved: Content change approved and applied successfully
         rejected: Content change rejected successfully
         approval_failed: Failed to apply content change
+        rejection_failed: Failed to reject content change
         already_reviewed: This content change has already been reviewed
   travel_profile:
     checking_location: Checking your location...

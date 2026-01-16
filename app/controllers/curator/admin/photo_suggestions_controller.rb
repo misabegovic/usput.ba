@@ -39,10 +39,14 @@ module Curator
 
       def reject
         if @photo_suggestion.pending?
-          @photo_suggestion.reject!(current_user, notes: params[:admin_notes])
-          record_activity(:reject_photo_suggestion, recordable: @photo_suggestion)
-          redirect_to curator_admin_photo_suggestions_path,
-            notice: t("curator.admin.photo_suggestions.rejected")
+          if @photo_suggestion.reject!(current_user, notes: params[:admin_notes])
+            record_activity(:reject_photo_suggestion, recordable: @photo_suggestion)
+            redirect_to curator_admin_photo_suggestions_path,
+              notice: t("curator.admin.photo_suggestions.rejected")
+          else
+            redirect_to curator_admin_photo_suggestion_path(@photo_suggestion),
+              alert: t("curator.admin.photo_suggestions.rejection_failed")
+          end
         else
           redirect_to curator_admin_photo_suggestions_path,
             alert: t("curator.admin.photo_suggestions.already_reviewed")
