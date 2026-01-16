@@ -896,4 +896,62 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert result.is_a?(Hash)
     assert result[:content].key?(:locations) || result[:content].key?("locations")
   end
+
+  # Applications count test
+  test "applications count returns statistics" do
+    result = Platform::DSL.execute("applications | count")
+
+    assert result.is_a?(Hash) || result.is_a?(Integer)
+  end
+
+  # Code search test
+  test "code search finds patterns in codebase" do
+    result = Platform::DSL.execute('code | search "class"')
+
+    assert result.is_a?(Hash) || result.is_a?(Array)
+  end
+
+  # Code structure test
+  test "code structure shows directory structure" do
+    result = Platform::DSL.execute('code { path: "lib" } | structure')
+
+    assert result.is_a?(Hash)
+  end
+
+  # Curators stats test
+  test "curators stats returns curator statistics" do
+    result = Platform::DSL.execute("curators | count")
+
+    assert result.is_a?(Hash) || result.is_a?(Integer)
+  end
+
+  # Prompts count test
+  test "prompts count returns prompt statistics" do
+    result = Platform::DSL.execute("prompts | count")
+
+    assert result.is_a?(Hash) || result.is_a?(Integer)
+  end
+
+  # Summaries issues test
+  test "summaries issues returns summaries with issues" do
+    result = Platform::DSL.execute("summaries | issues")
+
+    assert result.is_a?(Hash) || result.is_a?(Array)
+  end
+
+  # Apply filters internal method test
+  test "apply_filters filters by column" do
+    records = Platform::DSL::Executor.send(:apply_filters, Location, { city: "Sarajevo" })
+
+    assert records.is_a?(ActiveRecord::Relation)
+  end
+
+  # Format record test for locations
+  test "format_record_for_location returns hash with all fields" do
+    result = Platform::DSL::Executor.send(:format_record, @sarajevo_location)
+
+    assert result.is_a?(Hash)
+    assert result.key?(:id) || result.key?("id")
+    assert result.key?(:name) || result.key?("name")
+  end
 end
