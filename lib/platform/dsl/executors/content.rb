@@ -67,6 +67,11 @@ module Platform
             model = TableQuery.resolve_model(table)
             validate_mutation_data!(table, data, :create)
 
+            # For locations, enrich with Geoapify data (coordinates, tags, etc.)
+            if is_location_table?(table)
+              data = enrich_location_with_geoapify(data)
+            end
+
             # For locations, validate BiH boundary
             if is_location_table?(table) && data[:lat] && data[:lng]
               unless Geo::BihBoundaryValidator.inside_bih?(data[:lat], data[:lng])
@@ -195,6 +200,63 @@ module Platform
 
           def is_experience_table?(table)
             %w[experience experiences].include?(table.to_s.downcase)
+          end
+
+          # Enrich location data using Geoapify
+          # Uses name + city to find accurate coordinates, tags, and other metadata
+          #
+          # @param data [Hash] Location data with at least :name and :city
+          # @return [Hash] Enriched data with Geoapify information
+          def enrich_location_with_geoapify(data)
+            return data if data[:skip_geoapify] # Allow bypassing for tests
+
+            name = data[:name]
+            city = data[:city]
+            return data unless name.present?
+
+            begin
+              service = GeoapifyService.new
+              query = city.present? ? "#{name}, #{city}, Bosnia and Herzegovina" : "#{name}, Bosnia and Herzegovina"
+
+              results = service.text_search(query: query)
+              return data if results.empty?
+
+              # Filter results to only include locations within BiH boundaries
+              # This is critical because Geoapify might return results from other countries
+              bih_results = results.select do |r|
+                r[:lat].present? && r[:lng].present? &&
+                  Geo::BihBoundaryValidator.inside_bih?(r[:lat], r[:lng])
+              end
+
+              if bih_results.empty?
+                Rails.logger.warn "[DSL::Content] Geoapify returned no results within BiH for '#{name}'"
+                return data
+              end
+
+              # Find best match - prefer exact name match, then first result
+              best_match = bih_results.find { |r| r[:name]&.downcase&.include?(name.downcase) } || bih_results.first
+
+              enriched = data.dup
+
+              # Use Geoapify coordinates if not explicitly provided
+              unless data[:lat].present? && data[:lng].present?
+                enriched[:lat] = best_match[:lat]
+                enriched[:lng] = best_match[:lng]
+              end
+
+              # Merge tags from Geoapify categories
+              if best_match[:types].present?
+                geoapify_tags = best_match[:types].map { |t| t.to_s.split(".").last }.compact.uniq
+                existing_tags = Array(data[:tags])
+                enriched[:tags] = (existing_tags + geoapify_tags).uniq
+              end
+
+              Rails.logger.info "[DSL::Content] Enriched location '#{name}' with Geoapify: lat=#{enriched[:lat]}, lng=#{enriched[:lng]}"
+              enriched
+            rescue StandardError => e
+              Rails.logger.warn "[DSL::Content] Geoapify enrichment failed for '#{name}': #{e.message}"
+              data # Return original data if Geoapify fails
+            end
           end
 
           def format_created_record(record)
