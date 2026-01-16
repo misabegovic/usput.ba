@@ -292,4 +292,20 @@ class ApiPlatformStatusControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
   end
+
+  # Additional health status tests
+
+  test "health returns healthy when api_keys is not a hash" do
+    Platform::DSL.stub(:execute, {
+      database: { status: "ok" },
+      api_keys: nil
+    }) do
+      get api_platform_health_path,
+          headers: { "Authorization" => "Bearer #{@api_key}" }
+
+      assert_response :success
+      # Should skip api_keys check and return healthy
+      assert_equal "healthy", response.parsed_body["status"]
+    end
+  end
 end
