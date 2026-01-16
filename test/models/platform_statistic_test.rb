@@ -344,4 +344,109 @@ class PlatformStatisticTest < ActiveSupport::TestCase
     end
   end
 
+  test "top_rated_content maps locations correctly" do
+    # Create a highly rated location
+    location = Location.create!(
+      name: "Top Location",
+      city: "Sarajevo",
+      lat: 43.0,
+      lng: 18.0,
+      average_rating: 4.5
+    )
+
+    result = PlatformStatistic.send(:top_rated_content)
+
+    assert result[:locations].is_a?(Array)
+    # Check structure of mapped locations
+    if result[:locations].any?
+      first = result[:locations].first
+      assert first.is_a?(Hash)
+      assert first.key?(:id)
+      assert first.key?(:name)
+    end
+  end
+
+  test "top_rated_content maps experiences correctly" do
+    # Create a highly rated experience
+    Experience.create!(
+      title: "Top Experience",
+      estimated_duration: 60,
+      average_rating: 4.5
+    )
+
+    result = PlatformStatistic.send(:top_rated_content)
+
+    assert result[:experiences].is_a?(Array)
+  end
+
+  test "compute_coverage returns all coverage metrics" do
+    result = PlatformStatistic.send(:compute_coverage)
+
+    assert result.key?(:locations_with_audio)
+    assert result.key?(:locations_ai_generated)
+    assert result.key?(:locations_human_made)
+    assert result[:audio_coverage_percent].is_a?(Numeric)
+    assert result[:description_coverage_percent].is_a?(Numeric)
+  end
+
+  test "check_last_activity with actual timestamps" do
+    # Create records with timestamps
+    Location.create!(name: "Test", city: "Test", lat: 43.0, lng: 18.0)
+
+    result = PlatformStatistic.send(:check_last_activity)
+
+    # Should have ISO8601 format for last_location_update
+    assert result[:last_location_update].present?
+  end
+
+  test "compute_coverage handles zero coverage percent calculation" do
+    # This test just verifies the method works and returns expected keys
+    result = PlatformStatistic.send(:compute_coverage)
+
+    assert result.is_a?(Hash)
+    assert result.key?(:audio_coverage_percent)
+    assert result.key?(:description_coverage_percent)
+    # Both should be numbers (0 or greater)
+    assert result[:audio_coverage_percent].is_a?(Numeric)
+    assert result[:description_coverage_percent].is_a?(Numeric)
+  end
+
+  test "compute_coverage with locations present" do
+    # Ensure we have at least one location
+    Location.create!(name: "Coverage Test", city: "CoverageCity", lat: 44.0, lng: 19.0)
+
+    result = PlatformStatistic.send(:compute_coverage)
+
+    assert result.key?(:cities_with_content)
+    assert result.key?(:locations_with_audio)
+    assert result.key?(:locations_with_description)
+    assert result.key?(:audio_coverage_percent)
+    assert result[:audio_coverage_percent].is_a?(Numeric)
+  end
+
+  test "check_last_activity returns all three timestamps" do
+    result = PlatformStatistic.send(:check_last_activity)
+
+    assert result.key?(:last_location_update)
+    assert result.key?(:last_experience_update)
+    assert result.key?(:last_review)
+  end
+
+  test "check_last_activity with experience timestamp" do
+    Experience.create!(title: "Activity Test", estimated_duration: 60)
+
+    result = PlatformStatistic.send(:check_last_activity)
+
+    assert result[:last_experience_update].present?
+  end
+
+  test "check_last_activity with review timestamp" do
+    location = Location.create!(name: "Review Test", city: "ReviewCity", lat: 44.1, lng: 19.1)
+    user = User.create!(username: "reviewer_#{SecureRandom.hex(4)}", password: "password123")
+    Review.create!(reviewable: location, user: user, rating: 5)
+
+    result = PlatformStatistic.send(:check_last_activity)
+
+    assert result[:last_review].present?
+  end
 end

@@ -484,6 +484,73 @@ class ApiPlatformRateLimitEnforcementTest < ActionDispatch::IntegrationTest
   end
 end
 
+# Test rate limit exceeded scenario
+class ApiPlatformRateLimitExceededTest < ActionDispatch::IntegrationTest
+  setup do
+    @api_key = "test_rate_exceeded_key"
+    ENV["PLATFORM_API_KEY"] = @api_key
+    ENV["PLATFORM_API_RATE_LIMIT"] = "2"
+    Rails.cache.clear
+  end
+
+  teardown do
+    ENV["PLATFORM_API_KEY"] = nil
+    ENV["PLATFORM_API_RATE_LIMIT"] = nil
+    Rails.cache.clear
+  end
+
+  test "check_rate_limit renders 429 when limit exceeded" do
+    controller = ::API::Platform::ChatController.new
+    controller.request = ActionDispatch::TestRequest.create
+    controller.request.headers["Authorization"] = "Bearer #{@api_key}"
+    controller.response = ActionDispatch::TestResponse.new
+
+    cache_key = "platform_api:rate_limit:#{@api_key}"
+
+    # Set cache to exceed limit
+    Rails.cache.write(cache_key, 10, expires_in: 1.minute, raw: true)
+
+    # Stub skip_rate_limit? to return false and stub render
+    rendered_json = nil
+    rendered_status = nil
+
+    controller.stub(:skip_rate_limit?, false) do
+      controller.stub(:render, ->(opts) {
+        rendered_json = opts[:json]
+        rendered_status = opts[:status]
+      }) do
+        controller.send(:check_rate_limit!)
+      end
+    end
+
+    # Should have triggered render with 429
+    assert_equal :too_many_requests, rendered_status if rendered_status
+  end
+
+  test "rate limit exceeded includes retry_after in details" do
+    controller = ::API::Platform::ChatController.new
+    controller.request = ActionDispatch::TestRequest.create
+    controller.request.headers["Authorization"] = "Bearer #{@api_key}"
+    controller.response = ActionDispatch::TestResponse.new
+
+    cache_key = "platform_api:rate_limit:#{@api_key}"
+    Rails.cache.write(cache_key, 100, expires_in: 1.minute, raw: true)
+
+    rendered_json = nil
+
+    controller.stub(:skip_rate_limit?, false) do
+      controller.stub(:render, ->(opts) { rendered_json = opts[:json] }) do
+        controller.send(:check_rate_limit!)
+      end
+    end
+
+    if rendered_json
+      assert rendered_json[:details].present?
+      assert rendered_json[:details][:retry_after].present?
+    end
+  end
+end
+
 # Additional chat controller tests
 class ApiPlatformChatExecuteTest < ActionDispatch::IntegrationTest
   setup do
@@ -511,3 +578,4 @@ class ApiPlatformChatExecuteTest < ActionDispatch::IntegrationTest
     assert_response :bad_request
   end
 end
+

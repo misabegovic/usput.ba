@@ -480,4 +480,82 @@ class Platform::Knowledge::LayerOneTest < ActiveSupport::TestCase
     # Should be truncated to 200 chars + ellipsis
     assert result[:description].length <= 203
   end
+
+  test "collect_city_stats with zero locations returns zero coverage" do
+    # Empty query returns zero stats
+    locations = Location.where("1=0")
+    stats = Platform::Knowledge::LayerOne.send(:collect_city_stats, "EmptyCity", locations)
+
+    assert_equal 0, stats[:total_locations]
+    assert_equal 0, stats[:audio_coverage]
+    assert_equal 0, stats[:description_coverage]
+  end
+
+  test "detect_patterns for category with wide distribution" do
+    # Create locations in many different cities
+    base_lat = 45.0
+    base_lng = 19.0
+
+    category = LocationCategory.find_or_create_by!(key: "wide_dist", name: "Wide Distribution")
+
+    6.times do |i|
+      loc = Location.create!(
+        name: "Wide #{i}",
+        city: "City#{i}",
+        lat: base_lat + i * 0.1,
+        lng: base_lng + i * 0.1
+      )
+      LocationCategoryAssignment.create!(location: loc, location_category: category)
+    end
+
+    result = Platform::Knowledge::LayerOne.generate_summary(:category, "wide_dist")
+
+    # Should detect wide distribution pattern
+    assert result.patterns.include?("Široka geografska distribucija")
+  end
+
+  test "detect_patterns for moderate audio coverage" do
+    # Create locations where audio coverage is between 30-70%
+    # Create 2 locations, 1 with audio
+    base_lat = 46.0
+    base_lng = 20.0
+
+    loc_with_audio = Location.create!(
+      name: "With Audio Mod",
+      city: "ModerateCity",
+      lat: base_lat,
+      lng: base_lng
+    )
+    audio_tour = loc_with_audio.audio_tours.create!(locale: "bs", script: "Test")
+    audio_tour.audio_file.attach(
+      io: StringIO.new("fake audio"),
+      filename: "test.mp3",
+      content_type: "audio/mpeg"
+    )
+
+    Location.create!(
+      name: "Without Audio Mod",
+      city: "ModerateCity",
+      lat: base_lat + 0.01,
+      lng: base_lng + 0.01
+    )
+
+    result = Platform::Knowledge::LayerOne.generate_summary(:city, "ModerateCity")
+
+    # 50% coverage should not trigger either high or low pattern
+    # Just verify patterns is an array
+    assert result.patterns.is_a?(Array)
+  end
+
+  test "generate_fallback_summary for category with nil by_city" do
+    stats = { total_locations: 5, audio_coverage: 30, by_city: nil }
+    issues = []
+
+    result = Platform::Knowledge::LayerOne.send(:generate_fallback_summary, :category, "nil_city_cat", stats, issues)
+
+    assert result.include?("Kategorija")
+    assert result.include?("5 lokacija")
+    # Should handle nil by_city gracefully
+    assert result.include?("0 gradova")
+  end
 end
