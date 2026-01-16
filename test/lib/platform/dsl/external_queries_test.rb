@@ -223,7 +223,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
   test "search_pois returns results with mocked service" do
     mock_service = create_mock_geoapify_service(search_nearby_result: @mock_pois)
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
         result = Platform::DSL::Executor.send(:search_pois, { city: "Sarajevo" }, nil)
 
@@ -241,7 +241,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
 
     mock_service = create_mock_geoapify_service(text_search_result: [])
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       assert_raises(Platform::DSL::ExecutionError) do
         Platform::DSL::Executor.send(:search_pois, { city: "NonExistentCity123" }, nil)
       end
@@ -251,7 +251,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
   test "geocode_address returns results with mocked service" do
     mock_service = create_mock_geoapify_service(text_search_result: @mock_geocode_results)
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
         result = Platform::DSL::Executor.send(:geocode_address, { address: "Ferhadija, Sarajevo" })
 
@@ -266,7 +266,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
   test "geocode_address returns not found for empty results" do
     mock_service = create_mock_geoapify_service(text_search_result: [])
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
         result = Platform::DSL::Executor.send(:geocode_address, { address: "NonExistentPlace12345" })
 
@@ -280,7 +280,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
   test "geocode_address uses query filter as fallback" do
     mock_service = create_mock_geoapify_service(text_search_result: @mock_geocode_results)
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
         result = Platform::DSL::Executor.send(:geocode_address, { query: "Ferhadija" })
 
@@ -292,7 +292,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
   test "reverse_geocode_coords returns results with mocked service" do
     mock_service = create_mock_geoapify_service(reverse_geocode_result: @mock_reverse_geocode)
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
         result = Platform::DSL::Executor.send(:reverse_geocode_coords, { lat: 43.8563, lng: 18.4131 })
 
@@ -313,7 +313,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
       country_code: "fr"
     })
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
         result = Platform::DSL::Executor.send(:reverse_geocode_coords, { lat: 48.8566, lng: 2.3522 })
 
@@ -331,7 +331,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
     mock_results = [{ name: "Trebinje", lat: 42.7117, lng: 18.3437 }]
     mock_service = create_mock_geoapify_service(text_search_result: mock_results)
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       result = Platform::DSL::Executor.send(:get_city_coordinates, "Trebinje")
 
       assert result.present?
@@ -347,7 +347,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
     mock_results = [{ name: "FakeCity", lat: 48.8566, lng: 2.3522 }]
     mock_service = create_mock_geoapify_service(text_search_result: mock_results)
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       result = Platform::DSL::Executor.send(:get_city_coordinates, "FakeCity")
 
       assert_nil result
@@ -363,7 +363,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
 
     mock_service = create_mock_geoapify_service(search_nearby_result: mixed_pois)
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
         result = Platform::DSL::Executor.send(:search_pois, { city: "Sarajevo" }, nil)
 
@@ -381,7 +381,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
   test "search_pois uses provided radius and limit" do
     mock_service = create_mock_geoapify_service(search_nearby_result: @mock_pois)
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
         result = Platform::DSL::Executor.send(:search_pois, {
           city: "Sarajevo",
@@ -398,7 +398,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
   test "search_pois uses categories from args" do
     mock_service = create_mock_geoapify_service(search_nearby_result: @mock_pois)
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
         result = Platform::DSL::Executor.send(:search_pois, { city: "Sarajevo" }, ["restaurant"])
 
@@ -410,7 +410,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
   test "search_pois uses categories from filters" do
     mock_service = create_mock_geoapify_service(search_nearby_result: @mock_pois)
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
         result = Platform::DSL::Executor.send(:search_pois, { city: "Sarajevo", categories: "cafe" }, nil)
 
@@ -427,7 +427,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
 
     mock_service = create_mock_geoapify_service(text_search_result: mock_results)
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
         result = Platform::DSL::Executor.send(:geocode_address, { address: "test address" })
 
@@ -448,7 +448,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
   test "external | geocode executes with mocked service" do
     mock_service = create_mock_geoapify_service(text_search_result: @mock_geocode_results)
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
         result = Platform::DSL.execute('external { address: "Sarajevo" } | geocode')
 
@@ -460,7 +460,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
   test "external | reverse_geocode executes with mocked service" do
     mock_service = create_mock_geoapify_service(reverse_geocode_result: @mock_reverse_geocode)
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
         result = Platform::DSL.execute("external { lat: 43.8563, lng: 18.4131 } | reverse_geocode")
 
@@ -472,7 +472,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
   test "external | search_pois executes with mocked service" do
     mock_service = create_mock_geoapify_service(search_nearby_result: @mock_pois)
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
         result = Platform::DSL.execute('external { city: "Sarajevo" } | search_pois')
 
@@ -490,7 +490,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
       country_code: "ba"
     })
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
         result = Platform::DSL::Executor.send(:reverse_geocode_coords, { lat: 42.7117, lng: 18.3437 })
 
@@ -507,7 +507,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
       country_code: "ba"
     })
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
         result = Platform::DSL::Executor.send(:reverse_geocode_coords, { lat: 43.65, lng: 18.05 })
 
@@ -521,7 +521,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
 
     mock_service = create_mock_geoapify_service(text_search_result: [])
 
-    Platform::DSL::Executor.stub(:geoapify_service, mock_service) do
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       result = Platform::DSL::Executor.send(:get_city_coordinates, "EmptyResults")
 
       assert_nil result
@@ -557,11 +557,11 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
 
   test "geoapify_service returns GeoapifyService instance" do
     # Clear any cached instance
-    Platform::DSL::Executor.instance_variable_set(:@geoapify_service, nil)
+    Platform::DSL::Executors::External.instance_variable_set(:@geoapify_service, nil)
 
     # Only test if API key is configured
     if ENV["GEOAPIFY_API_KEY"].present?
-      service = Platform::DSL::Executor.send(:geoapify_service)
+      service = Platform::DSL::Executors::External.send(:geoapify_service)
       assert service.is_a?(GeoapifyService)
     else
       # Skip test in CI where API key isn't configured

@@ -62,7 +62,7 @@ class Platform::DSL::GenerationTest < ActiveSupport::TestCase
   test "generates description with mocked LLM" do
     mock_response = "Ovo je generisani opis za test lokaciju u Sarajevu."
 
-    Platform::DSL::Executor.stub(:generate_with_llm, mock_response) do
+    Platform::DSL::Executors::Content.stub(:generate_with_llm, mock_response) do
       result = Platform::DSL.execute("generate description for location { id: #{@location.id} }")
 
       assert result[:success]
@@ -77,7 +77,7 @@ class Platform::DSL::GenerationTest < ActiveSupport::TestCase
   test "generates description with style" do
     mock_response = "Vivid opis lokacije."
 
-    Platform::DSL::Executor.stub(:generate_with_llm, mock_response) do
+    Platform::DSL::Executors::Content.stub(:generate_with_llm, mock_response) do
       result = Platform::DSL.execute("generate description for location { id: #{@location.id} } style \"vivid\"")
 
       assert result[:success]
@@ -88,7 +88,7 @@ class Platform::DSL::GenerationTest < ActiveSupport::TestCase
   test "creates audit log for description generation" do
     mock_response = "Novi opis."
 
-    Platform::DSL::Executor.stub(:generate_with_llm, mock_response) do
+    Platform::DSL::Executors::Content.stub(:generate_with_llm, mock_response) do
       assert_difference "PlatformAuditLog.count", 1 do
         Platform::DSL.execute("generate description for location { id: #{@location.id} }")
       end
@@ -103,7 +103,7 @@ class Platform::DSL::GenerationTest < ActiveSupport::TestCase
   test "generates translations with mocked LLM" do
     mock_response = "This is the English translation."
 
-    Platform::DSL::Executor.stub(:generate_with_llm, mock_response) do
+    Platform::DSL::Executors::Content.stub(:generate_with_llm, mock_response) do
       result = Platform::DSL.execute("generate translations for location { id: #{@location.id} } to [\"en\"]")
 
       assert result[:success]
@@ -124,7 +124,7 @@ class Platform::DSL::GenerationTest < ActiveSupport::TestCase
   test "generates experience with mocked LLM" do
     mock_json = '{"title": "Sarajevska Tura", "description": "Opis ture", "duration_hours": 3}'
 
-    Platform::DSL::Executor.stub(:generate_with_llm, mock_json) do
+    Platform::DSL::Executors::Content.stub(:generate_with_llm, mock_json) do
       result = Platform::DSL.execute("generate experience from locations [#{@location.id}, #{@location2.id}]")
 
       assert result[:success]
@@ -158,7 +158,7 @@ class Platform::DSL::GenerationTest < ActiveSupport::TestCase
   test "creates audit log for experience generation" do
     mock_json = '{"title": "Test Tura", "description": "Opis", "duration_hours": 2}'
 
-    Platform::DSL::Executor.stub(:generate_with_llm, mock_json) do
+    Platform::DSL::Executors::Content.stub(:generate_with_llm, mock_json) do
       assert_difference "PlatformAuditLog.count", 1 do
         Platform::DSL.execute("generate experience from locations [#{@location.id}, #{@location2.id}]")
       end

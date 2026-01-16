@@ -567,60 +567,95 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert result.is_a?(Hash) || result.is_a?(Array)
   end
 
-  # Proposals query tests - ARCHIVED (returns not_available)
+  # Proposals query tests
   test "execute_proposals_query with list operation" do
     result = Platform::DSL.execute("proposals | list")
 
     assert result.is_a?(Hash)
-    assert_equal "not_available", result[:error]
+    assert_equal :list_proposals, result[:action]
   end
 
   test "execute_proposals_query with show operation" do
-    skip "Archived: proposals_query functionality not currently available"
+    proposal = ContentChange.create!(
+      user: @test_user,
+      change_type: :create_content,
+      changeable_class: "Location",
+      proposed_data: { name: "Test" },
+      status: :pending
+    )
+
+    result = Platform::DSL.execute("proposals { id: #{proposal.id} } | show")
+
+    assert result.is_a?(Hash)
+    assert_equal :show_proposal, result[:action]
   end
 
   test "execute_proposals_query with status filter" do
-    skip "Archived: proposals_query functionality not currently available"
+    result = Platform::DSL.execute('proposals { status: "pending" } | list')
+
+    assert result.is_a?(Hash)
+    assert_equal :list_proposals, result[:action]
   end
 
-  # Applications query tests - ARCHIVED
+  # Applications query tests
   test "execute_applications_query with list" do
     result = Platform::DSL.execute("applications | list")
 
     assert result.is_a?(Hash)
-    assert_equal "not_available", result[:error]
+    assert_equal :list_applications, result[:action]
   end
 
-  # Curators query tests - ARCHIVED
+  # Curators query tests
   test "execute_curators_query with list" do
     result = Platform::DSL.execute("curators | list")
 
     assert result.is_a?(Hash)
-    assert_equal "not_available", result[:error]
+    assert_equal :list_curators, result[:action]
   end
 
   test "execute_curators_query with stats" do
     result = Platform::DSL.execute("curators | stats")
 
     assert result.is_a?(Hash)
-    assert_equal "not_available", result[:error]
+    # Stats returns Services::SpamDetector.statistics hash
   end
 
-  # Curator management tests - ARCHIVED
+  # Curator management tests
   test "execute_curator_management block command" do
-    skip "Archived: curator_management functionality not currently available"
+    curator = User.create!(
+      username: "block_test_#{SecureRandom.hex(4)}",
+      password: "password123",
+      user_type: :curator
+    )
+
+    result = Platform::DSL.execute("block curator { id: #{curator.id} } reason \"Spam activity\"")
+
+    assert result.is_a?(Hash)
+    assert result[:success]
+    assert_equal :block_curator, result[:action]
   end
 
   test "execute_curator_management unblock command" do
-    skip "Archived: curator_management functionality not currently available"
-  end
+    curator = User.create!(
+      username: "unblock_test_#{SecureRandom.hex(4)}",
+      password: "password123",
+      user_type: :curator
+    )
+    curator.block_for_spam!("Test block")
 
-  # Code query tests - ARCHIVED
-  test "execute_code_query with list" do
-    result = Platform::DSL.execute("code | list")
+    result = Platform::DSL.execute("unblock curator { id: #{curator.id} }")
 
     assert result.is_a?(Hash)
-    assert_equal "not_available", result[:error]
+    assert result[:success]
+    assert_equal :unblock_curator, result[:action]
+  end
+
+  # Code query tests
+  test "execute_code_query with list" do
+    result = Platform::DSL.execute("code | models")
+
+    assert result.is_a?(Hash)
+    assert_equal :list_models, result[:action]
   end
 
   # Prompts query tests
@@ -683,35 +718,69 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert_equal :reject_prompt, result[:action]
   end
 
-  # Approval tests - ARCHIVED
+  # Approval tests
   test "execute_approval approve proposal" do
-    result = Platform::DSL.execute("approve proposal { id: 1 }")
+    proposal = ContentChange.create!(
+      user: @test_user,
+      change_type: :update_content,
+      changeable_type: "Location",
+      changeable_id: @sarajevo_location.id,
+      proposed_data: { name: "Updated Name" },
+      status: :pending
+    )
 
-    # Archived functionality returns not_available error
+    result = Platform::DSL.execute("approve proposal { id: #{proposal.id} }")
+
     assert result.is_a?(Hash)
-    assert_equal "not_available", result[:error]
+    assert result[:success]
+    assert_equal :approve_proposal, result[:action]
   end
 
   test "execute_approval reject proposal" do
-    result = Platform::DSL.execute("reject proposal { id: 1 } reason \"Invalid\"")
+    proposal = ContentChange.create!(
+      user: @test_user,
+      change_type: :update_content,
+      changeable_type: "Location",
+      changeable_id: @sarajevo_location.id,
+      proposed_data: { name: "Updated Name" },
+      status: :pending
+    )
 
-    # Archived functionality returns not_available error
+    result = Platform::DSL.execute("reject proposal { id: #{proposal.id} } reason \"Invalid data\"")
+
     assert result.is_a?(Hash)
-    assert_equal "not_available", result[:error]
+    assert result[:success]
+    assert_equal :reject_proposal, result[:action]
   end
 
-  # Geoapify service test - ARCHIVED: external_query functionality moved to future/
+  # Geoapify service test
   test "geoapify_service returns service instance" do
-    skip "Archived: external_query functionality not currently available"
+    skip "Requires GEOAPIFY_API_KEY to be configured" unless ENV["GEOAPIFY_API_KEY"].present?
+
+    service = Platform::DSL::Executor.send(:geoapify_service)
+
+    assert service.is_a?(GeoapifyService)
   end
 
-  # Get city coordinates tests - ARCHIVED
+  # Get city coordinates tests
   test "get_city_coordinates returns coords from existing location" do
-    skip "Archived: external_query functionality not currently available"
+    result = Platform::DSL::Executor.send(:get_city_coordinates, "Sarajevo")
+
+    assert result.is_a?(Hash)
+    assert result[:lat].present?
+    assert result[:lng].present?
   end
 
   test "get_city_coordinates falls back for unknown city" do
-    skip "Archived: external_query functionality not currently available"
+    # Mock geoapify service
+    mock_service = Object.new
+    mock_service.define_singleton_method(:text_search) { |**_| [{ lat: 43.0, lng: 18.0 }] }
+
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
+      result = Platform::DSL::Executor.send(:get_city_coordinates, "UnknownTestCity123")
+      # May return nil if not in BiH or coords if mocked correctly
+      assert result.nil? || result.is_a?(Hash)
+    end
   end
 
   # API keys check test (internal method)
@@ -748,9 +817,12 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert result.key?("id") || result.key?(:id)
   end
 
-  # Estimate audio cost internal method test - ARCHIVED
+  # Estimate audio cost internal method test
   test "estimate_audio_cost internal method" do
-    skip "Archived: audio functionality not currently available"
+    result = Platform::DSL.execute('estimate audio cost for locations { city: "Sarajevo" }')
+
+    assert result.is_a?(Hash)
+    assert_equal :estimate_audio_cost, result[:action]
   end
 
   # Logs query via DSL
@@ -767,58 +839,74 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert result.is_a?(Hash)
   end
 
-  # Summaries query via DSL - ARCHIVED
+  # Summaries query via DSL
   test "execute_summaries_query via DSL" do
     result = Platform::DSL.execute("summaries { dimension: \"city\" } | list")
 
-    # Archived functionality returns not_available error
-    assert result.is_a?(Hash)
-    assert_equal "not_available", result[:error]
+    # Returns array of summaries or hash with city summaries
+    assert result.is_a?(Hash) || result.is_a?(Array)
   end
 
-  # Clusters query via DSL - ARCHIVED
+  # Clusters query via DSL
   test "execute_clusters_query via DSL" do
     result = Platform::DSL.execute("clusters | list")
 
-    # Archived functionality returns not_available error
     assert result.is_a?(Hash)
-    assert_equal "not_available", result[:error]
+    assert result.key?(:clusters)
+    assert result.key?(:total)
   end
 
-  # External query via DSL - ARCHIVED
+  # External query via DSL
   test "execute_external_query via DSL" do
-    result = Platform::DSL.execute('external { city: "Sarajevo" } | search_nearby "restaurant"')
+    # Mock geoapify service for this test
+    mock_service = Object.new
+    mock_service.define_singleton_method(:search_nearby) { |**_| [] }
 
-    # Archived functionality returns not_available error
-    assert result.is_a?(Hash)
-    assert_equal "not_available", result[:error]
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
+      Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
+        result = Platform::DSL.execute('external { city: "Sarajevo" } | search_pois')
+
+        assert result.is_a?(Hash)
+        assert_equal "Sarajevo", result[:city]
+      end
+    end
   end
 
-  # Mutation via DSL - ARCHIVED
+  # Mutation via DSL
   test "execute_mutation via DSL" do
-    result = Platform::DSL.execute("update location { id: 1 } set { name: \"Test\" }")
+    result = Platform::DSL.execute("update location { id: #{@sarajevo_location.id} } set { name: \"Updated Test\" }")
 
-    # Archived functionality returns not_available error
     assert result.is_a?(Hash)
-    assert_equal "not_available", result[:error]
+    assert result[:success]
+    assert_equal :update, result[:action]
   end
 
-  # Generation via DSL - ARCHIVED
+  # Generation via DSL
   test "execute_generation via DSL" do
-    result = Platform::DSL.execute('generate description for location { id: 1 }')
+    # Mock LLM for generation
+    Platform::DSL::Executors::Content.stub(:generate_with_llm, "Generirani opis lokacije.") do
+      result = Platform::DSL.execute("generate description for location { id: #{@sarajevo_location.id} }")
 
-    # Archived functionality returns not_available error
-    assert result.is_a?(Hash)
-    assert_equal "not_available", result[:error]
+      assert result.is_a?(Hash)
+      assert result[:success]
+      assert_equal :generate_description, result[:action]
+    end
   end
 
-  # Audio via DSL - ARCHIVED
+  # Audio via DSL
   test "execute_audio via DSL" do
-    result = Platform::DSL.execute("synthesize audio for location { id: 1 }")
+    # Mock audio generator
+    mock_generator = Object.new
+    mock_result = { status: :generated, duration_estimate: "3 min", audio_info: nil }
+    mock_generator.define_singleton_method(:generate) { |**_| mock_result }
 
-    # Archived functionality returns not_available error
-    assert result.is_a?(Hash)
-    assert_equal "not_available", result[:error]
+    Ai::AudioTourGenerator.stub(:new, ->(_loc) { mock_generator }) do
+      result = Platform::DSL.execute("synthesize audio for location { id: #{@sarajevo_location.id} }")
+
+      assert result.is_a?(Hash)
+      assert result[:success]
+      assert_equal :synthesize_audio, result[:action]
+    end
   end
 
   # Schema describe for different tables
@@ -1062,13 +1150,13 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     end
   end
 
-  # Curators list test - ARCHIVED
+  # Curators list test
   test "curators list returns curators" do
     result = Platform::DSL.execute("curators | list")
 
-    # Archived functionality returns not_available error
     assert result.is_a?(Hash)
-    assert_equal "not_available", result[:error]
+    assert_equal :list_curators, result[:action]
+    assert result.key?(:curators)
   end
 
   # Logs with filter
@@ -1085,14 +1173,34 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert result.is_a?(Hash) || result.is_a?(Array)
   end
 
-  # External geocode operation - ARCHIVED
+  # External geocode operation
   test "geocode_address returns hash for valid address" do
-    skip "Archived: external_query functionality not currently available"
+    mock_service = Object.new
+    mock_service.define_singleton_method(:text_search) { |**_| [{ name: "Test", lat: 43.85, lng: 18.41, primary_type: "poi" }] }
+
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
+      Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
+        result = Platform::DSL::Executor.send(:geocode_address, { address: "Sarajevo" })
+
+        assert result.is_a?(Hash)
+        assert result[:found]
+      end
+    end
   end
 
-  # External reverse_geocode operation - ARCHIVED
+  # External reverse_geocode operation
   test "reverse_geocode_coords returns hash for valid coords" do
-    skip "Archived: external_query functionality not currently available"
+    mock_service = Object.new
+    mock_service.define_singleton_method(:reverse_geocode) { |**_| { formatted: "Sarajevo", city: "Sarajevo", country: "BiH", country_code: "ba" } }
+
+    Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
+      Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
+        result = Platform::DSL::Executor.send(:reverse_geocode_coords, { lat: 43.8563, lng: 18.4131 })
+
+        assert result.is_a?(Hash)
+        assert result[:in_bih]
+      end
+    end
   end
 
   # Test estimate_audio_cost - ARCHIVED
@@ -1100,12 +1208,24 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     skip "Archived: audio functionality not currently available"
   end
 
-  # Test format_proposal returns hash with required keys - ARCHIVED
+  # Test format_proposal returns hash with required keys
   test "format_proposal returns hash with keys" do
-    skip "Archived: proposals_query functionality not currently available"
+    proposal = ContentChange.create!(
+      user: @test_user,
+      change_type: :create_content,
+      changeable_class: "Location",
+      proposed_data: { name: "Test" },
+      status: :pending
+    )
+
+    result = Platform::DSL::Executors::Curator.send(:format_proposal, proposal)
+
+    assert result.is_a?(Hash)
+    assert result.key?(:id)
+    assert result.key?(:status)
   end
 
-  # Test show_proposal includes reviews array - ARCHIVED
+  # Test show_proposal includes reviews array
   test "show_proposal includes reviews array" do
     skip "Archived: proposals_query functionality not currently available"
   end
@@ -1182,13 +1302,13 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert result.is_a?(Hash)
   end
 
-  # Test applications | list - ARCHIVED
+  # Test applications | list
   test "applications list returns curator applications" do
     result = Platform::DSL.execute("applications | list")
 
-    # Archived functionality returns not_available error
     assert result.is_a?(Hash)
-    assert_equal "not_available", result[:error]
+    assert_equal :list_applications, result[:action]
+    assert result.key?(:applications)
   end
 
   # Test curators | show
