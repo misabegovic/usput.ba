@@ -106,6 +106,21 @@ class Curator::Admin::PhotoSuggestionsControllerTest < ActionDispatch::Integrati
     assert_match /already.*reviewed/i, flash[:alert]
   end
 
+  test "approve shows error when approval fails" do
+    login_as(@admin)
+
+    # Create a mock that returns false for approve!
+    mock_suggestion = @suggestion
+    mock_suggestion.define_singleton_method(:approve!) { |*_args, **_kwargs| false }
+
+    PhotoSuggestion.stub(:find, ->(_id) { mock_suggestion }) do
+      post approve_curator_admin_photo_suggestion_path(@suggestion)
+    end
+
+    assert_redirected_to curator_admin_photo_suggestion_path(@suggestion)
+    assert_match /failed/i, flash[:alert]
+  end
+
   # Reject tests
   test "reject requires admin" do
     login_as(@curator)

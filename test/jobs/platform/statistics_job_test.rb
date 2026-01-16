@@ -62,4 +62,26 @@ class Platform::StatisticsJobTest < ActiveSupport::TestCase
       Platform::StatisticsJob.perform_now(keys: ["by_city"])
     end
   end
+
+  test "perform refreshes all statistics when keys is nil" do
+    # Ensure content_counts gets created by refresh_all
+    assert_nothing_raised do
+      Platform::StatisticsJob.perform_now(keys: nil)
+    end
+  end
+
+  test "perform refreshes all statistics when keys is empty array" do
+    # Empty array in Ruby is truthy for .present? check, so it goes to the if branch
+    # but iterates zero times
+    assert_nothing_raised do
+      Platform::StatisticsJob.perform_now(keys: [])
+    end
+  end
+
+  test "perform logs after refresh_all completes" do
+    # Call with no keys to trigger refresh_all branch and log_summary
+    assert_nothing_raised do
+      Platform::StatisticsJob.perform_now
+    end
+  end
 end

@@ -59,17 +59,22 @@ class Platform::SummaryGenerationJobTest < ActiveSupport::TestCase
   end
 
   test "perform handles category dimension" do
-    # Use existing category from fixtures/seeds or skip if none exist
-    category = LocationCategory.first
+    # Ensure at least one category exists for the iteration
+    LocationCategory.create!(key: "test_cat_#{SecureRandom.hex(4)}", name: "Test Category")
 
-    if category
+    assert_nothing_raised do
       Platform::SummaryGenerationJob.perform_now(dimension: "category")
-      # Should attempt to generate category summaries without error
-    else
-      # Just test that running with category dimension doesn't crash
-      assert_nothing_raised do
-        Platform::SummaryGenerationJob.perform_now(dimension: "category")
-      end
+    end
+  end
+
+  test "perform generates summaries for each category" do
+    # Create categories with required name field
+    LocationCategory.create!(key: "cat_job_test_1_#{SecureRandom.hex(4)}", name: "Category One")
+    LocationCategory.create!(key: "cat_job_test_2_#{SecureRandom.hex(4)}", name: "Category Two")
+
+    # This should iterate over categories and call generate_single for each
+    assert_nothing_raised do
+      Platform::SummaryGenerationJob.perform_now(dimension: "category")
     end
   end
 

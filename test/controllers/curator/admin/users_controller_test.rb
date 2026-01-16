@@ -163,10 +163,19 @@ class Curator::Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  # Test update failure - trying to trigger the else branch for update
-  # Note: This branch is defensively coded - user_type is the only permitted param
-  # and has fixed enum values, so validation failure is unlikely in normal operation.
-  # The test verifies the branch exists but may not trigger it due to strong params.
+  test "update renders edit when update fails" do
+    login_as(@admin)
+
+    # Create a mock that returns false for update
+    mock_user = @basic_user
+    mock_user.define_singleton_method(:update) { |*_args, **_kwargs| false }
+
+    User.stub(:find_by_public_id!, ->(_id) { mock_user }) do
+      patch curator_admin_user_path(@basic_user), params: { user: { user_type: "curator" } }
+    end
+
+    assert_response :unprocessable_entity
+  end
 
   private
 

@@ -133,6 +133,15 @@ class Curator::Admin::CuratorApplicationsControllerTest < ActionDispatch::Integr
     assert_equal "reject_curator_application", activity.action
   end
 
+  test "reject fails for already reviewed application" do
+    @application.update!(status: :rejected, reviewed_by: @admin, reviewed_at: Time.current)
+
+    login_as(@admin)
+    post reject_curator_admin_curator_application_path(@application)
+    assert_redirected_to curator_admin_curator_applications_path
+    assert_match /already.*reviewed/i, flash[:alert]
+  end
+
   private
 
   def login_as(user)

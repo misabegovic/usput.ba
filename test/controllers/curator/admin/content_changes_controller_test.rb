@@ -117,10 +117,20 @@ class Curator::Admin::ContentChangesControllerTest < ActionDispatch::Integration
     assert_match /already.*reviewed/i, flash[:alert]
   end
 
-  # Note: The approval_failed branch (lines 33-34 in controller) is only reachable
-  # in a race condition where another request changes the status between the
-  # pending? check and the approve! call. This is defensive code that cannot
-  # be easily tested through integration tests without race conditions.
+  test "approve shows error when approval fails" do
+    login_as(@admin)
+
+    # Create a mock that returns false for approve!
+    mock_change = @content_change
+    mock_change.define_singleton_method(:approve!) { |*_args, **_kwargs| false }
+
+    ContentChange.stub(:find, ->(_id) { mock_change }) do
+      post approve_curator_admin_content_change_path(@content_change)
+    end
+
+    assert_redirected_to curator_admin_content_change_path(@content_change)
+    assert_match /failed/i, flash[:alert]
+  end
 
   # Reject tests
   test "reject requires admin" do
@@ -152,6 +162,15 @@ class Curator::Admin::ContentChangesControllerTest < ActionDispatch::Integration
 
     activity = CuratorActivity.last
     assert_equal "reject_content_change", activity.action
+  end
+
+  test "reject fails for already reviewed content change" do
+    @content_change.update!(status: :rejected, reviewed_by: @admin, reviewed_at: Time.current)
+
+    login_as(@admin)
+    post reject_curator_admin_content_change_path(@content_change)
+    assert_redirected_to curator_admin_content_changes_path
+    assert_match /already.*reviewed/i, flash[:alert]
   end
 
   private
