@@ -11,7 +11,8 @@ class CreatePreparedPrompts < ActiveRecord::Migration[8.1]
       t.text :analysis
       t.text :solution
       t.string :target_file
-      t.references :user, foreign_key: true
+      # user_id references users in primary database (cross-database, no FK constraint)
+      t.bigint :user_id
 
       t.timestamps
     end

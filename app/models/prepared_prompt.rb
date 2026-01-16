@@ -17,7 +17,7 @@
 #   - medium: Bugs affecting user experience
 #   - low: Minor issues, nice-to-haves
 #
-class PreparedPrompt < ApplicationRecord
+class PreparedPrompt < PlatformRecord
   belongs_to :user, optional: true
 
   # Prompt types

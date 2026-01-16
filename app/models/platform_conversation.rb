@@ -9,7 +9,7 @@
 #   - context: JSONB hash sa dodatnim kontekstom sesije
 #   - status: "active", "archived", "error"
 #
-class PlatformConversation < ApplicationRecord
+class PlatformConversation < PlatformRecord
   # Validacije
   validates :status, inclusion: { in: %w[active archived error] }
 

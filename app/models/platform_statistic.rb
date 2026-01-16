@@ -12,7 +12,7 @@
 #   - "health" - health check rezultati
 #   - "layer_zero" - kompletni Layer 0 za system prompt
 #
-class PlatformStatistic < ApplicationRecord
+class PlatformStatistic < PlatformRecord
   # Validacije
   validates :key, presence: true, uniqueness: true
 

@@ -1,7 +1,8 @@
 # PostgreSQL configuration
 #
-# Production uses DATABASE_URL environment variable for primary database
-# and QUEUE_DATABASE_URL for Solid Queue (separate database).
+# Production uses DATABASE_URL environment variable for primary database,
+# QUEUE_DATABASE_URL for Solid Queue, and PLATFORM_DATABASE_URL for Platform AI
+# (with pgvector support for semantic search).
 #
 default: &default
   adapter: postgresql
@@ -33,6 +34,18 @@ development:
     <% end %>
     pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 10 } %>
     migrations_paths: db/queue_migrate
+  platform:
+    <<: *default
+    <% if ENV["PROD_PLATFORM_DATABASE_URL"] %>
+    url: <%= ENV["PROD_PLATFORM_DATABASE_URL"] %>
+    <% else %>
+    database: klosaer_platform_development
+    username: <%= ENV.fetch("POSTGRES_USER") { "postgres" } %>
+    password: <%= ENV.fetch("POSTGRES_PASSWORD") { "" } %>
+    host: <%= ENV.fetch("POSTGRES_HOST") { "localhost" } %>
+    port: <%= ENV.fetch("POSTGRES_PORT") { 5432 } %>
+    <% end %>
+    migrations_paths: db/platform_migrate
 
 test:
   primary:
@@ -51,6 +64,14 @@ test:
     host: <%= ENV.fetch("POSTGRES_HOST") { "localhost" } %>
     port: <%= ENV.fetch("POSTGRES_PORT") { 5432 } %>
     migrations_paths: db/queue_migrate
+  platform:
+    <<: *default
+    database: klosaer_platform_test
+    username: <%= ENV.fetch("POSTGRES_USER") { "postgres" } %>
+    password: <%= ENV.fetch("POSTGRES_PASSWORD") { "" } %>
+    host: <%= ENV.fetch("POSTGRES_HOST") { "localhost" } %>
+    port: <%= ENV.fetch("POSTGRES_PORT") { 5432 } %>
+    migrations_paths: db/platform_migrate
 
 production:
   primary:
@@ -61,3 +82,7 @@ production:
     url: <%= ENV["QUEUE_DATABASE_URL"] %>
     pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 10 } %>
     migrations_paths: db/queue_migrate
+  platform:
+    <<: *default
+    url: <%= ENV["PLATFORM_DATABASE_URL"] %>
+    migrations_paths: db/platform_migrate

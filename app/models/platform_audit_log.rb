@@ -11,7 +11,7 @@
 # @example Log an update operation
 #   PlatformAuditLog.log_update(location, changes: { description: ["old", "new"] })
 #
-class PlatformAuditLog < ApplicationRecord
+class PlatformAuditLog < PlatformRecord
   # Validations
   validates :action, presence: true, inclusion: { in: %w[create update delete approve reject] }
   validates :triggered_by, presence: true

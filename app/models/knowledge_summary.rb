@@ -14,7 +14,7 @@
 #   summary.summary # => "Mostar je turistički centar Hercegovine..."
 #   summary.issues  # => [{ type: "missing_audio", count: 24 }]
 #
-class KnowledgeSummary < ApplicationRecord
+class KnowledgeSummary < PlatformRecord
   # Dozvoljene dimenzije
   DIMENSIONS = %w[city region category].freeze
 

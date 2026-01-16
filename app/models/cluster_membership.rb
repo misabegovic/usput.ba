@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ClusterMembership < ApplicationRecord
+class ClusterMembership < PlatformRecord
   belongs_to :knowledge_cluster
   belongs_to :record, polymorphic: true
 

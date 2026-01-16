@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class KnowledgeCluster < ApplicationRecord
+class KnowledgeCluster < PlatformRecord
   # Enable neighbor gem for semantic search
   has_neighbors :embedding if column_names.include?("embedding")
 
