@@ -298,8 +298,10 @@ bin/rails test test/lib/platform/tools/content/search_test.rb
 # Console
 bin/rails console
 
-# Run Platform CLI
-bin/platform chat
+# Platform CLI
+bin/platform exec 'schema | stats'
+bin/platform exec 'locations | count'
+bin/platform-prod exec 'locations | count'  # Za production bazu
 
 # Migrations
 bin/rails db:migrate

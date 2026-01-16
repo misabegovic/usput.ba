@@ -100,11 +100,20 @@ Koristi za:
 - Debugging
 - Kod dokumentaciju
 
+### Curator
+**Fajl:** `.claude/personas/curator.md`
+
+Koristi za:
+- Kreiranje sadržaja (lokacije, iskustva, planovi)
+- Uređivanje opisa i tekstova
+- Balansiranje regionalnog sadržaja
+- Kvalitetu turističkog sadržaja
+
 ---
 
 ## Multi-Persona Mode
 
-Kada želiš sve tri persone u jednoj sesiji:
+Kada želiš više persona u jednoj sesiji:
 
 ```
 Pročitaj .claude/CLAUDE.md za kontekst.
@@ -113,11 +122,13 @@ Radi u multi-persona modu:
 - [TL] = Tech Lead - arhitektura, review
 - [PM] = Product Manager - features, prioriteti
 - [DEV] = Developer - implementacija
+- [CUR] = Curator - sadržaj, tekstovi, turizam
 
 Primjer:
 [PM] Koja je user story za search?
 [TL] Kako strukturirati search tool?
 [DEV] Implementiraj search tool.
+[CUR] Napiši opis za novu lokaciju.
 ```
 
 ---
@@ -186,7 +197,11 @@ end
 # Development
 bin/rails console
 bin/rails test
-bin/platform chat
+
+# Platform CLI
+bin/platform exec 'schema | stats'
+bin/platform exec 'locations | count'
+bin/platform-prod exec 'locations | count'  # Za production bazu
 
 # Database
 bin/rails db:migrate
