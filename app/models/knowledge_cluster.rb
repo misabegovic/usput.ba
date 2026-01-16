@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class KnowledgeCluster < PlatformRecord
-  # Enable neighbor gem for semantic search
-  has_neighbors :embedding if column_names.include?("embedding")
+  # Enable neighbor gem for semantic search (only if platform database is available)
+  has_neighbors :embedding if safe_column_names.include?("embedding")
 
   has_many :cluster_memberships, dependent: :destroy
   has_many :locations, through: :cluster_memberships, source: :record, source_type: "Location"
@@ -14,9 +14,9 @@ class KnowledgeCluster < PlatformRecord
   scope :by_member_count, -> { order(member_count: :desc) }
   scope :with_embedding, -> { where.not(embedding: nil) }
 
-  # Check if semantic search is available (pgvector installed)
+  # Check if semantic search is available (pgvector installed and platform db connected)
   def self.semantic_search_available?
-    column_names.include?("embedding")
+    safe_column_names.include?("embedding")
   end
 
   # Find similar clusters by semantic search (requires pgvector)
