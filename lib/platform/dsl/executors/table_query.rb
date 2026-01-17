@@ -72,8 +72,21 @@ module Platform
             when "has_audio"
               return value ? scope.with_audio : scope
             when "missing_description"
-              return scope.where(description: [nil, ""]) if value
-              return scope.where.not(description: [nil, ""])
+              # Check translations table for description, not the column directly
+              # Translations are stored in translations table with field_name='description'
+              ids_with_description = Translation
+                .where(translatable_type: scope.model.name, field_name: "description")
+                .where.not(value: [nil, ""])
+                .distinct
+                .pluck(:translatable_id)
+
+              if value
+                # missing_description: true -> locations WITHOUT description
+                return scope.where.not(id: ids_with_description)
+              else
+                # missing_description: false -> locations WITH description
+                return scope.where(id: ids_with_description)
+              end
             when "ai_generated"
               return scope.where(ai_generated: value)
             end

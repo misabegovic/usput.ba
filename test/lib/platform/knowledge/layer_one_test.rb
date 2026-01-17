@@ -226,13 +226,20 @@ class Platform::Knowledge::LayerOneTest < ActiveSupport::TestCase
   end
 
   test "identify_city_issues detects short descriptions" do
-    # Create location with short description
-    Location.create!(
+    # Create location with short description in translations table
+    location = Location.create!(
       name: "Short Desc",
       city: "ShortCity",
       lat: 43.5,
-      lng: 18.5,
-      description: "Short"
+      lng: 18.5
+    )
+    # Create short description in translations table (Mobility gem format)
+    Translation.create!(
+      translatable_type: "Location",
+      translatable_id: location.id,
+      field_name: "description",
+      locale: "bs",
+      value: "Short"
     )
 
     locations = Location.where(city: "ShortCity")
@@ -408,13 +415,20 @@ class Platform::Knowledge::LayerOneTest < ActiveSupport::TestCase
   end
 
   test "identify_category_issues with no issues" do
-    # Create location with audio and description
+    # Create location with audio and description in translations table
     location = Location.create!(
       name: "Complete Location",
       city: "CompleteCity",
       lat: 44.2,
-      lng: 19.2,
-      description: "A complete description for testing"
+      lng: 19.2
+    )
+    # Create description in translations table (Mobility gem format)
+    Translation.create!(
+      translatable_type: "Location",
+      translatable_id: location.id,
+      field_name: "description",
+      locale: "bs",
+      value: "A complete description for testing"
     )
     audio_tour = location.audio_tours.create!(locale: "bs", script: "Test")
     audio_tour.audio_file.attach(

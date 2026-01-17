@@ -78,6 +78,26 @@ module Platform
 
         private
 
+        # Helper: Get location IDs that have description translations
+        def location_ids_with_description(scope = Location.all)
+          Translation
+            .where(translatable_type: "Location", field_name: "description")
+            .where(translatable_id: scope.select(:id))
+            .where.not(value: [nil, ""])
+            .distinct
+            .pluck(:translatable_id)
+        end
+
+        # Helper: Count locations with description in translations
+        def count_with_description(scope)
+          location_ids_with_description(scope).count
+        end
+
+        # Helper: Count locations without description in translations
+        def count_without_description(scope)
+          scope.count - count_with_description(scope)
+        end
+
         # Generiši summary za grad
         def generate_city_summary(city)
           locations = Location.where(city: city)
@@ -140,10 +160,11 @@ module Platform
         # Prikupi statistike za grad
         def collect_city_stats(city, locations)
           total = locations.count
+          with_desc = count_with_description(locations)
           {
             total_locations: total,
             with_audio: locations.with_audio.count,
-            with_description: locations.where.not(description: [nil, ""]).count,
+            with_description: with_desc,
             ai_generated: locations.ai_generated.count,
             human_made: locations.human_made.count,
             avg_rating: locations.average(:average_rating)&.round(2) || 0,
@@ -152,20 +173,22 @@ module Platform
                             .group("location_categories.key")
                             .count,
             audio_coverage: total > 0 ? (locations.with_audio.count * 100.0 / total).round(1) : 0,
-            description_coverage: total > 0 ? (locations.where.not(description: [nil, ""]).count * 100.0 / total).round(1) : 0
+            description_coverage: total > 0 ? (with_desc * 100.0 / total).round(1) : 0
           }
         end
 
         # Prikupi statistike za kategoriju
         def collect_category_stats(category, locations)
           total = locations.count
+          with_desc = count_with_description(locations)
           {
             total_locations: total,
             with_audio: locations.with_audio.count,
-            with_description: locations.where.not(description: [nil, ""]).count,
+            with_description: with_desc,
             by_city: locations.group(:city).count,
             avg_rating: locations.average(:average_rating)&.round(2) || 0,
-            audio_coverage: total > 0 ? (locations.with_audio.count * 100.0 / total).round(1) : 0
+            audio_coverage: total > 0 ? (locations.with_audio.count * 100.0 / total).round(1) : 0,
+            description_coverage: total > 0 ? (with_desc * 100.0 / total).round(1) : 0
           }
         end
 
@@ -179,16 +202,20 @@ module Platform
             issues << { type: "missing_audio", count: missing_audio }
           end
 
-          # Missing descriptions
-          missing_desc = locations.where(description: [nil, ""]).count
+          # Missing descriptions (check translations table)
+          missing_desc = count_without_description(locations)
           if missing_desc > 0
             issues << { type: "missing_description", count: missing_desc }
           end
 
-          # Short descriptions (< 100 chars)
-          short_desc = locations.where("LENGTH(description) < ?", 100)
-                               .where.not(description: [nil, ""])
-                               .count
+          # Short descriptions (< 100 chars) - check translations table
+          ids_with_desc = location_ids_with_description(locations)
+          short_desc = Translation
+            .where(translatable_type: "Location", field_name: "description")
+            .where(translatable_id: ids_with_desc)
+            .where("LENGTH(value) < ?", 100)
+            .distinct
+            .count(:translatable_id)
           if short_desc > 0
             issues << { type: "short_description", count: short_desc, threshold: 100 }
           end
@@ -208,7 +235,8 @@ module Platform
           missing_audio = locations.count - locations.with_audio.count
           issues << { type: "missing_audio", count: missing_audio } if missing_audio > 0
 
-          missing_desc = locations.where(description: [nil, ""]).count
+          # Missing descriptions (check translations table)
+          missing_desc = count_without_description(locations)
           issues << { type: "missing_description", count: missing_desc } if missing_desc > 0
 
           issues

@@ -121,6 +121,17 @@ Za svaku lokaciju/iskustvo, kombiniraš:
 [Konkretni koraci sa CLI komandama]
 ```
 
+## Važno: Sistem prijevoda
+
+**Opisi lokacija su u `translations` tabeli, NE u `locations.description` koloni!**
+
+Lokacije koriste Mobility gem za prijevode:
+```ruby
+translates :name, :description, :historical_context
+```
+
+Kada provjeriš `missing_description`, DSL automatski gleda translations tabelu.
+
 ## CLI komande za upravljanje
 
 ### Analiza
@@ -131,9 +142,11 @@ bin/platform exec 'schema | stats'
 # Lokacije po gradu
 bin/platform exec 'locations | aggregate count() by city'
 
-# Pronađi praznine
+# Pronađi lokacije BEZ opisa (provjerava translations tabelu)
 bin/platform exec 'locations { missing_description: true } | sample 10'
-bin/platform exec 'locations { historical_context: null } | count'
+
+# Pronađi lokacije SA opisom
+bin/platform exec 'locations { missing_description: false } | count'
 
 # Iskustva
 bin/platform exec 'experiences | count'
@@ -187,6 +200,30 @@ bin/platform exec 'locations { missing_translations: true } | count'
 bin/platform exec 'locations { name: "Naziv" } | first'
 bin/platform exec 'experiences { title: "Naslov" } | first'
 ```
+
+### Knowledge Layer (AI sumarizacije)
+```bash
+# Listaj sve sačuvane sumarizacije
+bin/platform exec 'summaries | list'
+
+# Pogledaj sumarizaciju za grad
+bin/platform exec 'summaries { city: "Sarajevo" } | show'
+
+# Pogledaj sve probleme
+bin/platform exec 'summaries | issues'
+
+# Osvježi sumarizaciju za grad
+bin/platform exec 'summaries { city: "Mostar" } | refresh'
+
+# Osvježi sve sumarizacije (queue job)
+bin/platform exec 'summaries | refresh'
+```
+
+Knowledge Layer automatski:
+- Generiše AI sumarizacije po gradovima
+- Identificira probleme (missing_audio, missing_description, low_coverage)
+- Detektuje patterne (AI vs human sadržaj, audio pokrivenost)
+- Čuva statistike za praćenje napretka
 
 ## Tvoja pravila
 

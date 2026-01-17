@@ -540,7 +540,7 @@
             <div class="space-y-4">
               <% @nearby_locations.each do |nearby| %>
                 <%= link_to location_path(nearby), class: "block group" do %>
-                  <div class="flex items-start space-x-3">
+                  <div class="flex items-start space-x-3 min-w-0 overflow-hidden">
                     <% if nearby.photos.attached? %>
                       <%= image_tag nearby.photos.first, class: "w-16 h-16 rounded-lg object-cover flex-shrink-0", alt: nearby.translate(:name, I18n.locale) %>
                     <% else %>
@@ -550,7 +550,7 @@
                         </svg>
                       </div>
                     <% end %>
-                    <div class="flex-1 min-w-0">
+                    <div class="flex-1 min-w-0 overflow-hidden">
                       <p class="font-medium text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate">
                         <%= nearby.translate(:name, I18n.locale) %>
                       </p>
@@ -601,8 +601,8 @@
                         </svg>
                       </div>
                     <% end %>
-                    <div class="flex-1 min-w-0">
-                      <p class="font-medium text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate break-words">
+                    <div class="flex-1 min-w-0 overflow-hidden">
+                      <p class="font-medium text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate">
                         <%= experience.title %>
                       </p>
                       <div class="flex items-center mt-1">
@@ -642,13 +642,13 @@
             <div class="space-y-4">
               <% @related_plans.first(3).each do |plan| %>
                 <%= link_to plan_path(plan), class: "block group" do %>
-                  <div class="flex items-start space-x-3">
+                  <div class="flex items-start space-x-3 min-w-0 overflow-hidden">
                     <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0">
                       <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                       </svg>
                     </div>
-                    <div class="flex-1 min-w-0">
+                    <div class="flex-1 min-w-0 overflow-hidden">
                       <p class="font-medium text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate">
                         <%= plan.display_title %>
                       </p>
