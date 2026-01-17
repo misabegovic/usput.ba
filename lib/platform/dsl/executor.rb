@@ -83,6 +83,10 @@ module Platform
           when :code_query
             Executors::External.execute_code_query(ast)
 
+          # Quality queries
+          when :quality_query
+            Executors::Quality.execute_quality_query(ast)
+
           else
             raise ExecutionError, "Nepoznat tip query-ja: #{ast[:type]}"
           end

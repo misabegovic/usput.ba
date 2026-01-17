@@ -71,70 +71,101 @@ Platform zamjenjuje admin dashboard sa konverzacijskim AI interface-om:
 
 ---
 
-## Persone
+## Custom Agenti
+
+Svi agenti su u `.claude/agents/` folderu. **UVIJEK** pročitaj instrukcije agenta prije pokretanja taska!
+
+### Content Director ⭐ GLAVNI
+**Fajl:** `.claude/agents/content-director.md`
+
+**OBAVEZNO koristi za:**
+- Upravljanje sadržajem (lokacije, iskustva)
+- Quality audit i popravke
+- Generisanje opisa i prijevoda
+- Osiguravanje da iskustva imaju lokacije
+
+**Kako koristiti u Task tool:**
+```
+Pročitaj .claude/agents/content-director.md i slijedi ta pravila.
+[ostatak prompta...]
+```
+
+### Audio Producer
+**Fajl:** `.claude/agents/audio-producer.md`
+
+Koristi za:
+- Generisanje audio tura
+- Sinteza govora (ElevenLabs)
+- Audio kvaliteta i upload na S3
 
 ### Tech Lead
-**Fajl:** `.claude/personas/tech-lead.md`
+**Fajl:** `.claude/agents/tech-lead.md`
 
 Koristi za:
 - Arhitekturne odluke
 - Code review
 - Tehničke smjernice
-- Problem solving
 
 ### Product Manager
-**Fajl:** `.claude/personas/product-manager.md`
+**Fajl:** `.claude/agents/product-manager.md`
 
 Koristi za:
 - User stories
 - Acceptance criteria
 - Prioritizaciju
-- Feature definicije
 
 ### Developer
-**Fajl:** `.claude/personas/developer.md`
+**Fajl:** `.claude/agents/developer.md`
 
 Koristi za:
 - Implementaciju
 - Testove
 - Debugging
-- Kod dokumentaciju
 
 ### Curator
-**Fajl:** `.claude/personas/curator.md`
+**Fajl:** `.claude/agents/curator.md`
 
 Koristi za:
-- Kreiranje sadržaja (lokacije, iskustva, planovi)
-- Uređivanje opisa i tekstova
 - Balansiranje regionalnog sadržaja
 - Kvalitetu turističkog sadržaja
 
-### Historian (Historičar)
-**Fajl:** `.claude/personas/historian.md`
+### Historian
+**Fajl:** `.claude/agents/historian.md`
 
 Koristi za:
 - Historijski kontekst lokacija
-- Činjenice, datumi, događaji
-- Period-specifične informacije
-- Provjeru historijske tačnosti
+- Činjenice i datumi
 
-### Guide (Vodič)
-**Fajl:** `.claude/personas/guide.md`
+### Guide
+**Fajl:** `.claude/agents/guide.md`
 
 Koristi za:
-- Praktične savjete (parking, cijene, vrijeme)
-- Planiranje ruta i itinerera
-- Insider tips i lokalno znanje
-- Logistiku putovanja
+- Praktične savjete (parking, cijene)
+- Planiranje ruta
 
 ### Robert
-**Fajl:** `.claude/personas/robert.md`
+**Fajl:** `.claude/agents/robert.md`
 
 Koristi za:
-- Zabavne, karizmatične opise
-- Lokalni štih i autentičnost
-- Priče koje se pamte
-- Toplinu i humor u sadržaju
+- Zabavne opise
+- Lokalni štih
+
+---
+
+## Kako koristiti agente u Task tool
+
+**VAŽNO:** Task tool ne podržava custom agente direktno. Koristi `general-purpose` i uključi instrukcije:
+
+```
+Task(
+  subagent_type: "general-purpose",
+  prompt: "PRVO pročitaj .claude/agents/content-director.md i slijedi ta pravila!
+
+  Tvoj zadatak: [opis zadatka]"
+)
+```
+
+Za content poslove UVIJEK koristi content-director instrukcije!
 
 ---
 

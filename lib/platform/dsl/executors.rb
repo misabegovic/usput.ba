@@ -15,6 +15,9 @@ module Platform
       autoload :Curator, "platform/dsl/executors/curator"
       autoload :Knowledge, "platform/dsl/executors/knowledge"
       autoload :External, "platform/dsl/executors/external"
+
+      # Quality auditing
+      autoload :Quality, "platform/dsl/executors/quality"
     end
   end
 end
