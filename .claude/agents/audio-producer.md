@@ -178,6 +178,11 @@ bin/platform exec 'synthesize audio for location { id: 123 } voice "Adam"'
 3. **Lokalni duh** - Izrazi, humor, ali ne pretjerivati
 4. **Praktičnost** - Uvijek završi sa preporukom
 5. **Multi-language** - Premium lokacije trebaju bs + en minimum
+6. **Brojevi riječima** - Sistem automatski konvertuje brojeve u riječi za TTS:
+   - `1993` → `hiljadu devetsto devedeset tri`
+   - `500` → `petsto`
+   - `16` → `šesnaest`
+   - Ovo poboljšava izgovor u audio turama
 
 ---
 

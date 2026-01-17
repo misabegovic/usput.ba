@@ -356,13 +356,17 @@ module Ai
       provider = tts_provider
       Rails.logger.info "[AI::AudioTourGenerator] Using TTS provider: #{provider}"
 
+      # Convert numbers to words for better TTS pronunciation
+      # E.g., "1993" -> "hiljadu devetsto devedeset treće" (BS)
+      tts_script = convert_numbers_to_words(script, locale)
+
       case provider
       when "openai"
-        openai_tts(script, locale)
+        openai_tts(tts_script, locale)
       when "elevenlabs"
-        elevenlabs_tts(script, locale)
+        elevenlabs_tts(tts_script, locale)
       when "google"
-        google_tts(script, locale)
+        google_tts(tts_script, locale)
       else
         raise GenerationError, "Unknown TTS provider: #{provider}"
       end
@@ -592,6 +596,156 @@ module Ai
       word_count = script.split.length
       minutes = (word_count / 150.0).round(1)
       "#{minutes} min"
+    end
+
+    # Convert numbers to words for better TTS pronunciation
+    # This helps TTS engines pronounce numbers naturally
+    # E.g., "1993" -> "hiljadu devetsto devedeset treće" (BS)
+    def convert_numbers_to_words(script, locale)
+      return script unless script.is_a?(String)
+
+      result = script.dup
+
+      # Find all numbers (2+ digits) and convert them
+      # Don't convert single digits as they're usually fine
+      result.gsub!(/\b(\d{2,})\b/) do |match|
+        num = match.to_i
+        number_to_words(num, locale)
+      end
+
+      result
+    end
+
+    # Convert a number to words in the specified locale
+    # Supports Bosnian (bs), Croatian (hr), Serbian (sr), and English (en)
+    def number_to_words(num, locale)
+      case locale.to_s
+      when "bs", "hr", "sr"
+        number_to_bosnian_words(num)
+      when "en"
+        number_to_english_words(num)
+      else
+        # For other languages, return the number as-is
+        # (most TTS engines handle numbers reasonably well in their native language)
+        num.to_s
+      end
+    end
+
+    # Convert number to Bosnian words (ijekavica)
+    # Supports numbers up to 999,999
+    def number_to_bosnian_words(num)
+      return "nula" if num.zero?
+
+      ones = %w[nula jedan dva tri četiri pet šest sedam osam devet]
+      teens = %w[deset jedanaest dvanaest trinaest četrnaest petnaest šesnaest sedamnaest osamnaest devetnaest]
+      tens = %w[_ _ dvadeset trideset četrdeset pedeset šezdeset sedamdeset osamdeset devedeset]
+      hundreds = %w[_ sto dvjesto tristo četiristo petsto šesto sedamsto osamsto devetsto]
+
+      # Handle thousands
+      if num >= 1000
+        thousands = num / 1000
+        remainder = num % 1000
+
+        thousand_word = case thousands
+        when 1 then "hiljadu"
+        when 2, 3, 4 then "#{number_to_bosnian_words(thousands)} hiljade"
+        else "#{number_to_bosnian_words(thousands)} hiljada"
+        end
+
+        if remainder.zero?
+          return thousand_word
+        else
+          return "#{thousand_word} #{number_to_bosnian_words(remainder)}"
+        end
+      end
+
+      # Handle hundreds
+      if num >= 100
+        hundred_part = hundreds[num / 100]
+        remainder = num % 100
+
+        if remainder.zero?
+          return hundred_part
+        else
+          return "#{hundred_part} #{number_to_bosnian_words(remainder)}"
+        end
+      end
+
+      # Handle tens and teens
+      if num >= 20
+        ten_part = tens[num / 10]
+        one_part = num % 10
+
+        if one_part.zero?
+          return ten_part
+        else
+          return "#{ten_part} #{ones[one_part]}"
+        end
+      end
+
+      # Handle teens (10-19)
+      if num >= 10
+        return teens[num - 10]
+      end
+
+      # Handle ones (1-9)
+      ones[num]
+    end
+
+    # Convert number to English words
+    # Supports numbers up to 999,999
+    def number_to_english_words(num)
+      return "zero" if num.zero?
+
+      ones = %w[zero one two three four five six seven eight nine]
+      teens = %w[ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen]
+      tens = %w[_ _ twenty thirty forty fifty sixty seventy eighty ninety]
+
+      # Handle thousands
+      if num >= 1000
+        thousands = num / 1000
+        remainder = num % 1000
+
+        thousand_word = "#{number_to_english_words(thousands)} thousand"
+
+        if remainder.zero?
+          return thousand_word
+        else
+          return "#{thousand_word} #{number_to_english_words(remainder)}"
+        end
+      end
+
+      # Handle hundreds
+      if num >= 100
+        hundred_part = "#{ones[num / 100]} hundred"
+        remainder = num % 100
+
+        if remainder.zero?
+          return hundred_part
+        else
+          return "#{hundred_part} and #{number_to_english_words(remainder)}"
+        end
+      end
+
+      # Handle tens
+      if num >= 20
+        ten_part = tens[num / 10]
+        one_part = num % 10
+
+        if one_part.zero?
+          return ten_part
+        else
+          return "#{ten_part}-#{ones[one_part]}"
+        end
+      end
+
+      # Handle teens (10-19)
+      if num >= 10
+        return teens[num - 10]
+      end
+
+      # Handle ones (1-9)
+      ones[num]
     end
   end
 end
