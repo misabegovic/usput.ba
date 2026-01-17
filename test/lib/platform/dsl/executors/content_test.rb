@@ -746,7 +746,8 @@ class Platform::DSL::Executors::ContentTest < ActiveSupport::TestCase
 
     Location.stub(:new, ->(_data) { mock_location }) do
       error = assert_raises(Platform::DSL::ExecutionError) do
-        Platform::DSL::Executors::Content.send(:execute_create, "locations", { name: "Test", city: "Sarajevo" })
+        # Include lat/lng to pass coordinate validation
+        Platform::DSL::Executors::Content.send(:execute_create, "locations", { name: "Test", city: "Sarajevo", lat: 43.85, lng: 18.38 })
       end
       assert_match(/Kreiranje nije uspjelo/, error.message)
     end
@@ -810,8 +811,8 @@ class Platform::DSL::Executors::ContentTest < ActiveSupport::TestCase
     assert_in_delta 43.9, @location.lat, 0.01
   end
 
-  test "execute_create for location without coordinates" do
-    # Test creating location without lat/lng (BiH check is skipped)
+  test "execute_create for location without coordinates raises error" do
+    # Creating location without lat/lng is now disallowed
     ast = {
       type: :mutation,
       action: :create,
@@ -822,8 +823,10 @@ class Platform::DSL::Executors::ContentTest < ActiveSupport::TestCase
       }
     }
 
-    result = Platform::DSL::Executors::Content.execute_mutation(ast)
-    assert result[:success]
+    error = assert_raises(Platform::DSL::ExecutionError) do
+      Platform::DSL::Executors::Content.execute_mutation(ast)
+    end
+    assert_match(/ne može biti kreirana bez koordinata/, error.message)
   end
 
   test "format_created_record handles location with nil description" do

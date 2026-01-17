@@ -503,7 +503,7 @@
              data-controller="add-to-plan"
              data-add-to-plan-experience-id-value="<%= @experience.uuid %>"
              data-add-to-plan-experience-title-value="<%= @experience.translate(:title, I18n.locale) %>"
-             data-add-to-plan-experience-description-value="<%= @experience.translate(:description, I18n.locale).truncate(150) %>"
+             data-add-to-plan-experience-description-value="<%= @experience.translate(:description, I18n.locale)&.truncate(150) || '' %>"
              data-add-to-plan-experience-duration-value="<%= @experience.formatted_duration %>">
 
             <%# When user has no plan %>

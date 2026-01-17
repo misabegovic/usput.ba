@@ -61,7 +61,7 @@ class Platform::DSL::MutationsTest < ActiveSupport::TestCase
 
   test "creates audit log on create" do
     assert_difference "PlatformAuditLog.count", 1 do
-      Platform::DSL.execute('create location { name: "Audit Test", city: "Tuzla" }')
+      Platform::DSL.execute('create location { name: "Audit Test", city: "Tuzla", lat: 44.54, lng: 18.67 }')
     end
 
     log = PlatformAuditLog.last

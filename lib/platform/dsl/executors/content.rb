@@ -79,6 +79,12 @@ module Platform
               end
             end
 
+            # CRITICAL: Require coordinates for locations
+            # This prevents creating locations with unknown/wrong coordinates
+            if is_location_table?(table) && !(data[:lat].present? && data[:lng].present?)
+              raise ExecutionError, "Lokacija '#{data[:name]}' ne može biti kreirana bez koordinata. Geoapify nije pronašao tačnu lokaciju. Koristi explicit lat/lng ili search_pois za pronalazak POI-ja sa koordinatama."
+            end
+
             # For locations, check for existing by coordinates first (find-or-create pattern)
             if is_location_table?(table) && data[:lat] && data[:lng]
               existing = Location.find_by_coordinates_fuzzy(data[:lat], data[:lng])
@@ -255,6 +261,23 @@ module Platform
 
               # Use Geoapify coordinates if not explicitly provided
               unless data[:lat].present? && data[:lng].present?
+                # CRITICAL: Validate that the result is actually in the expected city
+                # Geoapify text_search often returns wrong locations when POI doesn't exist
+                if city.present? && best_match[:address].present?
+                  address_lower = best_match[:address].to_s.downcase
+                  city_lower = city.downcase
+
+                  # Check if the address contains the city name (with some flexibility for diacritics)
+                  city_normalized = city_lower.gsub(/[čćžšđ]/, 'c' => 'c', 'ć' => 'c', 'ž' => 'z', 'š' => 's', 'đ' => 'd')
+                  address_normalized = address_lower.gsub(/[čćžšđ]/, 'c' => 'c', 'ć' => 'c', 'ž' => 'z', 'š' => 's', 'đ' => 'd')
+
+                  unless address_normalized.include?(city_normalized) || address_lower.include?(city_lower)
+                    Rails.logger.warn "[DSL::Content] Geoapify result for '#{name}' is not in expected city '#{city}'. Address: #{best_match[:address]}. Skipping coordinates."
+                    # Don't use coordinates from wrong city - return data without lat/lng enrichment
+                    return data
+                  end
+                end
+
                 enriched[:lat] = best_match[:lat]
                 enriched[:lng] = best_match[:lng]
               end
