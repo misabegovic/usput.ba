@@ -8,29 +8,31 @@ module Platform
       # Quality executor - handles content quality auditing
       #
       # Commands:
-      #   quality | audit     - Full quality audit
-      #   quality | stats     - Quick quality statistics
-      #   quality | check location { id: 123 } - Check specific location
-      #   quality | check experience { id: 456 } - Check specific experience
-      #   quality | incomplete locations - List incomplete locations
-      #   quality | incomplete experiences - List incomplete experiences
+      #   quality | audit        - Full quality audit
+      #   quality | stats        - Quick quality statistics (default)
+      #   quality | locations    - List incomplete locations
+      #   quality | experiences  - List incomplete experiences
       #
       module Quality
         class << self
           def execute_quality_query(ast)
-            operation = ast[:operation] || :stats
+            filters = ast[:filters] || {}
+            operation = ast[:operations]&.first
 
-            case operation.to_sym
+            case operation&.dig(:name)
             when :audit
               full_audit
             when :stats
               quality_stats
-            when :check
-              check_record(ast[:record_type], ast[:filters])
-            when :incomplete
-              list_incomplete(ast[:record_type], ast[:limit] || 20)
+            when :locations
+              list_incomplete_locations(filters[:limit] || 20)
+            when :experiences
+              list_incomplete_experiences(filters[:limit] || 20)
+            when nil
+              # Default to stats if no operation specified
+              quality_stats
             else
-              raise ExecutionError, "Nepoznata quality operacija: #{operation}"
+              raise ExecutionError, "Nepoznata quality operacija: #{operation&.dig(:name)}"
             end
           end
 
@@ -48,30 +50,6 @@ module Platform
               **stats,
               formatted: format_quality_stats(stats)
             }
-          end
-
-          def check_record(record_type, filters)
-            case record_type.to_s.downcase
-            when "location", "locations"
-              location = find_record(Location, filters)
-              QualityStandards.check_location(location)
-            when "experience", "experiences"
-              experience = find_record(Experience, filters)
-              QualityStandards.check_experience(experience)
-            else
-              raise ExecutionError, "Nepodržan tip za quality check: #{record_type}"
-            end
-          end
-
-          def list_incomplete(record_type, limit)
-            case record_type.to_s.downcase
-            when "location", "locations"
-              list_incomplete_locations(limit)
-            when "experience", "experiences"
-              list_incomplete_experiences(limit)
-            else
-              raise ExecutionError, "Nepodržan tip za incomplete listing: #{record_type}"
-            end
           end
 
           def list_incomplete_locations(limit)
@@ -118,18 +96,6 @@ module Platform
               showing: incomplete.size,
               items: incomplete
             }
-          end
-
-          def find_record(model, filters)
-            raise ExecutionError, "Potreban filter (npr. id)" if filters.nil? || filters.empty?
-
-            if filters[:id]
-              record = model.find_by(id: filters[:id])
-              raise ExecutionError, "#{model.name} sa id=#{filters[:id]} nije pronađen" unless record
-              record
-            else
-              raise ExecutionError, "Koristi id za quality check"
-            end
           end
 
           def format_quality_stats(stats)

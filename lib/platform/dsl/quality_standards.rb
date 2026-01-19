@@ -56,7 +56,7 @@ module Platform
           # Check translations
           LOCATION_REQUIREMENTS[:required_translations].each do |locale, fields|
             fields.each do |field|
-              translation = location.get_translation(field, locale)
+              translation = location.translate(field, locale)
               if translation.blank?
                 issues << "Nedostaje #{locale.upcase} prijevod za: #{field}"
               elsif translation.length < LOCATION_REQUIREMENTS[:min_description_length]
@@ -96,7 +96,7 @@ module Platform
           # Check translations
           EXPERIENCE_REQUIREMENTS[:required_translations].each do |locale, fields|
             fields.each do |field|
-              translation = experience.get_translation(field, locale)
+              translation = experience.translate(field, locale)
               if translation.blank?
                 issues << "Nedostaje #{locale.upcase} prijevod za: #{field}"
               elsif field == :description && translation.length < EXPERIENCE_REQUIREMENTS[:min_description_length]

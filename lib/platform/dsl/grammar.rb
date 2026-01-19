@@ -303,6 +303,15 @@ module Platform
         str("prompts").as(:command_type) >> space? >> filters.maybe >> space? >> operations.maybe
       end
 
+      # Quality commands
+      # quality | stats
+      # quality | audit
+      # quality | check location { id: 123 }
+      # quality | incomplete locations
+      rule(:quality_command) do
+        str("quality").as(:command_type) >> space? >> filters.maybe >> space? >> operations.maybe
+      end
+
       # prepare fix for "N+1 query in LocationsController"
       # prepare fix for "N+1 query" severity "high" file "app/controllers/locations_controller.rb"
       rule(:severity_clause) do
@@ -363,7 +372,7 @@ module Platform
       end
 
       rule(:query) do
-        space? >> (schema_command | summaries_command | clusters_command | external_command | proposals_command | applications_command | curators_command | code_command | logs_command | infrastructure_command | prompts_command | approval_command | curator_management_command | improvement_command | prompt_action_command | create_command | update_command | delete_command | generation_command | audio_command | table_query).as(:query) >> space?
+        space? >> (schema_command | summaries_command | clusters_command | external_command | proposals_command | applications_command | curators_command | code_command | logs_command | infrastructure_command | prompts_command | quality_command | approval_command | curator_management_command | improvement_command | prompt_action_command | create_command | update_command | delete_command | generation_command | audio_command | table_query).as(:query) >> space?
       end
 
       root(:query)
