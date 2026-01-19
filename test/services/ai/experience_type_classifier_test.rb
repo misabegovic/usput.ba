@@ -268,6 +268,35 @@ module Ai
       end
     end
 
+    test "classify with dry_run returns dry_run true in result" do
+      stub_ai_response("culture") do
+        result = @classifier.classify(@location, dry_run: true)
+
+        assert result[:success]
+        assert result[:dry_run]
+      end
+    end
+
+    test "classify without dry_run returns dry_run false in result" do
+      stub_ai_response("culture") do
+        result = @classifier.classify(@location, dry_run: false)
+
+        assert result[:success]
+        assert_not result[:dry_run]
+      end
+    end
+
+    test "parse_types_from_response is case insensitive for validation" do
+      # Create a type with uppercase key
+      ExperienceType.create!(key: "ADVENTURE", name: "Adventure", active: true)
+
+      types = @classifier.send(:parse_types_from_response, "adventure, ADVENTURE, culture")
+
+      # Should accept both cases and deduplicate
+      assert_includes types, "adventure"
+      assert_includes types, "culture"
+    end
+
     # === parse_types_from_response tests ===
 
     test "parse_types_from_response handles comma-separated types" do
