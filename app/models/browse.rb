@@ -241,7 +241,7 @@ class Browse < ApplicationRecord
     def syncable?(record)
       case record
       when Location
-        record.place_type? # Only sync places, not contacts (uses new category system)
+        true # Sync all locations (places and contacts)
       when Experience
         true # Always sync experiences
       when Plan
@@ -256,9 +256,9 @@ class Browse < ApplicationRecord
       transaction do
         delete_all
 
-        # Sync all locations (places only - using place_type? which supports new category system)
+        # Sync all locations (places and contacts)
         Location.includes(:location_categories).find_each do |loc|
-          sync_record(loc) if loc.place_type?
+          sync_record(loc)
         end
 
         # Sync all experiences

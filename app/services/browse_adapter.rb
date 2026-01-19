@@ -19,9 +19,7 @@ class BrowseAdapter
     private
 
     def location_attributes(location)
-      # Only sync places, not contacts
-      return nil unless location.place_type?
-
+      # Sync all locations (places and contacts)
       {
         title: location.name,
         description: build_location_description(location),
