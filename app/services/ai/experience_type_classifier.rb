@@ -9,7 +9,7 @@ module Ai
     class ClassificationError < StandardError; end
 
     def initialize
-      @llm = RubyLLM.chat(model: RubyLLM.config.default_model)
+      @llm = nil
     end
 
     # Classify a single location and add experience types
@@ -119,7 +119,7 @@ module Ai
       user_prompt = build_classification_prompt(location, hints)
       full_prompt = "#{system_prompt}\n\n#{user_prompt}"
 
-      response = @llm.ask(full_prompt)
+      response = llm.ask(full_prompt)
 
       # Parse response
       content = response.content
@@ -195,6 +195,10 @@ module Ai
       ExperienceType.active.ordered.map do |et|
         "- #{et.key}: #{et.name}#{et.description.present? ? ' - ' + et.description.truncate(100) : ''}"
       end.join("\n")
+    end
+
+    def llm
+      @llm ||= RubyLLM.chat(model: RubyLLM.config.default_model)
     end
 
     def log_info(message)
