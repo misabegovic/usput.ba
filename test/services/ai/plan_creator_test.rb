@@ -444,6 +444,72 @@ module Ai
       end
     end
 
+    test "create_for_profile passes profile activities to fetch_available_experiences" do
+      mock_experience = create_mock_experience(id: 1)
+
+      mock_ai_response = {
+        duration_days: 3,
+        titles: { "en" => "Test Plan", "bs" => "Test Plan BS" },
+        notes: { "en" => "Notes", "bs" => "Biljeske" },
+        days: [
+          { day_number: 1, theme: "Day 1", experience_ids: [1] }
+        ],
+        reasoning: "Test reasoning"
+      }
+
+      fetch_called_with = nil
+      @creator.stub :fetch_available_experiences, ->(city, activities) {
+        fetch_called_with = { city: city, activities: activities }
+        [mock_experience]
+      } do
+        stub_setting_min_experiences(1) do
+          stub_ai_queue_response(mock_ai_response) do
+            stub_existing_plans_empty do
+              @creator.create_for_profile(profile: "family", city: "Sarajevo")
+            end
+          end
+        end
+      end
+
+      assert_not_nil fetch_called_with
+      assert_equal "Sarajevo", fetch_called_with[:city]
+      assert fetch_called_with[:activities].is_a?(Array)
+    end
+
+    test "create_for_profile handles profile with empty activities" do
+      mock_experience = create_mock_experience(id: 1)
+
+      # Create a profile with empty activities array
+      custom_profile = {
+        description: "Test Profile",
+        preferences: {
+          pace: "moderate",
+          activities: [],
+          budget: "medium"
+        }
+      }
+
+      @creator.stub :generate_profile_data, custom_profile do
+        stub_experiences_with([mock_experience]) do
+          stub_setting_min_experiences(1) do
+            stub_ai_queue_response({
+              duration_days: 1,
+              titles: { "en" => "Test" },
+              notes: { "en" => "Notes" },
+              days: [{ day_number: 1, theme: "Day 1", experience_ids: [1] }],
+              reasoning: "Test"
+            }) do
+              stub_existing_plans_empty do
+                result = @creator.create_for_profile(profile: "custom", city: "Sarajevo")
+                # Should not crash, may return nil or Plan
+                assert [NilClass, Plan].include?(result.class)
+              end
+            end
+          end
+        end
+      end
+    end
+
     private
 
     def create_mock_experience(id: nil)

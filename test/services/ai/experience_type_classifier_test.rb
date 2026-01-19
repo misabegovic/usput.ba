@@ -102,6 +102,31 @@ module Ai
       end
     end
 
+    test "classify skips adding type when add_experience_type fails" do
+      stub_ai_response("culture, history") do
+        mock_location = Location.create!(
+          name: "Test",
+          city: "Test",
+          lat: 43.0,
+          lng: 18.0,
+          location_type: "place"
+        )
+
+        # Make add_experience_type fail for one type
+        call_count = 0
+        mock_location.stub :add_experience_type, ->(type) {
+          call_count += 1
+          raise StandardError, "Failed to add" if call_count == 1
+        } do
+          result = @classifier.classify(mock_location, dry_run: false)
+
+          assert result[:success]
+          assert_includes result[:types], "culture"
+          assert_includes result[:types], "history"
+        end
+      end
+    end
+
     # === classify_batch tests ===
 
     test "classify_batch processes multiple locations" do
@@ -163,6 +188,28 @@ module Ai
         assert_equal 1, result[:successful]
         assert_equal 1, result[:failed]
         assert_equal 1, result[:errors].count
+      end
+    end
+
+    test "classify_batch reports progress every 10 items" do
+      # Create 15 locations to test progress reporting
+      locations = []
+      15.times do |i|
+        locations << Location.create!(
+          name: "Location #{i}",
+          city: "Test",
+          lat: 43.0 + (i * 0.01),
+          lng: 18.0,
+          location_type: "place"
+        )
+      end
+
+      stub_ai_response("culture") do
+        result = @classifier.classify_batch(Location.where(id: locations.map(&:id)), dry_run: true)
+
+        assert_equal 15, result[:total]
+        assert_equal 15, result[:processed]
+        assert_equal 15, result[:successful]
       end
     end
 

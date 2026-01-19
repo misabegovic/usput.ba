@@ -614,6 +614,58 @@ module Ai
       assert classifier_called
     end
 
+    test "apply_enrichment falls back to hints when add_experience_type fails" do
+      mock_location = create_mock_location
+      mock_location.define_singleton_method(:set_translation) { |*| }
+
+      # Make add_experience_type fail
+      mock_location.define_singleton_method(:add_experience_type) { |type| raise "Failed" }
+
+      enrichment = {
+        descriptions: {},
+        historical_context: {},
+        suitable_experiences: ["culture"],
+        tags: [],
+        practical_info: {}
+      }
+
+      mock_classifier = OpenStruct.new
+      mock_classifier.define_singleton_method(:classify) do |location, dry_run:, hints:|
+        { success: false, error: "Classification failed" }
+      end
+
+      Ai::ExperienceTypeClassifier.stub :new, mock_classifier do
+        Locale.stub :ai_supported_codes, [] do
+          # Should not raise exception
+          assert_nothing_raised do
+            @enricher.send(:apply_enrichment, mock_location, enrichment)
+          end
+        end
+      end
+
+      assert_equal ["culture"], mock_location.suitable_experiences
+    end
+
+    test "apply_enrichment handles nil suitable_experiences" do
+      mock_location = create_mock_location
+      mock_location.define_singleton_method(:set_translation) { |*| }
+
+      enrichment = {
+        descriptions: {},
+        historical_context: {},
+        suitable_experiences: nil,
+        tags: [],
+        practical_info: {}
+      }
+
+      # Should not crash when suitable_experiences is nil
+      assert_nothing_raised do
+        Locale.stub :ai_supported_codes, [] do
+          @enricher.send(:apply_enrichment, mock_location, enrichment)
+        end
+      end
+    end
+
     test "apply_enrichment merges tags" do
       mock_location = create_mock_location
       mock_location.instance_variable_set(:@tags, ["existing-tag"])
