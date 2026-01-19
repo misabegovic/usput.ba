@@ -213,6 +213,61 @@ module Ai
       end
     end
 
+    test "classify returns location name in result when classification succeeds" do
+      stub_ai_response("culture") do
+        result = @classifier.classify(@location, dry_run: true)
+
+        assert result[:success]
+        assert_equal @location.name, result[:location_name]
+      end
+    end
+
+    test "classify catches exceptions and returns failure result" do
+      stub_ai_error do
+        result = @classifier.classify(@location, dry_run: true)
+
+        assert_not result[:success]
+        assert_equal @location.id, result[:location_id]
+        assert result[:error].present?
+        assert_empty result[:types]
+      end
+    end
+
+    test "classify_batch collects all errors" do
+      location2 = Location.create!(
+        name: "Location 2",
+        city: "Test",
+        lat: 43.1,
+        lng: 18.0,
+        location_type: "place"
+      )
+      location3 = Location.create!(
+        name: "Location 3",
+        city: "Test",
+        lat: 43.2,
+        lng: 18.0,
+        location_type: "place"
+      )
+      locations = [@location, location2, location3]
+
+      call_count = 0
+      @classifier.stub :classify, ->(loc, dry_run:) {
+        call_count += 1
+        if call_count == 1
+          { success: true, location_id: loc.id, types: ["culture"] }
+        else
+          { success: false, location_id: loc.id, types: [], error: "Error #{call_count}" }
+        end
+      } do
+        result = @classifier.classify_batch(Location.where(id: locations.map(&:id)), dry_run: true)
+
+        assert_equal 3, result[:processed]
+        assert_equal 1, result[:successful]
+        assert_equal 2, result[:failed]
+        assert_equal 2, result[:errors].count
+      end
+    end
+
     # === parse_types_from_response tests ===
 
     test "parse_types_from_response handles comma-separated types" do

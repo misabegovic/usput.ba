@@ -666,6 +666,85 @@ module Ai
       end
     end
 
+    test "generate_enrichment returns empty hash when AI request fails" do
+      mock_location = create_mock_location
+
+      Ai::OpenaiQueue.stub :request, ->(*) { raise Ai::OpenaiQueue::RequestError, "API Error" } do
+        Locale.stub :ai_supported_codes, [] do
+          result = @enricher.send(:generate_enrichment, mock_location, {})
+          # Should return the initial combined_result even if metadata fails
+          assert result.is_a?(Hash)
+          assert result.key?(:suitable_experiences)
+          assert result.key?(:descriptions)
+          assert result.key?(:historical_context)
+        end
+      end
+    end
+
+    test "generate_metadata returns empty hash on RequestError" do
+      mock_location = create_mock_location
+
+      Ai::OpenaiQueue.stub :request, ->(*) { raise Ai::OpenaiQueue::RequestError, "API Error" } do
+        result = @enricher.send(:generate_metadata, mock_location, {})
+        assert_equal({}, result)
+      end
+    end
+
+    test "generate_descriptions returns empty hash on RequestError" do
+      mock_location = create_mock_location
+
+      Ai::OpenaiQueue.stub :request, ->(*) { raise Ai::OpenaiQueue::RequestError, "API Error" } do
+        result = @enricher.send(:generate_descriptions, mock_location, {}, ["en"])
+        assert_equal({}, result)
+      end
+    end
+
+    test "generate_historical_context returns empty hash on RequestError" do
+      mock_location = create_mock_location
+
+      Ai::OpenaiQueue.stub :request, ->(*) { raise Ai::OpenaiQueue::RequestError, "API Error" } do
+        result = @enricher.send(:generate_historical_context, mock_location, {}, ["en"])
+        assert_equal({}, result)
+      end
+    end
+
+    test "generate_enrichment merges results when metadata present" do
+      mock_location = create_mock_location
+
+      metadata_response = {
+        suitable_experiences: ["culture"],
+        tags: ["historical"],
+        practical_info: { duration_minutes: 60 }
+      }
+
+      call_count = 0
+      Ai::OpenaiQueue.stub :request, ->(*) {
+        call_count += 1
+        if call_count == 1
+          metadata_response
+        else
+          { descriptions: { "en" => "Test" }, historical_context: { "en" => "History" } }
+        end
+      } do
+        Locale.stub :ai_supported_codes, ["en"] do
+          result = @enricher.send(:generate_enrichment, mock_location, {})
+
+          assert_includes result[:suitable_experiences], "culture"
+          assert_includes result[:tags], "historical"
+          assert_equal 60, result[:practical_info][:duration_minutes]
+        end
+      end
+    end
+
+    test "generate_descriptions returns empty hash when result has no descriptions" do
+      mock_location = create_mock_location
+
+      Ai::OpenaiQueue.stub :request, { other_field: "value" } do
+        result = @enricher.send(:generate_descriptions, mock_location, {}, ["en"])
+        assert_equal({}, result)
+      end
+    end
+
     test "apply_enrichment merges tags" do
       mock_location = create_mock_location
       mock_location.instance_variable_set(:@tags, ["existing-tag"])

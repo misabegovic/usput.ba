@@ -510,6 +510,51 @@ module Ai
       end
     end
 
+    test "fetch_available_experiences uses Experience.all when city is nil" do
+      mock_experience = create_mock_experience
+
+      # Verify that Experience.all is called when city is nil
+      all_called = false
+      Experience.stub :all, ->() {
+        all_called = true
+        mock_relation = OpenStruct.new
+        mock_relation.define_singleton_method(:includes) { |*| [mock_experience] }
+        mock_relation
+      } do
+        result = @creator.send(:fetch_available_experiences, nil, nil)
+        assert all_called
+      end
+    end
+
+    test "fetch_available_experiences applies both city and activities filters" do
+      mock_experience = create_mock_experience
+
+      stub_experiences_with([mock_experience]) do
+        result = @creator.send(:fetch_available_experiences, "Sarajevo", ["culture", "history"])
+        # Should apply both filters
+        assert_equal 1, result.count
+      end
+    end
+
+    test "fetch_available_experiences includes locations and experience_category" do
+      mock_experience = create_mock_experience
+
+      includes_called_with = nil
+      mock_relation = OpenStruct.new
+      mock_relation.define_singleton_method(:where) { |*| self }
+      mock_relation.define_singleton_method(:distinct) { self }
+      mock_relation.define_singleton_method(:joins) { |*| self }
+      mock_relation.define_singleton_method(:includes) do |*args|
+        includes_called_with = args
+        [mock_experience]
+      end
+
+      Experience.stub :joins, mock_relation do
+        @creator.send(:fetch_available_experiences, "Sarajevo", nil)
+        assert_equal [:locations, :experience_category], includes_called_with
+      end
+    end
+
     private
 
     def create_mock_experience(id: nil)
