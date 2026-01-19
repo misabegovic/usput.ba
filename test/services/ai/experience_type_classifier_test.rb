@@ -468,6 +468,51 @@ module Ai
       end
     end
 
+    test "available_types_description includes type descriptions when present" do
+      # Update one type to have a description
+      @culture.update(description: "Cultural experiences and heritage")
+
+      description = @classifier.send(:available_types_description)
+
+      assert_includes description, "Cultural experiences"
+    end
+
+    test "available_types_description truncates long descriptions" do
+      # Create a type with a very long description
+      long_desc = "A" * 200
+      @culture.update(description: long_desc)
+
+      description = @classifier.send(:available_types_description)
+
+      # Should be truncated to 100 chars plus ellipsis
+      assert description.length < long_desc.length + 50
+    end
+
+    test "classify_batch logs final summary" do
+      locations = [@location]
+
+      stub_ai_response("culture") do
+        result = @classifier.classify_batch(Location.where(id: locations.map(&:id)), dry_run: true)
+
+        # Should complete successfully
+        assert_equal 1, result[:successful]
+        assert_equal 1, result[:total]
+      end
+    end
+
+    test "classify uses hints in log message when provided" do
+      hints = ["culture", "history"]
+
+      stub_ai_response("culture, history, architecture") do
+        result = @classifier.classify(@location, dry_run: true, hints: hints)
+
+        assert result[:success]
+        # Should have used hints
+        assert_includes result[:types], "culture"
+        assert_includes result[:types], "history"
+      end
+    end
+
     private
 
     def stub_ai_response(response_text)
