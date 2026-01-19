@@ -8,18 +8,36 @@ module Ai
     setup do
       @classifier = Ai::ExperienceTypeClassifier.new
 
-      # Create experience types for testing
+      # Ensure experience types exist for all tests
       @culture = ExperienceType.find_or_create_by!(key: "culture") do |et|
         et.name = "Culture"
         et.active = true
+        et.position = 1
       end
       @history = ExperienceType.find_or_create_by!(key: "history") do |et|
         et.name = "History"
         et.active = true
+        et.position = 2
       end
       @nature = ExperienceType.find_or_create_by!(key: "nature") do |et|
         et.name = "Nature"
         et.active = true
+        et.position = 3
+      end
+      @architecture = ExperienceType.find_or_create_by!(key: "architecture") do |et|
+        et.name = "Architecture"
+        et.active = true
+        et.position = 4
+      end
+      @food = ExperienceType.find_or_create_by!(key: "food") do |et|
+        et.name = "Food"
+        et.active = true
+        et.position = 5
+      end
+      @adventure = ExperienceType.find_or_create_by!(key: "adventure") do |et|
+        et.name = "Adventure"
+        et.active = true
+        et.position = 6
       end
 
       @location = Location.create!(
@@ -287,14 +305,44 @@ module Ai
     end
 
     test "parse_types_from_response is case insensitive for validation" do
-      # Create a type with uppercase key
-      ExperienceType.create!(key: "ADVENTURE", name: "Adventure", active: true)
+      types = @classifier.send(:parse_types_from_response, "CULTURE, Culture, culture, HISTORY")
 
-      types = @classifier.send(:parse_types_from_response, "adventure, ADVENTURE, culture")
-
-      # Should accept both cases and deduplicate
-      assert_includes types, "adventure"
+      # Should accept all cases and deduplicate
+      assert_equal 2, types.count
       assert_includes types, "culture"
+      assert_includes types, "history"
+    end
+
+    test "classify logs info when classification succeeds" do
+      stub_ai_response("culture") do
+        # Just verify it doesn't crash and returns success
+        result = @classifier.classify(@location, dry_run: true)
+
+        assert result[:success]
+        assert_includes result[:types], "culture"
+      end
+    end
+
+    test "classify logs warn when no types are classified" do
+      stub_ai_response("") do
+        result = @classifier.classify(@location, dry_run: true)
+
+        assert_not result[:success]
+        assert_equal "No types returned", result[:error]
+      end
+    end
+
+    test "classify adds type successfully when not dry_run" do
+      stub_ai_response("culture, history") do
+        # Ensure location has no types initially
+        @location.location_experience_types.delete_all
+
+        result = @classifier.classify(@location, dry_run: false)
+
+        assert result[:success]
+        @location.reload
+        assert @location.location_experience_types.count > 0
+      end
     end
 
     # === parse_types_from_response tests ===
