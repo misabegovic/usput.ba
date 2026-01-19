@@ -497,6 +497,123 @@ module Ai
       assert_equal ["culture", "history"], mock_location.suitable_experiences
     end
 
+    test "apply_enrichment uses classifier with hints when available" do
+      mock_location = create_mock_location
+      mock_location.define_singleton_method(:set_translation) { |*| }
+
+      enrichment = {
+        descriptions: {},
+        historical_context: {},
+        suitable_experiences: ["culture", "history"],
+        tags: [],
+        practical_info: {}
+      }
+
+      classifier_called = false
+      mock_classifier = OpenStruct.new
+      mock_classifier.define_singleton_method(:classify) do |location, dry_run:, hints:|
+        classifier_called = true
+        assert_equal ["culture", "history"], hints
+        { success: true, types: ["culture", "history", "architecture"] }
+      end
+
+      Ai::ExperienceTypeClassifier.stub :new, mock_classifier do
+        Locale.stub :ai_supported_codes, [] do
+          @enricher.send(:apply_enrichment, mock_location, enrichment)
+        end
+      end
+
+      assert classifier_called
+    end
+
+    test "apply_enrichment falls back to hints when classifier fails" do
+      mock_location = create_mock_location
+      mock_location.define_singleton_method(:set_translation) { |*| }
+      types_added = []
+      mock_location.define_singleton_method(:add_experience_type) { |type| types_added << type }
+
+      enrichment = {
+        descriptions: {},
+        historical_context: {},
+        suitable_experiences: ["culture", "history"],
+        tags: [],
+        practical_info: {}
+      }
+
+      mock_classifier = OpenStruct.new
+      mock_classifier.define_singleton_method(:classify) do |location, dry_run:, hints:|
+        { success: false, error: "Classification failed" }
+      end
+
+      Ai::ExperienceTypeClassifier.stub :new, mock_classifier do
+        Locale.stub :ai_supported_codes, [] do
+          @enricher.send(:apply_enrichment, mock_location, enrichment)
+        end
+      end
+
+      assert_equal ["culture", "history"], mock_location.suitable_experiences
+      assert_includes types_added, "culture"
+      assert_includes types_added, "history"
+    end
+
+    test "apply_enrichment falls back to hints when classifier raises exception" do
+      mock_location = create_mock_location
+      mock_location.define_singleton_method(:set_translation) { |*| }
+      types_added = []
+      mock_location.define_singleton_method(:add_experience_type) { |type| types_added << type }
+
+      enrichment = {
+        descriptions: {},
+        historical_context: {},
+        suitable_experiences: ["culture"],
+        tags: [],
+        practical_info: {}
+      }
+
+      mock_classifier = OpenStruct.new
+      mock_classifier.define_singleton_method(:classify) do |location, dry_run:, hints:|
+        raise StandardError, "Classifier error"
+      end
+
+      Ai::ExperienceTypeClassifier.stub :new, mock_classifier do
+        Locale.stub :ai_supported_codes, [] do
+          @enricher.send(:apply_enrichment, mock_location, enrichment)
+        end
+      end
+
+      assert_equal ["culture"], mock_location.suitable_experiences
+      assert_includes types_added, "culture"
+    end
+
+    test "apply_enrichment handles no hints gracefully" do
+      mock_location = create_mock_location
+      mock_location.define_singleton_method(:set_translation) { |*| }
+
+      enrichment = {
+        descriptions: {},
+        historical_context: {},
+        suitable_experiences: [],
+        tags: [],
+        practical_info: {}
+      }
+
+      classifier_called = false
+      mock_classifier = OpenStruct.new
+      mock_classifier.define_singleton_method(:classify) do |location, dry_run:, hints:|
+        classifier_called = true
+        assert_nil hints
+        { success: true, types: ["nature"] }
+      end
+
+      Ai::ExperienceTypeClassifier.stub :new, mock_classifier do
+        Locale.stub :ai_supported_codes, [] do
+          @enricher.send(:apply_enrichment, mock_location, enrichment)
+        end
+      end
+
+      assert classifier_called
+    end
+
     test "apply_enrichment merges tags" do
       mock_location = create_mock_location
       mock_location.instance_variable_set(:@tags, ["existing-tag"])

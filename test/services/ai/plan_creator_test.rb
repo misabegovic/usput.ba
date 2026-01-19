@@ -402,6 +402,48 @@ module Ai
       assert_nil result
     end
 
+    # === fetch_available_experiences tests ===
+
+    test "fetch_available_experiences filters by city when provided" do
+      mock_experience = create_mock_experience
+      stub_experiences_with([mock_experience]) do
+        result = @creator.send(:fetch_available_experiences, "Sarajevo", nil)
+        assert_equal 1, result.count
+      end
+    end
+
+    test "fetch_available_experiences returns all when city is nil" do
+      mock_experience = create_mock_experience
+      stub_experiences_with([mock_experience]) do
+        result = @creator.send(:fetch_available_experiences, nil, nil)
+        assert_equal 1, result.count
+      end
+    end
+
+    test "fetch_available_experiences filters by experience types when provided" do
+      mock_experience = create_mock_experience
+      stub_experiences_with([mock_experience]) do
+        result = @creator.send(:fetch_available_experiences, "Sarajevo", ["culture", "history"])
+        assert_equal 1, result.count
+      end
+    end
+
+    test "fetch_available_experiences does not filter when activities is empty array" do
+      mock_experience = create_mock_experience
+      stub_experiences_with([mock_experience]) do
+        result = @creator.send(:fetch_available_experiences, "Sarajevo", [])
+        assert_equal 1, result.count
+      end
+    end
+
+    test "fetch_available_experiences does not filter when activities is nil" do
+      mock_experience = create_mock_experience
+      stub_experiences_with([mock_experience]) do
+        result = @creator.send(:fetch_available_experiences, "Sarajevo", nil)
+        assert_equal 1, result.count
+      end
+    end
+
     private
 
     def create_mock_experience(id: nil)
@@ -454,7 +496,9 @@ module Ai
 
       Experience.stub :joins, mock_relation do
         Experience.stub :includes, mock_relation do
-          yield
+          Experience.stub :all, mock_relation do
+            yield
+          end
         end
       end
     end
