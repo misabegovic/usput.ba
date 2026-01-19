@@ -83,6 +83,32 @@ class Platform::DSL::GrammarTest < ActiveSupport::TestCase
     assert result
   end
 
+  # Quality commands
+  test "parses quality | stats" do
+    result = @grammar.parse("quality | stats")
+    assert result
+  end
+
+  test "parses quality | audit" do
+    result = @grammar.parse("quality | audit")
+    assert result
+  end
+
+  test "parses quality | locations" do
+    result = @grammar.parse("quality | locations")
+    assert result
+  end
+
+  test "parses quality | experiences" do
+    result = @grammar.parse("quality | experiences")
+    assert result
+  end
+
+  test "parses quality with filters" do
+    result = @grammar.parse("quality { limit: 10 } | locations")
+    assert result
+  end
+
   # Invalid queries
   test "raises on invalid syntax" do
     assert_raises(Parslet::ParseFailed) do

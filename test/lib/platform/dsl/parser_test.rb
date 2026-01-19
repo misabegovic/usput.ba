@@ -677,4 +677,40 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
     assert_equal :aggregate, op[:name]
     assert_nil op[:group_by]
   end
+
+  # Quality queries
+  test "parses quality stats query" do
+    ast = Platform::DSL::Parser.parse("quality | stats")
+    assert_equal :quality_query, ast[:type]
+    assert_equal :stats, ast[:operations].first[:name]
+  end
+
+  test "parses quality audit query" do
+    ast = Platform::DSL::Parser.parse("quality | audit")
+    assert_equal :quality_query, ast[:type]
+    assert_equal :audit, ast[:operations].first[:name]
+  end
+
+  test "parses quality locations query" do
+    ast = Platform::DSL::Parser.parse("quality | locations")
+    assert_equal :quality_query, ast[:type]
+    assert_equal :locations, ast[:operations].first[:name]
+  end
+
+  test "parses quality experiences query" do
+    ast = Platform::DSL::Parser.parse("quality | experiences")
+    assert_equal :quality_query, ast[:type]
+    assert_equal :experiences, ast[:operations].first[:name]
+  end
+
+  test "parses quality with filters" do
+    ast = Platform::DSL::Parser.parse("quality { limit: 50 } | locations")
+    assert_equal :quality_query, ast[:type]
+    assert_equal 50, ast[:filters][:limit]
+  end
+
+  test "parses quality without operation defaults to stats" do
+    ast = Platform::DSL::Parser.parse("quality")
+    assert_equal :quality_query, ast[:type]
+  end
 end

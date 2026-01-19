@@ -45,6 +45,20 @@ class Geo::BihBoundaryValidatorTest < ActiveSupport::TestCase
     assert Geo::BihBoundaryValidator.inside_bih?(43.7833, 19.2833)
   end
 
+  test "Bijeljina is inside BiH" do
+    # Bijeljina in Semberija region - fixed in 2026-01-17 update
+    assert Geo::BihBoundaryValidator.inside_bih?(44.75, 19.21)
+  end
+
+  test "Zvornik is inside BiH" do
+    assert Geo::BihBoundaryValidator.inside_bih?(44.39, 19.10)
+  end
+
+  test "Srebrenica is inside BiH" do
+    # Fixed in 2026-01-16 update
+    assert Geo::BihBoundaryValidator.inside_bih?(44.11, 19.30)
+  end
+
   # === Non-BiH cities (should be outside) ===
 
   test "Belgrade (Serbia) is outside BiH" do
