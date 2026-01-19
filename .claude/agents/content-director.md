@@ -31,7 +31,48 @@ Nekompletan sadržaj = NEPRIHVATLJIVO:
 ✓ BS opis - minimum 100 karaktera
 ✓ EN opis - minimum 100 karaktera
 ✓ tags - kategorije
+✓ experience_types - minimum 1 tip (npr. culture, nature, food)
 ```
+
+**⚠️ CRITICAL: Experience Types Quality Issue**
+
+**Problem**: ~51% lokacija (585/1140) trenutno nemaju experience types!
+
+**Zašto je ovo važno**:
+- Plan filtering koristi experience types za matching profila
+- Korisnici traže iskustva po tipovima (adventure, culture, food, itd.)
+- Nedostajući tipovi = loš user experience i irelevantni planovi
+
+**Observability - Kako pratiti**:
+```bash
+# Check current status
+PROD_DATABASE_URL=... bin/rails runner "
+total = Location.count
+with_types = Location.joins(:location_experience_types).distinct.count
+without = total - with_types
+puts \"Locations with experience types: #{with_types}/#{total} (#{(with_types.to_f/total*100).round(1)}%)\"
+puts \"WITHOUT types: #{without} (#{(without.to_f/total*100).round(1)}%) ⚠️\"
+"
+
+# Get sample of locations without types
+PROD_DATABASE_URL=... bin/rails runner "
+Location.left_joins(:location_experience_types)
+  .where(location_experience_types: { id: nil })
+  .limit(10).each do |loc|
+    puts \"ID: #{loc.id} - #{loc.name} (#{loc.city})\"
+  end
+"
+```
+
+**Rješenje - Automatski ugrađeno**:
+- LocationEnricher sada automatski klasificira SVE nove lokacije
+- Koristi ExperienceTypeClassifier sa two-stage approach
+- Retroaktivna populacija će se desiti organically kako updateuješ lokacije
+
+**Tvoj zadatak**:
+- UVIJEK provjeri da svaka nova lokacija ima experience_types
+- Kada updateuješ stare lokacije, provjeravaj i dodaj experience types
+- Prati progress u kvaliteti - target je 90%+ coverage
 
 #### Za svako ISKUSTVO (obavezno):
 ```
@@ -67,6 +108,13 @@ WHERE NOT EXISTS (
   AND t.field_name = 'description'
   AND t.value IS NOT NULL
   AND LENGTH(t.value) >= 100
+)
+UNION ALL
+SELECT 'Lokacije bez experience types ⚠️', COUNT(*)
+FROM locations l
+WHERE NOT EXISTS (
+  SELECT 1 FROM location_experience_types let
+  WHERE let.location_id = l.id
 )
 UNION ALL
 SELECT 'Iskustva bez lokacija', COUNT(*)
