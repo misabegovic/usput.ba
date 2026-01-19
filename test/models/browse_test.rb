@@ -744,7 +744,7 @@ class BrowseTest < ActiveSupport::TestCase
     location.destroy
   end
 
-  test "sync_record does not create browse record for contact type location" do
+  test "sync_record creates browse record for contact type location" do
     location = Location.create!(
       name: "Test Guide",
       city: "Sarajevo",
@@ -756,7 +756,9 @@ class BrowseTest < ActiveSupport::TestCase
     Browse.sync_record(location)
 
     browse = Browse.find_by(browsable: location)
-    assert_nil browse
+    assert_not_nil browse
+    assert_equal "Test Guide", browse.title
+    assert_equal "Sarajevo", browse.city_name
 
     location.destroy
   end
@@ -828,7 +830,7 @@ class BrowseTest < ActiveSupport::TestCase
     location.destroy
   end
 
-  test "syncable? returns false for contact type location" do
+  test "syncable? returns true for contact type location" do
     location = Location.create!(
       name: "Test Guide",
       city: "Sarajevo",
@@ -836,7 +838,7 @@ class BrowseTest < ActiveSupport::TestCase
       lng: 18.4131,
       location_type: :guide
     )
-    assert_not Browse.syncable?(location)
+    assert Browse.syncable?(location)
     location.destroy
   end
 

@@ -94,7 +94,7 @@ class BrowseAdapterTest < ActiveSupport::TestCase
     assert_equal ["spring", "summer", "fall", "winter"], attrs[:seasons]
   end
 
-  test "attributes_for location returns nil for contact types" do
+  test "attributes_for location includes contact types" do
     contact = Location.create!(
       name: "Tour Guide",
       city: "Sarajevo",
@@ -105,7 +105,11 @@ class BrowseAdapterTest < ActiveSupport::TestCase
 
     attrs = BrowseAdapter.attributes_for(contact)
 
-    assert_nil attrs
+    assert_not_nil attrs
+    assert_equal "Tour Guide", attrs[:title]
+    assert_equal "Sarajevo", attrs[:city_name]
+    assert_equal 43.86, attrs[:lat]
+    assert_equal 18.42, attrs[:lng]
 
     contact.destroy
   end
