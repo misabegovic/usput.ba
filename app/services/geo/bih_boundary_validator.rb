@@ -44,12 +44,21 @@ module Geo
       [44.88, 18.85],
       [44.87, 18.95],
 
+      # Northeast corner - Semberija region (includes Bijeljina)
+      # Updated 2026-01-17: Extended polygon to include Bijeljina (44.75, 19.21)
+      # The border follows the Sava river north, then turns south along Drina
+      [44.90, 19.10],
+      [44.88, 19.22],  # Along Sava towards Drina confluence
+      [44.85, 19.28],  # Northeast corner - Sava-Drina confluence
+      [44.80, 19.32],  # East of Bijeljina
+      [44.75, 19.30],  # Bijeljina area (city at 44.75, 19.21)
+      [44.70, 19.25],  # South of Bijeljina, towards Zvornik
+
       # Eastern border - Drina river (critical for excluding Serbia)
       # Updated 2026-01-16: Fixed to include Srebrenica and Potočari
       # The Drina river meanders significantly - traced from actual river course
-      [44.80, 19.03],
-      [44.70, 19.05],
-      [44.60, 19.08],  # North of Zvornik
+      [44.65, 19.15],
+      [44.60, 19.10],  # North of Zvornik
       [44.50, 19.10],  # Zvornik area - river is narrow here
       [44.40, 19.10],  # South of Zvornik - Drina at ~19.10-19.11
       [44.35, 19.18],  # Drina bends east toward Bratunac
