@@ -444,6 +444,7 @@ module Ai
       mock_relation.define_singleton_method(:where) { |*| self }
       mock_relation.define_singleton_method(:distinct) { self }
       mock_relation.define_singleton_method(:includes) { |*| self }
+      mock_relation.define_singleton_method(:joins) { |*| self }
       mock_relation.define_singleton_method(:all) { self }
       mock_relation.define_singleton_method(:count) { experiences.count }
       mock_relation.define_singleton_method(:each) { |&block| experiences.each(&block) }
