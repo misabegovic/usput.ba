@@ -164,15 +164,33 @@ bin/rails runner 'puts Platform::DSL::QualityStandards.quality_stats[:overall_qu
 # Quality score MORA rasti, nikada padati!
 ```
 
+## ⚠️ KRITIČNO: NE KORISTI TMP RUBY SKRIPTE!
+
+**NIKADA ne kreiraj tmp/*.rb skripte za kreiranje lokacija ili iskustava!**
+
+Problem: Tmp skripte ne postavljaju `ai_generated: true` što uzrokuje da se sadržaj pogrešno označava kao "human made".
+
+**UVIJEK koristi DSL komande za kreiranje sadržaja!**
+
+Ako MORAŠ koristiti Rails runner (npr. za dodavanje lokacija iskustvima), UVIJEK uključi `ai_generated: true`:
+```ruby
+# ✅ ISPRAVNO - sa ai_generated: true
+Location.create!(name: "Ime", city: "Grad", ai_generated: true, ...)
+
+# ❌ POGREŠNO - bez ai_generated
+Location.create!(name: "Ime", city: "Grad", ...)
+```
+
 ## WORKFLOW za kreiranje NOVE LOKACIJE
 
 ```bash
 # 1. Provjeri da ne postoji
 bin/platform exec 'locations { name: "Naziv" } | count'
 
-# 2. Kreiraj (automatski Geoapify)
-bin/platform exec 'create location "Naziv" for city "Grad"'
-# Zapamti ID!
+# 2. Kreiraj lokaciju (ISPRAVNA DSL SINTAKSA!)
+# NAPOMENA: DSL automatski postavlja ai_generated: true
+bin/platform exec 'create location { name: "Naziv", city: "Grad" }'
+# Zapamti ID iz odgovora!
 
 # 3. ODMAH generiši opis
 bin/platform exec 'generate description for location { id: X } style "vivid"'
@@ -195,9 +213,10 @@ bin/platform exec 'locations { id: 1 } | first'
 bin/platform exec 'locations { id: 2 } | first'
 # Svaka lokacija MORA imati opis i prijevode!
 
-# 2. Kreiraj iskustvo
-bin/platform exec 'create experience "Naslov" with locations [1, 2, 3]'
-# Zapamti ID!
+# 2. Kreiraj iskustvo (ISPRAVNA DSL SINTAKSA!)
+# NAPOMENA: DSL automatski postavlja ai_generated: true
+bin/platform exec 'generate experience from locations [1, 2, 3]'
+# Zapamti ID iz odgovora!
 
 # 3. ODMAH generiši prijevode za naslov i opis
 bin/platform exec 'generate translations for experience { id: X } to [bs, en]'
