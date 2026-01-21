@@ -67,6 +67,18 @@ module Platform
             model = TableQuery.resolve_model(table)
             validate_mutation_data!(table, data, :create)
 
+            # For locations, run content validation first
+            if is_location_table?(table)
+              validation_result = validate_location_content(data)
+              if validation_result && !validation_result.valid?
+                raise ExecutionError, "Validacija nije prošla: #{validation_result.errors.map { |e| e[:message] }.join(', ')}"
+              end
+              # Log warnings but continue
+              if validation_result&.warnings&.any?
+                Rails.logger.warn "[DSL::Content] Validation warnings for '#{data[:name]}': #{validation_result.warnings.map { |w| w[:message] }.join(', ')}"
+              end
+            end
+
             # For locations, enrich with Geoapify data (coordinates, tags, etc.)
             if is_location_table?(table)
               data = enrich_location_with_geoapify(data)
@@ -221,6 +233,30 @@ module Platform
 
           def is_experience_table?(table)
             %w[experience experiences].include?(table.to_s.downcase)
+          end
+
+          # Validate location content before creation (checks for hallucinations, duplicates, etc.)
+          # @param data [Hash] Location data with :name and :city
+          # @return [ValidationResult, nil] Validation result or nil if validation disabled
+          def validate_location_content(data)
+            return nil if data[:skip_validation] # Allow bypassing for tests
+
+            name = data[:name]
+            city = data[:city]
+            return nil unless name.present? && city.present?
+
+            begin
+              require_relative "../content_validator"
+              ContentValidator.validate_location(
+                name: name,
+                city: city,
+                lat: data[:lat],
+                lng: data[:lng]
+              )
+            rescue StandardError => e
+              Rails.logger.warn "[DSL::Content] Content validation failed: #{e.message}"
+              nil # Don't block creation if validation fails
+            end
           end
 
           # Enrich location data using Geoapify

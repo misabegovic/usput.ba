@@ -312,6 +312,37 @@ module Platform
         str("quality").as(:command_type) >> space? >> filters.maybe >> space? >> operations.maybe
       end
 
+      # Validation commands
+      # validate location { name: "X", city: "Y" }
+      rule(:validate_location_command) do
+        str("validate").as(:validation_cmd) >> space >>
+        str("location").as(:validate_type) >> space? >> filters
+      end
+
+      # validate experience from locations [1, 2, 3]
+      rule(:validate_experience_command) do
+        str("validate").as(:validation_cmd) >> space >>
+        str("experience").as(:validate_type) >> space >>
+        str("from") >> space >> str("locations") >> space >> array.as(:location_ids)
+      end
+
+      # scan suspicious patterns
+      rule(:scan_suspicious_command) do
+        str("scan").as(:validation_cmd) >> space >>
+        str("suspicious").as(:scan_type) >> space >> str("patterns")
+      end
+
+      # find duplicates for location { name: "X" }
+      rule(:find_duplicates_command) do
+        str("find").as(:validation_cmd) >> space >>
+        str("duplicates").as(:find_type) >> space >>
+        str("for") >> space >> str("location") >> space? >> filters
+      end
+
+      rule(:validation_command) do
+        validate_location_command | validate_experience_command | scan_suspicious_command | find_duplicates_command
+      end
+
       # prepare fix for "N+1 query in LocationsController"
       # prepare fix for "N+1 query" severity "high" file "app/controllers/locations_controller.rb"
       rule(:severity_clause) do
@@ -372,7 +403,7 @@ module Platform
       end
 
       rule(:query) do
-        space? >> (schema_command | summaries_command | clusters_command | external_command | proposals_command | applications_command | curators_command | code_command | logs_command | infrastructure_command | prompts_command | quality_command | approval_command | curator_management_command | improvement_command | prompt_action_command | create_command | update_command | delete_command | generation_command | audio_command | table_query).as(:query) >> space?
+        space? >> (schema_command | summaries_command | clusters_command | external_command | proposals_command | applications_command | curators_command | code_command | logs_command | infrastructure_command | prompts_command | quality_command | validation_command | approval_command | curator_management_command | improvement_command | prompt_action_command | create_command | update_command | delete_command | generation_command | audio_command | table_query).as(:query) >> space?
       end
 
       root(:query)

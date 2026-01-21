@@ -438,6 +438,46 @@ module Platform
           reason: dict[:r]&.to_s
         }
       end
+
+      # Validation commands
+      # validate location { name: "X", city: "Y" }
+      rule(query: { validation_cmd: simple(:cmd), validate_type: simple(:vt), filters: subtree(:f) }) do |dict|
+        {
+          type: :validation,
+          action: dict[:cmd].to_s.to_sym,
+          validate_type: dict[:vt].to_s.to_sym,
+          data: Transform.convert_filters(dict[:f])
+        }
+      end
+
+      # validate experience from locations [1, 2, 3]
+      rule(query: { validation_cmd: simple(:cmd), validate_type: simple(:vt), location_ids: subtree(:ids) }) do |dict|
+        ids = Array(dict[:ids]).map { |id| id.is_a?(Integer) ? id : id.to_i }
+        {
+          type: :validation,
+          action: dict[:cmd].to_s.to_sym,
+          validate_type: dict[:vt].to_s.to_sym,
+          location_ids: ids
+        }
+      end
+
+      # scan suspicious patterns
+      rule(query: { validation_cmd: simple(:cmd), scan_type: simple(:st) }) do |dict|
+        {
+          type: :validation,
+          action: :scan,
+          scan_type: dict[:st].to_s.to_sym
+        }
+      end
+
+      # find duplicates for location { name: "X" }
+      rule(query: { validation_cmd: simple(:cmd), find_type: simple(:ft), filters: subtree(:f) }) do |dict|
+        {
+          type: :validation,
+          action: :find_duplicates,
+          data: Transform.convert_filters(dict[:f])
+        }
+      end
     end
   end
 end

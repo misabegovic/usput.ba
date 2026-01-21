@@ -87,6 +87,10 @@ module Platform
           when :quality_query
             Executors::Quality.execute_quality_query(ast)
 
+          # Validation queries
+          when :validation
+            Executors::Quality.execute_validation(ast)
+
           else
             raise ExecutionError, "Nepoznat tip query-ja: #{ast[:type]}"
           end
