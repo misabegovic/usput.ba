@@ -38,6 +38,7 @@ class ContentChange < ApplicationRecord
 
   # Find existing pending proposal for a resource, or create a new one
   # Ensures only one pending proposal exists per resource
+  # Returns the proposal (persisted or not) - caller should check .persisted?
   def self.find_or_create_for_update(changeable:, user:, original_data:, proposed_data:)
     # Look for existing pending proposal for this resource
     existing = pending.find_by(changeable: changeable)
@@ -47,8 +48,8 @@ class ContentChange < ApplicationRecord
       existing.add_contribution(user: user, proposed_data: proposed_data)
       existing
     else
-      # Create new proposal
-      create!(
+      # Create new proposal (use create without bang to return unpersisted on failure)
+      create(
         user: user,
         change_type: :update_content,
         changeable: changeable,
@@ -65,12 +66,13 @@ class ContentChange < ApplicationRecord
     if existing
       # If there's already a pending update, convert it to delete
       if existing.update_content?
-        existing.update!(change_type: :delete_content, original_data: original_data, proposed_data: {})
+        existing.update(change_type: :delete_content, original_data: original_data, proposed_data: {})
       end
       existing.add_contribution(user: user, proposed_data: {}, notes: "Requested deletion")
       existing
     else
-      create!(
+      # Create new proposal (use create without bang to return unpersisted on failure)
+      create(
         user: user,
         change_type: :delete_content,
         changeable: changeable,

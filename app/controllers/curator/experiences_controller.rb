@@ -40,7 +40,7 @@ module Curator
 
       if proposal.save
         record_activity("proposal_created", recordable: proposal, metadata: { type: "Experience", title: proposal_data_from_params["title"] })
-        redirect_to curator_experiences_path, notice: t("curator.proposals.submitted_for_review")
+        redirect_to curator_experiences_path, notice: t("curator.proposals.submitted_for_review"), status: :see_other
       else
         @experience = Experience.new(experience_params)
         flash.now[:alert] = t("curator.proposals.failed_to_submit")
@@ -64,7 +64,7 @@ module Curator
       if proposal.persisted?
         action = proposal.contributions.exists?(user: current_user) ? "proposal_contributed" : "proposal_updated"
         record_activity(action, recordable: @experience, metadata: { type: "Experience", title: @experience.title })
-        redirect_to curator_experience_path(@experience), notice: t("curator.proposals.submitted_for_review")
+        redirect_to curator_experience_path(@experience), notice: t("curator.proposals.submitted_for_review"), status: :see_other
       else
         flash.now[:alert] = t("curator.proposals.failed_to_submit")
         render :edit, status: :unprocessable_entity
@@ -81,9 +81,9 @@ module Curator
 
       if proposal.persisted?
         record_activity("proposal_deleted", recordable: @experience, metadata: { type: "Experience", title: @experience.title })
-        redirect_to curator_experiences_path, notice: t("curator.proposals.delete_submitted_for_review")
+        redirect_to curator_experiences_path, notice: t("curator.proposals.delete_submitted_for_review"), status: :see_other
       else
-        redirect_to curator_experiences_path, alert: t("curator.proposals.failed_to_submit")
+        redirect_to curator_experiences_path, alert: t("curator.proposals.failed_to_submit"), status: :see_other
       end
     end
 

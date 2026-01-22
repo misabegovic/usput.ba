@@ -60,7 +60,7 @@ module Curator
 
       if proposal.save
         record_activity("proposal_created", recordable: proposal, metadata: { type: "Location", name: proposal_data_from_params["name"] })
-        redirect_to curator_locations_path, notice: t("curator.proposals.submitted_for_review")
+        redirect_to curator_locations_path, notice: t("curator.proposals.submitted_for_review"), status: :see_other
       else
         @location = Location.new(location_params)
         flash.now[:alert] = t("curator.proposals.failed_to_submit")
@@ -85,11 +85,15 @@ module Curator
       if proposal.persisted?
         action = proposal.contributions.exists?(user: current_user) ? "proposal_contributed" : "proposal_updated"
         record_activity(action, recordable: @location, metadata: { type: "Location", name: @location.name })
-        redirect_to curator_location_path(@location), notice: t("curator.proposals.submitted_for_review")
+        redirect_to curator_location_path(@location), notice: t("curator.proposals.submitted_for_review"), status: :see_other
       else
-        flash.now[:alert] = t("curator.proposals.failed_to_submit")
+        error_message = proposal.errors.full_messages.any? ? proposal.errors.full_messages.join(", ") : t("curator.proposals.failed_to_submit")
+        flash.now[:alert] = error_message
         render :edit, status: :unprocessable_entity
       end
+    rescue ActiveRecord::RecordInvalid => e
+      flash.now[:alert] = e.record.errors.full_messages.join(", ")
+      render :edit, status: :unprocessable_entity
     end
 
     def destroy
@@ -102,9 +106,9 @@ module Curator
 
       if proposal.persisted?
         record_activity("proposal_deleted", recordable: @location, metadata: { type: "Location", name: @location.name })
-        redirect_to curator_locations_path, notice: t("curator.proposals.delete_submitted_for_review")
+        redirect_to curator_locations_path, notice: t("curator.proposals.delete_submitted_for_review"), status: :see_other
       else
-        redirect_to curator_locations_path, alert: t("curator.proposals.failed_to_submit")
+        redirect_to curator_locations_path, alert: t("curator.proposals.failed_to_submit"), status: :see_other
       end
     end
 

@@ -35,7 +35,7 @@ module Curator
           recommendation: @review.recommendation,
           proposal_type: @proposal.change_type
         })
-        redirect_to curator_proposal_path(@proposal), notice: t("curator.proposals.review_added")
+        redirect_to curator_proposal_path(@proposal), notice: t("curator.proposals.review_added"), status: :see_other
       else
         @existing_review = @proposal.curator_reviews.find_by(user: current_user)
         flash.now[:alert] = @review.errors.full_messages.join(", ")

@@ -41,9 +41,9 @@ module Curator
       )
 
       if proposal.persisted?
-        redirect_to curator_reviews_path, notice: t("curator.proposals.delete_submitted_for_review")
+        redirect_to curator_reviews_path, notice: t("curator.proposals.delete_submitted_for_review"), status: :see_other
       else
-        redirect_to curator_reviews_path, alert: t("curator.proposals.failed_to_submit")
+        redirect_to curator_reviews_path, alert: t("curator.proposals.failed_to_submit"), status: :see_other
       end
     end
 
