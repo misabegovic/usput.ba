@@ -37,8 +37,13 @@
       <div class="bg-white rounded-lg shadow overflow-hidden">
         <!-- Photo Preview -->
         <div class="aspect-video bg-gray-100 relative">
-          <% if suggestion.photo.attached? %>
-            <%= image_tag suggestion.photo.variant(:thumb), class: "w-full h-full object-cover" %>
+          <% if suggestion.photos.attached? %>
+            <%= image_tag suggestion.photos.first.variant(:thumb), class: "w-full h-full object-cover" %>
+            <% if suggestion.photos.count > 1 %>
+              <div class="absolute bottom-2 left-2 bg-black/60 text-white rounded-full px-2 py-0.5 text-xs font-medium">
+                +<%= suggestion.photos.count - 1 %>
+              </div>
+            <% end %>
           <% elsif suggestion.photo_url.present? %>
             <%= image_tag suggestion.photo_url, class: "w-full h-full object-cover", onerror: "this.src='data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\" height=\"100\"><rect fill=\"%23f3f4f6\" width=\"100\" height=\"100\"/><text x=\"50%\" y=\"50%\" fill=\"%239ca3af\" text-anchor=\"middle\" dy=\".3em\">URL</text></svg>'" %>
           <% else %>

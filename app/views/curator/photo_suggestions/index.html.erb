@@ -10,10 +10,15 @@
           <li class="px-4 py-4 sm:px-6">
             <div class="flex items-start gap-4">
               <%# Photo preview %>
-              <div class="flex-shrink-0">
-                <% if suggestion.photo.attached? %>
-                  <%= image_tag rails_blob_path(suggestion.photo.variant(:thumb), disposition: "inline"),
+              <div class="flex-shrink-0 relative">
+                <% if suggestion.photos.attached? %>
+                  <%= image_tag rails_blob_path(suggestion.photos.first.variant(:thumb), disposition: "inline"),
                       class: "h-16 w-16 rounded-lg object-cover" %>
+                  <% if suggestion.photos.count > 1 %>
+                    <div class="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium">
+                      <%= suggestion.photos.count %>
+                    </div>
+                  <% end %>
                 <% elsif suggestion.photo_url.present? %>
                   <%= image_tag suggestion.photo_url, class: "h-16 w-16 rounded-lg object-cover",
                       onerror: "this.src='data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"64\" height=\"64\" fill=\"%23ccc\"><rect width=\"64\" height=\"64\"/></svg>'" %>
