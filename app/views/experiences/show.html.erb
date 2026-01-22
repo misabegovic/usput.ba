@@ -243,7 +243,7 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="grid gap-8 lg:grid-cols-3">
       <%# Main Content %>
-      <div class="lg:col-span-2 space-y-8">
+      <div class="lg:col-span-2 space-y-8 min-w-0">
         <%# Description %>
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
           <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4"><%= t("experiences.show.about", default: "O iskustvu") %></h2>
@@ -333,7 +333,7 @@
       </div>
 
       <%# Sidebar %>
-      <div class="space-y-6">
+      <div class="space-y-6 min-w-0 overflow-hidden">
         <%# Quick Info %>
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
           <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><%= t("experiences.show.info", default: "Informacije") %></h3>
@@ -405,7 +405,7 @@
 
         <%# Nearby Experiences %>
         <% if @nearby_experiences.any? %>
-          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg overflow-hidden">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><%= t("experiences.show.nearby_experiences", default: "Iskustva u blizini") %></h3>
             <div class="space-y-4">
               <% @nearby_experiences.each do |nearby| %>
@@ -451,7 +451,7 @@
 
         <%# Related Plans %>
         <% if @related_plans.any? %>
-          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg overflow-hidden">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
               <div class="flex items-center">
                 <svg class="w-5 h-5 mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

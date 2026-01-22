@@ -252,7 +252,7 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="grid gap-8 lg:grid-cols-3">
       <%# Main Content %>
-      <div class="lg:col-span-2 space-y-8">
+      <div class="lg:col-span-2 space-y-8 min-w-0">
         <%# Video %>
         <% if @location.video_url.present? %>
           <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
@@ -412,7 +412,7 @@
       </div>
 
       <%# Sidebar %>
-      <div class="space-y-6">
+      <div class="space-y-6 min-w-0 overflow-hidden">
         <%# Quick Info %>
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
           <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><%= t("locations.show.info", default: "Informacije") %></h3>
@@ -535,7 +535,7 @@
 
         <%# Nearby Locations %>
         <% if @nearby_locations.any? %>
-          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg overflow-hidden">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><%= t("locations.show.nearby_locations", default: "Lokacije u blizini") %></h3>
             <div class="space-y-4">
               <% @nearby_locations.each do |nearby| %>
@@ -578,7 +578,7 @@
 
         <%# Related Experiences %>
         <% if @related_experiences.any? %>
-          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg overflow-hidden">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
               <div class="flex items-center">
                 <svg class="w-5 h-5 mr-2 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -630,7 +630,7 @@
 
         <%# Related Plans %>
         <% if @related_plans.any? %>
-          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg overflow-hidden">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
               <div class="flex items-center">
                 <svg class="w-5 h-5 mr-2 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

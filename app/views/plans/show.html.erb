@@ -255,7 +255,7 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="grid gap-8 lg:grid-cols-3">
       <%# Main Content - Days %>
-      <div class="lg:col-span-2 space-y-6">
+      <div class="lg:col-span-2 space-y-6 min-w-0">
         <% @plan.days_with_experiences.each do |day| %>
           <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
@@ -378,7 +378,7 @@
       </div>
 
       <%# Sidebar %>
-      <div class="space-y-6">
+      <div class="space-y-6 min-w-0 overflow-hidden">
         <%# Quick Info %>
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
           <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4"><%= t("plans.show.summary") %></h3>
