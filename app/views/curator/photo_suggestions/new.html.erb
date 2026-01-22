@@ -22,9 +22,9 @@
 
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <%# File upload %>
-              <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-emerald-500 transition-colors">
+              <div id="upload_area" class="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-emerald-500 transition-colors">
                 <label for="photo_suggestion_photo" class="block cursor-pointer">
-                  <div class="text-center">
+                  <div id="upload_placeholder" class="text-center">
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                     </svg>
@@ -32,12 +32,45 @@
                     <p class="mt-1 text-xs text-gray-500"><%= t("curator.photo_suggestions.upload_hint") %></p>
                   </div>
                   <%= f.file_field :photo, accept: "image/*", class: "sr-only", id: "photo_suggestion_photo",
-                      onchange: "document.getElementById('photo_preview').src = URL.createObjectURL(this.files[0]); document.getElementById('photo_preview_container').classList.remove('hidden');" %>
+                      onchange: "handlePhotoSelect(this)" %>
                 </label>
-                <div id="photo_preview_container" class="hidden mt-4">
-                  <img id="photo_preview" class="w-full h-40 object-cover rounded-lg">
+                <div id="photo_preview_container" class="hidden">
+                  <div class="relative">
+                    <img id="photo_preview" class="w-full h-40 object-cover rounded-lg">
+                    <div class="absolute top-2 right-2 bg-emerald-500 text-white rounded-full p-1">
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="mt-2 flex items-center justify-between">
+                    <p id="photo_filename" class="text-sm text-gray-600 truncate"></p>
+                    <button type="button" onclick="clearPhotoSelection()" class="text-xs text-red-600 hover:text-red-800">
+                      <%= t("common.remove") %>
+                    </button>
+                  </div>
                 </div>
               </div>
+              <script>
+                function handlePhotoSelect(input) {
+                  if (input.files && input.files[0]) {
+                    const file = input.files[0];
+                    document.getElementById('photo_preview').src = URL.createObjectURL(file);
+                    document.getElementById('photo_filename').textContent = file.name;
+                    document.getElementById('photo_preview_container').classList.remove('hidden');
+                    document.getElementById('upload_placeholder').classList.add('hidden');
+                    document.getElementById('upload_area').classList.remove('border-dashed', 'border-gray-300');
+                    document.getElementById('upload_area').classList.add('border-solid', 'border-emerald-500');
+                  }
+                }
+                function clearPhotoSelection() {
+                  document.getElementById('photo_suggestion_photo').value = '';
+                  document.getElementById('photo_preview_container').classList.add('hidden');
+                  document.getElementById('upload_placeholder').classList.remove('hidden');
+                  document.getElementById('upload_area').classList.add('border-dashed', 'border-gray-300');
+                  document.getElementById('upload_area').classList.remove('border-solid', 'border-emerald-500');
+                }
+              </script>
 
               <%# URL input %>
               <div class="border-2 border-gray-300 rounded-lg p-4">

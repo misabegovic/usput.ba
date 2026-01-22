@@ -473,77 +473,134 @@
 
           <%# Locations Section %>
           <% if @locations.any? %>
-            <%= turbo_frame_tag "locations_section" do %>
-              <div class="mb-12">
-                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                  <svg class="w-6 h-6 mr-2 text-blue-600 dark:text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                  </svg>
-                  <%= t("explore.sections.locations") %>
-                  <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">(<%= @locations.total_count %>)</span>
-                </h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <% @locations.each do |location| %>
-                    <%= render "new_design/explore/location_card", location: location %>
-                  <% end %>
-                </div>
-                <% if @locations.total_pages > 1 %>
-                  <div class="mt-6">
-                    <%= render "new_design/explore/pagination", collection: @locations, param_name: :locations_page, frame: "locations_section" %>
-                  </div>
+            <div class="mb-12" data-controller="load-more"
+                 data-load-more-url-value="<%= explore_path %>"
+                 data-load-more-resource-type-value="locations"
+                 data-load-more-page-value="1"
+                 data-load-more-total-count-value="<%= @locations.total_count %>"
+                 data-load-more-per-page-value="3">
+              <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-blue-600 dark:text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                </svg>
+                <%= t("explore.sections.locations") %>
+                <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
+                  (<span data-load-more-target="count"><%= @locations.size %></span>/<%= @locations.total_count %>)
+                </span>
+              </h2>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-load-more-target="container">
+                <% @locations.each do |location| %>
+                  <%= render "new_design/explore/location_card", location: location %>
                 <% end %>
               </div>
-            <% end %>
+              <% if @locations.total_count > 3 %>
+                <div class="mt-8 text-center">
+                  <button type="button"
+                          data-load-more-target="button"
+                          data-action="click->load-more#loadMore"
+                          class="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                    <%= t("explore.load_more") %>
+                  </button>
+                  <div class="hidden" data-load-more-target="loading">
+                    <svg class="animate-spin h-6 w-6 mx-auto text-blue-600 dark:text-yellow-500" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </div>
+                </div>
+              <% end %>
+            </div>
           <% end %>
 
           <%# Experiences Section %>
           <% if @experiences.any? %>
-            <%= turbo_frame_tag "experiences_section" do %>
-              <div class="mb-12">
-                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                  <svg class="w-6 h-6 mr-2 text-blue-600 dark:text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                  <%= t("explore.sections.experiences") %>
-                  <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">(<%= @experiences.total_count %>)</span>
-                </h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <% @experiences.each do |experience| %>
-                    <%= render "new_design/explore/experience_card", experience: experience %>
-                  <% end %>
-                </div>
-                <% if @experiences.total_pages > 1 %>
-                  <div class="mt-6">
-                    <%= render "new_design/explore/pagination", collection: @experiences, param_name: :experiences_page, frame: "experiences_section" %>
-                  </div>
+            <div class="mb-12" data-controller="load-more"
+                 data-load-more-url-value="<%= explore_path %>"
+                 data-load-more-resource-type-value="experiences"
+                 data-load-more-page-value="1"
+                 data-load-more-total-count-value="<%= @experiences.total_count %>"
+                 data-load-more-per-page-value="3">
+              <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-blue-600 dark:text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <%= t("explore.sections.experiences") %>
+                <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
+                  (<span data-load-more-target="count"><%= @experiences.size %></span>/<%= @experiences.total_count %>)
+                </span>
+              </h2>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-load-more-target="container">
+                <% @experiences.each do |experience| %>
+                  <%= render "new_design/explore/experience_card", experience: experience %>
                 <% end %>
               </div>
-            <% end %>
+              <% if @experiences.total_count > 3 %>
+                <div class="mt-8 text-center">
+                  <button type="button"
+                          data-load-more-target="button"
+                          data-action="click->load-more#loadMore"
+                          class="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                    <%= t("explore.load_more") %>
+                  </button>
+                  <div class="hidden" data-load-more-target="loading">
+                    <svg class="animate-spin h-6 w-6 mx-auto text-blue-600 dark:text-yellow-500" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </div>
+                </div>
+              <% end %>
+            </div>
           <% end %>
 
           <%# Plans Section %>
           <% if @plans.any? %>
-            <%= turbo_frame_tag "plans_section" do %>
-              <div class="mb-12">
-                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                  <svg class="w-6 h-6 mr-2 text-blue-600 dark:text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                  </svg>
-                  <%= t("explore.sections.plans") %>
-                  <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">(<%= @plans.total_count %>)</span>
-                </h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <% @plans.each do |plan| %>
-                    <%= render "new_design/explore/plan_card", plan: plan %>
-                  <% end %>
-                </div>
-                <% if @plans.total_pages > 1 %>
-                  <div class="mt-6">
-                    <%= render "new_design/explore/pagination", collection: @plans, param_name: :plans_page, frame: "plans_section" %>
-                  </div>
+            <div class="mb-12" data-controller="load-more"
+                 data-load-more-url-value="<%= explore_path %>"
+                 data-load-more-resource-type-value="plans"
+                 data-load-more-page-value="1"
+                 data-load-more-total-count-value="<%= @plans.total_count %>"
+                 data-load-more-per-page-value="3">
+              <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-blue-600 dark:text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                <%= t("explore.sections.plans") %>
+                <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
+                  (<span data-load-more-target="count"><%= @plans.size %></span>/<%= @plans.total_count %>)
+                </span>
+              </h2>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-load-more-target="container">
+                <% @plans.each do |plan| %>
+                  <%= render "new_design/explore/plan_card", plan: plan %>
                 <% end %>
               </div>
-            <% end %>
+              <% if @plans.total_count > 3 %>
+                <div class="mt-8 text-center">
+                  <button type="button"
+                          data-load-more-target="button"
+                          data-action="click->load-more#loadMore"
+                          class="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                    <%= t("explore.load_more") %>
+                  </button>
+                  <div class="hidden" data-load-more-target="loading">
+                    <svg class="animate-spin h-6 w-6 mx-auto text-blue-600 dark:text-yellow-500" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </div>
+                </div>
+              <% end %>
+            </div>
           <% end %>
 
         <% else %>

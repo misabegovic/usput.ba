@@ -19,6 +19,14 @@ class NewDesignController < ApplicationController
                                   .order(Arel.sql("MAX(reviews.created_at) DESC NULLS LAST"))
                                   .limit(3)
 
+    # Fallback to random locations if none found with filters
+    if @trending_locations.empty?
+      @trending_locations = Location.places
+                                    .with_attached_photos
+                                    .order("RANDOM()")
+                                    .limit(3)
+    end
+
     # Trending experiences - minimum 3.5 rating, sorted by most recent review
     @trending_experiences = Experience.includes(:experience_category)
                                       .with_attached_cover_photo
@@ -28,6 +36,14 @@ class NewDesignController < ApplicationController
                                       .group("experiences.id")
                                       .order(Arel.sql("MAX(reviews.created_at) DESC NULLS LAST"))
                                       .limit(2)
+
+    # Fallback to random experiences if none found with filters
+    if @trending_experiences.empty?
+      @trending_experiences = Experience.includes(:experience_category)
+                                        .with_attached_cover_photo
+                                        .order("RANDOM()")
+                                        .limit(2)
+    end
   end
 
   PER_PAGE = 3
@@ -71,6 +87,22 @@ class NewDesignController < ApplicationController
 
     # Load categories for filter dropdown
     @experience_categories = ExperienceCategory.active.ordered
+
+    # Handle partial/AJAX requests for "Load More" functionality
+    if params[:partial].present? && request.xhr?
+      render_partial_for(params[:partial])
+    end
+  end
+
+  def render_partial_for(partial_type)
+    case partial_type
+    when "locations"
+      render partial: "new_design/explore/locations_items", locals: { locations: @locations }, layout: false
+    when "experiences"
+      render partial: "new_design/explore/experiences_items", locals: { experiences: @experiences }, layout: false
+    when "plans"
+      render partial: "new_design/explore/plans_items", locals: { plans: @plans }, layout: false
+    end
   end
 
   private

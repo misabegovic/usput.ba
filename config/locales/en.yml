@@ -32,6 +32,8 @@ en:
     share: Share
     link_copied: Link copied!
     error: Error
+    filter: Filter
+    actions: Actions
   nav:
     home: Home
     plans: Plans
@@ -90,6 +92,7 @@ en:
     cities:
       any: All places
     loading: Loading...
+    load_more: Load More
     results_count: "%{count} results found"
     sections:
       locations: Locations
@@ -996,6 +999,7 @@ en:
       new_experience: New Experience
       new_plan: New Plan
       new_audio_tour: New Audio Tour
+      needs_photos: Needs Photos
       recent_locations: Recent Locations
       recent_experiences: Recent Experiences
       no_locations: No locations yet
@@ -1026,6 +1030,10 @@ en:
       submitted: Your photo suggestion has been submitted for review
       submitted_on: Submitted on %{date}
       admin_feedback: Admin feedback
+      details: Photo Suggestion Details
+      no_photo: No photo available
+      source_url: Source URL
+      reviewed_on: Reviewed on %{date}
       no_suggestions: No photo suggestions yet
       no_suggestions_hint: Visit a location page to suggest photos
       status:
@@ -1096,6 +1104,15 @@ en:
         metadata: Metadata
       filter:
         all_cities: All places
+      needs_photos:
+        title: Locations Needing Photos
+        description: Locations sorted by photo count (least first). Help improve our content by adding photos!
+        photo_count: Photos
+        photos: photos
+        max_photos: Max Photos
+        add_photo: Add Photo
+        no_results: No locations found
+        no_results_hint: Try adjusting your filters
     experiences:
       title: Experiences
       new: New Experience
@@ -1339,11 +1356,36 @@ en:
         content_changes: Content Approvals
       photo_suggestions:
         title: Photo Suggestions
+        suggestion_details: Photo Suggestion Details
+        back_to_list: Back to List
         approved: Photo suggestion approved successfully
         rejected: Photo suggestion rejected successfully
         approval_failed: Failed to approve photo suggestion
         rejection_failed: Failed to reject photo suggestion
         already_reviewed: This photo suggestion has already been reviewed
+        admin_notes: Admin Notes
+        rejection_reason: Rejection Reason
+        status_label: Status
+        source: Source
+        uploaded_file: Uploaded File
+        external_url: External URL
+        approve: Approve
+        reject: Reject
+        approve_btn: Approve Photo
+        reject_btn: Reject Photo
+        confirm_approve: Are you sure you want to approve this photo?
+        confirm_reject: Are you sure you want to reject this photo?
+        pending_review: Pending Review
+        no_pending: No pending photo suggestions
+        reviewed_by: Reviewed by %{user} on %{date}
+        suggested_by: Suggested by
+        submitted: Submitted
+        for_location: For Location
+        photo_url: Photo URL
+        stats:
+          pending: Pending
+          approved: Approved
+          rejected: Rejected
       users:
         title: User Management
         updated: User updated successfully

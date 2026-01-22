@@ -620,12 +620,11 @@
   }
 }
 
-/* Gold button - outside @layer to avoid tree-shaking */
-.btn-gold {
+/* Gold button - using @utility for Tailwind v4 */
+@utility btn-gold {
   background-color: #facc15;
   color: #001433;
-}
-
-.btn-gold:hover {
-  background-color: #eab308;
+  &:hover {
+    background-color: #eab308;
+  }
 }

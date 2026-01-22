@@ -22,6 +22,26 @@ module Curator
         .order(created_at: :desc)
     end
 
+    def needs_photos
+      # Get locations sorted by photo count (ascending)
+      @locations = Location
+        .left_joins(:photos_attachments)
+        .group("locations.id")
+        .select("locations.*, COUNT(active_storage_attachments.id) AS photos_count")
+        .order("photos_count ASC, locations.name ASC")
+
+      # Filter by city if provided
+      @locations = @locations.where(city: params[:city]) if params[:city].present?
+
+      # Filter by max photos count
+      if params[:max_photos].present?
+        @locations = @locations.having("COUNT(active_storage_attachments.id) <= ?", params[:max_photos].to_i)
+      end
+
+      @locations = @locations.page(params[:page]).per(30)
+      @city_names = Location.where.not(city: [nil, ""]).distinct.pluck(:city).sort
+    end
+
     def show
       @pending_proposal = pending_proposal_for(@location)
     end

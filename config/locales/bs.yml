@@ -31,6 +31,8 @@ bs:
     link_copied: Link kopiran!
     view_all: Pogledaj sve
     error: Greška
+    filter: Filtriraj
+    actions: Akcije
   nav:
     home: Početna
     plans: Planovi
@@ -89,6 +91,7 @@ bs:
     cities:
       any: Sva mjesta
     loading: Učitavanje...
+    load_more: Učitaj više
     results_count: Pronađeno %{count} rezultata
     sections:
       locations: Lokacije
@@ -931,13 +934,34 @@ bs:
       total_locations: Ukupno lokacija
       total_experiences: Ukupno iskustava
       total_cities: Ukupno mjesta
+      total_plans: Javni planovi
+      total_reviews: Ukupno recenzija
+      recent_reviews: Nove recenzije
+      recent_reviews_title: Nedavne recenzije
+      recent_plans: Nedavni planovi
+      audio_tours: Audio ture
+      audio_coverage: Audio pokrivenost
+      with_audio: sa audiom
+      locations_covered: lokacija
+      avg: prosjek
+      last_7_days: zadnjih 7 dana
       quick_actions: Brze akcije
       new_location: Nova lokacija
       new_experience: Novo iskustvo
+      new_plan: Novi plan
+      new_audio_tour: Nova audio tura
+      needs_photos: Treba fotografije
       recent_locations: Nedavne lokacije
       recent_experiences: Nedavna iskustva
       no_locations: Još nema lokacija
       no_experiences: Još nema iskustava
+      no_reviews: Još nema recenzija
+      no_plans: Još nema javnih planova
+      recent_activity: Nedavne aktivnosti kuratora
+      pending_proposals_alert:
+        one: Postoji 1 prijedlog na čekanju
+        other: Postoji %{count} prijedloga na čekanju
+      review_proposals: Pregledaj prijedloge
     photo_suggestions:
       my_suggestions: Moji prijedlozi fotografija
       new_title: Predloži fotografiju
@@ -952,6 +976,10 @@ bs:
       submitted: Vaš prijedlog fotografije je poslan na pregled
       submitted_on: Podneseno %{date}
       admin_feedback: Povratna informacija admina
+      details: Detalji prijedloga fotografije
+      no_photo: Nema dostupne fotografije
+      source_url: Izvorni URL
+      reviewed_on: Pregledano %{date}
       no_suggestions: Još nema prijedloga fotografija
       no_suggestions_hint: Posjetite stranicu lokacije da predložite fotografije
       status:
@@ -1020,6 +1048,15 @@ bs:
         metadata: Metapodaci
       filter:
         all_cities: Sva mjesta
+      needs_photos:
+        title: Lokacije kojima trebaju fotografije
+        description: Lokacije sortirane po broju fotografija (najmanje prvo). Pomozite poboljšati naš sadržaj dodavanjem fotografija!
+        photo_count: Fotografije
+        photos: fotografija
+        max_photos: Max fotografija
+        add_photo: Dodaj fotografiju
+        no_results: Nema pronađenih lokacija
+        no_results_hint: Pokušajte prilagoditi filtere
     experiences:
       title: Iskustva
       new: Novo iskustvo
@@ -1093,11 +1130,36 @@ bs:
         content_changes: Odobrenje sadržaja
       photo_suggestions:
         title: Prijedlozi fotografija
+        suggestion_details: Detalji prijedloga fotografije
+        back_to_list: Nazad na listu
         approved: Prijedlog fotografije uspješno odobren
         rejected: Prijedlog fotografije uspješno odbijen
         approval_failed: Nije uspjelo odobrenje prijedloga fotografije
         rejection_failed: Nije uspjelo odbijanje prijedloga fotografije
         already_reviewed: Ovaj prijedlog fotografije je već pregledan
+        admin_notes: Bilješke admina
+        rejection_reason: Razlog odbijanja
+        status_label: Status
+        source: Izvor
+        uploaded_file: Učitana datoteka
+        external_url: Vanjski URL
+        approve: Odobri
+        reject: Odbij
+        approve_btn: Odobri fotografiju
+        reject_btn: Odbij fotografiju
+        confirm_approve: Jeste li sigurni da želite odobriti ovu fotografiju?
+        confirm_reject: Jeste li sigurni da želite odbiti ovu fotografiju?
+        pending_review: Na čekanju
+        no_pending: Nema prijedloga na čekanju
+        reviewed_by: Pregledao/la %{user} dana %{date}
+        suggested_by: Predložio/la
+        submitted: Podneseno
+        for_location: Za lokaciju
+        photo_url: URL fotografije
+        stats:
+          pending: Na čekanju
+          approved: Odobreno
+          rejected: Odbijeno
       users:
         title: Upravljanje korisnicima
         updated: Korisnik uspješno ažuriran

@@ -86,6 +86,9 @@ Rails.application.routes.draw do
   namespace :curator do
     resources :locations do
       resources :photo_suggestions, only: [:new, :create]
+      collection do
+        get :needs_photos
+      end
     end
     resources :experiences
     resources :reviews, only: [ :index, :show, :destroy ]
