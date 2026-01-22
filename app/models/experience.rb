@@ -117,6 +117,19 @@ class Experience < ApplicationRecord
     experience_locations.count
   end
 
+  # Setter for location UUIDs (used by content change proposals)
+  def location_uuids=(uuids)
+    return if uuids.blank?
+
+    new_location_ids = Location.where(uuid: uuids).pluck(:id)
+    self.location_ids = new_location_ids
+  end
+
+  # Getter for location UUIDs
+  def location_uuids
+    locations.pluck(:uuid)
+  end
+
   # Formatirano trajanje
   def formatted_duration
     return nil unless estimated_duration
