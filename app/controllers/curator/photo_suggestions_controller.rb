@@ -27,7 +27,7 @@ module Curator
         record_activity("photo_suggested", recordable: @photo_suggestion, metadata: {
           location_name: @location.name
         })
-        redirect_to curator_location_path(@location), notice: t("curator.photo_suggestions.submitted")
+        redirect_to curator_photo_suggestion_path(@photo_suggestion), notice: t("curator.photo_suggestions.submitted")
       else
         flash.now[:alert] = @photo_suggestion.errors.full_messages.join(", ")
         render :new, status: :unprocessable_entity
@@ -45,7 +45,7 @@ module Curator
     end
 
     def photo_suggestion_params
-      params.require(:photo_suggestion).permit(:photo, :photo_url, :description)
+      params.require(:photo_suggestion).permit(:photo_url, :description, photos: [])
     end
   end
 end

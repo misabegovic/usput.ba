@@ -7,7 +7,7 @@ class PhotoSuggestion < ApplicationRecord
   belongs_to :location
   belongs_to :reviewed_by, class_name: "User", optional: true
 
-  has_one_attached :photo do |attachable|
+  has_many_attached :photos do |attachable|
     attachable.variant :thumb, resize_to_limit: [200, 200]
   end
 
@@ -15,22 +15,31 @@ class PhotoSuggestion < ApplicationRecord
 
   validates :location, presence: true
   validates :description, length: { maximum: 1000 }
-  validate :photo_or_url_present
-  validate :acceptable_photo
+  validate :photos_or_url_present
+  validate :acceptable_photos
 
-  # Validate photo file type and size
-  def acceptable_photo
-    return unless photo.attached?
+  # Validate photo file types and sizes
+  def acceptable_photos
+    return unless photos.attached?
 
-    # Max 10MB
-    if photo.blob.byte_size > 10.megabytes
-      errors.add(:photo, "is too large (max 10MB)")
+    photos.each do |photo|
+      # Max 10MB per photo
+      if photo.blob.byte_size > 10.megabytes
+        errors.add(:photos, "contains a file that is too large (max 10MB per photo)")
+        break
+      end
+
+      # Only images
+      acceptable_types = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+      unless acceptable_types.include?(photo.blob.content_type)
+        errors.add(:photos, "must be JPEG, PNG, GIF, or WebP")
+        break
+      end
     end
 
-    # Only images
-    acceptable_types = ["image/jpeg", "image/png", "image/gif", "image/webp"]
-    unless acceptable_types.include?(photo.blob.content_type)
-      errors.add(:photo, "must be JPEG, PNG, GIF, or WebP")
+    # Max 10 photos per suggestion
+    if photos.size > 10
+      errors.add(:photos, "cannot upload more than 10 photos at once")
     end
   end
 
@@ -44,8 +53,10 @@ class PhotoSuggestion < ApplicationRecord
     return false unless pending?
 
     transaction do
-      if photo.attached?
-        location.photos.attach(photo.blob)
+      if photos.attached?
+        photos.each do |photo|
+          location.photos.attach(photo.blob)
+        end
       elsif photo_url.present?
         # Download and attach the photo from URL
         attach_photo_from_url!
@@ -99,11 +110,28 @@ class PhotoSuggestion < ApplicationRecord
     )
   end
 
-  def preview_url
-    if photo.attached?
-      Rails.application.routes.url_helpers.rails_blob_path(photo, only_path: true)
+  def preview_urls
+    if photos.attached?
+      photos.map { |photo| Rails.application.routes.url_helpers.rails_blob_path(photo, only_path: true) }
+    elsif photo_url.present?
+      [photo_url]
     else
-      photo_url
+      []
+    end
+  end
+
+  # For backwards compatibility
+  def preview_url
+    preview_urls.first
+  end
+
+  def photos_count
+    if photos.attached?
+      photos.size
+    elsif photo_url.present?
+      1
+    else
+      0
     end
   end
 
@@ -128,9 +156,9 @@ class PhotoSuggestion < ApplicationRecord
     allowed_types.include?(content_type&.downcase) ? content_type : "image/jpeg"
   end
 
-  def photo_or_url_present
-    unless photo.attached? || photo_url.present?
-      errors.add(:base, "Must provide either a photo file or a photo URL")
+  def photos_or_url_present
+    unless photos.attached? || photo_url.present?
+      errors.add(:base, "Must provide either photo files or a photo URL")
     end
   end
 

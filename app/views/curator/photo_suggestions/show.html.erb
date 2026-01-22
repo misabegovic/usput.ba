@@ -11,16 +11,42 @@
   </div>
 
   <div class="bg-white shadow rounded-lg overflow-hidden">
-    <%# Photo preview %>
-    <div class="aspect-video bg-gray-100 flex items-center justify-center">
-      <% if @photo_suggestion.photo.attached? %>
-        <%= image_tag rails_blob_path(@photo_suggestion.photo, disposition: "inline"),
-            class: "max-h-96 object-contain" %>
+    <%# Photos preview %>
+    <div class="bg-gray-100 p-4">
+      <% if @photo_suggestion.photos.attached? %>
+        <% if @photo_suggestion.photos.count == 1 %>
+          <%# Single photo - large display %>
+          <div class="flex items-center justify-center">
+            <%= image_tag rails_blob_path(@photo_suggestion.photos.first, disposition: "inline"),
+                class: "max-h-96 object-contain rounded-lg" %>
+          </div>
+        <% else %>
+          <%# Multiple photos - grid display %>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            <% @photo_suggestion.photos.each_with_index do |photo, index| %>
+              <div class="relative aspect-square">
+                <%= image_tag rails_blob_path(photo, disposition: "inline"),
+                    class: "w-full h-full object-cover rounded-lg" %>
+                <div class="absolute top-2 left-2 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-medium">
+                  <%= index + 1 %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+        <p class="text-center text-sm text-gray-500 mt-3">
+          <%= t("curator.photo_suggestions.photos_count", count: @photo_suggestion.photos.count, default: "%{count} photo(s)") %>
+        </p>
       <% elsif @photo_suggestion.photo_url.present? %>
-        <%= image_tag @photo_suggestion.photo_url, class: "max-h-96 object-contain",
-            onerror: "this.parentElement.innerHTML='<div class=\"text-gray-400 text-center\"><svg class=\"mx-auto h-16 w-16\" fill=\"none\" viewBox=\"0 0 24 24\" stroke-width=\"1.5\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z\" /></svg><p class=\"mt-2\">Image failed to load</p></div>'" %>
+        <div class="flex items-center justify-center">
+          <%= image_tag @photo_suggestion.photo_url, class: "max-h-96 object-contain rounded-lg",
+              onerror: "this.parentElement.innerHTML='<div class=\"text-gray-400 text-center py-8\"><svg class=\"mx-auto h-16 w-16\" fill=\"none\" viewBox=\"0 0 24 24\" stroke-width=\"1.5\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z\" /></svg><p class=\"mt-2\">Image failed to load</p></div>'" %>
+        </div>
+        <p class="text-center text-sm text-gray-500 mt-3">
+          <%= t("curator.photo_suggestions.from_url", default: "From URL") %>
+        </p>
       <% else %>
-        <div class="text-gray-400 text-center">
+        <div class="text-gray-400 text-center py-8">
           <svg class="mx-auto h-16 w-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
           </svg>
@@ -31,7 +57,7 @@
 
     <%# Details %>
     <div class="p-4 sm:p-6 space-y-4">
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between flex-wrap gap-2">
         <div class="flex items-center gap-3">
           <%= link_to @photo_suggestion.location.name, curator_location_path(@photo_suggestion.location),
               class: "text-lg font-medium text-gray-900 hover:text-emerald-600" %>

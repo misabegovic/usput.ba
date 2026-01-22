@@ -21,36 +21,32 @@
             </label>
 
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <%# File upload %>
-              <div data-controller="photo-upload">
-                <div data-photo-upload-target="area" class="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-emerald-500 transition-colors">
-                  <label for="photo_suggestion_photo" class="block cursor-pointer">
-                    <div data-photo-upload-target="placeholder" class="text-center">
+              <%# File upload - multiple %>
+              <div data-controller="multi-photo-upload">
+                <div data-multi-photo-upload-target="area" class="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-emerald-500 transition-colors">
+                  <label for="photo_suggestion_photos" class="block cursor-pointer">
+                    <div data-multi-photo-upload-target="placeholder" class="text-center">
                       <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                       </svg>
-                      <p class="mt-2 text-sm font-medium text-gray-900"><%= t("curator.photo_suggestions.upload_photo") %></p>
-                      <p class="mt-1 text-xs text-gray-500"><%= t("curator.photo_suggestions.upload_hint") %></p>
+                      <p class="mt-2 text-sm font-medium text-gray-900"><%= t("curator.photo_suggestions.upload_photos", default: "Upload photos") %></p>
+                      <p class="mt-1 text-xs text-gray-500"><%= t("curator.photo_suggestions.upload_hint_multiple", default: "Select up to 10 images (max 10MB each)") %></p>
                     </div>
-                    <%= f.file_field :photo, accept: "image/*", class: "sr-only", id: "photo_suggestion_photo",
+                    <%= f.file_field :photos, accept: "image/*", class: "sr-only", id: "photo_suggestion_photos",
+                        multiple: true,
                         direct_upload: true,
-                        data: { photo_upload_target: "input", action: "change->photo-upload#select" } %>
+                        data: { multi_photo_upload_target: "input", action: "change->multi-photo-upload#select" } %>
                   </label>
-                  <div data-photo-upload-target="preview" class="hidden">
-                    <div class="relative">
-                      <img data-photo-upload-target="previewImage" class="w-full h-40 object-cover rounded-lg">
-                      <div class="absolute top-2 right-2 bg-emerald-500 text-white rounded-full p-1">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                        </svg>
-                      </div>
-                    </div>
-                    <div class="mt-2 flex items-center justify-between">
-                      <p data-photo-upload-target="filename" class="text-sm text-gray-600 truncate"></p>
-                      <button type="button" data-action="photo-upload#clear" class="text-xs text-red-600 hover:text-red-800">
-                        <%= t("common.remove") %>
+
+                  <%# Preview grid for multiple photos %>
+                  <div data-multi-photo-upload-target="previewContainer" class="hidden mt-4">
+                    <div class="flex items-center justify-between mb-2">
+                      <span data-multi-photo-upload-target="count" class="text-sm text-gray-600"></span>
+                      <button type="button" data-action="multi-photo-upload#clearAll" class="text-xs text-red-600 hover:text-red-800">
+                        <%= t("common.remove_all", default: "Remove all") %>
                       </button>
                     </div>
+                    <div data-multi-photo-upload-target="previews" class="grid grid-cols-3 gap-2"></div>
                   </div>
                 </div>
               </div>
