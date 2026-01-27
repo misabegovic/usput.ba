@@ -10,7 +10,14 @@ module Curator
       @experiences = @experiences.by_city_name(params[:city_name]) if params[:city_name].present?
       @experiences = @experiences.by_category(params[:category_id]) if params[:category_id].present?
       @experiences = @experiences.where("experiences.title ILIKE ?", "%#{params[:search]}%") if params[:search].present?
-      @experiences = @experiences.page(params[:page]).per(20)
+
+      page = params[:items_page] || params[:page] || 1
+      @experiences = @experiences.page(page).per(3)
+
+      if params[:partial] == "items" && request.xhr?
+        return render partial: "curator/experiences/experience_items", locals: { experiences: @experiences }, layout: false
+      end
+
       @city_names = Location.joins(:experiences).where.not(city: [nil, ""]).distinct.pluck(:city).sort
       @experience_categories = ExperienceCategory.all
 

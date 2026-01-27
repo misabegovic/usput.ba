@@ -12,7 +12,7 @@ default: &default
 development:
   primary:
     <<: *default
-    <% if ENV["PROD_DATABASE_URL"] %>
+    <% if ENV["PROD_DATABASE_URL"].to_s.strip.length > 0 %>
     url: <%= ENV["PROD_DATABASE_URL"] %>
     <% else %>
     database: klosaer_development
@@ -23,7 +23,7 @@ development:
     <% end %>
   queue:
     <<: *default
-    <% if ENV["PROD_QUEUE_DATABASE_URL"] %>
+    <% if ENV["PROD_QUEUE_DATABASE_URL"].to_s.strip.length > 0 %>
     url: <%= ENV["PROD_QUEUE_DATABASE_URL"] %>
     <% else %>
     database: klosaer_queue_development
@@ -36,7 +36,7 @@ development:
     migrations_paths: db/queue_migrate
   platform:
     <<: *default
-    <% if ENV["PROD_PLATFORM_DATABASE_URL"] %>
+    <% if ENV["PROD_PLATFORM_DATABASE_URL"].to_s.strip.length > 0 %>
     url: <%= ENV["PROD_PLATFORM_DATABASE_URL"] %>
     <% else %>
     database: klosaer_platform_development

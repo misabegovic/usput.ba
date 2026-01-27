@@ -23,7 +23,9 @@ export default class extends Controller {
     this.loading = true
 
     // Show loading state
-    this.buttonTarget.classList.add("hidden")
+    if (this.hasButtonTarget) {
+      this.buttonTarget.classList.add("hidden")
+    }
     if (this.hasLoadingTarget) {
       this.loadingTarget.classList.remove("hidden")
     }
@@ -52,8 +54,10 @@ export default class extends Controller {
       if (response.ok) {
         const html = await response.text()
 
-        // Append new items to container
-        this.containerTarget.insertAdjacentHTML("beforeend", html)
+        // Append new items to all containers (supports desktop + mobile)
+        this.containerTargets.forEach(container => {
+          container.insertAdjacentHTML("beforeend", html)
+        })
 
         // Update page counter
         this.pageValue = nextPage
@@ -73,6 +77,8 @@ export default class extends Controller {
   }
 
   updateButtonVisibility() {
+    if (!this.hasButtonTarget) return
+
     const loadedCount = this.pageValue * this.perPageValue
     const hasMore = loadedCount < this.totalCountValue
 

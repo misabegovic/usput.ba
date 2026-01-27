@@ -229,6 +229,7 @@ puts "Created #{Setting.count} settings"
 puts "Seeding demo users..."
 
 demo_users = [
+  { username: "admin", password: "admin123", user_type: :admin },
   { username: "curator", password: "curator123", user_type: :curator },
   { username: "user", password: "user123", user_type: :basic }
 ]
@@ -650,6 +651,91 @@ end
 
 puts "Created #{Experience.count} experiences"
 
+# Seed Plans
+puts "Seeding plans..."
+
+plans_data = [
+  {
+    title: "Sarajevo za 3 dana",
+    city_name: "Sarajevo",
+    visibility: :public_plan,
+    start_date: Date.today + 14,
+    end_date: Date.today + 16,
+    notes: "Kompletno iskustvo Sarajeva - od historije i kulture do hrane i prirode.",
+    preferences: { "budget" => "medium", "daily_hours" => 8, "interests" => ["history", "culture", "food"] },
+    days: {
+      1 => ["Ottoman Sarajevo Walking Tour", "Sarajevo Food Adventure"],
+      2 => ["Religious Harmony Tour", "Sarajevo Art & Culture"],
+      3 => ["Sarajevo Panorama Hike", "Nature Escape to Vrelo Bosne"]
+    }
+  },
+  {
+    title: "Vikend u Sarajevu",
+    city_name: "Sarajevo",
+    visibility: :public_plan,
+    start_date: Date.today + 7,
+    end_date: Date.today + 8,
+    notes: "Kratki vikend getaway sa najboljim od Sarajeva.",
+    preferences: { "budget" => "low", "daily_hours" => 6, "interests" => ["culture", "food"] },
+    days: {
+      1 => ["Complete Sarajevo Heritage Tour"],
+      2 => ["Sarajevo Food Adventure", "Sarajevo Nightlife Experience"]
+    }
+  },
+  {
+    title: "Historija Sarajeva",
+    city_name: "Sarajevo",
+    visibility: :public_plan,
+    start_date: Date.today + 21,
+    end_date: Date.today + 22,
+    notes: "Za ljubitelje historije - od Osmanlija do modernog doba.",
+    preferences: { "budget" => "low", "daily_hours" => 7, "interests" => ["history"] },
+    days: {
+      1 => ["Ottoman Sarajevo Walking Tour", "Religious Harmony Tour"],
+      2 => ["Sarajevo's Siege History"]
+    }
+  },
+  {
+    title: "Sarajevo avantura",
+    city_name: "Sarajevo",
+    visibility: :public_plan,
+    start_date: Date.today + 30,
+    end_date: Date.today + 33,
+    notes: "Aktivni odmor sa planinarenjem, skijanjem i prirodom.",
+    preferences: { "budget" => "high", "daily_hours" => 10, "meat_lover" => true, "interests" => ["sport", "nature", "mountains"] },
+    days: {
+      1 => ["Sarajevo Panorama Hike"],
+      2 => ["Olympic Winter Legacy"],
+      3 => ["Nature Escape to Vrelo Bosne", "Sarajevo Food Adventure"],
+      4 => ["Complete Sarajevo Heritage Tour"]
+    }
+  }
+]
+
+plans_data.each do |plan_data|
+  plan = Plan.find_or_create_by!(title: plan_data[:title]) do |p|
+    p.city_name = plan_data[:city_name]
+    p.visibility = plan_data[:visibility]
+    p.start_date = plan_data[:start_date]
+    p.end_date = plan_data[:end_date]
+    p.notes = plan_data[:notes]
+    p.preferences = plan_data[:preferences]
+  end
+
+  plan_data[:days].each do |day_number, experience_titles|
+    experience_titles.each_with_index do |exp_title, position|
+      experience = Experience.find_by(title: exp_title)
+      if experience
+        plan.plan_experiences.find_or_create_by!(experience: experience, day_number: day_number) do |pe|
+          pe.position = position
+        end
+      end
+    end
+  end
+end
+
+puts "Created #{Plan.count} plans"
+
 # Attach images from picsum.photos
 puts "Attaching images to locations and experiences..."
 
@@ -817,11 +903,28 @@ Experience.all.each do |experience|
   end
 end
 
+# Add reviews to plans
+Plan.all.each do |plan|
+  rand(2..5).times do
+    rating = [5, 5, 4, 4, 4, 3].sample
+    comment = review_comments[rating].sample
+
+    Review.create!(
+      reviewable: plan,
+      rating: rating,
+      comment: comment,
+      author_name: author_names.sample,
+      created_at: rand(1..90).days.ago
+    )
+  end
+end
+
 puts "Created #{Review.count} reviews"
 
 puts "Seeding complete!"
 puts ""
 puts "=== Demo Accounts ==="
+puts "Admin:   username: admin,   password: admin123"
 puts "Curator: username: curator, password: curator123"
 puts "User:    username: user,    password: user123"
 puts "====================="

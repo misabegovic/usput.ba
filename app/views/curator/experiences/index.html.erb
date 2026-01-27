@@ -1,6 +1,6 @@
 <div class="space-y-4 sm:space-y-6">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-    <h1 class="text-xl sm:text-2xl font-bold text-gray-900"><%= t("curator.experiences.title") %></h1>
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white"><%= t("curator.experiences.title") %></h1>
     <%= link_to t("curator.experiences.new"), new_curator_experience_path,
         class: "inline-flex items-center justify-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 w-full sm:w-auto" %>
   </div>
@@ -9,20 +9,20 @@
   <%= render "curator/shared/pending_proposals", pending_proposals: @pending_proposals %>
 
   <!-- Filters Section -->
-  <div class="rounded-lg bg-white shadow" data-controller="curator-filters">
+  <div class="rounded-lg bg-white dark:bg-gray-800 shadow" data-controller="curator-filters">
     <!-- Mobile Filter Toggle -->
     <div class="sm:hidden">
       <button type="button"
               data-action="click->curator-filters#toggle"
-              class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700">
+              class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
         <span class="flex items-center gap-2">
-          <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <svg class="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
           </svg>
           <%= t("curator.experiences.filter.title", default: "Filters") %>
           <% active_filters = [params[:city_name], params[:search], params[:category_id]].compact_blank.size %>
           <% if active_filters > 0 %>
-            <span class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">
+            <span class="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:text-emerald-300">
               <%= active_filters %>
             </span>
           <% end %>
@@ -43,7 +43,7 @@
           <%= f.text_field :search,
               value: params[:search],
               placeholder: t("curator.experiences.filter.search_placeholder", default: "Search by name..."),
-              class: "block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500" %>
+              class: "block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500" %>
         </div>
 
         <!-- City Filter -->
@@ -51,7 +51,7 @@
           <%= f.select :city_name,
               options_for_select([[t("curator.experiences.filter.all_cities"), ""]] + @city_names.map { |name| [name, name] }, params[:city_name]),
               {},
-              class: "block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500",
+              class: "block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500",
               onchange: "this.form.submit()" %>
         </div>
 
@@ -64,7 +64,7 @@
                 params[:category_id]
               ),
               {},
-              class: "block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500",
+              class: "block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500",
               onchange: "this.form.submit()" %>
         </div>
 
@@ -74,7 +74,7 @@
         </div>
 
         <% if params[:city_name].present? || params[:search].present? || params[:category_id].present? %>
-          <%= link_to curator_experiences_path, class: "w-full sm:w-auto inline-flex justify-center items-center rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200" do %>
+          <%= link_to curator_experiences_path, class: "w-full sm:w-auto inline-flex justify-center items-center rounded-md bg-gray-100 dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600" do %>
             <%= t("filters.clear_all", default: "Clear All") %>
           <% end %>
         <% end %>
@@ -83,117 +83,51 @@
   </div>
 
   <!-- Results Count -->
-  <div class="flex items-center justify-between text-sm text-gray-600">
+  <div class="text-sm text-gray-600 dark:text-gray-400">
     <span><%= t("curator.experiences.count", count: @experiences.total_count, default: "#{@experiences.total_count} experiences") %></span>
-    <span class="text-gray-500"><%= t("common.page", default: "Page") %> <%= @experiences.current_page %> / <%= @experiences.total_pages %></span>
   </div>
 
-  <!-- Desktop Table -->
-  <div class="hidden sm:block overflow-hidden rounded-lg bg-white shadow">
-    <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.experiences.name") %></th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.experiences.city") %></th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.experiences.category") %></th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.experiences.duration") %></th>
-          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("curator.experiences.actions") %></th>
-        </tr>
-      </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
-        <% @experiences.each do |experience| %>
-          <tr>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm font-medium text-gray-900"><%= experience.title %></div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              <%= experience.city %>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <% if experience.experience_category %>
-                <span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
-                  <%= experience.experience_category.name %>
-                </span>
-              <% end %>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              <%= experience.formatted_duration %>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-              <%= link_to t("curator.experiences.view"), curator_experience_path(experience), class: "text-emerald-600 hover:text-emerald-900" %>
-              <%= link_to t("curator.experiences.edit"), edit_curator_experience_path(experience), class: "text-emerald-600 hover:text-emerald-900" %>
-              <%= button_to t("curator.experiences.delete"), curator_experience_path(experience),
-                  method: :delete,
-                  class: "text-red-600 hover:text-red-900",
-                  data: { turbo_confirm: t("curator.experiences.confirm_delete", name: experience.title) } %>
-            </td>
-          </tr>
-        <% end %>
+  <!-- Load More Container -->
+  <div data-controller="load-more"
+       data-load-more-url-value="<%= curator_experiences_path %>"
+       data-load-more-resource-type-value="items"
+       data-load-more-page-value="1"
+       data-load-more-total-count-value="<%= @experiences.total_count %>"
+       data-load-more-per-page-value="3">
 
-        <% if @experiences.empty? %>
-          <tr>
-            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
-              <%= t("curator.experiences.no_experiences") %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Mobile Card Layout -->
-  <div class="sm:hidden space-y-3">
-    <% @experiences.each do |experience| %>
-      <div class="bg-white rounded-lg shadow p-4">
-        <div class="flex items-start justify-between mb-2">
-          <div class="flex-1 min-w-0">
-            <h3 class="font-medium text-gray-900 truncate"><%= experience.title %></h3>
-            <p class="text-sm text-gray-500"><%= experience.city %></p>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500 mb-3">
-          <% if experience.experience_category %>
-            <span class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">
-              <%= experience.experience_category.name %>
-            </span>
-          <% end %>
-          <span class="flex items-center gap-1">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <%= experience.formatted_duration %>
-          </span>
-        </div>
-
-        <div class="flex items-center gap-4 pt-3 border-t border-gray-100">
-          <%= link_to curator_experience_path(experience), class: "flex-1 text-center py-2 text-sm font-medium text-emerald-600 hover:text-emerald-900" do %>
-            <%= t("curator.experiences.view") %>
-          <% end %>
-          <%= link_to edit_curator_experience_path(experience), class: "flex-1 text-center py-2 text-sm font-medium text-emerald-600 hover:text-emerald-900" do %>
-            <%= t("curator.experiences.edit") %>
-          <% end %>
-          <%= button_to curator_experience_path(experience),
-              method: :delete,
-              class: "flex-1 text-center py-2 text-sm font-medium text-red-600 hover:text-red-900",
-              data: { turbo_confirm: t("curator.experiences.confirm_delete", name: experience.title) } do %>
-            <%= t("curator.experiences.delete") %>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-load-more-target="container">
+      <%= render "curator/experiences/experience_items", experiences: @experiences %>
+    </div>
 
     <% if @experiences.empty? %>
-      <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center text-gray-500 dark:text-gray-400">
         <%= t("curator.experiences.no_experiences") %>
       </div>
     <% end %>
-  </div>
 
-  <!-- Pagination -->
-  <% if @experiences.total_pages > 1 %>
-    <div class="flex justify-center">
-      <%= paginate @experiences %>
-    </div>
-  <% end %>
+    <!-- Load More Button -->
+    <% if @experiences.total_pages > 1 %>
+      <div class="flex justify-center mt-6">
+        <button type="button"
+                data-load-more-target="button"
+                data-action="click->load-more#loadMore"
+                class="inline-flex items-center gap-2 rounded-lg bg-white dark:bg-gray-800 px-6 py-3 text-sm font-semibold text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <svg class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+          <%= t("common.load_more", default: "Load More") %>
+        </button>
+
+        <div class="hidden" data-load-more-target="loading">
+          <div class="inline-flex items-center gap-2 px-6 py-3 text-sm text-gray-500">
+            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <%= t("common.loading", default: "Loading...") %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
 </div>

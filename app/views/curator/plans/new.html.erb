@@ -1,7 +1,7 @@
 <div class="space-y-4 sm:space-y-6">
   <div class="flex items-center justify-between">
-    <h1 class="text-xl sm:text-2xl font-bold text-gray-900"><%= t("curator.plans.new") %></h1>
-    <%= link_to t("curator.plans.back_to_list"), curator_plans_path, class: "text-sm text-emerald-600 hover:text-emerald-900" %>
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white"><%= t("curator.plans.new") %></h1>
+    <%= link_to t("curator.plans.back_to_list"), curator_plans_path, class: "text-sm text-emerald-600 hover:text-emerald-900 dark:hover:text-emerald-700" %>
   </div>
 
   <%= render "form", plan: @plan, city_names: @city_names, experience_types: @experience_types, experiences: @experiences %>

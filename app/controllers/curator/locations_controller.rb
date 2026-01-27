@@ -10,7 +10,14 @@ module Curator
       @locations = @locations.by_city(params[:city_name]) if params[:city_name].present?
       @locations = @locations.by_category(params[:category]) if params[:category].present?
       @locations = @locations.where("locations.name ILIKE ?", "%#{params[:search]}%") if params[:search].present?
-      @locations = @locations.page(params[:page]).per(20)
+
+      page = params[:items_page] || params[:page] || 1
+      @locations = @locations.page(page).per(3)
+
+      if params[:partial] == "items" && request.xhr?
+        return render partial: "curator/locations/location_items", locals: { locations: @locations }, layout: false
+      end
+
       @city_names = Location.where.not(city: [nil, ""]).distinct.pluck(:city).sort
       @location_categories = LocationCategory.active.ordered
 

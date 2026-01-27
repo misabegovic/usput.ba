@@ -1,10 +1,10 @@
 <%= form_with model: [:curator, plan], class: "space-y-6", local: true do |f| %>
   <% if plan.errors.any? %>
-    <div class="rounded-md bg-red-50 p-4">
+    <div class="rounded-md bg-red-50 dark:bg-red-900/30 p-4">
       <div class="flex">
         <div class="ml-3">
-          <h3 class="text-sm font-medium text-red-800"><%= t("errors.messages.form_errors", count: plan.errors.count) %></h3>
-          <div class="mt-2 text-sm text-red-700">
+          <h3 class="text-sm font-medium text-red-800 dark:text-red-300"><%= t("errors.messages.form_errors", count: plan.errors.count) %></h3>
+          <div class="mt-2 text-sm text-red-700 dark:text-red-300">
             <ul class="list-disc pl-5 space-y-1">
               <% plan.errors.full_messages.each do |message| %>
                 <li><%= message %></li>
@@ -17,64 +17,64 @@
   <% end %>
 
   <%# Basic Information Section %>
-  <div class="rounded-lg bg-white shadow">
+  <div class="rounded-lg bg-white dark:bg-gray-800 shadow">
     <div class="px-4 py-5 sm:px-6">
-      <h2 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.plans.sections.basic_info") %></h2>
+      <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4"><%= t("curator.plans.sections.basic_info") %></h2>
 
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div class="sm:col-span-2">
-          <%= f.label :title, t("curator.plans.plan_title"), class: "block text-sm font-medium text-gray-700" %>
-          <%= f.text_field :title, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+          <%= f.label :title, t("curator.plans.plan_title"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
+          <%= f.text_field :title, class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
         </div>
 
         <div>
-          <%= f.label :city_name, t("curator.plans.city"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.label :city_name, t("curator.plans.city"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
           <%= f.select :city_name,
               options_for_select([[t("curator.plans.select_city"), ""]] + city_names.map { |c| [c, c] }, plan.city_name),
               {},
-              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+              class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
         </div>
 
         <div>
-          <%= f.label :visibility, t("curator.plans.visibility"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.label :visibility, t("curator.plans.visibility"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
           <%= f.select :visibility,
               options_for_select([
                 [t("curator.plans.public"), "public_plan"],
                 [t("curator.plans.private"), "private_plan"]
               ], plan.visibility),
               {},
-              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
-          <p class="mt-1 text-sm text-gray-500"><%= t("curator.plans.visibility_hint") %></p>
+              class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400"><%= t("curator.plans.visibility_hint") %></p>
         </div>
 
         <div>
-          <%= f.label :start_date, t("curator.plans.start_date"), class: "block text-sm font-medium text-gray-700" %>
-          <%= f.date_field :start_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+          <%= f.label :start_date, t("curator.plans.start_date"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
+          <%= f.date_field :start_date, class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
         </div>
 
         <div>
-          <%= f.label :end_date, t("curator.plans.end_date"), class: "block text-sm font-medium text-gray-700" %>
-          <%= f.date_field :end_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+          <%= f.label :end_date, t("curator.plans.end_date"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
+          <%= f.date_field :end_date, class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
         </div>
 
         <div class="sm:col-span-2">
-          <%= f.label :notes, t("curator.plans.notes"), class: "block text-sm font-medium text-gray-700" %>
-          <%= f.text_area :notes, rows: 4, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
-          <p class="mt-1 text-sm text-gray-500"><%= t("curator.plans.notes_hint") %></p>
+          <%= f.label :notes, t("curator.plans.notes"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
+          <%= f.text_area :notes, rows: 4, class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400"><%= t("curator.plans.notes_hint") %></p>
         </div>
       </div>
     </div>
   </div>
 
   <%# Preferences Section %>
-  <div class="rounded-lg bg-white shadow">
+  <div class="rounded-lg bg-white dark:bg-gray-800 shadow">
     <div class="px-4 py-5 sm:px-6">
-      <h2 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.plans.sections.preferences", default: "Preferences") %></h2>
-      <p class="text-sm text-gray-500 mb-4"><%= t("curator.plans.preferences_hint", default: "Set default preferences for this plan") %></p>
+      <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4"><%= t("curator.plans.sections.preferences", default: "Preferences") %></h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4"><%= t("curator.plans.preferences_hint", default: "Set default preferences for this plan") %></p>
 
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <%= f.label :budget, t("curator.plans.budget", default: "Budget"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.label :budget, t("curator.plans.budget", default: "Budget"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
           <%= f.select :budget,
               options_for_select([
                 [t("curator.plans.select_budget", default: "Select budget..."), ""],
@@ -83,11 +83,11 @@
                 [t("curator.plans.budget_high", default: "High"), "high"]
               ], plan.preferences&.dig("budget")),
               {},
-              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+              class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
         </div>
 
         <div>
-          <%= f.label :daily_hours, t("curator.plans.daily_hours", default: "Hours per day"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.label :daily_hours, t("curator.plans.daily_hours", default: "Hours per day"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
           <%= f.select :daily_hours,
               options_for_select([
                 [t("curator.plans.select_hours", default: "Select hours..."), ""],
@@ -98,16 +98,16 @@
                 ["12 #{t('curator.plans.hours', default: 'hours')}", 12]
               ], plan.preferences&.dig("daily_hours")),
               {},
-              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+              class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
         </div>
 
         <div class="sm:col-span-2">
-          <%= f.label :custom_title, t("curator.plans.custom_title", default: "Custom Title"), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.label :custom_title, t("curator.plans.custom_title", default: "Custom Title"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
           <%= f.text_field :custom_title,
               value: plan.preferences&.dig("custom_title"),
-              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm",
+              class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm",
               placeholder: t("curator.plans.custom_title_placeholder", default: "Optional custom display title") %>
-          <p class="mt-1 text-sm text-gray-500"><%= t("curator.plans.custom_title_hint", default: "If set, this will be shown instead of the auto-generated title") %></p>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400"><%= t("curator.plans.custom_title_hint", default: "If set, this will be shown instead of the auto-generated title") %></p>
         </div>
       </div>
     </div>
@@ -115,17 +115,17 @@
 
   <%# Interests Section %>
   <% if defined?(experience_types) && experience_types.any? %>
-  <div class="rounded-lg bg-white shadow">
+  <div class="rounded-lg bg-white dark:bg-gray-800 shadow">
     <div class="px-4 py-5 sm:px-6">
-      <h2 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.plans.sections.interests", default: "Interests") %></h2>
-      <p class="text-sm text-gray-500 mb-4"><%= t("curator.plans.interests_hint", default: "Select interests that this plan focuses on") %></p>
+      <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4"><%= t("curator.plans.sections.interests", default: "Interests") %></h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4"><%= t("curator.plans.interests_hint", default: "Select interests that this plan focuses on") %></p>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         <% current_interests = plan.preferences&.dig("interests") || [] %>
         <% experience_types.each do |exp_type| %>
           <label class="flex items-center space-x-2 cursor-pointer">
             <%= check_box_tag "plan[interests][]", exp_type.key, current_interests.include?(exp_type.key), class: "rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" %>
-            <span class="text-sm text-gray-700"><%= exp_type.name %></span>
+            <span class="text-sm text-gray-700 dark:text-gray-300"><%= exp_type.name %></span>
           </label>
         <% end %>
       </div>
@@ -135,30 +135,30 @@
 
   <%# Experiences Section %>
   <% if defined?(experiences) && experiences.any? %>
-  <div class="rounded-lg bg-white shadow">
+  <div class="rounded-lg bg-white dark:bg-gray-800 shadow">
     <div class="px-4 py-5 sm:px-6">
-      <h2 class="text-lg font-medium text-gray-900 mb-4"><%= t("curator.plans.sections.experiences") %></h2>
-      <p class="text-sm text-gray-500 mb-4"><%= t("curator.plans.experiences_management_hint", default: "Select experiences for each day of the plan. The order in each select determines the order of experiences.") %></p>
+      <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4"><%= t("curator.plans.sections.experiences") %></h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4"><%= t("curator.plans.experiences_management_hint", default: "Select experiences for each day of the plan. The order in each select determines the order of experiences.") %></p>
 
       <% max_days = [plan.plan_experiences.maximum(:day_number) || 1, 7].max %>
       <div class="space-y-4" id="plan-days">
         <% (1..max_days).each do |day_num| %>
           <% current_experience_uuids = plan.persisted? ? plan.plan_experiences_for_day(day_num).includes(:experience).map { |pe| pe.experience.uuid } : [] %>
-          <div class="border border-gray-200 rounded-lg p-4">
-            <label class="block font-medium text-gray-900 mb-2">
+          <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+            <label class="block font-medium text-gray-900 dark:text-white mb-2">
               <%= t("plans.show.day", number: day_num) %>
             </label>
             <%= select_tag "plan[experience_days][#{day_num}][]",
                 options_from_collection_for_select(experiences, :uuid, :title, current_experience_uuids),
                 multiple: true,
-                class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm",
+                class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm",
                 data: { placeholder: t("curator.plans.select_experiences", default: "Select experiences for this day...") } %>
-            <p class="mt-1 text-xs text-gray-500"><%= t("curator.plans.day_hint", default: "Hold Ctrl/Cmd to select multiple. Leave empty if no activities for this day.") %></p>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400"><%= t("curator.plans.day_hint", default: "Hold Ctrl/Cmd to select multiple. Leave empty if no activities for this day.") %></p>
           </div>
         <% end %>
       </div>
 
-      <div class="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
+      <div class="mt-4 p-4 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-800">
         <div class="flex">
           <div class="flex-shrink-0">
             <svg class="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
@@ -166,7 +166,7 @@
             </svg>
           </div>
           <div class="ml-3">
-            <p class="text-sm text-amber-700">
+            <p class="text-sm text-amber-700 dark:text-amber-300">
               <%= t("curator.plans.experiences_warning", default: "Changes to experiences will replace the current plan structure when the proposal is approved.") %>
             </p>
           </div>
@@ -177,7 +177,7 @@
   <% end %>
 
   <div class="flex justify-end gap-3">
-    <%= link_to t("common.cancel"), curator_plans_path, class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+    <%= link_to t("common.cancel"), curator_plans_path, class: "rounded-md bg-white dark:bg-gray-800 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700" %>
     <%= f.submit t("common.save"), class: "rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 cursor-pointer" %>
   </div>
 <% end %>

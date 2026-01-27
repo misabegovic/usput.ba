@@ -4,9 +4,17 @@ module Curator
     before_action :require_curator
     before_action :check_spam_block
 
+    rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
+
     layout "curator"
 
     private
+
+    def record_not_found
+      resource_name = controller_name.humanize
+      flash[:alert] = t("curator.record_not_found", resource: resource_name, default: "%{resource} not found.")
+      redirect_to url_for(controller: controller_path, action: :index)
+    end
 
     def check_spam_block
       return unless current_user.spam_blocked?

@@ -832,8 +832,16 @@ hr:
     title: Kustos Kontrolna Ploča
     nav:
       dashboard: Kontrolna Ploča
+      content: Sadržaj
+      media: Mediji
+      workflow: Tok Rada
       locations: Lokacije
       experiences: Iskustva
+      plans: Planovi
+      audio_tours: Audio Ture
+      photo_suggestions: Fotografije
+      reviews: Recenzije
+      proposals: Prijedlozi
     dashboard:
       welcome: Dobrodošao, %{username}!
       total_locations: Ukupno Lokacija

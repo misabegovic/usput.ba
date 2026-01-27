@@ -971,6 +971,9 @@ en:
     title: Curator Dashboard
     nav:
       dashboard: Dashboard
+      content: Content
+      media: Media
+      workflow: Workflow
       locations: Locations
       experiences: Experiences
       plans: Plans

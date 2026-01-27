@@ -13,7 +13,13 @@ module Curator
         @plans = @plans.where("title ILIKE ?", "%#{params[:search]}%")
       end
 
-      @plans = @plans.page(params[:page]).per(20)
+      page = params[:items_page] || params[:page] || 1
+      @plans = @plans.page(page).per(3)
+
+      if params[:partial] == "items" && request.xhr?
+        return render partial: "curator/plans/plan_items", locals: { plans: @plans }, layout: false
+      end
+
       @city_names = Plan.where.not(city_name: [ nil, "" ]).distinct.pluck(:city_name).sort
 
       @stats = {
