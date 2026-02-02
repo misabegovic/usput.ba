@@ -2,14 +2,13 @@
 
 ## Quick Start
 
-### Opcija 1: Single persona
-```bash
-claude "Pročitaj .claude/personas/developer.md i preuzmi tu personu. [task]"
-```
-
-### Opcija 2: Multi-persona session
 ```bash
 claude "Pročitaj .claude/CLAUDE.md za kontekst projekta."
+```
+
+Za specifičnog agenta:
+```bash
+claude "Koristi content-director agenta. [task]"
 ```
 
 ---
