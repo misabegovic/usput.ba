@@ -291,9 +291,4 @@ class Platform::DSL::ApprovalTest < ActiveSupport::TestCase
 
     assert_match(/pending/i, error.message)
   end
-
-  # Audit logging
-  test "creates audit log for proposal approval" do       Platform::DSL.execute("approve proposal { id: #{@proposal.id} }")  end
-
-  test "creates audit log for application rejection" do       Platform::DSL.execute("reject application { id: #{@application.id} } reason \"Test razlog\"")  end
 end

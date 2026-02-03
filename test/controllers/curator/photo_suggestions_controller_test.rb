@@ -114,10 +114,11 @@ class Curator::PhotoSuggestionsControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    assert_redirected_to curator_location_path(@location)
-    assert_equal "pending", PhotoSuggestion.last.status
-    assert_equal @curator, PhotoSuggestion.last.user
-    assert_equal @location, PhotoSuggestion.last.location
+    suggestion = PhotoSuggestion.last
+    assert_redirected_to curator_photo_suggestion_path(suggestion)
+    assert_equal "pending", suggestion.status
+    assert_equal @curator, suggestion.user
+    assert_equal @location, suggestion.location
   end
 
   test "create with attached photo creates suggestion" do
@@ -126,14 +127,15 @@ class Curator::PhotoSuggestionsControllerTest < ActionDispatch::IntegrationTest
     assert_difference "PhotoSuggestion.count", 1 do
       post curator_location_photo_suggestions_path(@location), params: {
         photo_suggestion: {
-          photo: fixture_file_upload("test/fixtures/files/test_image.jpg", "image/jpeg"),
+          photos: [fixture_file_upload("test/fixtures/files/test_image.jpg", "image/jpeg")],
           description: "Uploaded photo"
         }
       }
     end
 
-    assert_redirected_to curator_location_path(@location)
-    assert PhotoSuggestion.last.photo.attached?
+    suggestion = PhotoSuggestion.last
+    assert_redirected_to curator_photo_suggestion_path(suggestion)
+    assert suggestion.photos.attached?
   end
 
   test "create without photo or url fails" do

@@ -625,8 +625,9 @@ class LocationTest < ActiveSupport::TestCase
 
   test "remove_experience_type does nothing for non-existent type" do
     location = Location.create!(@valid_params)
-    location.remove_experience_type("nonexistent")
-    # Should not raise error
+    assert_nothing_raised do
+      location.remove_experience_type("nonexistent")
+    end
     location.destroy
   end
 

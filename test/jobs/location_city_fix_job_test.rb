@@ -872,8 +872,10 @@ class LocationCityFixJobTest < ActiveJob::TestCase
     end
 
     Rails.stub :cache, cache_mock do
-      # Should not raise
-      job.send(:clear_geocoder_cache!)
+      # Should not raise - just logs the error
+      assert_nothing_raised do
+        job.send(:clear_geocoder_cache!)
+      end
     end
   end
 

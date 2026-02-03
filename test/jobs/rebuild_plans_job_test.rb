@@ -698,8 +698,10 @@ class RebuildPlansJobTest < ActiveJob::TestCase
 
     job = RebuildPlansJob.new
 
-    # Should not raise error
-    job.send(:differentiate_plan, pair)
+    # Should not raise error - logs warning instead
+    assert_nothing_raised do
+      job.send(:differentiate_plan, pair)
+    end
   end
 
   # === delete_worse_plan tests ===
@@ -897,7 +899,9 @@ class RebuildPlansJobTest < ActiveJob::TestCase
     # Force Setting.set to fail
     Setting.stub(:set, ->(*args) { raise StandardError, "DB Error" }) do
       # Should not raise - logs warning instead
-      job.send(:save_status, "test", "message")
+      assert_nothing_raised do
+        job.send(:save_status, "test", "message")
+      end
     end
   end
 
