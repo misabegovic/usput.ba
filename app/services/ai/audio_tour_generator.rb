@@ -294,7 +294,7 @@ module Ai
       language_name = locale_to_language(locale)
 
       <<~PROMPT
-        #{Ai::ExperienceGenerator::BIH_CULTURAL_CONTEXT}
+        #{Ai::BihContext::BIH_CULTURAL_CONTEXT}
 
         ---
 

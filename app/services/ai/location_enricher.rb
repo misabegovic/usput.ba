@@ -494,7 +494,7 @@ module Ai
     end
 
     def cultural_context
-      Ai::ExperienceGenerator::BIH_CULTURAL_CONTEXT
+      Ai::BihContext::BIH_CULTURAL_CONTEXT
     end
 
     def supported_locales
