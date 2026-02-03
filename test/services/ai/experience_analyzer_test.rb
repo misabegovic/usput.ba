@@ -856,6 +856,7 @@ module Ai
       Experience.stub :includes, mock_relation do
         results = @analyzer.find_similar_experiences
 
+        assert_kind_of Array, results
         if results.length >= 2
           assert results[0][:similarity][:overall] >= results[1][:similarity][:overall]
         end
