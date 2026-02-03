@@ -173,6 +173,24 @@ class Location < ApplicationRecord
     super || []
   end
 
+  # ============================================================================
+  # EXPERIENCE TYPES API
+  # ============================================================================
+  # Relational data (experience_types association) is the source of truth.
+  # JSON field (suitable_experiences) is a cache, auto-synced after changes.
+  #
+  # RECOMMENDED API:
+  #   - set_experience_types(keys)      - Set all types at once (PREFERRED)
+  #   - add_experience_type(key)        - Add one type
+  #   - remove_experience_type(key)     - Remove one type
+  #   - suitable_experiences=           - Alias for set_experience_types (backwards compatible)
+  #
+  # READ API:
+  #   - suitable_experiences            - Get array of type keys
+  #   - experience_types                - Get ExperienceType objects
+  #   - has_experience_type?(key)       - Check if type exists
+  # ============================================================================
+
   # Get suitable experiences (combines JSON field with association)
   def suitable_experiences
     # Prefer association data if already loaded, otherwise use JSON field

@@ -384,19 +384,21 @@ module Ai
         elsif hints.present?
           # Fallback to hints if classifier fails
           log_warn "Classifier failed, using hints: #{hints.join(', ')}"
-          location.suitable_experiences = hints
-          hints.each do |exp_key|
-            location.add_experience_type(exp_key)
+          begin
+            location.set_experience_types(hints)
           rescue StandardError => e
-            log_warn "Could not add experience type '#{exp_key}': #{e.message}"
+            log_warn "Could not set experience types from hints: #{e.message}"
           end
         end
       rescue StandardError => e
         log_error "Experience type classification failed: #{e.message}"
         # Fallback to hints if available
         if hints.present?
-          location.suitable_experiences = hints
-          hints.each { |exp_key| location.add_experience_type(exp_key) rescue nil }
+          begin
+            location.set_experience_types(hints)
+          rescue StandardError => e
+            log_warn "Could not set experience types from hints: #{e.message}"
+          end
         end
       end
 
