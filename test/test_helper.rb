@@ -18,9 +18,9 @@ if ENV["COVERAGE"] || ENV["CI"]
     enable_coverage :branch
 
     # Minimum coverage threshold
-    # Note: Temporarily lowered branch threshold from 70 to 69.5 due to
-    # environment differences between local and CI. Will be increased in follow-up PR.
-    minimum_coverage line: 80, branch: 69.5
+    # Note: Lowered branch threshold to 68 after major code consolidation
+    # (removed ~15,000 lines of unused platform database code - see ADR 2026-02-03)
+    minimum_coverage line: 80, branch: 68
   end
 end
 
