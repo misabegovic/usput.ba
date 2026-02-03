@@ -10,8 +10,8 @@
 #   OpenaiRequestJob.perform_later(
 #     prompt: "Your prompt",
 #     schema: { type: "object", ... },
-#     context: "PlanCreator",
-#     callback_class: "Ai::PlanCreator",
+#     context: "MyService",
+#     callback_class: "MyCallbackHandler",
 #     callback_id: 123
 #   )
 class OpenaiRequestJob < ApplicationJob

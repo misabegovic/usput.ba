@@ -21,7 +21,7 @@ module Ai
   #   result = Ai::OpenaiQueue.request(
   #     prompt: "Your prompt",
   #     schema: { type: "object", ... },
-  #     context: "PlanCreator"
+  #     context: "MyService"
   #   )
   class OpenaiQueue
     include Concerns::ErrorReporting
@@ -57,7 +57,7 @@ module Ai
       # Synchronous request with automatic rate limiting (via RubyLLM)
       # @param prompt [String] The prompt to send
       # @param schema [Hash, nil] Optional JSON schema for structured output
-      # @param context [String] Context for logging (e.g., "PlanCreator")
+      # @param context [String] Context for logging (e.g., "MyService")
       # @return [Hash, String, nil] Parsed response or nil on failure
       def request(prompt:, schema: nil, context: "OpenaiQueue")
         new.execute_request(prompt: prompt, schema: schema, context: context)

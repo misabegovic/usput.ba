@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
-# Platform - Autonomni AI mozak za Usput.ba
+# Platform - DSL za upravljanje sadržajem Usput.ba
 #
-# DSL-First arhitektura za upravljanje sadržajem kroz konverzacijski interface.
+# DSL-First arhitektura za upravljanje sadržajem.
+# Agenti koriste CLI direktno (bin/platform exec).
 #
-# Zeitwerk automatski učitava sve komponente:
+# Komponente:
 # - Platform::CLI - Thor CLI interface
-# - Platform::Conversation - Session management
-# - Platform::Brain - RubyLLM wrapper
 # - Platform::DSL - Domain Specific Language
 #
 module Platform

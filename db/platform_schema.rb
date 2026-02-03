@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_15_171026) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_03_122601) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -70,15 +70,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_171026) do
     t.index ["conversation_id"], name: "index_platform_audit_logs_on_conversation_id"
     t.index ["record_type", "record_id"], name: "index_platform_audit_logs_on_record_type_and_record_id"
     t.index ["triggered_by"], name: "index_platform_audit_logs_on_triggered_by"
-  end
-
-  create_table "platform_conversations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.jsonb "context", default: {}
-    t.datetime "created_at", null: false
-    t.jsonb "messages", default: [], null: false
-    t.string "status", default: "active"
-    t.datetime "updated_at", null: false
-    t.index ["status"], name: "index_platform_conversations_on_status"
   end
 
   create_table "platform_statistics", force: :cascade do |t|
