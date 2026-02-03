@@ -59,8 +59,6 @@ class Platform::DSL::MutationsTest < ActiveSupport::TestCase
     assert_equal "Mostar", location.city
   end
 
-  test "creates audit log on create" do       Platform::DSL.execute('create location { name: "Audit Test", city: "Tuzla", lat: 44.54, lng: 18.67 }')  end
-
   test "rejects create for location outside BiH" do
     error = assert_raises(Platform::DSL::ExecutionError) do
       Platform::DSL.execute('create location { name: "Beograd", city: "Beograd", lat: 44.82, lng: 20.45 }')

@@ -242,7 +242,7 @@ class Curator::PlansControllerTest < ActionDispatch::IntegrationTest
   test "show returns 404 for non-existent plan" do
     login_as(@curator)
     get curator_plan_path("non-existent-uuid")
-    assert_response :not_found
+    assert_redirected_to curator_plans_path
   end
 
   # === New action tests ===

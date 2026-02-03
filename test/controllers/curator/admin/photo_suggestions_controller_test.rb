@@ -27,7 +27,7 @@ class Curator::Admin::PhotoSuggestionsControllerTest < ActionDispatch::Integrati
       location: @location,
       description: "A nice photo"
     )
-    @suggestion.photo.attach(
+    @suggestion.photos.attach(
       io: File.open(Rails.root.join("test/fixtures/files/test_image.jpg")),
       filename: "test_image.jpg",
       content_type: "image/jpeg"

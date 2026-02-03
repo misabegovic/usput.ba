@@ -177,7 +177,7 @@ class PhotoSuggestionTest < ActiveSupport::TestCase
     )
 
     # Attach a test image
-    suggestion.photo.attach(
+    suggestion.photos.attach(
       io: StringIO.new("fake image data"),
       filename: "test.jpg",
       content_type: "image/jpeg"
