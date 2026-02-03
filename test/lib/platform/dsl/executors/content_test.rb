@@ -631,16 +631,15 @@ class Platform::DSL::Executors::ContentTest < ActiveSupport::TestCase
 
   test "build_description_prompt handles unknown record type" do
     # Use a model that is neither Location nor Experience
-    record = PlatformAuditLog.create!(
-      action: "create",  # Valid action
-      record_type: "Test",
-      record_id: 1,
-      triggered_by: "test"
+    # Create a simple object with the required methods
+    record = Struct.new(:class, :try).new(
+      Struct.new(:name).new("TestModel"),
+      ->(method) { "Test" }
     )
 
     result = Platform::DSL::Executors::Content.send(:build_description_prompt, record, "informative")
 
-    assert_includes result, "PlatformAuditLog"
+    assert_includes result, "TestModel"
   end
 
   test "build_description_prompt with formal style" do
@@ -787,10 +786,8 @@ class Platform::DSL::Executors::ContentTest < ActiveSupport::TestCase
 
     Platform::DSL::Executors::Content.stub(:find_record_for_mutation, ->(_model, _filters) { mock_record }) do
       Platform::DSL::Executors::TableQuery.stub(:resolve_model, ->(_table) { Location }) do
-        PlatformAuditLog.stub(:log_delete, ->(_record, **_opts) { }) do
-          result = Platform::DSL::Executors::Content.send(:execute_delete, "locations", { id: 123 })
-          assert result[:success]
-        end
+        result = Platform::DSL::Executors::Content.send(:execute_delete, "locations", { id: 123 })
+        assert result[:success]
       end
     end
   end

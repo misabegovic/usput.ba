@@ -58,27 +58,6 @@ class Platform::DSL::IntrospectionTest < ActiveSupport::TestCase
     assert_equal :errors, ast[:operations].first[:name]
   end
 
-  test "parses logs audit command" do
-    ast = Platform::DSL::Parser.parse("logs | audit")
-
-    assert_equal :logs_query, ast[:type]
-    assert_equal :audit, ast[:operations].first[:name]
-  end
-
-  test "parses logs recent command" do
-    ast = Platform::DSL::Parser.parse('logs { limit: 20 } | recent')
-
-    assert_equal :logs_query, ast[:type]
-    assert_equal 20, ast[:filters][:limit]
-    assert_equal :recent, ast[:operations].first[:name]
-  end
-
-  test "parses logs dsl command" do
-    ast = Platform::DSL::Parser.parse("logs | dsl")
-
-    assert_equal :logs_query, ast[:type]
-    assert_equal :dsl, ast[:operations].first[:name]
-  end
 
   # ============================================
   # Infrastructure Introspection - Parser Tests
@@ -196,77 +175,6 @@ class Platform::DSL::IntrospectionTest < ActiveSupport::TestCase
     assert result[:total_files] >= 1
   end
 
-  # ============================================
-  # Logs Introspection - Execution Tests
-  # ============================================
-
-  test "executes logs summary" do
-    result = Platform::DSL.execute("logs")
-
-    assert_equal :logs_summary, result[:action]
-    assert result[:audit_logs].present?
-    assert result[:audit_logs][:total].is_a?(Integer)
-  end
-
-  test "executes logs errors" do
-    result = Platform::DSL.execute('logs { last: "24h" } | errors')
-
-    assert_equal :show_errors, result[:action]
-    assert_equal "24h", result[:time_range]
-    assert result[:errors].is_a?(Array)
-  end
-
-  test "executes logs recent" do
-    # Create an audit log first
-    PlatformAuditLog.create!(
-      action: "create",
-      record_type: "Location",
-      record_id: 1,
-      change_data: {},
-      triggered_by: "test"
-    )
-
-    result = Platform::DSL.execute("logs | recent")
-
-    assert_equal :recent_logs, result[:action]
-    assert result[:logs].is_a?(Array)
-  end
-
-  test "executes logs audit" do
-    result = Platform::DSL.execute("logs | audit")
-
-    assert_equal :audit_logs, result[:action]
-    assert result[:by_action].is_a?(Hash)
-  end
-
-  test "executes logs audit with filters" do
-    result = Platform::DSL.execute('logs { action: "create" } | audit')
-
-    assert_equal :audit_logs, result[:action]
-  end
-
-  test "executes logs dsl" do
-    # Create a DSL-triggered log
-    PlatformAuditLog.create!(
-      action: "create",
-      record_type: "Location",
-      record_id: 1,
-      change_data: {},
-      triggered_by: "platform_dsl_test"
-    )
-
-    result = Platform::DSL.execute("logs | dsl")
-
-    assert_equal :dsl_logs, result[:action]
-    assert result[:by_trigger].is_a?(Hash)
-  end
-
-  test "executes logs with time range filter" do
-    result = Platform::DSL.execute('logs { last: "7d" }')
-
-    assert_equal :logs_summary, result[:action]
-    assert_equal "7d", result[:time_range]
-  end
 
   # ============================================
   # Infrastructure Introspection - Execution Tests

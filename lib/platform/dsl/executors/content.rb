@@ -123,9 +123,6 @@ module Platform
               raise ExecutionError, "Kreiranje nije uspjelo: #{record.errors.full_messages.join(', ')}"
             end
 
-            PlatformAuditLog.log_create(record, triggered_by: "platform_dsl")
-            PlatformStatistic.invalidate_content_stats
-
             {
               success: true,
               action: :create,
@@ -162,9 +159,6 @@ module Platform
               hash[key.to_s] = [old_values[key], record.send(key)]
             end
 
-            PlatformAuditLog.log_update(record, changes: changes, triggered_by: "platform_dsl")
-            PlatformStatistic.invalidate_content_stats
-
             {
               success: true,
               action: :update,
@@ -178,8 +172,6 @@ module Platform
             model = TableQuery.resolve_model(table)
             record = find_record_for_mutation(model, filters)
 
-            PlatformAuditLog.log_delete(record, triggered_by: "platform_dsl")
-
             # Try soft delete first, fall back to hard delete
             if record.respond_to?(:discard)
               record.discard
@@ -188,8 +180,6 @@ module Platform
             else
               record.destroy
             end
-
-            PlatformStatistic.invalidate_content_stats
 
             {
               success: true,
@@ -447,12 +437,6 @@ module Platform
             old_description = record.description
             record.update!(description: description)
 
-            PlatformAuditLog.log_update(
-              record,
-              changes: { "description" => [old_description, description] },
-              triggered_by: "platform_dsl_generation"
-            )
-
             {
               success: true,
               action: :generate_description,
@@ -496,14 +480,6 @@ module Platform
                 translations_created << { locale: locale, field: field }
               end
             end
-
-            PlatformAuditLog.create!(
-              action: "update",
-              record_type: model.name,
-              record_id: record.id,
-              change_data: { translations_added: translations_created },
-              triggered_by: "platform_dsl_generation"
-            )
 
             {
               success: true,
@@ -550,9 +526,6 @@ module Platform
             locations.each_with_index do |loc, idx|
               experience.experience_locations.create!(location: loc, position: idx + 1)
             end
-
-            PlatformAuditLog.log_create(experience, triggered_by: "platform_dsl_generation")
-            PlatformStatistic.invalidate_content_stats
 
             {
               success: true,
@@ -803,14 +776,6 @@ module Platform
 
             generator = Ai::AudioTourGenerator.new(record)
             result = generator.generate(locale: locale, force: false)
-
-            PlatformAuditLog.create!(
-              action: "create",
-              record_type: "AudioTour",
-              record_id: record.audio_tours.find_by(locale: locale)&.id,
-              change_data: { location_id: record.id, locale: locale },
-              triggered_by: "platform_dsl_audio"
-            )
 
             {
               success: true,

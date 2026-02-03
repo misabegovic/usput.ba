@@ -276,23 +276,7 @@ class Platform::Services::SpamDetectorTest < ActiveSupport::TestCase
     assert stats[:high_activity_curators].any? { |c| c[:username] == @curator.username }
   end
 
-  test "log_spam_block creates audit log" do
-    analysis = {
-      curator_id: @curator.id,
-      reason: "Test spam reason",
-      hourly_count: 50,
-      is_spam: true
-    }
-
-    assert_difference "PlatformAuditLog.count", 1 do
-      Platform::Services::SpamDetector.send(:log_spam_block, @curator, analysis)
-    end
-
-    log = PlatformAuditLog.last
-    assert_equal "update", log.action
-    assert_equal "User", log.record_type
-    assert_equal @curator.id, log.record_id
-  end
+  # log_spam_block removed - audit logging no longer exists
 
   test "check_all checks all curators" do
     # Make curator a spammer

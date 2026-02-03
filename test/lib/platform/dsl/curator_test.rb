@@ -252,29 +252,7 @@ class Platform::DSL::CuratorTest < ActiveSupport::TestCase
     assert_match(/nije kurator/i, error.message)
   end
 
-  # Audit logging
-  test "creates audit log for blocking" do
-    assert_difference "PlatformAuditLog.count", 1 do
-      Platform::DSL.execute("block curator { id: #{@curator.id} } reason \"test\"")
-    end
-
-    log = PlatformAuditLog.last
-    assert_equal "update", log.action
-    assert_equal "User", log.record_type
-    assert_equal "platform_dsl_curator", log.triggered_by
-  end
-
-  test "creates audit log for unblocking" do
-    @curator.block_for_spam!("test")
-
-    assert_difference "PlatformAuditLog.count", 1 do
-      Platform::DSL.execute("unblock curator { id: #{@curator.id} }")
-    end
-
-    log = PlatformAuditLog.last
-    assert_equal "update", log.action
-    assert_equal "User", log.record_type
-  end
+  # Audit logging removed - tests no longer needed
 end
 
 # SpamDetector service tests

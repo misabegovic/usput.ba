@@ -149,9 +149,7 @@ module Platform
           def cache_status
             {
               action: :cache_status,
-              store: Rails.cache.class.name,
-              statistics: PlatformStatistic.count,
-              fresh_statistics: PlatformStatistic.where("updated_at >= ?", 5.minutes.ago).count
+              store: Rails.cache.class.name
             }
           rescue => e
             { action: :cache_status, error: e.message }
@@ -184,21 +182,6 @@ module Platform
           def show_errors(filters)
             time_range = parse_time_range(filters[:last] || "24h")
             errors = []
-
-            audit_errors = PlatformAuditLog.where("created_at >= ?", time_range)
-                                           .where("change_data->>'error' IS NOT NULL")
-                                           .order(created_at: :desc)
-                                           .limit(50)
-
-            errors += audit_errors.map do |log|
-              {
-                type: "audit_error",
-                action: log.action,
-                record_type: log.record_type,
-                error: log.change_data["error"],
-                created_at: log.created_at.iso8601
-              }
-            end
 
             begin
               if defined?(SolidQueue::Job) && SolidQueue::Job.table_exists?
@@ -238,104 +221,41 @@ module Platform
               suggestion: "Enable config.active_record.query_log_tags for query tracking",
               recent_complex_queries: {
                 locations_with_audio: estimate_query_time("Location.with_audio.count"),
-                experience_aggregations: estimate_query_time("Experience.includes(:locations).count"),
-                knowledge_searches: estimate_query_time("KnowledgeCluster.semantic_search")
+                experience_aggregations: estimate_query_time("Experience.includes(:locations).count")
               }
             }
           end
 
           def show_recent_logs(filters)
-            limit = (filters[:limit] || 50).to_i
-            logs = PlatformAuditLog.order(created_at: :desc).limit(limit)
-
             {
               action: :recent_logs,
-              count: logs.size,
-              logs: logs.map do |log|
-                {
-                  id: log.id,
-                  action: log.action,
-                  record_type: log.record_type,
-                  record_id: log.record_id,
-                  triggered_by: log.triggered_by,
-                  created_at: log.created_at.iso8601
-                }
-              end
+              message: "Audit logging has been removed",
+              note: "Use Rails logs or application-specific logging instead"
             }
           end
 
           def show_audit_logs(filters)
-            scope = PlatformAuditLog.all
-            scope = scope.where(action: filters[:action]) if filters[:action]
-            scope = scope.where(record_type: filters[:record_type]) if filters[:record_type]
-            scope = scope.where(triggered_by: filters[:triggered_by]) if filters[:triggered_by]
-
-            if filters[:last]
-              time_range = parse_time_range(filters[:last])
-              scope = scope.where("created_at >= ?", time_range)
-            end
-
-            logs = scope.order(created_at: :desc).limit(100)
-
             {
               action: :audit_logs,
-              count: logs.size,
-              total: scope.count,
-              by_action: PlatformAuditLog.group(:action).count,
-              by_record_type: PlatformAuditLog.group(:record_type).count,
-              logs: logs.map do |log|
-                {
-                  id: log.id,
-                  action: log.action,
-                  record_type: log.record_type,
-                  record_id: log.record_id,
-                  changes: log.change_data&.keys,
-                  triggered_by: log.triggered_by,
-                  created_at: log.created_at.iso8601
-                }
-              end
+              message: "Audit logging has been removed",
+              note: "Use Rails logs or application-specific logging instead"
             }
           end
 
           def show_dsl_logs(filters)
-            scope = PlatformAuditLog.where("triggered_by LIKE ?", "platform_dsl%")
-
-            if filters[:last]
-              time_range = parse_time_range(filters[:last])
-              scope = scope.where("created_at >= ?", time_range)
-            end
-
-            logs = scope.order(created_at: :desc).limit(50)
-
             {
               action: :dsl_logs,
-              count: logs.size,
-              by_trigger: scope.group(:triggered_by).count,
-              logs: logs.map do |log|
-                {
-                  id: log.id,
-                  action: log.action,
-                  record_type: log.record_type,
-                  record_id: log.record_id,
-                  triggered_by: log.triggered_by,
-                  created_at: log.created_at.iso8601
-                }
-              end
+              message: "Audit logging has been removed",
+              note: "Use Rails logs or application-specific logging instead"
             }
           end
 
           def logs_summary(filters)
-            time_range = parse_time_range(filters[:last] || "24h")
-
             {
               action: :logs_summary,
               time_range: filters[:last] || "24h",
-              audit_logs: {
-                total: PlatformAuditLog.where("created_at >= ?", time_range).count,
-                by_action: PlatformAuditLog.where("created_at >= ?", time_range).group(:action).count,
-                by_record_type: PlatformAuditLog.where("created_at >= ?", time_range).group(:record_type).count,
-                dsl_triggered: PlatformAuditLog.where("created_at >= ? AND triggered_by LIKE ?", time_range, "platform_dsl%").count
-              },
+              message: "Audit logging has been removed",
+              note: "Use Rails logs or application-specific logging instead",
               queue: queue_summary
             }
           end

@@ -288,42 +288,13 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert result.key?(:service) || result.key?(:status)
   end
 
-  # Cached stats tests
-  test "build_stats returns directly when no cache" do
-    PlatformStatistic.where(key: "layer_zero").delete_all
-
+  # Stats tests (caching removed)
+  test "build_stats returns live data" do
     result = Platform::DSL::Executor.send(:build_stats)
 
     assert_equal :live, result[:source]
   end
 
-  test "format_cached_stats formats data correctly" do
-    data = {
-      "stats" => { "locations" => 100, "users" => 50, "curators" => 5 },
-      "by_city" => { "Sarajevo" => 30 },
-      "coverage" => { "cities" => 10 },
-      "computed_at" => "2024-01-01T00:00:00Z"
-    }
-
-    result = Platform::DSL::Executor.send(:format_cached_stats, data)
-
-    assert_equal :cached, result[:source]
-    assert_equal 100, result[:content]["locations"]
-    assert_equal 50, result[:users][:total]
-  end
-
-  test "format_cached_stats handles symbol keys" do
-    data = {
-      stats: { locations: 100, users: 50, curators: 5 },
-      by_city: { "Sarajevo" => 30 },
-      coverage: { cities: 10 },
-      computed_at: "2024-01-01T00:00:00Z"
-    }
-
-    result = Platform::DSL::Executor.send(:format_cached_stats, data)
-
-    assert_equal :cached, result[:source]
-  end
 
   # Apply filter edge cases
   test "apply_filter with array value" do
@@ -454,21 +425,11 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     end
   end
 
-  test "build_stats uses cached data when available" do
-    # Create a fresh cached stat
-    PlatformStatistic.find_or_create_by!(key: "layer_zero").update!(
-      value: {
-        "stats" => { "locations" => 999 },
-        "by_city" => {},
-        "coverage" => {},
-        "computed_at" => Time.current.iso8601
-      },
-      computed_at: 1.minute.ago
-    )
-
+  test "build_stats always returns live data (caching removed)" do
     result = Platform::DSL::Executor.send(:build_stats)
 
-    assert_equal :cached, result[:source]
+    assert_equal :live, result[:source]
+    assert result[:content].is_a?(Hash)
   end
 
   # Apply operation edge cases - test with valid operations only
@@ -658,65 +619,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert_equal :list_models, result[:action]
   end
 
-  # Prompts query tests
-  test "execute_prompts_query with show" do
-    prompt = PreparedPrompt.create!(
-      title: "Test Prompt",
-      content: "Test content",
-      prompt_type: :fix
-    )
 
-    result = Platform::DSL.execute("prompts { id: #{prompt.id} } | show")
-
-    assert result.is_a?(Hash)
-    assert_equal :show_prompt, result[:action]
-  end
-
-  # Improvement tests
-  test "execute_improvement with prepare fix" do
-    result = Platform::DSL.execute('prepare fix for "Test fix description"')
-
-    assert result.is_a?(Hash)
-    assert_equal :prepare_prompt, result[:action]
-    assert_equal "fix", result[:type]
-  end
-
-  test "execute_improvement with prepare feature" do
-    result = Platform::DSL.execute('prepare feature "Test feature description"')
-
-    assert result.is_a?(Hash)
-    assert_equal :prepare_prompt, result[:action]
-    assert_equal "feature", result[:type]
-  end
-
-  # Prompt action tests (note: only apply and reject are supported)
-  test "execute_prompt_action with apply" do
-    prompt = PreparedPrompt.create!(
-      title: "Apply Test",
-      content: "Test content",
-      prompt_type: :fix,
-      status: :in_progress
-    )
-
-    result = Platform::DSL.execute("apply prompt { id: #{prompt.id} }")
-
-    assert result.is_a?(Hash)
-    assert_equal :apply_prompt, result[:action]
-  end
-
-  test "execute_prompt_action with reject" do
-    prompt = PreparedPrompt.create!(
-      title: "Reject Test",
-      content: "Test content",
-      prompt_type: :fix,
-      status: :pending
-    )
-
-    result = Platform::DSL.execute("reject prompt { id: #{prompt.id} } reason \"Not needed\"")
-
-    assert result.is_a?(Hash)
-    assert_equal :reject_prompt, result[:action]
-  end
 
   # Approval tests
   test "execute_approval approve proposal" do
@@ -839,22 +742,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert result.is_a?(Hash)
   end
 
-  # Summaries query via DSL
-  test "execute_summaries_query via DSL" do
-    result = Platform::DSL.execute("summaries { dimension: \"city\" } | list")
-
-    # Returns array of summaries or hash with city summaries
-    assert result.is_a?(Hash) || result.is_a?(Array)
-  end
-
-  # Clusters query via DSL
-  test "execute_clusters_query via DSL" do
-    result = Platform::DSL.execute("clusters | list")
-
-    assert result.is_a?(Hash)
-    assert result.key?(:clusters)
-    assert result.key?(:total)
-  end
 
   # External query via DSL
   test "execute_external_query via DSL" do
@@ -978,19 +865,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert result.is_a?(Hash) || result.is_a?(Integer)
   end
 
-  # Prompts count test
-  test "prompts count returns prompt statistics" do
-    result = Platform::DSL.execute("prompts | count")
-
-    assert result.is_a?(Hash) || result.is_a?(Integer)
-  end
-
-  # Summaries issues test
-  test "summaries issues returns summaries with issues" do
-    result = Platform::DSL.execute("summaries | issues")
-
-    assert result.is_a?(Hash) || result.is_a?(Array)
-  end
 
   # Apply filters internal method test
   test "apply_filters filters by column" do
@@ -1164,18 +1038,12 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert result.key?(:curators)
   end
 
-  # Logs with filter
-  test "logs with action filter" do
-    PlatformAuditLog.create!(
-      action: "create",
-      record_type: "Location",
-      record_id: 1,
-      triggered_by: "test"
-    )
-
+  # Logs with filter - removed (audit logging no longer exists)
+  test "logs with action filter returns message" do
     result = Platform::DSL.execute('logs { action: "create" } | list')
 
-    assert result.is_a?(Hash) || result.is_a?(Array)
+    assert result.is_a?(Hash)
+    assert_includes result[:message], "removed" if result.key?(:message)
   end
 
   # External geocode operation
@@ -1286,40 +1154,13 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert true
   end
 
-  # Test summaries with different dimension
-  test "summaries with dimension city" do
-    result = Platform::DSL.execute('summaries { dimension: "city" } | list')
 
-    assert result.is_a?(Hash) || result.is_a?(Array)
-  end
-
-  # Test prompts | show
-  test "prompts show requires filter" do
-    # Create a prompt first
-    prompt = PreparedPrompt.create!(
-      title: "Test Prompt",
-      content: "Test content",
-      prompt_type: :fix,
-      status: :pending
-    )
-
-    result = Platform::DSL.execute("prompts { id: #{prompt.id} } | show")
+  # Test logs | show - removed (audit logging no longer exists)
+  test "logs show returns message about removed functionality" do
+    result = Platform::DSL.execute("logs | recent")
 
     assert result.is_a?(Hash)
-  end
-
-  # Test logs | show
-  test "logs show returns log details" do
-    log = PlatformAuditLog.create!(
-      action: "create",
-      record_type: "Location",
-      record_id: 1,
-      triggered_by: "test"
-    )
-
-    result = Platform::DSL.execute("logs { id: #{log.id} } | show")
-
-    assert result.is_a?(Hash)
+    assert result.key?(:message) || result.key?(:action)
   end
 
   # Test applications | list
@@ -1560,55 +1401,24 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert result[:errors].is_a?(Array)
   end
 
-  # Test show_audit_logs
-  test "show_audit_logs returns audit log information" do
-    PlatformAuditLog.create!(
-      action: "create",
-      record_type: "Location",
-      record_id: 1,
-      triggered_by: "test"
-    )
-
-    result = Platform::DSL::Executor.send(:show_audit_logs, {})
+  # Test show_audit_logs - removed (audit logging no longer exists)
+  test "show_audit_logs returns message about removed functionality" do
+    result = Platform::DSL::Executors::Infrastructure.send(:show_audit_logs, {})
 
     assert result.is_a?(Hash)
     assert_equal :audit_logs, result[:action]
-    assert result.key?(:logs)
-    assert result[:logs].is_a?(Array)
+    assert_includes result[:message], "removed"
   end
 
-  # Test show_dsl_logs
-  test "show_dsl_logs returns DSL triggered logs" do
-    PlatformAuditLog.create!(
-      action: "create",
-      record_type: "Location",
-      record_id: 1,
-      triggered_by: "platform_dsl_test"
-    )
-
-    result = Platform::DSL::Executor.send(:show_dsl_logs, {})
+  # Test show_dsl_logs - removed (audit logging no longer exists)
+  test "show_dsl_logs returns message about removed functionality" do
+    result = Platform::DSL::Executors::Infrastructure.send(:show_dsl_logs, {})
 
     assert result.is_a?(Hash)
     assert_equal :dsl_logs, result[:action]
-    assert result.key?(:logs)
+    assert_includes result[:message], "removed"
   end
 
-  # Test show_recent_logs
-  test "show_recent_logs returns recent logs" do
-    result = Platform::DSL::Executor.send(:show_recent_logs, {})
-
-    assert result.is_a?(Hash)
-    assert_equal :recent_logs, result[:action]
-    assert result.key?(:logs)
-  end
-
-  # Test show_recent_logs with limit
-  test "show_recent_logs respects limit filter" do
-    result = Platform::DSL::Executor.send(:show_recent_logs, { limit: 10 })
-
-    assert result.is_a?(Hash)
-    assert result[:logs].length <= 10
-  end
 
   # Test apply_operation with where
   test "apply_operation handles where operation" do

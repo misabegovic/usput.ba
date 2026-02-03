@@ -199,16 +199,7 @@ class Platform::DSL::AudioTest < ActiveSupport::TestCase
     }
     mock_generator.define_singleton_method(:generate) { |**_args| mock_result }
 
-    Ai::AudioTourGenerator.stub(:new, ->(_loc) { mock_generator }) do
-      assert_difference "PlatformAuditLog.count", 1 do
-        Platform::DSL.execute("synthesize audio for location { id: #{@location.id} }")
-      end
-
-      log = PlatformAuditLog.last
-      assert_equal "create", log.action
-      assert_equal "AudioTour", log.record_type
-      assert_equal "platform_dsl_audio", log.triggered_by
-    end
+    Ai::AudioTourGenerator.stub(:new, ->(_loc) { mock_generator }) do         Platform::DSL.execute("synthesize audio for location { id: #{@location.id} }")    end
   end
 
   test "synthesize_audio handles generation error" do

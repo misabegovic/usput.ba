@@ -27,9 +27,8 @@ module Platform
             when :health
               build_health
             when :refresh
-              # Force refresh all stats
-              PlatformStatistic.refresh_all
-              { action: :refresh, status: :ok, message: "Stats refreshed" }
+              # Stats refresh has been removed
+              { action: :refresh, status: :ok, message: "Stats refresh functionality removed" }
             else
               raise ExecutionError, "Nepoznata schema operacija: #{operation[:name]}"
             end
@@ -38,30 +37,8 @@ module Platform
           private
 
           def build_stats(live: false)
-            # Force live query if requested
-            return build_stats_directly if live
-
-            # Use cached statistics if available
-            cached = PlatformStatistic.find_by(key: "layer_zero")
-            if cached&.fresh?(5.minutes)
-              return format_cached_stats(cached.value)
-            end
-
+            # Always use live stats now (caching removed)
             build_stats_directly
-          end
-
-          def format_cached_stats(data)
-            {
-              content: data["stats"] || data[:stats] || {},
-              by_city: data["by_city"] || data[:by_city] || {},
-              coverage: data["coverage"] || data[:coverage] || {},
-              users: {
-                total: (data.dig("stats", "users") || data.dig(:stats, :users)) || 0,
-                curators: (data.dig("stats", "curators") || data.dig(:stats, :curators)) || 0
-              },
-              last_updated: data["computed_at"] || data[:computed_at],
-              source: :cached
-            }
           end
 
           def build_stats_directly

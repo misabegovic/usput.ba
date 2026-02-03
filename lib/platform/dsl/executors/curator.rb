@@ -306,14 +306,6 @@ module Platform
               raise ExecutionError, "Odobravanje prijedloga nije uspjelo"
             end
 
-            PlatformAuditLog.create!(
-              action: "approve",
-              record_type: "ContentChange",
-              record_id: proposal.id,
-              change_data: { notes: notes, approved_by: "platform_dsl" },
-              triggered_by: "platform_dsl_approval"
-            )
-
             {
               success: true,
               action: :approve_proposal,
@@ -337,14 +329,6 @@ module Platform
             admin = platform_admin_user
             proposal.reject!(admin, notes: reason)
 
-            PlatformAuditLog.create!(
-              action: "reject",
-              record_type: "ContentChange",
-              record_id: proposal.id,
-              change_data: { reason: reason, rejected_by: "platform_dsl" },
-              triggered_by: "platform_dsl_approval"
-            )
-
             {
               success: true,
               action: :reject_proposal,
@@ -363,14 +347,6 @@ module Platform
 
             admin = platform_admin_user
             application.approve!(admin)
-
-            PlatformAuditLog.create!(
-              action: "approve",
-              record_type: "CuratorApplication",
-              record_id: application.id,
-              change_data: { notes: notes, approved_by: "platform_dsl", user_id: application.user_id },
-              triggered_by: "platform_dsl_approval"
-            )
 
             {
               success: true,
@@ -395,14 +371,6 @@ module Platform
 
             admin = platform_admin_user
             application.reject!(admin, reason)
-
-            PlatformAuditLog.create!(
-              action: "reject",
-              record_type: "CuratorApplication",
-              record_id: application.id,
-              change_data: { reason: reason, rejected_by: "platform_dsl" },
-              triggered_by: "platform_dsl_approval"
-            )
 
             {
               success: true,
@@ -581,18 +549,6 @@ module Platform
 
             curator.block_for_spam!(reason)
 
-            PlatformAuditLog.create!(
-              action: "update",
-              record_type: "User",
-              record_id: curator.id,
-              change_data: {
-                spam_blocked: true,
-                reason: reason,
-                blocked_by: "platform_dsl"
-              },
-              triggered_by: "platform_dsl_curator"
-            )
-
             {
               success: true,
               action: :block_curator,
@@ -613,18 +569,6 @@ module Platform
 
             old_reason = curator.spam_block_reason
             curator.admin_unblock!
-
-            PlatformAuditLog.create!(
-              action: "update",
-              record_type: "User",
-              record_id: curator.id,
-              change_data: {
-                spam_unblocked: true,
-                previous_reason: old_reason,
-                unblocked_by: "platform_dsl"
-              },
-              triggered_by: "platform_dsl_curator"
-            )
 
             {
               success: true,

@@ -73,18 +73,6 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
     assert result[:store].present?
   end
 
-  # ===================
-  # Logs Query Tests
-  # ===================
-
-  test "execute_logs returns summary by default" do
-    ast = { filters: {}, operations: nil }
-
-    result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
-
-    assert_equal :logs_summary, result[:action]
-    assert result[:audit_logs].present?
-  end
 
   test "execute_logs shows errors" do
     ast = { filters: {}, operations: [{ name: :errors }] }
@@ -122,19 +110,12 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   end
 
   test "execute_logs shows recent logs" do
-    PlatformAuditLog.create!(
-      action: "create",
-      record_type: "Test",
-      record_id: 1,
-      triggered_by: "test"
-    )
-
     ast = { filters: {}, operations: [{ name: :recent }] }
 
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
     assert_equal :recent_logs, result[:action]
-    assert result[:logs].is_a?(Array)
+    assert_includes result[:message], "removed"
   end
 
   test "execute_logs shows recent logs with limit" do
@@ -151,18 +132,10 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
     assert_equal :audit_logs, result[:action]
-    assert result[:by_action].is_a?(Hash)
-    assert result[:by_record_type].is_a?(Hash)
+    assert_includes result[:message], "removed"
   end
 
   test "execute_logs shows audit logs with filters" do
-    PlatformAuditLog.create!(
-      action: "create",
-      record_type: "Location",
-      record_id: 1,
-      triggered_by: "platform_dsl"
-    )
-
     ast = {
       filters: { action: "create", record_type: "Location" },
       operations: [{ name: :audit }]
@@ -171,22 +144,16 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
     assert_equal :audit_logs, result[:action]
+    assert_includes result[:message], "removed"
   end
 
   test "execute_logs shows dsl logs" do
-    PlatformAuditLog.create!(
-      action: "create",
-      record_type: "Location",
-      record_id: 1,
-      triggered_by: "platform_dsl"
-    )
-
     ast = { filters: {}, operations: [{ name: :dsl }] }
 
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
     assert_equal :dsl_logs, result[:action]
-    assert result[:logs].is_a?(Array)
+    assert_includes result[:message], "removed"
   end
 
   test "execute_logs shows dsl logs with time filter" do
@@ -345,33 +312,16 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
 
   # Additional coverage tests for uncovered branches
 
-  test "show_errors with audit log that has error in change_data" do
-    # Create an audit log with error in change_data
-    PlatformAuditLog.create!(
-      action: "create",
-      record_type: "Location",
-      record_id: 1,
-      triggered_by: "test",
-      change_data: { "error" => "Some error occurred" }
-    )
-
+  test "show_errors returns errors without audit logs" do
     ast = { filters: { last: "24h" }, operations: [{ name: :errors }] }
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
     assert_equal :show_errors, result[:action]
     assert result[:errors].is_a?(Array)
-    # The error log should be found
-    assert result[:errors].any? { |e| e[:type] == "audit_error" } || result[:count] >= 0
+    assert result[:count] >= 0
   end
 
   test "show_audit_logs with triggered_by filter" do
-    PlatformAuditLog.create!(
-      action: "create",
-      record_type: "Location",
-      record_id: 1,
-      triggered_by: "special_trigger"
-    )
-
     ast = {
       filters: { triggered_by: "special_trigger" },
       operations: [{ name: :audit }]
@@ -380,6 +330,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
     assert_equal :audit_logs, result[:action]
+    assert_includes result[:message], "removed"
   end
 
   test "show_audit_logs with last time filter" do
@@ -530,22 +481,12 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
 
   # Additional branch coverage tests
 
-  test "recent_logs with log that has nil change_data" do
-    # Create a log with nil change_data to test the safe navigation branch
-    log = PlatformAuditLog.create!(
-      action: "create",
-      record_type: "Test",
-      record_id: 1,
-      triggered_by: "test"
-    )
-    # Explicitly set change_data to nil
-    log.update_column(:change_data, nil)
-
+  test "recent_logs returns message about removed functionality" do
     ast = { filters: {}, operations: [{ name: :recent }] }
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
     assert_equal :recent_logs, result[:action]
-    assert result[:logs].is_a?(Array)
+    assert_includes result[:message], "removed"
   end
 
   test "memory_status returns high status when memory exceeds threshold" do
