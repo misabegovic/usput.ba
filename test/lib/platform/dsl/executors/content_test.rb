@@ -632,10 +632,10 @@ class Platform::DSL::Executors::ContentTest < ActiveSupport::TestCase
   test "build_description_prompt handles unknown record type" do
     # Use a model that is neither Location nor Experience
     # Create a simple object with the required methods
-    record = Struct.new(:class, :try).new(
-      Struct.new(:name).new("TestModel"),
-      ->(method) { "Test" }
-    )
+    klass = Struct.new(:name).new("TestModel")
+    record = Object.new
+    record.define_singleton_method(:class) { klass }
+    record.define_singleton_method(:try) { |method| "Test" }
 
     result = Platform::DSL::Executors::Content.send(:build_description_prompt, record, "informative")
 
@@ -859,16 +859,13 @@ class Platform::DSL::Executors::ContentTest < ActiveSupport::TestCase
       data: { name: "Updated Name", nonexistent_field_xyz: "value" }
     }
 
-    # This should work - the nonexistent key should be silently ignored in old_values
-    # but will fail at record.update
-    begin
-      result = Platform::DSL::Executors::Content.execute_mutation(ast)
-      # If it succeeds, verify name was updated
-      @location.reload
-      assert_equal "Updated Name", @location.name
-    rescue Platform::DSL::ExecutionError, ActiveModel::UnknownAttributeError
-      # Expected - unknown attribute error
+    # This should raise an error because nonexistent_field_xyz is not a valid attribute
+    error = assert_raises(Platform::DSL::ExecutionError, ActiveModel::UnknownAttributeError) do
+      Platform::DSL::Executors::Content.execute_mutation(ast)
     end
+
+    # Verify error message mentions the unknown attribute
+    assert_match(/nonexistent_field_xyz|unknown attribute/i, error.message)
   end
 
   test "execute_delete uses discard method when available" do

@@ -236,7 +236,9 @@ class Curator::ExperiencesControllerTest < ActionDispatch::IntegrationTest
   test "show returns 404 for non-existent experience" do
     login_as(@curator)
     get curator_experience_path("00000000-0000-0000-0000-000000000000")
-    assert_response :not_found
+    # BaseController has rescue_from RecordNotFound that redirects to index
+    assert_redirected_to curator_experiences_path
+    assert_equal "Experiences not found.", flash[:alert]
   end
 
   test "show displays pending proposal if exists" do

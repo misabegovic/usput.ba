@@ -268,8 +268,9 @@ class Curator::LocationsControllerTest < ActionDispatch::IntegrationTest
   test "show returns 404 for non-existent location" do
     login_as(@curator)
     get curator_location_path("00000000-0000-0000-0000-000000000000")
-    # The application may handle RecordNotFound differently (rescue_from or return 404)
-    assert_includes [404, 500], response.status
+    # BaseController has rescue_from RecordNotFound that redirects to index
+    assert_redirected_to curator_locations_path
+    assert_equal "Locations not found.", flash[:alert]
   end
 
   # ==========================================================================
@@ -667,8 +668,9 @@ class Curator::LocationsControllerTest < ActionDispatch::IntegrationTest
   test "handles location not found gracefully on edit" do
     login_as(@curator)
     get edit_curator_location_path("00000000-0000-0000-0000-000000000000")
-    # The application may handle RecordNotFound differently
-    assert_includes [404, 500], response.status
+    # BaseController has rescue_from RecordNotFound that redirects to index
+    assert_redirected_to curator_locations_path
+    assert_equal "Locations not found.", flash[:alert]
   end
 
   test "handles empty location params" do

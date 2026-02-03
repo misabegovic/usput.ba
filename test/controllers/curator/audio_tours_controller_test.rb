@@ -267,7 +267,9 @@ class Curator::AudioToursControllerTest < ActionDispatch::IntegrationTest
   test "show returns 404 for non-existent audio tour" do
     login_as(@curator)
     get curator_audio_tour_path(id: 999999)
-    assert_response :not_found
+    # BaseController has rescue_from RecordNotFound that redirects to index
+    assert_redirected_to curator_audio_tours_path
+    assert_equal "Audio tours not found.", flash[:alert]
   end
 
   # ==========================================================================
