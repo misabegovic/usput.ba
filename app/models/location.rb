@@ -28,17 +28,6 @@ class Location < ApplicationRecord
   # Enums
   enum :budget, { low: 0, medium: 1, high: 2 }
 
-  # DEPRECATED: location_type enum - use location_category instead
-  # Kept for backwards compatibility during migration period
-  enum :location_type, {
-    place: 0,        # Standardna lokacija/atrakcija
-    guide: 1,        # Lokalni vodič
-    business: 2,     # Lokalni biznis/firma
-    restaurant: 3,   # Restoran/kafić
-    artisan: 4,      # Zanatlija/proizvođač
-    accommodation: 5 # Smještaj
-  }
-
   # Validations
   validates :name, presence: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
@@ -73,13 +62,12 @@ class Location < ApplicationRecord
     joins(:audio_tours).merge(AudioTour.with_audio).distinct
   }
 
-  # Scopes za tipove lokacija - uses location_categories (many-to-many) with fallback to legacy enum
+  # Scopes za tipove lokacija - uses location_categories (many-to-many)
   # Using subqueries instead of joins + distinct to avoid ORDER BY conflicts
   scope :places, -> {
     # Locations that either:
     # 1. Have no categories assigned, OR
-    # 2. Have at least one non-contact category, OR
-    # 3. Have legacy place type
+    # 2. Have at least one non-contact category
     where(
       # No categories assigned
       "NOT EXISTS (SELECT 1 FROM location_category_assignments WHERE location_category_assignments.location_id = locations.id)"
@@ -90,18 +78,15 @@ class Location < ApplicationRecord
          JOIN location_categories lc ON lc.id = lca.location_category_id
          WHERE lca.location_id = locations.id AND lc.key NOT IN (?))", %w[guide business artisan]
       )
-    ).or(
-      # Legacy place type
-      where(location_type: :place)
     )
   }
   scope :contacts, -> {
-    # Locations with contact category, OR legacy non-place type
+    # Locations with contact category
     where(
       "EXISTS (SELECT 1 FROM location_category_assignments lca
        JOIN location_categories lc ON lc.id = lca.location_category_id
        WHERE lca.location_id = locations.id AND lc.key IN (?))", %w[guide business artisan]
-    ).or(where.not(location_type: :place))
+    )
   }
   scope :by_category, ->(category_key) {
     return all if category_key.blank?
@@ -113,20 +98,17 @@ class Location < ApplicationRecord
   }
   scope :with_contact_info, -> { where.not(phone: [nil, ""]).or(where.not(email: [nil, ""])) }
 
-  # Filter by type/category - supports both new category key and legacy enum
+  # Filter by type/category
   scope :by_type, ->(type) {
     return all if type.blank?
-    # Try new category first, fall back to legacy enum
     category = LocationCategory.find_by_key(type)
-    if category
-      where(
-        "EXISTS (SELECT 1 FROM location_category_assignments
-         WHERE location_category_assignments.location_id = locations.id
-         AND location_category_assignments.location_category_id = ?)", category.id
-      )
-    else
-      where(location_type: type)
-    end
+    return none unless category
+
+    where(
+      "EXISTS (SELECT 1 FROM location_category_assignments
+       WHERE location_category_assignments.location_id = locations.id
+       AND location_category_assignments.location_category_id = ?)", category.id
+    )
   }
 
   # NOTE: For search/listing, prefer Browse.by_budget and Browse.by_min_rating
@@ -335,13 +317,12 @@ class Location < ApplicationRecord
 
   # Check if this is a contact type (guide, business, artisan)
   def contact?
-    location_categories.any?(&:contact_type?) || (location_type.present? && !place?)
+    location_categories.any?(&:contact_type?)
   end
 
   # Check if this is a place type (not a contact)
   def place_type?
-    return place? if location_categories.empty?
-    location_categories.any?(&:place_type?)
+    location_categories.empty? || location_categories.any?(&:place_type?)
   end
 
   # Get primary category (first one marked as primary, or just first one)
@@ -355,14 +336,14 @@ class Location < ApplicationRecord
     location_categories.pluck(:key)
   end
 
-  # Get primary category key (for display and API - backwards compatible)
+  # Get primary category key (for display and API)
   def category_key
-    primary_category&.key || location_type
+    primary_category&.key
   end
 
-  # Get primary category name (for display - backwards compatible)
+  # Get primary category name (for display)
   def category_name
-    primary_category&.name || location_type&.titleize
+    primary_category&.name
   end
 
   # Get all category names

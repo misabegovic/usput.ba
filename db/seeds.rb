@@ -255,7 +255,7 @@ locations_data = [
     lat: 43.8598,
     lng: 18.4313,
     budget: :low,
-    location_type: :place,
+    categories: ["place"],
     tags: ["historic", "shopping", "culture", "ottoman", "old-town"],
     suitable_experiences: ["culture", "history", "food"],
     video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
@@ -267,7 +267,7 @@ locations_data = [
     lat: 43.8598,
     lng: 18.4312,
     budget: :low,
-    location_type: :place,
+    categories: ["place"],
     tags: ["landmark", "historic", "photography", "ottoman"],
     suitable_experiences: ["culture", "history"]
   },
@@ -278,7 +278,7 @@ locations_data = [
     lat: 43.8597,
     lng: 18.4291,
     budget: :low,
-    location_type: :place,
+    categories: ["place"],
     tags: ["mosque", "historic", "architecture", "ottoman", "religious"],
     suitable_experiences: ["religious", "history", "culture", "art"],
     video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
@@ -290,7 +290,7 @@ locations_data = [
     lat: 43.8575,
     lng: 18.4287,
     budget: :low,
-    location_type: :place,
+    categories: ["place"],
     tags: ["historic", "bridge", "wwi", "landmark"],
     suitable_experiences: ["history", "culture"]
   },
@@ -301,7 +301,7 @@ locations_data = [
     lat: 43.8582,
     lng: 18.4343,
     budget: :low,
-    location_type: :place,
+    categories: ["place"],
     tags: ["architecture", "historic", "library", "landmark", "austro-hungarian"],
     suitable_experiences: ["culture", "history", "art"],
     video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
@@ -313,7 +313,7 @@ locations_data = [
     lat: 43.8577,
     lng: 18.4213,
     budget: :low,
-    location_type: :place,
+    categories: ["place"],
     tags: ["cathedral", "church", "architecture", "religious"],
     suitable_experiences: ["religious", "history", "culture", "art"]
   },
@@ -324,7 +324,7 @@ locations_data = [
     lat: 43.8588,
     lng: 18.4273,
     budget: :low,
-    location_type: :place,
+    categories: ["place"],
     tags: ["church", "orthodox", "museum", "historic"],
     suitable_experiences: ["religious", "history", "art"]
   },
@@ -335,7 +335,7 @@ locations_data = [
     lat: 43.8590,
     lng: 18.4270,
     budget: :low,
-    location_type: :place,
+    categories: ["place"],
     tags: ["museum", "jewish", "history", "synagogue"],
     suitable_experiences: ["history", "culture", "religious"]
   },
@@ -347,7 +347,7 @@ locations_data = [
     lat: 43.8596,
     lng: 18.4314,
     budget: :low,
-    location_type: :restaurant,
+    categories: ["restaurant"],
     tags: ["cevapi", "traditional", "bosnian-food", "legendary"],
     suitable_experiences: ["food", "meat"]
   },
@@ -358,7 +358,7 @@ locations_data = [
     lat: 43.8580,
     lng: 18.4350,
     budget: :medium,
-    location_type: :restaurant,
+    categories: ["restaurant"],
     tags: ["traditional", "bosnian-food", "historic", "spite-house"],
     suitable_experiences: ["food", "history", "culture"]
   },
@@ -369,7 +369,7 @@ locations_data = [
     lat: 43.8600,
     lng: 18.4303,
     budget: :medium,
-    location_type: :restaurant,
+    categories: ["restaurant"],
     tags: ["traditional", "han", "historic", "coffee"],
     suitable_experiences: ["food", "history", "culture"]
   },
@@ -379,7 +379,7 @@ locations_data = [
     lat: 43.8555,
     lng: 18.4180,
     budget: :medium,
-    location_type: :restaurant,
+    categories: ["restaurant"],
     tags: ["kafana", "live-music", "nightlife", "traditional"],
     suitable_experiences: ["food", "nightlife", "culture"]
   },
@@ -389,7 +389,7 @@ locations_data = [
     lat: 43.8595,
     lng: 18.4300,
     budget: :low,
-    location_type: :restaurant,
+    categories: ["restaurant"],
     tags: ["burek", "breakfast", "traditional", "cheap-eats"],
     suitable_experiences: ["food"]
   },
@@ -399,7 +399,7 @@ locations_data = [
     lat: 43.8558,
     lng: 18.4200,
     budget: :medium,
-    location_type: :restaurant,
+    categories: ["restaurant"],
     tags: ["bar", "cocktails", "unique", "nightlife"],
     suitable_experiences: ["nightlife", "culture"]
   },
@@ -411,7 +411,7 @@ locations_data = [
     lat: 43.8190,
     lng: 18.2680,
     budget: :low,
-    location_type: :place,
+    categories: ["place"],
     tags: ["nature", "park", "spring", "walking", "family-friendly"],
     suitable_experiences: ["nature", "wellness"],
     video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
@@ -423,7 +423,7 @@ locations_data = [
     lat: 43.8392,
     lng: 18.4508,
     budget: :low,
-    location_type: :place,
+    categories: ["place"],
     tags: ["mountain", "hiking", "olympics", "bobsled", "viewpoint"],
     suitable_experiences: ["nature", "sport", "mountains", "history"],
     video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
@@ -435,7 +435,7 @@ locations_data = [
     lat: 43.8628,
     lng: 18.4381,
     budget: :low,
-    location_type: :place,
+    categories: ["place"],
     tags: ["viewpoint", "fortress", "sunset", "photography", "historic"],
     suitable_experiences: ["nature", "history", "culture"]
   },
@@ -446,7 +446,7 @@ locations_data = [
     lat: 43.8640,
     lng: 18.4350,
     budget: :low,
-    location_type: :place,
+    categories: ["place"],
     tags: ["viewpoint", "fortress", "historic", "photography"],
     suitable_experiences: ["nature", "history", "culture"]
   },
@@ -458,7 +458,7 @@ locations_data = [
     lat: 43.8554,
     lng: 18.4111,
     budget: :low,
-    location_type: :place,
+    categories: ["place"],
     tags: ["museum", "war", "moving", "history", "siege"],
     suitable_experiences: ["history", "culture", "art"]
   },
@@ -468,7 +468,7 @@ locations_data = [
     lat: 43.8500,
     lng: 18.3930,
     budget: :low,
-    location_type: :place,
+    categories: ["place"],
     tags: ["museum", "history", "national"],
     suitable_experiences: ["history", "culture"]
   },
@@ -479,7 +479,7 @@ locations_data = [
     lat: 43.8181,
     lng: 18.3331,
     budget: :medium,
-    location_type: :place,
+    categories: ["place"],
     tags: ["museum", "war", "siege", "history", "tunnel"],
     suitable_experiences: ["history", "culture"],
     video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
@@ -491,7 +491,7 @@ locations_data = [
     lat: 43.8510,
     lng: 18.3990,
     budget: :low,
-    location_type: :place,
+    categories: ["place"],
     tags: ["museum", "archaeology", "haggadah", "national"],
     suitable_experiences: ["history", "culture", "art"]
   },
@@ -503,7 +503,7 @@ locations_data = [
     lat: 43.7347,
     lng: 18.5681,
     budget: :high,
-    location_type: :place,
+    categories: ["place"],
     tags: ["skiing", "winter-sports", "olympics", "mountain"],
     suitable_experiences: ["sport", "mountains", "nature"]
   },
@@ -513,7 +513,7 @@ locations_data = [
     lat: 43.7167,
     lng: 18.2667,
     budget: :high,
-    location_type: :place,
+    categories: ["place"],
     tags: ["skiing", "winter-sports", "olympics", "mountain"],
     suitable_experiences: ["sport", "mountains", "nature"]
   },
@@ -524,7 +524,7 @@ locations_data = [
     lat: 43.8450,
     lng: 18.3870,
     budget: :medium,
-    location_type: :place,
+    categories: ["place"],
     tags: ["sports", "olympics", "ice-skating", "concerts"],
     suitable_experiences: ["sport", "culture"]
   }
@@ -537,11 +537,17 @@ locations_data.each do |loc_data|
     loc.lat = loc_data[:lat]
     loc.lng = loc_data[:lng]
     loc.budget = loc_data[:budget]
-    loc.location_type = loc_data[:location_type]
     loc.tags = loc_data[:tags] || []
     loc.suitable_experiences = loc_data[:suitable_experiences] || []
     loc.video_url = loc_data[:video_url]
     loc.city = "Sarajevo"
+  end
+
+  # Associate categories
+  if loc_data[:categories].present?
+    loc_data[:categories].each do |cat_key|
+      location.add_category(cat_key, primary: true) if LocationCategory.find_by_key(cat_key)
+    end
   end
 
   # Associate experience types

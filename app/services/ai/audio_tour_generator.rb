@@ -304,7 +304,7 @@ module Ai
         LOCATION DETAILS:
         - Name: #{@location.name}
         - City: #{@location.city || 'Bosnia and Herzegovina'}
-        - Type: #{@location.location_type}
+        - Type: #{@location.category_name}
         - Description: #{@location.translate(:description, locale)}
         - Historical Context: #{@location.translate(:historical_context, locale) || 'N/A'}
         - Tags: #{@location.tags.join(', ')}

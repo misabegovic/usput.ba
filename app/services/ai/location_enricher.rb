@@ -277,7 +277,7 @@ module Ai
         LOCATION INFORMATION:
         - Name: #{location.name}
         - City: #{location.city}
-        - Type: #{place_data[:categories]&.first || location.location_type}
+        - Type: #{place_data[:categories]&.first || location.category_name}
         - Categories: #{place_data[:categories]&.join(', ')}
         - Address: #{place_data[:formatted] || place_data[:address_line1]}
         - Coordinates: #{location.lat}, #{location.lng}

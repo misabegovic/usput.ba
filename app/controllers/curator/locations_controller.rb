@@ -132,7 +132,7 @@ module Curator
     end
 
     def editable_attributes
-      %w[name description historical_context city lat lng location_type budget phone email website video_url tags suitable_experiences social_links]
+      %w[name description historical_context city lat lng budget phone email website video_url tags suitable_experiences social_links]
     end
 
     def build_original_data
@@ -159,7 +159,7 @@ module Curator
     def location_params
       permitted = params.require(:location).permit(
         :name, :description, :historical_context, :city,
-        :lat, :lng, :location_type, :budget,
+        :lat, :lng, :budget,
         :phone, :email, :website, :video_url,
         :tags_input,
         suitable_experiences: [],

@@ -34,14 +34,6 @@
       </div>
 
       <div>
-        <%= f.label :location_type, t("curator.locations.type"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
-        <%= f.select :location_type,
-            options_for_select(Location.location_types.keys.map { |t| [t("locations.types.#{t}", default: t.humanize), t] }, location.location_type),
-            {},
-            class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
-      </div>
-
-      <div>
         <%= f.label :budget, t("curator.locations.budget"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
         <%= f.select :budget,
             options_for_select(Location.budgets.keys.map { |b| [t("locations.budget.#{b}", default: b.humanize), b] }, location.budget),

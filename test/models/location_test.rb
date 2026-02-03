@@ -1424,16 +1424,6 @@ class LocationTest < ActiveSupport::TestCase
     high.destroy
   end
 
-  test "location_type enum values" do
-    place = Location.create!(@valid_params.merge(location_type: :place))
-    assert place.place?
-
-    guide = Location.create!(@valid_params.merge(name: "Guide", lat: 43.8570, lng: 18.4140, location_type: :guide))
-    assert guide.guide?
-
-    place.destroy
-    guide.destroy
-  end
 
   # === Callback tests ===
 
@@ -1535,16 +1525,13 @@ class LocationTest < ActiveSupport::TestCase
     location.destroy
   end
 
-  test "category_key returns nil when no categories and no location_type" do
+  test "category_key returns nil when no categories" do
     location = Location.new(@valid_params)
-    location.location_type = nil
-    # category_key returns primary_category.key || location_type, both nil
     assert_nil location.category_key
   end
 
-  test "category_name returns nil when no categories and no location_type" do
+  test "category_name returns nil when no categories" do
     location = Location.new(@valid_params)
-    location.location_type = nil
     assert_nil location.category_name
   end
 

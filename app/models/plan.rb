@@ -500,7 +500,7 @@ class Plan < ApplicationRecord
                 id: loc.uuid,
                 name: loc.name,
                 description: loc.description,
-                location_type: loc.location_type,
+                category: loc.category_key,
                 budget: loc.budget,
                 lat: loc.lat,
                 lng: loc.lng,

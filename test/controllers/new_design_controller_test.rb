@@ -132,6 +132,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
     Plan.delete_all
     ExperienceLocation.delete_all
     Experience.delete_all
+    LocationCategoryAssignment.delete_all
     Location.delete_all
     Browse.delete_all
 

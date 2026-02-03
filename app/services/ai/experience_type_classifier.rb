@@ -163,7 +163,7 @@ module Ai
 
         Name: #{location.name}
         City: #{location.city}
-        Category: #{location.category_name || location.location_type}
+        Category: #{location.category_name}
         #{description_bs.present? ? "Description (BS): #{description_bs.truncate(500)}" : ""}
         #{description_en.present? ? "Description (EN): #{description_en.truncate(500)}" : ""}
         #{location.tags.present? ? "Tags: #{location.tags.join(', ')}" : ""}#{hints_text}

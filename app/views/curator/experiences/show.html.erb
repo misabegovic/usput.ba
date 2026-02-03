@@ -110,7 +110,7 @@
                 <div class="flex items-center gap-2">
                   <%= link_to loc.name, curator_location_path(loc), class: "text-sm font-medium text-gray-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400" %>
                   <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs text-gray-600 dark:text-gray-400">
-                    <%= t("locations.types.#{loc.location_type}", default: loc.location_type&.humanize) %>
+                    <%= t("locations.types.#{loc.category_key}", default: loc.category_key&.humanize) %>
                   </span>
                 </div>
                 <p class="text-xs text-gray-500 dark:text-gray-400"><%= loc.city %></p>

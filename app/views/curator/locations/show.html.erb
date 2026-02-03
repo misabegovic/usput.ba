@@ -67,7 +67,7 @@
           <dt class="text-sm font-medium text-gray-500 dark:text-gray-400"><%= t("curator.locations.type") %></dt>
           <dd class="mt-1">
             <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-700 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:text-gray-200">
-              <%= t("locations.types.#{@location.location_type}", default: @location.location_type&.humanize) %>
+              <%= t("locations.types.#{@location.category_key}", default: @location.category_key&.humanize) %>
             </span>
           </dd>
         </div>

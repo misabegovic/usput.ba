@@ -29,6 +29,39 @@ require_relative "../config/environment"
 require "rails/test_help"
 require "minitest/mock"
 
+# Monkey patch Location for tests to handle deprecated location_type parameter
+class Location
+  # Store location_type temporarily before creation
+  attr_accessor :_temp_location_type
+
+  # Override initialize to capture location_type
+  alias_method :original_initialize, :initialize
+  def initialize(attributes = {})
+    attributes ||= {}
+    @_temp_location_type = attributes.delete(:location_type) || attributes.delete("location_type")
+    original_initialize(attributes)
+  end
+
+  # After create, add category based on temp location_type
+  after_create :add_category_from_temp_type
+
+  private
+
+  def add_category_from_temp_type
+    return unless @_temp_location_type
+
+    category_key = @_temp_location_type.to_s
+    category = LocationCategory.find_or_create_by!(key: category_key) do |cat|
+      cat.name = category_key.titleize
+      cat.icon = 'circle'
+      cat.active = true
+      cat.position = LocationCategory.maximum(:position).to_i + 1
+    end
+
+    add_category(category, primary: true)
+  end
+end
+
 module ActiveSupport
   class TestCase
     # Disable parallel tests when running with coverage (SimpleCov doesn't merge well)

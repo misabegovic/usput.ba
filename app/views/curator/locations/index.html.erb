@@ -54,13 +54,13 @@
               onchange: "this.form.submit()" %>
         </div>
 
-        <!-- Location Type Filter -->
+        <!-- Category Filter -->
         <div class="w-full sm:w-auto">
-          <%= f.select :location_type,
+          <%= f.select :category,
               options_for_select(
-                [[t("curator.locations.filter.all_types", default: "All types"), ""]] +
-                Location.location_types.keys.map { |type| [t("locations.types.#{type}", default: type.humanize), type] },
-                params[:location_type]
+                [[t("curator.locations.filter.all_types", default: "All categories"), ""]] +
+                LocationCategory.active.ordered.map { |cat| [cat.name, cat.key] },
+                params[:category]
               ),
               {},
               class: "block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500",
