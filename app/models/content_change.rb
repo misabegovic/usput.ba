@@ -209,8 +209,21 @@ class ContentChange < ApplicationRecord
     # Filter to only allowed attributes - prevent mass assignment
     allowed_attrs = safe_attributes_for(klass)
     safe_data = proposed_data.slice(*allowed_attrs)
+
+    # Handle experience_types separately for Location (use relational API)
+    experience_types = nil
+    if klass.name == "Location" && safe_data["suitable_experiences"].present?
+      experience_types = safe_data.delete("suitable_experiences")
+    end
+
     record = klass.new(safe_data)
     record.save!
+
+    # Apply experience types after record is persisted
+    if record.is_a?(Location) && experience_types.present?
+      record.set_experience_types(experience_types)
+    end
+
     update!(changeable: record)
 
     # Mark as needing AI regeneration for translations/audio
@@ -221,7 +234,15 @@ class ContentChange < ApplicationRecord
     # Filter to only allowed attributes - prevent mass assignment
     allowed_attrs = safe_attributes_for(changeable.class)
     safe_data = proposed_data.slice(*allowed_attrs)
-    changeable.update!(safe_data)
+
+    # Handle experience_types separately for Location (use relational API)
+    if changeable.is_a?(Location) && safe_data["suitable_experiences"].present?
+      experience_types = safe_data.delete("suitable_experiences")
+      changeable.update!(safe_data) if safe_data.any?
+      changeable.set_experience_types(experience_types)
+    else
+      changeable.update!(safe_data)
+    end
 
     # Mark as needing AI regeneration for translations/audio
     mark_for_ai_regeneration!(changeable)

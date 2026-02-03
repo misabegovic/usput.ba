@@ -150,6 +150,12 @@ module Curator
         data["location_category_ids"] = params[:location][:location_category_ids].reject(&:blank?).map(&:to_i)
       end
 
+      # Include experience type keys (for proposal system compatibility)
+      # Note: The actual sync happens via set_experience_types when proposal is applied
+      if params[:location][:suitable_experiences].present?
+        data["suitable_experiences"] = params[:location][:suitable_experiences].reject(&:blank?)
+      end
+
       # Note: File attachments (photos, audio) are not included in proposals
       # They would need to be added after approval or handled separately
 

@@ -1427,16 +1427,18 @@ class LocationTest < ActiveSupport::TestCase
 
   # === Callback tests ===
 
-  test "sync_experience_types_from_json syncs on suitable_experiences change" do
+  test "suitable_experiences setter updates relational data" do
     exp_type = ExperienceType.create!(key: "callback_test", name: "Callback Test", active: true, position: 1)
     location = Location.create!(@valid_params)
 
-    # Update suitable_experiences JSON field directly and save
+    # Update via suitable_experiences setter (updates relational data + JSON cache)
     location.update!(suitable_experiences: ["callback_test"])
 
-    # Reload and check association was synced
+    # Reload and check association was updated (source of truth)
     location.reload
     assert location.experience_types.exists?(key: "callback_test")
+    # JSON cache should also be synced
+    assert_equal ["callback_test"], location.read_attribute(:suitable_experiences)
 
     location.destroy
     exp_type.destroy
@@ -1466,6 +1468,29 @@ class LocationTest < ActiveSupport::TestCase
     assert_equal ["test_exp"], result
 
     location.destroy
+  end
+
+  test "set_experience_types is source of truth for experience types" do
+    exp1 = ExperienceType.create!(key: "source_test_1", name: "Source Test 1", active: true, position: 1)
+    exp2 = ExperienceType.create!(key: "source_test_2", name: "Source Test 2", active: true, position: 2)
+    location = Location.create!(@valid_params)
+
+    # Use set_experience_types (main API)
+    location.set_experience_types(["source_test_1", "source_test_2"])
+
+    # Check relational data (source of truth)
+    assert location.has_experience_type?("source_test_1")
+    assert location.has_experience_type?("source_test_2")
+
+    # Check JSON cache is synced
+    location.reload
+    json_keys = location.read_attribute(:suitable_experiences)
+    assert_includes json_keys, "source_test_1"
+    assert_includes json_keys, "source_test_2"
+
+    location.destroy
+    exp1.destroy
+    exp2.destroy
   end
 
   test "remove_social_link normalizes platform key" do
@@ -1625,11 +1650,12 @@ class LocationTest < ActiveSupport::TestCase
     existing.destroy
   end
 
-  test "update_suitable_experiences_json persists changes" do
+  test "add_experience_type syncs JSON cache" do
     exp_type = ExperienceType.create!(key: "json_update_test", name: "JSON Update", active: true, position: 1)
     location = Location.create!(@valid_params)
     location.add_experience_type(exp_type)
 
+    # JSON cache should be automatically synced from relational data
     location.reload
     json_experiences = location.read_attribute(:suitable_experiences)
     assert_includes json_experiences, "json_update_test"

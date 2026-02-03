@@ -39,7 +39,10 @@ class Location < ApplicationRecord
   validates :video_url, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), message: "must be a valid URL" }, allow_blank: true
 
   # Callbacks
-  after_save :sync_experience_types_from_json, if: :saved_change_to_suitable_experiences?
+  # Sync relational data from JSON cache after creation (for backwards compatibility)
+  after_create :sync_experience_types_from_pending, if: -> { @pending_experience_types.present? }
+  # Sync JSON cache from relational data when experience_types association changes
+  after_save :sync_suitable_experiences_cache, if: :should_sync_experience_types?
 
   # Custom validation for coordinates (both or neither)
   validate :coordinates_must_be_complete
@@ -180,10 +183,35 @@ class Location < ApplicationRecord
     end
   end
 
-  # Set suitable experiences (updates both JSON and association)
+  # Set suitable experiences (updates relational data, JSON is auto-synced)
+  # This is the main API for setting experience types from forms/imports
   def suitable_experiences=(values)
-    super(values)
-    sync_experience_types_from_array(values) if persisted?
+    # Store temporarily for callback check
+    @pending_experience_types = Array(values).map(&:to_s).map(&:downcase).uniq
+    # If persisted, update association immediately
+    set_experience_types(@pending_experience_types) if persisted?
+  end
+
+  # Set experience types from array of keys (main API)
+  # This is the source of truth - updates relational data and triggers JSON sync
+  def set_experience_types(keys)
+    return unless persisted?
+    keys = Array(keys).map(&:to_s).map(&:downcase).uniq.reject(&:blank?)
+
+    # Find or create experience types
+    types = keys.map do |key|
+      ExperienceType.find_or_create_by!(key: key) do |et|
+        et.name = key.titleize
+        et.active = true
+        et.position = ExperienceType.maximum(:position).to_i + 1
+      end
+    end
+
+    # Update association (this is the source of truth)
+    self.experience_types = types
+
+    # Sync JSON cache
+    sync_suitable_experiences_cache
   end
 
   # Helper to add a tag
@@ -198,6 +226,7 @@ class Location < ApplicationRecord
 
   # Helper to add an experience type
   # Creates the ExperienceType if it doesn't exist (find_or_create)
+  # Source of truth: Updates relational data, triggers JSON sync
   def add_experience_type(experience_type_or_key)
     exp_type = if experience_type_or_key.is_a?(ExperienceType)
       experience_type_or_key
@@ -215,11 +244,14 @@ class Location < ApplicationRecord
 
     return unless exp_type
 
+    # Update relational data (source of truth)
     location_experience_types.find_or_create_by(experience_type: exp_type)
-    update_suitable_experiences_json
+    # Sync JSON cache
+    sync_suitable_experiences_cache
   end
 
   # Helper to remove an experience type
+  # Source of truth: Updates relational data, triggers JSON sync
   def remove_experience_type(experience_type_or_key)
     exp_type = experience_type_or_key.is_a?(ExperienceType) ?
       experience_type_or_key :
@@ -227,8 +259,10 @@ class Location < ApplicationRecord
 
     return unless exp_type
 
+    # Update relational data (source of truth)
     location_experience_types.find_by(experience_type: exp_type)&.destroy
-    update_suitable_experiences_json
+    # Sync JSON cache
+    sync_suitable_experiences_cache
   end
 
   # Legacy method for backwards compatibility
@@ -522,31 +556,37 @@ class Location < ApplicationRecord
 
   private
 
-  # Sync experience types from JSON field to association
-  def sync_experience_types_from_json
-    return unless persisted?
-    json_experiences = read_attribute(:suitable_experiences) || []
-    sync_experience_types_from_array(json_experiences)
+  # Sync relational data from pending experience types after creation
+  # This handles the case where suitable_experiences is set during Location.create!
+  def sync_experience_types_from_pending
+    return unless @pending_experience_types.present?
+    set_experience_types(@pending_experience_types)
   end
 
-  # Sync experience types from array to association
-  def sync_experience_types_from_array(experience_keys)
-    return unless persisted?
-    return if experience_keys.blank?
-
-    experience_keys = Array(experience_keys).map(&:to_s).map(&:downcase).uniq
-
-    # Find matching experience types
-    types = ExperienceType.where("LOWER(key) IN (?)", experience_keys)
-
-    # Update association
-    self.experience_types = types
+  # Check if we should sync experience types cache
+  def should_sync_experience_types?
+    # Don't run if we just handled pending types (avoid double sync)
+    return false if @pending_experience_types.present? && saved_change_to_id?
+    saved_change_to_suitable_experiences?
   end
 
-  # Update JSON field from association
-  def update_suitable_experiences_json
-    write_attribute(:suitable_experiences, experience_types.pluck(:key))
-    save! if persisted? && changed?
+  # Sync JSON cache from relational data (Relация → JSON)
+  # This is the ONLY method that writes to suitable_experiences JSON field
+  # Called automatically after changes to experience_types association
+  def sync_suitable_experiences_cache
+    return unless persisted?
+
+    # Reload association to get fresh data
+    experience_types.reload if experience_types.loaded?
+
+    # Get keys from association (source of truth)
+    keys = experience_types.pluck(:key)
+
+    # Update JSON cache
+    update_column(:suitable_experiences, keys)
+
+    # Clear pending flag
+    @pending_experience_types = nil
   end
 
   # Validate that coordinates are complete (both or neither)
