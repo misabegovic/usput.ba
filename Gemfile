@@ -52,8 +52,6 @@ gem "rubyzip", require: "zip"
 # AI/LLM integration for experience generation [https://github.com/crmne/ruby_llm]
 gem "ruby_llm"
 
-# OpenAI API client for embeddings [https://github.com/alexrudall/ruby-openai]
-gem "ruby-openai"
 
 # CLI framework for Platform [https://github.com/rails/thor]
 gem "thor"
