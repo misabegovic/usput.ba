@@ -19,7 +19,7 @@ jobs:
 
     services:
       postgres:
-        image: pgvector/pgvector:pg15
+        image: postgres:15
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -52,15 +52,11 @@ jobs:
         run: |
           psql -h localhost -U postgres -c "CREATE DATABASE klosaer_test;"
           psql -h localhost -U postgres -c "CREATE DATABASE klosaer_queue_test;"
-          psql -h localhost -U postgres -c "CREATE DATABASE klosaer_platform_test;"
-          psql -h localhost -U postgres -d klosaer_platform_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
         env:
           PGPASSWORD: postgres
 
       - name: Setup databases
-        run: |
-          bin/rails db:schema:load
-          bin/rails db:schema:load:platform
+        run: bin/rails db:schema:load
 
       - name: Run ERB lint
         run: bundle exec erb_lint --lint-all
