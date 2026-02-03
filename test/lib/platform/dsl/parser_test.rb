@@ -711,4 +711,40 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
     ast = Platform::DSL::Parser.parse("quality")
     assert_equal :quality_query, ast[:type]
   end
+
+  # Removed commands should fail to parse
+  test "removed improvement commands are rejected" do
+    assert_raises(Platform::DSL::ParseError) do
+      Platform::DSL::Parser.parse('prepare fix for "N+1 query"')
+    end
+
+    assert_raises(Platform::DSL::ParseError) do
+      Platform::DSL::Parser.parse('prepare feature "Add ratings"')
+    end
+  end
+
+  test "removed prompt action commands are rejected" do
+    assert_raises(Platform::DSL::ParseError) do
+      Platform::DSL::Parser.parse("apply prompt { id: 123 }")
+    end
+
+    assert_raises(Platform::DSL::ParseError) do
+      Platform::DSL::Parser.parse('reject prompt { id: 123 } reason "spam"')
+    end
+  end
+
+  test "removed knowledge commands parse as unknown tables" do
+    # These parse as table queries but executor will reject them
+    ast = Platform::DSL::Parser.parse("summaries | list")
+    assert_equal :table_query, ast[:type]
+    assert_equal "summaries", ast[:table]
+
+    ast = Platform::DSL::Parser.parse("clusters | list")
+    assert_equal :table_query, ast[:type]
+    assert_equal "clusters", ast[:table]
+
+    ast = Platform::DSL::Parser.parse("prompts | list")
+    assert_equal :table_query, ast[:type]
+    assert_equal "prompts", ast[:table]
+  end
 end

@@ -145,16 +145,20 @@ class Platform::DSL::ValidatorTest < ActiveSupport::TestCase
     assert_equal :medium, cost
   end
 
-  test "validates summaries query" do
+  test "rejects summaries query as unknown table" do
     result = Platform::DSL::Validator.validate('summaries { dimension: "city" } | list')
 
-    assert result[:valid]
+    # Parser treats it as table query, but validator should detect unknown table
+    assert_not result[:valid]
+    assert_includes result[:errors].join(" "), "Nepoznata tabela"
   end
 
-  test "validates clusters query" do
+  test "rejects clusters query as unknown table" do
     result = Platform::DSL::Validator.validate("clusters | list")
 
-    assert result[:valid]
+    # Parser treats it as table query, but validator should detect unknown table
+    assert_not result[:valid]
+    assert_includes result[:errors].join(" "), "Nepoznata tabela"
   end
 
   test "validates external query" do
@@ -165,10 +169,12 @@ class Platform::DSL::ValidatorTest < ActiveSupport::TestCase
     assert_not_nil result
   end
 
-  test "validates prompts query" do
+  test "rejects prompts query as unknown table" do
     result = Platform::DSL::Validator.validate("prompts | list")
 
-    assert result[:valid]
+    # Parser treats it as table query, but validator should detect unknown table
+    assert_not result[:valid]
+    assert_includes result[:errors].join(" "), "Nepoznata tabela"
   end
 
   test "estimate_cost with id filter is low" do

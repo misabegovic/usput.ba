@@ -115,16 +115,6 @@ module Platform
         str("schema") >> space? >> operations
       end
 
-      # Summaries commands
-      rule(:summaries_command) do
-        str("summaries").as(:command_type) >> space? >> filters.maybe >> space? >> operations
-      end
-
-      # Clusters commands
-      rule(:clusters_command) do
-        str("clusters").as(:command_type) >> space? >> filters.maybe >> space? >> operations
-      end
-
       # External commands (Geoapify, geocoding, etc.)
       rule(:external_command) do
         str("external").as(:command_type) >> space? >> filters.maybe >> space? >> operations
@@ -296,13 +286,6 @@ module Platform
         str("infrastructure").as(:command_type) >> space? >> filters.maybe >> space? >> operations.maybe
       end
 
-      # Self-improvement commands
-      # prompts { status: "pending" } | list
-      # prompts { id: 123 } | show
-      rule(:prompts_command) do
-        str("prompts").as(:command_type) >> space? >> filters.maybe >> space? >> operations.maybe
-      end
-
       # Quality commands
       # quality | stats
       # quality | audit
@@ -343,67 +326,13 @@ module Platform
         validate_location_command | validate_experience_command | scan_suspicious_command | find_duplicates_command
       end
 
-      # prepare fix for "N+1 query in LocationsController"
-      # prepare fix for "N+1 query" severity "high" file "app/controllers/locations_controller.rb"
-      rule(:severity_clause) do
-        space >> str("severity") >> space >> string.as(:prompt_severity)
-      end
-
-      rule(:file_clause) do
-        space >> str("file") >> space >> string.as(:target_file)
-      end
-
-      rule(:prepare_fix_command) do
-        str("prepare").as(:improvement_cmd) >> space >>
-        str("fix").as(:improvement_type) >> space >>
-        str("for") >> space >> string.as(:prompt_description) >>
-        severity_clause.maybe >> file_clause.maybe
-      end
-
-      # prepare feature "Add rating to locations"
-      rule(:prepare_feature_command) do
-        str("prepare").as(:improvement_cmd) >> space >>
-        str("feature").as(:improvement_type) >> space >>
-        string.as(:prompt_description) >>
-        severity_clause.maybe >> file_clause.maybe
-      end
-
-      # prepare improvement "Refactor authentication"
-      rule(:prepare_improvement_command) do
-        str("prepare").as(:improvement_cmd) >> space >>
-        str("improvement").as(:improvement_type) >> space >>
-        string.as(:prompt_description) >>
-        severity_clause.maybe >> file_clause.maybe
-      end
-
-      rule(:improvement_command) do
-        prepare_fix_command | prepare_feature_command | prepare_improvement_command
-      end
-
-      # apply prompt { id: 123 }
-      rule(:apply_prompt_command) do
-        str("apply").as(:prompt_action) >> space >>
-        str("prompt") >> space? >> filters
-      end
-
-      # reject prompt { id: 123 } reason "not needed"
-      rule(:reject_prompt_command) do
-        str("reject").as(:prompt_action) >> space >>
-        str("prompt") >> space? >> filters >>
-        rejection_reason_clause
-      end
-
-      rule(:prompt_action_command) do
-        apply_prompt_command | reject_prompt_command
-      end
-
       # Full query
       rule(:table_query) do
         table_with_filters >> space? >> operations.maybe
       end
 
       rule(:query) do
-        space? >> (schema_command | summaries_command | clusters_command | external_command | proposals_command | applications_command | curators_command | code_command | logs_command | infrastructure_command | prompts_command | quality_command | validation_command | approval_command | curator_management_command | improvement_command | prompt_action_command | create_command | update_command | delete_command | generation_command | audio_command | table_query).as(:query) >> space?
+        space? >> (schema_command | external_command | proposals_command | applications_command | curators_command | code_command | logs_command | infrastructure_command | quality_command | validation_command | approval_command | curator_management_command | create_command | update_command | delete_command | generation_command | audio_command | table_query).as(:query) >> space?
       end
 
       root(:query)
