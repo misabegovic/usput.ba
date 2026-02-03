@@ -15,10 +15,8 @@ module Platform
     # - Schema: stats, describe, health
     # - TableQuery: dynamic queries on tables
     # - Infrastructure: system health, queue status, logs
-    # - Prompts: prompt management, improvement, prompt actions
     # - Content: mutations, generation, audio
     # - Curator: proposals, applications, approval, curator management
-    # - Knowledge: summaries, clusters
     # - External: external APIs, code introspection
     #
     class Executor
@@ -43,14 +41,6 @@ module Platform
           when :logs_query
             Executors::Infrastructure.execute_logs(ast)
 
-          # Prompts queries
-          when :prompts_query
-            Executors::Prompts.execute_prompts_query(ast)
-          when :improvement
-            Executors::Prompts.execute_improvement(ast)
-          when :prompt_action
-            Executors::Prompts.execute_prompt_action(ast)
-
           # Content queries (mutations, generation, audio)
           when :mutation
             Executors::Content.execute_mutation(ast)
@@ -70,12 +60,6 @@ module Platform
             Executors::Curator.execute_curators_query(ast)
           when :curator_management
             Executors::Curator.execute_curator_management(ast)
-
-          # Knowledge queries
-          when :summaries_query
-            Executors::Knowledge.execute_summaries_query(ast)
-          when :clusters_query
-            Executors::Knowledge.execute_clusters_query(ast)
 
           # External queries
           when :external_query
@@ -139,11 +123,6 @@ module Platform
         def queue_status = Executors::Infrastructure.send(:queue_status)
         def infrastructure_health = Executors::Infrastructure.send(:infrastructure_health)
 
-        # Prompts delegations
-        def list_prompts(filters) = Executors::Prompts.send(:list_prompts, filters)
-        def show_prompt(filters) = Executors::Prompts.send(:show_prompt, filters)
-        def count_prompts(filters) = Executors::Prompts.send(:count_prompts, filters)
-
         # Content delegations
         def execute_mutation(ast) = Executors::Content.execute_mutation(ast)
         def execute_generation(ast) = Executors::Content.execute_generation(ast)
@@ -164,15 +143,6 @@ module Platform
         def list_proposals(filters) = Executors::Curator.send(:list_proposals, filters)
         def list_applications(filters) = Executors::Curator.send(:list_applications, filters)
         def list_curators(filters) = Executors::Curator.send(:list_curators, filters)
-
-        # Knowledge delegations
-        def execute_summaries_query(ast) = Executors::Knowledge.execute_summaries_query(ast)
-        def execute_clusters_query(ast) = Executors::Knowledge.execute_clusters_query(ast)
-        def list_summaries(filters) = Executors::Knowledge.send(:list_summaries, filters)
-        def list_clusters(filters) = Executors::Knowledge.send(:list_clusters, filters)
-        def extract_dimension_and_value(filters) = Executors::Knowledge.send(:extract_dimension_and_value, filters)
-        def semantic_search_clusters(query) = Executors::Knowledge.send(:semantic_search_clusters, query)
-        def refresh_clusters(filters) = Executors::Knowledge.send(:refresh_clusters, filters)
 
         # External delegations
         def execute_external_query(ast) = Executors::External.execute_external_query(ast)

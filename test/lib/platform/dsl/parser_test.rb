@@ -163,12 +163,12 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
     assert_equal 1, ast[:filters][:id]
   end
 
-  # Improvement (self-improvement) commands - using prepare syntax
-  test "parses prepare fix command" do
-    ast = Platform::DSL::Parser.parse('prepare fix for "Memory leak in background jobs"')
-    assert_equal :improvement, ast[:type]
-    assert_equal :fix, ast[:improvement_type]
-  end
+  # Improvement commands are no longer supported (removed Prompts executor)
+  # test "parses prepare fix command" do
+  #   ast = Platform::DSL::Parser.parse('prepare fix for "Memory leak in background jobs"')
+  #   assert_equal :improvement, ast[:type]
+  #   assert_equal :fix, ast[:improvement_type]
+  # end
 
   # External queries
   test "parses external query with geocode operation" do
@@ -183,26 +183,26 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
     assert_equal 43.8563, ast[:filters][:lat]
   end
 
-  # Summaries queries
-  test "parses summaries query" do
-    ast = Platform::DSL::Parser.parse('summaries { dimension: "city" } | list')
-    assert_equal :summaries_query, ast[:type]
-    assert_equal "city", ast[:filters][:dimension]
-  end
+  # Summaries queries are no longer supported (removed Knowledge executor)
+  # test "parses summaries query" do
+  #   ast = Platform::DSL::Parser.parse('summaries { dimension: "city" } | list')
+  #   assert_equal :summaries_query, ast[:type]
+  #   assert_equal "city", ast[:filters][:dimension]
+  # end
 
-  # Prompts queries
-  test "parses prompts query" do
-    ast = Platform::DSL::Parser.parse("prompts | list")
-    assert_equal :prompts_query, ast[:type]
-  end
+  # Prompts queries are no longer supported (removed Prompts executor)
+  # test "parses prompts query" do
+  #   ast = Platform::DSL::Parser.parse("prompts | list")
+  #   assert_equal :prompts_query, ast[:type]
+  # end
 
-  # Clusters queries
-  test "parses clusters query with semantic" do
-    ast = Platform::DSL::Parser.parse('clusters | semantic "ottoman heritage"')
-    assert_equal :clusters_query, ast[:type]
-    op = ast[:operations].first
-    assert_equal :semantic, op[:name]
-  end
+  # Clusters queries are no longer supported (removed Knowledge executor)
+  # test "parses clusters query with semantic" do
+  #   ast = Platform::DSL::Parser.parse('clusters | semantic "ottoman heritage"')
+  #   assert_equal :clusters_query, ast[:type]
+  #   op = ast[:operations].first
+  #   assert_equal :semantic, op[:name]
+  # end
 
   # Error formatting
   test "parse error includes query context" do
@@ -394,13 +394,13 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
     assert_equal true, ast[:filters][:active]
   end
 
-  # Test operation with quoted string argument
-  test "parses operation with quoted string argument" do
-    ast = Platform::DSL::Parser.parse('clusters | semantic "ottoman heritage sites"')
-    op = ast[:operations].first
-    assert_equal :semantic, op[:name]
-    assert op[:args].include?("ottoman heritage sites")
-  end
+  # Clusters queries are no longer supported (removed Knowledge executor)
+  # test "parses operation with quoted string argument" do
+  #   ast = Platform::DSL::Parser.parse('clusters | semantic "ottoman heritage sites"')
+  #   op = ast[:operations].first
+  #   assert_equal :semantic, op[:name]
+  #   assert op[:args].include?("ottoman heritage sites")
+  # end
 
   # Test where operation with condition
   test "parses where operation with condition" do
@@ -439,18 +439,18 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
   # Note: generate translations and generate experience have specific syntax
   # that may not be supported in the current grammar. Skipping those tests.
 
-  # Test prompt action
-  test "parses apply prompt command" do
-    ast = Platform::DSL::Parser.parse("apply prompt { id: 1 }")
-    assert_equal :prompt_action, ast[:type]
-    assert_equal :apply, ast[:action]
-  end
+  # Prompt action commands are no longer supported (removed Prompts executor)
+  # test "parses apply prompt command" do
+  #   ast = Platform::DSL::Parser.parse("apply prompt { id: 1 }")
+  #   assert_equal :prompt_action, ast[:type]
+  #   assert_equal :apply, ast[:action]
+  # end
 
-  test "parses reject prompt command" do
-    ast = Platform::DSL::Parser.parse('reject prompt { id: 1 } reason "Not needed"')
-    assert_equal :prompt_action, ast[:type]
-    assert_equal :reject, ast[:action]
-  end
+  # test "parses reject prompt command" do
+  #   ast = Platform::DSL::Parser.parse('reject prompt { id: 1 } reason "Not needed"')
+  #   assert_equal :prompt_action, ast[:type]
+  #   assert_equal :reject, ast[:action]
+  # end
 
   # Note: prepare feature and prepare improvement may have different syntax
   # in the current grammar. The existing test covers "prepare fix" syntax.
@@ -485,30 +485,30 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
     assert_equal :logs_query, ast[:type]
   end
 
-  # Test summaries operations
-  test "parses summaries show operation" do
-    ast = Platform::DSL::Parser.parse('summaries { city: "Sarajevo" } | show')
-    assert_equal :summaries_query, ast[:type]
-    assert_equal :show, ast[:operations].first[:name]
-  end
+  # Summaries operations are no longer supported (removed Knowledge executor)
+  # test "parses summaries show operation" do
+  #   ast = Platform::DSL::Parser.parse('summaries { city: "Sarajevo" } | show')
+  #   assert_equal :summaries_query, ast[:type]
+  #   assert_equal :show, ast[:operations].first[:name]
+  # end
 
-  test "parses summaries refresh operation" do
-    ast = Platform::DSL::Parser.parse('summaries { dimension: "city" } | refresh')
-    assert_equal :summaries_query, ast[:type]
-    assert_equal :refresh, ast[:operations].first[:name]
-  end
+  # test "parses summaries refresh operation" do
+  #   ast = Platform::DSL::Parser.parse('summaries { dimension: "city" } | refresh')
+  #   assert_equal :summaries_query, ast[:type]
+  #   assert_equal :refresh, ast[:operations].first[:name]
+  # end
 
-  # Test clusters operations
-  test "parses clusters list" do
-    ast = Platform::DSL::Parser.parse("clusters | list")
-    assert_equal :clusters_query, ast[:type]
-    assert_equal :list, ast[:operations].first[:name]
-  end
+  # Clusters operations are no longer supported (removed Knowledge executor)
+  # test "parses clusters list" do
+  #   ast = Platform::DSL::Parser.parse("clusters | list")
+  #   assert_equal :clusters_query, ast[:type]
+  #   assert_equal :list, ast[:operations].first[:name]
+  # end
 
-  test "parses clusters refresh" do
-    ast = Platform::DSL::Parser.parse("clusters | refresh")
-    assert_equal :clusters_query, ast[:type]
-  end
+  # test "parses clusters refresh" do
+  #   ast = Platform::DSL::Parser.parse("clusters | refresh")
+  #   assert_equal :clusters_query, ast[:type]
+  # end
 
   # Test external operations
   test "parses external validate_location" do
@@ -541,17 +541,17 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
     assert_equal :curators_query, ast[:type]
   end
 
-  # Test prompts operations
-  test "parses prompts show" do
-    ast = Platform::DSL::Parser.parse("prompts { id: 1 } | show")
-    assert_equal :prompts_query, ast[:type]
-    assert_equal :show, ast[:operations].first[:name]
-  end
+  # Prompts operations are no longer supported (removed Prompts executor)
+  # test "parses prompts show" do
+  #   ast = Platform::DSL::Parser.parse("prompts { id: 1 } | show")
+  #   assert_equal :prompts_query, ast[:type]
+  #   assert_equal :show, ast[:operations].first[:name]
+  # end
 
-  test "parses prompts export" do
-    ast = Platform::DSL::Parser.parse("prompts { id: 1 } | export")
-    assert_equal :prompts_query, ast[:type]
-  end
+  # test "parses prompts export" do
+  #   ast = Platform::DSL::Parser.parse("prompts { id: 1 } | export")
+  #   assert_equal :prompts_query, ast[:type]
+  # end
 
   # Additional Transform rule coverage tests
 
@@ -577,30 +577,28 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
     assert_equal "Rachel", ast[:voice]
   end
 
-  # Improvement with severity
-  test "parses prepare fix with severity" do
-    ast = Platform::DSL::Parser.parse('prepare fix for "Bug description" severity "high"')
-    assert_equal :improvement, ast[:type]
-    assert_equal :fix, ast[:improvement_type]
-    assert_equal "high", ast[:severity]
-  end
+  # Improvement commands are no longer supported (removed Prompts executor)
+  # test "parses prepare fix with severity" do
+  #   ast = Platform::DSL::Parser.parse('prepare fix for "Bug description" severity "high"')
+  #   assert_equal :improvement, ast[:type]
+  #   assert_equal :fix, ast[:improvement_type]
+  #   assert_equal "high", ast[:severity]
+  # end
 
-  # Improvement with file
-  test "parses prepare fix with file" do
-    ast = Platform::DSL::Parser.parse('prepare fix for "Bug description" file "app/models/user.rb"')
-    assert_equal :improvement, ast[:type]
-    assert_equal :fix, ast[:improvement_type]
-    assert_equal "app/models/user.rb", ast[:target_file]
-  end
+  # test "parses prepare fix with file" do
+  #   ast = Platform::DSL::Parser.parse('prepare fix for "Bug description" file "app/models/user.rb"')
+  #   assert_equal :improvement, ast[:type]
+  #   assert_equal :fix, ast[:improvement_type]
+  #   assert_equal "app/models/user.rb", ast[:target_file]
+  # end
 
-  # Improvement with severity and file
-  test "parses prepare fix with severity and file" do
-    ast = Platform::DSL::Parser.parse('prepare fix for "Bug description" severity "critical" file "app/models/user.rb"')
-    assert_equal :improvement, ast[:type]
-    assert_equal :fix, ast[:improvement_type]
-    assert_equal "critical", ast[:severity]
-    assert_equal "app/models/user.rb", ast[:target_file]
-  end
+  # test "parses prepare fix with severity and file" do
+  #   ast = Platform::DSL::Parser.parse('prepare fix for "Bug description" severity "critical" file "app/models/user.rb"')
+  #   assert_equal :improvement, ast[:type]
+  #   assert_equal :fix, ast[:improvement_type]
+  #   assert_equal "critical", ast[:severity]
+  #   assert_equal "app/models/user.rb", ast[:target_file]
+  # end
 
   # Generation with translations and locales
   test "parses generate translations with locales" do
@@ -631,13 +629,13 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
     assert op[:args].any? { |a| a.include?("avg") && a.include?("rating") }
   end
 
-  # Test reject prompt with empty reason string
-  test "parses reject prompt with simple reason" do
-    ast = Platform::DSL::Parser.parse('reject prompt { id: 1 } reason "spam"')
-    assert_equal :prompt_action, ast[:type]
-    assert_equal :reject, ast[:action]
-    assert_equal "spam", ast[:reason]
-  end
+  # Prompt action commands are no longer supported (removed Prompts executor)
+  # test "parses reject prompt with simple reason" do
+  #   ast = Platform::DSL::Parser.parse('reject prompt { id: 1 } reason "spam"')
+  #   assert_equal :prompt_action, ast[:type]
+  #   assert_equal :reject, ast[:action]
+  #   assert_equal "spam", ast[:reason]
+  # end
 
   # Test operation without any args
   test "parses simple operation name" do
