@@ -1,6 +1,6 @@
 <div class="space-y-6">
   <div class="sm:flex sm:items-center sm:justify-between">
-    <h1 class="text-xl sm:text-2xl font-bold text-gray-900"><%= t("curator.admin.users.title") %></h1>
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white"><%= t("curator.admin.users.title") %></h1>
     <div class="mt-3 sm:mt-0 flex gap-2">
       <%= form_with url: curator_admin_users_path, method: :get, class: "flex items-center gap-2" do |f| %>
         <%= f.select :user_type,
@@ -11,7 +11,7 @@
               [t("admin.users.types.admin"), "admin"]
             ], params[:user_type]),
             {},
-            class: "rounded-md border-gray-300 text-sm w-full sm:w-auto",
+            class: "rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 text-sm w-full sm:w-auto",
             onchange: "this.form.submit()" %>
       <% end %>
     </div>
@@ -19,80 +19,80 @@
 
   <!-- Stats -->
   <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-4">
-    <div class="overflow-hidden rounded-lg bg-gray-50 px-3 py-3 shadow sm:px-4 sm:py-5">
-      <dt class="truncate text-xs sm:text-sm font-medium text-gray-600">Total</dt>
-      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-gray-900"><%= @stats[:total] %></dd>
+    <div class="overflow-hidden rounded-lg bg-gray-50 dark:bg-gray-800 px-3 py-3 shadow sm:px-4 sm:py-5">
+      <dt class="truncate text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Total</dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white"><%= @stats[:total] %></dd>
     </div>
-    <div class="overflow-hidden rounded-lg bg-gray-50 px-3 py-3 shadow sm:px-4 sm:py-5">
-      <dt class="truncate text-xs sm:text-sm font-medium text-gray-600">Basic</dt>
-      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-gray-900"><%= @stats[:basic] %></dd>
+    <div class="overflow-hidden rounded-lg bg-gray-50 dark:bg-gray-800 px-3 py-3 shadow sm:px-4 sm:py-5">
+      <dt class="truncate text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Basic</dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white"><%= @stats[:basic] %></dd>
     </div>
-    <div class="overflow-hidden rounded-lg bg-emerald-50 px-3 py-3 shadow sm:px-4 sm:py-5">
-      <dt class="truncate text-xs sm:text-sm font-medium text-emerald-600">Curators</dt>
-      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-emerald-900"><%= @stats[:curator] %></dd>
+    <div class="overflow-hidden rounded-lg bg-emerald-50 dark:bg-emerald-900/30 px-3 py-3 shadow sm:px-4 sm:py-5">
+      <dt class="truncate text-xs sm:text-sm font-medium text-emerald-600 dark:text-emerald-400">Curators</dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-emerald-900 dark:text-emerald-100"><%= @stats[:curator] %></dd>
     </div>
-    <div class="overflow-hidden rounded-lg bg-indigo-50 px-3 py-3 shadow sm:px-4 sm:py-5">
-      <dt class="truncate text-xs sm:text-sm font-medium text-indigo-600">Admins</dt>
-      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-indigo-900"><%= @stats[:admin] %></dd>
+    <div class="overflow-hidden rounded-lg bg-indigo-50 dark:bg-indigo-900/30 px-3 py-3 shadow sm:px-4 sm:py-5">
+      <dt class="truncate text-xs sm:text-sm font-medium text-indigo-600 dark:text-indigo-400">Admins</dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-indigo-900 dark:text-indigo-100"><%= @stats[:admin] %></dd>
     </div>
-    <div class="overflow-hidden rounded-lg bg-red-50 px-3 py-3 shadow sm:px-4 sm:py-5">
-      <dt class="truncate text-xs sm:text-sm font-medium text-red-600">Blocked</dt>
-      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-red-900"><%= @stats[:blocked] %></dd>
+    <div class="overflow-hidden rounded-lg bg-red-50 dark:bg-red-900/30 px-3 py-3 shadow sm:px-4 sm:py-5">
+      <dt class="truncate text-xs sm:text-sm font-medium text-red-600 dark:text-red-400">Blocked</dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-red-900 dark:text-red-100"><%= @stats[:blocked] %></dd>
     </div>
   </div>
 
   <!-- Desktop Table -->
-  <div class="hidden sm:block overflow-hidden rounded-lg bg-white shadow">
-    <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-50">
+  <div class="hidden sm:block overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
+    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+      <thead class="bg-gray-50 dark:bg-gray-700">
         <tr>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("admin.users.username") %></th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("admin.users.type") %></th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("admin.users.created_at") %></th>
-          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t("admin.users.actions") %></th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"><%= t("admin.users.username") %></th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"><%= t("admin.users.type") %></th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"><%= t("admin.users.created_at") %></th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"><%= t("admin.users.actions") %></th>
         </tr>
       </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
+      <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
         <% @users.each do |user| %>
-          <tr>
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
             <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm font-medium text-gray-900"><%= user.username %></div>
+              <div class="text-sm font-medium text-gray-900 dark:text-white"><%= user.username %></div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
                 <%= case user.user_type
-                    when 'basic' then 'bg-gray-100 text-gray-800'
-                    when 'curator' then 'bg-emerald-100 text-emerald-800'
-                    when 'admin' then 'bg-indigo-100 text-indigo-800'
+                    when 'basic' then 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
+                    when 'curator' then 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300'
+                    when 'admin' then 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300'
                     end %>">
                 <%= t("admin.users.types.#{user.user_type}") %>
               </span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <% if user.spam_blocked? %>
-                <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+                <span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:text-red-300">
                   Blocked
                 </span>
               <% else %>
-                <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/40 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:text-green-300">
                   Active
                 </span>
               <% end %>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
               <%= user.created_at.strftime("%d.%m.%Y %H:%M") %>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-              <%= link_to t("admin.users.view"), curator_admin_user_path(user), class: "text-indigo-600 hover:text-indigo-900" %>
-              <%= link_to t("admin.users.edit"), edit_curator_admin_user_path(user), class: "text-indigo-600 hover:text-indigo-900" %>
+              <%= link_to t("admin.users.view"), curator_admin_user_path(user), class: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300" %>
+              <%= link_to t("admin.users.edit"), edit_curator_admin_user_path(user), class: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300" %>
             </td>
           </tr>
         <% end %>
 
         <% if @users.empty? %>
           <tr>
-            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+            <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
               <%= t("admin.users.no_users") %>
             </td>
           </tr>
@@ -104,37 +104,37 @@
   <!-- Mobile Card Layout -->
   <div class="sm:hidden space-y-3">
     <% @users.each do |user| %>
-      <div class="bg-white rounded-lg shadow p-4">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <div class="flex items-center justify-between mb-3">
-          <span class="font-medium text-gray-900"><%= user.username %></span>
+          <span class="font-medium text-gray-900 dark:text-white"><%= user.username %></span>
           <div class="flex gap-2">
             <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium
               <%= case user.user_type
-                  when 'basic' then 'bg-gray-100 text-gray-800'
-                  when 'curator' then 'bg-emerald-100 text-emerald-800'
-                  when 'admin' then 'bg-indigo-100 text-indigo-800'
+                  when 'basic' then 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
+                  when 'curator' then 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300'
+                  when 'admin' then 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300'
                   end %>">
               <%= t("admin.users.types.#{user.user_type}") %>
             </span>
             <% if user.spam_blocked? %>
-              <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
+              <span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2 py-0.5 text-xs font-medium text-red-800 dark:text-red-300">
                 Blocked
               </span>
             <% end %>
           </div>
         </div>
-        <div class="text-sm text-gray-500 mb-3">
+        <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">
           <%= user.created_at.strftime("%d.%m.%Y %H:%M") %>
         </div>
         <div class="flex items-center gap-4 text-sm">
-          <%= link_to t("admin.users.view"), curator_admin_user_path(user), class: "text-indigo-600 hover:text-indigo-900" %>
-          <%= link_to t("admin.users.edit"), edit_curator_admin_user_path(user), class: "text-indigo-600 hover:text-indigo-900" %>
+          <%= link_to t("admin.users.view"), curator_admin_user_path(user), class: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300" %>
+          <%= link_to t("admin.users.edit"), edit_curator_admin_user_path(user), class: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300" %>
         </div>
       </div>
     <% end %>
 
     <% if @users.empty? %>
-      <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center text-gray-500 dark:text-gray-400">
         <%= t("admin.users.no_users") %>
       </div>
     <% end %>
