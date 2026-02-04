@@ -63,6 +63,19 @@ Architecture Decision Records - dokumentovane ključne tehničke odluke.
 
 ---
 
+## Decisions (decisions/)
+
+Product i tehničke odluke koje utiču na arhitekturu.
+
+| Datum | Odluka | Status |
+|-------|--------|--------|
+| 2026-02-03 | Remove Platform Database | Accepted |
+| 2026-02-04 | AI Services DSL Migration | Proposed |
+
+**Location:** `.claude/planning/decisions/`
+
+---
+
 ## Architecture (architecture/)
 
 Arhitekturni dokumenti i dizajn odluke.
@@ -121,6 +134,7 @@ Stari dokumenti za referencu. Ne koristi za aktivni development.
 1. IMPLEMENTATION.md → Trenutna faza
 2. testing/ → Test planovi
 3. DEVELOPER_ONBOARDING.md → Setup
+4. decisions/ → Migration plans i product odluke
 ```
 
 ---
@@ -136,4 +150,4 @@ Stari dokumenti za referencu. Ne koristi za aktivni development.
 
 ---
 
-*Zadnje ažuriranje: 2026-02-02*
+*Zadnje ažuriranje: 2026-02-04*
