@@ -230,8 +230,8 @@
       </div>
     </div>
 
-    <%# Curator Section %>
-    <% if logged_in? && current_user.curator? %>
+    <%# Curator Section - show to curators AND admins %>
+    <% if logged_in? && current_user.can_curate? %>
       <%# Curator Dashboard Link %>
       <div class="mt-8 bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 border border-purple-300 dark:border-purple-700 rounded-2xl p-4 sm:p-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -243,7 +243,11 @@
             </div>
             <div class="ml-4">
               <h3 class="text-lg font-semibold text-purple-900 dark:text-purple-100">
-                <%= t('profile.curator.you_are_curator', default: 'Ti si Curator') %>
+                <% if current_user.admin? %>
+                  <%= t('profile.admin.you_are_admin', default: 'Ti si Admin') %>
+                <% else %>
+                  <%= t('profile.curator.you_are_curator', default: 'Ti si Curator') %>
+                <% end %>
               </h3>
               <p class="text-sm text-purple-700 dark:text-purple-300">
                 <%= t('profile.curator.manage_content', default: 'Upravljaj lokacijama i iskustvima') %>
