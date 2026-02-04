@@ -1,33 +1,33 @@
 <div class="space-y-6">
   <div class="sm:flex sm:items-center sm:justify-between">
-    <h1 class="text-xl sm:text-2xl font-bold text-gray-900">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
       Content Change Details
     </h1>
     <div class="mt-3 sm:mt-0">
       <%= link_to "Back to list", curator_admin_content_changes_path,
-          class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+          class: "inline-flex items-center rounded-md bg-white dark:bg-gray-800 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700" %>
     </div>
   </div>
 
   <!-- Status and Actions -->
-  <div class="overflow-hidden rounded-lg bg-white shadow">
+  <div class="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
     <div class="px-4 py-4 sm:p-6">
       <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div class="space-y-2">
           <div>
-            <span class="text-sm text-gray-500">Status:</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">Status:</span>
             <% case @content_change.status %>
             <% when "pending" %>
-              <span class="ml-2 inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-800">Pending</span>
+              <span class="ml-2 inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900/40 px-3 py-1 text-sm font-medium text-yellow-800 dark:text-yellow-300">Pending</span>
             <% when "approved" %>
-              <span class="ml-2 inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">Approved</span>
+              <span class="ml-2 inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/40 px-3 py-1 text-sm font-medium text-green-800 dark:text-green-300">Approved</span>
             <% when "rejected" %>
-              <span class="ml-2 inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-800">Rejected</span>
+              <span class="ml-2 inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-3 py-1 text-sm font-medium text-red-800 dark:text-red-300">Rejected</span>
             <% end %>
           </div>
-          <p class="text-sm text-gray-500">Proposed by: <%= @content_change.user.username %></p>
-          <p class="text-sm text-gray-500">Submitted: <%= @content_change.created_at.strftime("%d.%m.%Y %H:%M") %></p>
-          <p class="text-sm text-gray-500">Type: <%= @content_change.change_type.humanize %></p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Proposed by: <%= @content_change.user.username %></p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Submitted: <%= @content_change.created_at.strftime("%d.%m.%Y %H:%M") %></p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Type: <%= @content_change.change_type.humanize %></p>
         </div>
 
         <% if @content_change.pending? %>
@@ -35,7 +35,7 @@
             <%= form_with url: approve_curator_admin_content_change_path(@content_change), method: :post, class: "flex flex-col gap-2" do |f| %>
               <%= f.text_field :admin_notes,
                   placeholder: "Admin notes (optional)",
-                  class: "rounded-md border-gray-300 text-sm w-full" %>
+                  class: "rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm w-full" %>
               <%= f.submit "Approve",
                   class: "inline-flex items-center justify-center rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 cursor-pointer" %>
             <% end %>
@@ -43,7 +43,7 @@
             <%= form_with url: reject_curator_admin_content_change_path(@content_change), method: :post, class: "flex flex-col gap-2" do |f| %>
               <%= f.text_field :admin_notes,
                   placeholder: "Rejection reason",
-                  class: "rounded-md border-gray-300 text-sm w-full" %>
+                  class: "rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm w-full" %>
               <%= f.submit "Reject",
                   class: "inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 cursor-pointer" %>
             <% end %>
@@ -52,7 +52,7 @@
       </div>
 
       <% if @content_change.reviewed_by.present? %>
-        <div class="mt-4 text-sm text-gray-500">
+        <div class="mt-4 text-sm text-gray-500 dark:text-gray-400">
           Reviewed by <%= @content_change.reviewed_by.username %> on <%= @content_change.reviewed_at.strftime("%d.%m.%Y %H:%M") %>
         </div>
       <% end %>
@@ -60,45 +60,45 @@
   </div>
 
   <!-- Change Details -->
-  <div class="overflow-hidden rounded-lg bg-white shadow">
+  <div class="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
     <div class="px-4 py-5 sm:p-6">
-      <h3 class="text-base font-medium text-gray-900 mb-4">Proposed Changes</h3>
+      <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4">Proposed Changes</h3>
 
       <% if @content_change.update_content? %>
         <div class="space-y-4">
           <% @content_change.changes_diff.each do |key, values| %>
-            <div class="border-l-4 border-indigo-400 pl-4">
-              <p class="text-sm font-medium text-gray-700"><%= key.humanize %></p>
+            <div class="border-l-4 border-indigo-400 dark:border-indigo-500 pl-4">
+              <p class="text-sm font-medium text-gray-700 dark:text-gray-300"><%= key.humanize %></p>
               <div class="mt-1 grid grid-cols-2 gap-4">
                 <div>
-                  <p class="text-xs text-gray-500">From:</p>
-                  <p class="text-sm text-gray-900 bg-red-50 p-2 rounded"><%= values[:from].presence || "(empty)" %></p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">From:</p>
+                  <p class="text-sm text-gray-900 dark:text-white bg-red-50 dark:bg-red-900/30 p-2 rounded"><%= values[:from].presence || "(empty)" %></p>
                 </div>
                 <div>
-                  <p class="text-xs text-gray-500">To:</p>
-                  <p class="text-sm text-gray-900 bg-green-50 p-2 rounded"><%= values[:to].presence || "(empty)" %></p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">To:</p>
+                  <p class="text-sm text-gray-900 dark:text-white bg-green-50 dark:bg-green-900/30 p-2 rounded"><%= values[:to].presence || "(empty)" %></p>
                 </div>
               </div>
             </div>
           <% end %>
         </div>
       <% elsif @content_change.create_content? %>
-        <div class="bg-gray-50 p-4 rounded-lg">
-          <pre class="text-sm text-gray-900 whitespace-pre-wrap"><%= JSON.pretty_generate(@content_change.proposed_data) rescue @content_change.proposed_data.to_s %></pre>
+        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+          <pre class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap"><%= JSON.pretty_generate(@content_change.proposed_data) rescue @content_change.proposed_data.to_s %></pre>
         </div>
       <% elsif @content_change.delete_content? %>
-        <div class="bg-red-50 border border-red-200 p-4 rounded-lg">
-          <p class="text-sm text-red-700">This proposal requests the deletion of <%= @content_change.changeable_type %>: <%= @content_change.changeable&.respond_to?(:name) ? @content_change.changeable.name : @content_change.changeable&.id %></p>
+        <div class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 p-4 rounded-lg">
+          <p class="text-sm text-red-700 dark:text-red-300">This proposal requests the deletion of <%= @content_change.changeable_type %>: <%= @content_change.changeable&.respond_to?(:name) ? @content_change.changeable.name : @content_change.changeable&.id %></p>
         </div>
       <% end %>
     </div>
   </div>
 
   <% if @content_change.admin_notes.present? %>
-    <div class="overflow-hidden rounded-lg bg-white shadow">
+    <div class="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
       <div class="px-4 py-5 sm:p-6">
-        <h3 class="text-base font-medium text-gray-900 mb-4">Admin Notes</h3>
-        <div class="text-sm text-gray-900 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">
+        <h3 class="text-base font-medium text-gray-900 dark:text-white mb-4">Admin Notes</h3>
+        <div class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
           <%= @content_change.admin_notes %>
         </div>
       </div>

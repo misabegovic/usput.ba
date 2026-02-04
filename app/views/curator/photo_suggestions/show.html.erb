@@ -1,18 +1,18 @@
 <div class="space-y-4 sm:space-y-6">
   <div class="flex items-center justify-between">
     <div class="flex items-center gap-4">
-      <%= link_to curator_photo_suggestions_path, class: "text-gray-400 hover:text-gray-600" do %>
+      <%= link_to curator_photo_suggestions_path, class: "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300" do %>
         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
         </svg>
       <% end %>
-      <h1 class="text-xl sm:text-2xl font-bold text-gray-900"><%= t("curator.photo_suggestions.details") %></h1>
+      <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white"><%= t("curator.photo_suggestions.details") %></h1>
     </div>
   </div>
 
-  <div class="bg-white shadow rounded-lg overflow-hidden">
+  <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
     <%# Photos preview %>
-    <div class="bg-gray-100 p-4">
+    <div class="bg-gray-100 dark:bg-gray-700 p-4">
       <% if @photo_suggestion.photos.attached? %>
         <% if @photo_suggestion.photos.count == 1 %>
           <%# Single photo - large display %>
@@ -34,7 +34,7 @@
             <% end %>
           </div>
         <% end %>
-        <p class="text-center text-sm text-gray-500 mt-3">
+        <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-3">
           <%= t("curator.photo_suggestions.photos_count", count: @photo_suggestion.photos.count, default: "%{count} photo(s)") %>
         </p>
       <% elsif @photo_suggestion.photo_url.present? %>
@@ -42,11 +42,11 @@
           <%= image_tag @photo_suggestion.photo_url, class: "max-h-96 object-contain rounded-lg",
               onerror: "this.parentElement.innerHTML='<div class=\"text-gray-400 text-center py-8\"><svg class=\"mx-auto h-16 w-16\" fill=\"none\" viewBox=\"0 0 24 24\" stroke-width=\"1.5\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z\" /></svg><p class=\"mt-2\">Image failed to load</p></div>'" %>
         </div>
-        <p class="text-center text-sm text-gray-500 mt-3">
+        <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-3">
           <%= t("curator.photo_suggestions.from_url", default: "From URL") %>
         </p>
       <% else %>
-        <div class="text-gray-400 text-center py-8">
+        <div class="text-gray-400 dark:text-gray-500 text-center py-8">
           <svg class="mx-auto h-16 w-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
           </svg>
@@ -60,51 +60,51 @@
       <div class="flex items-center justify-between flex-wrap gap-2">
         <div class="flex items-center gap-3">
           <%= link_to @photo_suggestion.location.name, curator_location_path(@photo_suggestion.location),
-              class: "text-lg font-medium text-gray-900 hover:text-emerald-600" %>
+              class: "text-lg font-medium text-gray-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400" %>
           <% case @photo_suggestion.status %>
           <% when "pending" %>
-            <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
+            <span class="inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900/40 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:text-yellow-300">
               <%= t("curator.photo_suggestions.status.pending") %>
             </span>
           <% when "approved" %>
-            <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+            <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/40 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:text-green-300">
               <%= t("curator.photo_suggestions.status.approved") %>
             </span>
           <% when "rejected" %>
-            <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+            <span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:text-red-300">
               <%= t("curator.photo_suggestions.status.rejected") %>
             </span>
           <% end %>
         </div>
-        <p class="text-sm text-gray-500">
+        <p class="text-sm text-gray-500 dark:text-gray-400">
           <%= t("curator.photo_suggestions.submitted_on", date: @photo_suggestion.created_at.strftime("%d.%m.%Y %H:%M")) %>
         </p>
       </div>
 
       <% if @photo_suggestion.description.present? %>
         <div>
-          <h3 class="text-sm font-medium text-gray-700"><%= t("curator.photo_suggestions.description") %></h3>
-          <p class="mt-1 text-gray-600"><%= @photo_suggestion.description %></p>
+          <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300"><%= t("curator.photo_suggestions.description") %></h3>
+          <p class="mt-1 text-gray-600 dark:text-gray-400"><%= @photo_suggestion.description %></p>
         </div>
       <% end %>
 
       <% if @photo_suggestion.photo_url.present? %>
         <div>
-          <h3 class="text-sm font-medium text-gray-700"><%= t("curator.photo_suggestions.source_url") %></h3>
-          <p class="mt-1 text-sm text-gray-500 break-all"><%= @photo_suggestion.photo_url %></p>
+          <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300"><%= t("curator.photo_suggestions.source_url") %></h3>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 break-all"><%= @photo_suggestion.photo_url %></p>
         </div>
       <% end %>
 
       <% if @photo_suggestion.admin_notes.present? %>
-        <div class="mt-4 p-4 rounded-lg <%= @photo_suggestion.approved? ? 'bg-green-50' : 'bg-red-50' %>">
-          <h3 class="text-sm font-medium <%= @photo_suggestion.approved? ? 'text-green-800' : 'text-red-800' %>">
+        <div class="mt-4 p-4 rounded-lg <%= @photo_suggestion.approved? ? 'bg-green-50 dark:bg-green-900/30' : 'bg-red-50 dark:bg-red-900/30' %>">
+          <h3 class="text-sm font-medium <%= @photo_suggestion.approved? ? 'text-green-800 dark:text-green-300' : 'text-red-800 dark:text-red-300' %>">
             <%= t("curator.photo_suggestions.admin_feedback") %>
           </h3>
-          <p class="mt-1 text-sm <%= @photo_suggestion.approved? ? 'text-green-700' : 'text-red-700' %>">
+          <p class="mt-1 text-sm <%= @photo_suggestion.approved? ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400' %>">
             <%= @photo_suggestion.admin_notes %>
           </p>
           <% if @photo_suggestion.reviewed_at.present? %>
-            <p class="mt-2 text-xs <%= @photo_suggestion.approved? ? 'text-green-600' : 'text-red-600' %>">
+            <p class="mt-2 text-xs <%= @photo_suggestion.approved? ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
               <%= t("curator.photo_suggestions.reviewed_on", date: @photo_suggestion.reviewed_at.strftime("%d.%m.%Y %H:%M")) %>
             </p>
           <% end %>

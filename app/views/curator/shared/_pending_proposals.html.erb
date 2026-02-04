@@ -17,15 +17,15 @@
             <div class="flex items-center gap-2 min-w-0">
               <% case proposal.change_type %>
               <% when "create_content" %>
-                <span class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 shrink-0">
+                <span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/40 px-2 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300 shrink-0">
                   <%= t("curator.proposals.types.create_content") %>
                 </span>
               <% when "update_content" %>
-                <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 shrink-0">
+                <span class="inline-flex items-center rounded-full bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 text-xs font-medium text-amber-800 dark:text-amber-300 shrink-0">
                   <%= t("curator.proposals.types.update_content") %>
                 </span>
               <% when "delete_content" %>
-                <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 shrink-0">
+                <span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2 py-0.5 text-xs font-medium text-red-800 dark:text-red-300 shrink-0">
                   <%= t("curator.proposals.types.delete_content") %>
                 </span>
               <% end %>
