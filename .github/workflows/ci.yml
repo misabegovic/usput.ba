@@ -58,6 +58,9 @@ jobs:
       - name: Setup databases
         run: bin/rails db:schema:load
 
+      - name: Run Rubocop
+        run: bundle exec rubocop --parallel
+
       - name: Run ERB lint
         run: bundle exec erb_lint --lint-all
 
