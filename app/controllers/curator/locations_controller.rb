@@ -45,7 +45,14 @@ module Curator
         @locations = @locations.having("COUNT(active_storage_attachments.id) <= ?", params[:max_photos].to_i)
       end
 
-      @locations = @locations.page(params[:page]).per(30)
+      page = params[:items_page] || params[:page] || 1
+      @locations = @locations.page(page).per(12)
+
+      # Handle partial loading for load-more
+      if params[:partial] == "items" && request.xhr?
+        return render partial: "curator/locations/needs_photo_items", locals: { locations: @locations }, layout: false
+      end
+
       @city_names = Location.where.not(city: [ nil, "" ]).distinct.pluck(:city).sort
     end
 

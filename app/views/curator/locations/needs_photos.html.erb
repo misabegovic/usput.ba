@@ -32,68 +32,32 @@
 
   <%# Results %>
   <% if @locations.any? %>
-    <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead class="bg-gray-50 dark:bg-gray-700">
-          <tr>
-            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              <%= t("curator.locations.name") %>
-            </th>
-            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              <%= t("curator.locations.city") %>
-            </th>
-            <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              <%= t("curator.locations.needs_photos.photo_count") %>
-            </th>
-            <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              <%= t("common.actions") %>
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-          <% @locations.each do |location| %>
-            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-              <td class="px-4 py-3">
-                <div class="flex items-center gap-3">
-                  <% if location.photos.attached? && location.photos.first.present? %>
-                    <%= image_tag rails_blob_path(location.photos.first.variant(:thumb), disposition: "inline"),
-                        class: "h-10 w-10 rounded-lg object-cover flex-shrink-0" %>
-                  <% else %>
-                    <div class="h-10 w-10 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                      <svg class="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                      </svg>
-                    </div>
-                  <% end %>
-                  <div class="min-w-0">
-                    <%= link_to location.name, curator_location_path(location),
-                        class: "text-sm font-medium text-gray-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 truncate block" %>
-                  </div>
-                </div>
-              </td>
-              <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                <%= location.city %>
-              </td>
-              <td class="px-4 py-3 text-center">
-                <% photos_count = location.photos_count.to_i %>
-                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
-                  <%= photos_count == 0 ? 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300' : photos_count < 3 ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300' : 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300' %>">
-                  <%= photos_count %> <%= t("curator.locations.needs_photos.photos") %>
-                </span>
-              </td>
-              <td class="px-4 py-3 text-right text-sm">
-                <%= link_to t("curator.locations.needs_photos.add_photo"),
-                    new_curator_location_photo_suggestion_path(location),
-                    class: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 font-medium" %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
+    <div data-controller="load-more"
+         data-load-more-url-value="<%= needs_photos_curator_locations_path %>"
+         data-load-more-resource-type-value="items"
+         data-load-more-page-value="1"
+         data-load-more-total-count-value="<%= @locations.total_count %>"
+         data-load-more-per-page-value="12">
 
-    <div class="mt-4">
-      <%= paginate @locations %>
+      <div class="space-y-2" data-load-more-target="container">
+        <%= render "curator/locations/needs_photo_items", locations: @locations %>
+      </div>
+
+      <%# Load More %>
+      <div class="mt-6 text-center">
+        <button type="button"
+                class="hidden inline-flex items-center justify-center gap-2 rounded-md bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                data-load-more-target="button"
+                data-action="click->load-more#loadMore">
+          <%= t("common.load_more", default: "Load More") %>
+        </button>
+        <div class="hidden" data-load-more-target="loading">
+          <svg class="animate-spin h-5 w-5 text-emerald-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </div>
+      </div>
     </div>
   <% else %>
     <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">

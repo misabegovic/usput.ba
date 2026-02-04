@@ -1,0 +1,18 @@
+<div class="flex items-center justify-between gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+  <div class="flex-1 min-w-0">
+    <%= link_to location.name, curator_location_path(location),
+        class: "font-medium text-gray-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 truncate block" %>
+    <p class="text-sm text-gray-500 dark:text-gray-400 truncate"><%= location.city %></p>
+  </div>
+
+  <% photos_count = location.photos_count.to_i %>
+  <span class="flex-shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium
+    <%= photos_count == 0 ? 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300' : 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300' %>">
+    <%= photos_count %>
+  </span>
+
+  <%= link_to new_curator_location_photo_suggestion_path(location),
+      class: "flex-shrink-0 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500" do %>
+    + <%= t("curator.locations.needs_photos.add_photo") %>
+  <% end %>
+</div>
