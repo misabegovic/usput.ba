@@ -70,6 +70,67 @@
       </div>
     </div>
 
+    <%# Curator Section - show to curators AND admins %>
+    <% if logged_in? && current_user.can_curate? %>
+      <%# Curator Dashboard Link %>
+      <div class="mb-8 bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 border border-purple-300 dark:border-purple-700 rounded-2xl p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-purple-200 dark:bg-purple-800 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-purple-700 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+              </svg>
+            </div>
+            <div class="ml-4">
+              <h3 class="text-lg font-semibold text-purple-900 dark:text-purple-100">
+                <% if current_user.admin? %>
+                  <%= t('profile.admin.you_are_admin', default: 'Ti si Admin') %>
+                <% else %>
+                  <%= t('profile.curator.you_are_curator', default: 'Ti si Curator') %>
+                <% end %>
+              </h3>
+              <p class="text-sm text-purple-700 dark:text-purple-300">
+                <%= t('profile.curator.manage_content', default: 'Upravljaj lokacijama i iskustvima') %>
+              </p>
+            </div>
+          </div>
+          <a href="<%= curator_root_path %>" class="inline-flex items-center px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors shadow-md">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+            <%= t('profile.curator.open_dashboard', default: 'Otvori Dashboard') %>
+          </a>
+        </div>
+      </div>
+    <% elsif logged_in? %>
+      <%# Become a Curator Section - only for logged in non-curators %>
+      <div class="mb-8 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border border-purple-200 dark:border-purple-800 rounded-2xl p-4 sm:p-6">
+        <div class="flex items-start">
+          <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center flex-shrink-0">
+            <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+            </svg>
+          </div>
+          <div class="ml-4 flex-1">
+            <h3 class="text-lg font-semibold text-purple-900 dark:text-purple-100">
+              <%= t('profile.curator.title', default: 'Postani Curator') %>
+            </h3>
+            <p class="text-sm text-purple-700 dark:text-purple-300 mt-1">
+              <%= t('profile.curator.description', default: 'Curatori mogu dodavati nove lokacije, iskustva i sadržaj na platformu. Pomozi nam da otkrijemo skrivene dragulje Bosne i Hercegovine!') %>
+            </p>
+            <div class="mt-4">
+              <%= link_to become_curator_path, class: "inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors" do %>
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                </svg>
+                <%= t('profile.curator.apply', default: 'Prijavi se za Curatora') %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
     <% unless logged_in? %>
       <%# Login/Register prompt for guests %>
       <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 mb-8">
@@ -230,66 +291,6 @@
       </div>
     </div>
 
-    <%# Curator Section - show to curators AND admins %>
-    <% if logged_in? && current_user.can_curate? %>
-      <%# Curator Dashboard Link %>
-      <div class="mt-8 bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 border border-purple-300 dark:border-purple-700 rounded-2xl p-4 sm:p-6">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div class="flex items-center">
-            <div class="w-12 h-12 bg-purple-200 dark:bg-purple-800 rounded-xl flex items-center justify-center flex-shrink-0">
-              <svg class="w-6 h-6 text-purple-700 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
-              </svg>
-            </div>
-            <div class="ml-4">
-              <h3 class="text-lg font-semibold text-purple-900 dark:text-purple-100">
-                <% if current_user.admin? %>
-                  <%= t('profile.admin.you_are_admin', default: 'Ti si Admin') %>
-                <% else %>
-                  <%= t('profile.curator.you_are_curator', default: 'Ti si Curator') %>
-                <% end %>
-              </h3>
-              <p class="text-sm text-purple-700 dark:text-purple-300">
-                <%= t('profile.curator.manage_content', default: 'Upravljaj lokacijama i iskustvima') %>
-              </p>
-            </div>
-          </div>
-          <a href="<%= curator_root_path %>" class="inline-flex items-center px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors shadow-md">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-            </svg>
-            <%= t('profile.curator.open_dashboard', default: 'Otvori Dashboard') %>
-          </a>
-        </div>
-      </div>
-    <% else %>
-      <%# Become a Curator Section %>
-      <div class="mt-8 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border border-purple-200 dark:border-purple-800 rounded-2xl p-4 sm:p-6">
-        <div class="flex items-start">
-          <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center flex-shrink-0">
-            <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
-            </svg>
-          </div>
-          <div class="ml-4 flex-1">
-            <h3 class="text-lg font-semibold text-purple-900 dark:text-purple-100">
-              <%= t('profile.curator.title', default: 'Postani Curator') %>
-            </h3>
-            <p class="text-sm text-purple-700 dark:text-purple-300 mt-1">
-              <%= t('profile.curator.description', default: 'Curatori mogu dodavati nove lokacije, iskustva i sadržaj na platformu. Pomozi nam da otkrijemo skrivene dragulje Bosne i Hercegovine!') %>
-            </p>
-            <div class="mt-4">
-              <%= link_to become_curator_path, class: "inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors" do %>
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
-                </svg>
-                <%= t('profile.curator.apply', default: 'Prijavi se za Curatora') %>
-              <% end %>
-            </div>
-          </div>
-        </div>
-      </div>
-    <% end %>
   </div>
 
   <%# Footer %>
