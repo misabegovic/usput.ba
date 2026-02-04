@@ -1,6 +1,6 @@
-# Custom Tailwind CSS build task that uses standalone CLI if available
+# Custom Tailwind CSS build task that uses standalone CLI or bundled gem
 namespace :css do
-  desc "Build Tailwind CSS using standalone CLI"
+  desc "Build Tailwind CSS"
   task build: :environment do
     input = Rails.root.join("app/assets/stylesheets/application.tailwind.css")
     output = Rails.root.join("app/assets/builds/tailwind.css")
@@ -21,12 +21,13 @@ namespace :css do
       puts "Building Tailwind CSS with standalone CLI: #{tailwindcss_bin}"
       success = system(tailwindcss_bin, "-i", input.to_s, "-o", output.to_s, "--minify")
       abort("Tailwind CSS build failed") unless success
-      puts "Tailwind CSS built successfully"
     else
-      # Fall back to gem-provided executable
+      # Use bundled tailwindcss from gem
       puts "Building Tailwind CSS with tailwindcss-rails gem"
-      Rake::Task["tailwindcss:build"].invoke
+      success = system("bundle", "exec", "tailwindcss", "-i", input.to_s, "-o", output.to_s, "--minify")
+      abort("Tailwind CSS build failed") unless success
     end
+    puts "Tailwind CSS built successfully"
   end
 end
 

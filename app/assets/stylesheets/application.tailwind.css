@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Enable class-based dark mode (instead of prefers-color-scheme media query) */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Tailwind v4 CSS-first configuration */
 @theme {
   /* Custom color palette - BiH national colors */
@@ -100,8 +103,6 @@
 @source "../../../app/helpers/**/*.rb";
 @source "../../../app/javascript/**/*.js";
 
-/* Dark mode variant */
-@variant dark (&:where(.dark, .dark *));
 
 /* Tailwind plugins */
 @plugin "@tailwindcss/forms";
