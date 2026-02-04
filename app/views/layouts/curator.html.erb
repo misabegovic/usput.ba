@@ -128,8 +128,7 @@
                 </button>
               </div>
               <span class="text-emerald-100 dark:text-gray-300 text-sm"><%= current_user.username %></span>
-              <%= link_to t("nav.back_to_site"), root_path, class: "text-emerald-200 dark:text-gray-400 hover:text-white dark:hover:text-gray-200 text-sm" %>
-              <%= button_to t("nav.logout"), logout_path, method: :delete, class: "rounded-md bg-emerald-800 dark:bg-gray-700 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-900 dark:hover:bg-gray-600" %>
+              <%= link_to t("nav.back_to_site"), root_path, class: "rounded-md bg-emerald-800 dark:bg-gray-700 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-900 dark:hover:bg-gray-600" %>
             </div>
             <!-- Mobile menu button -->
             <div class="md:hidden flex items-center gap-2">
@@ -211,9 +210,8 @@
             <div class="px-4 mb-3">
               <span class="text-emerald-100 dark:text-gray-300 text-sm font-medium"><%= current_user.username %></span>
             </div>
-            <div class="flex items-center justify-between px-4">
-              <%= link_to t("nav.back_to_site"), root_path, class: "text-emerald-200 dark:text-gray-400 hover:text-white text-sm" %>
-              <%= button_to t("nav.logout"), logout_path, method: :delete, class: "rounded-md bg-emerald-800 dark:bg-gray-700 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-900 dark:hover:bg-gray-600" %>
+            <div class="px-4">
+              <%= link_to t("nav.back_to_site"), root_path, class: "block w-full text-center rounded-md bg-emerald-800 dark:bg-gray-700 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-900 dark:hover:bg-gray-600" %>
             </div>
           </div>
         </div>
