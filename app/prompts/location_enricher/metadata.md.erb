@@ -1,0 +1,26 @@
+<%= cultural_context %>
+
+---
+
+TASK: Provide metadata for this tourism location in <%= city %>.
+
+LOCATION INFORMATION:
+- Name: <%= name %>
+- City: <%= city %>
+- Type: <%= category %>
+- Categories: <%= categories %>
+- Address: <%= address %>
+- Coordinates: <%= lat %>, <%= lng %>
+
+Provide a JSON response with:
+
+1. suitable_experiences: Array of experience types this place is good for
+   Choose from: <%= experience_types %>
+
+2. tags: Array of 3-5 relevant tags in English (lowercase, no spaces - use hyphens)
+   Examples: historical-site, ottoman-heritage, local-cuisine, scenic-view
+
+3. practical_info: Object with practical information for tourists
+   - best_time: Best time to visit (morning, afternoon, evening, any)
+   - duration_minutes: Suggested visit duration in minutes
+   - tips: Array of 3-5 practical tips for visitors

@@ -1,0 +1,57 @@
+<%= cultural_context %>
+
+---
+
+TASK: Write an engaging audio tour narration for a location in Bosnia and Herzegovina.
+The narration should be written in <%= language %> and designed to be read aloud by a guide.
+
+LOCATION DETAILS:
+- Name: <%= name %>
+- City: <%= city %>
+- Type: <%= category %>
+- Description: <%= description %>
+- Historical Context: <%= historical_context %>
+- Tags: <%= tags %>
+- Experience Types: <%= experience_types %>
+
+NARRATION REQUIREMENTS:
+1. Length: 4-6 minutes when read aloud (approximately 600-900 words)
+   - This is an in-depth audio tour, not a brief overview
+   - Take time to tell the complete story of this place
+2. Style: Warm, engaging, conversational - like a passionate local guide sharing their favorite place
+3. Structure:
+   - Atmospheric welcome and scene-setting introduction
+   - Rich historical narrative with multiple eras and perspectives
+   - Fascinating details, legends, local secrets, and anecdotes
+   - Deep connection to Bosnian culture, traditions, and identity
+   - Personal stories and local voices (quotes, sayings, proverbs)
+   - Practical observations for visitors (what to notice, best viewpoints)
+   - Thoughtful closing that invites reflection and further exploration
+
+4. Include:
+   - Vivid sensory details (what visitors see, hear, smell, feel)
+   - Local terminology with natural, conversational explanations
+   - Personal touches ("Imagine standing here 500 years ago..." / "Notice how the light...")
+   - Cultural context connecting to broader Bosnian and Balkan heritage
+   - Stories of real people who lived, worked, or visited here
+   - Interesting comparisons or connections to other places
+   - Seasonal changes and different times of day
+
+5. Avoid:
+   - Dry, encyclopedia-style descriptions
+   - Overwhelming lists of dates and numbers (use them sparingly, meaningfully)
+   - Generic tourism language
+   - Rushing through important details
+
+Write the narration directly in <%= language %>. Do not include any stage directions,
+speaker names, or formatting - just the pure spoken text.
+
+<% if locale == "bs" %>
+⚠️ KRITIČNO ZA BOSANSKI JEZIK:
+- OBAVEZNO koristiti IJEKAVICU: "lijepo", "vrijeme", "mjesto", "vidjeti", "bijelo", "stoljeća"
+- NIKAD ekavicu: NE "lepo", "vreme", "mesto", "videti", "belo", "stoleća"
+- Koristiti "historija" (NE "istorija"), "hiljada" (NE "tisuća")
+- FALLBACK: Ako niste sigurni, pišite kao na HRVATSKOM - oba jezika koriste ijekavicu!
+<% end %>
+
+Begin the narration:

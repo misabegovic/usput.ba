@@ -9,6 +9,7 @@ module Ai
   # Koristi postojeća polja Location modela bez migracija
   class LocationEnricher
     include Concerns::ErrorReporting
+    include PromptHelper
 
     class EnrichmentError < StandardError; end
 
@@ -238,7 +239,7 @@ module Ai
 
     # Schema for descriptions only
     def descriptions_schema(locales)
-      locale_properties = locales.to_h { |loc| [loc, { type: "string" }] }
+      locale_properties = locales.to_h { |loc| [ loc, { type: "string" } ] }
       {
         type: "object",
         properties: {
@@ -256,7 +257,7 @@ module Ai
 
     # Schema for historical context only
     def historical_context_schema(locales)
-      locale_properties = locales.to_h { |loc| [loc, { type: "string" }] }
+      locale_properties = locales.to_h { |loc| [ loc, { type: "string" } ] }
       {
         type: "object",
         properties: {
@@ -272,88 +273,35 @@ module Ai
       }
     end
 
-    def location_info_block(location, place_data)
-      <<~INFO
-        LOCATION INFORMATION:
-        - Name: #{location.name}
-        - City: #{location.city}
-        - Type: #{place_data[:categories]&.first || location.category_name}
-        - Categories: #{place_data[:categories]&.join(', ')}
-        - Address: #{place_data[:formatted] || place_data[:address_line1]}
-        - Coordinates: #{location.lat}, #{location.lng}
-      INFO
+    def location_vars(location, place_data)
+      {
+        name: location.name,
+        city: location.city,
+        category: place_data[:categories]&.first || location.category_name,
+        categories: place_data[:categories]&.join(", "),
+        address: place_data[:formatted] || place_data[:address_line1],
+        lat: location.lat,
+        lng: location.lng,
+        cultural_context: cultural_context
+      }
     end
 
     def build_metadata_prompt(location, place_data)
-      <<~PROMPT
-        #{cultural_context}
-
-        ---
-
-        TASK: Provide metadata for this tourism location in #{location.city}.
-
-        #{location_info_block(location, place_data)}
-
-        Provide a JSON response with:
-
-        1. suitable_experiences: Array of experience types this place is good for
-           Choose from: #{supported_experience_types.join(', ')}
-
-        2. tags: Array of 3-5 relevant tags in English (lowercase, no spaces - use hyphens)
-           Examples: historical-site, ottoman-heritage, local-cuisine, scenic-view
-
-        3. practical_info: Object with practical information for tourists
-           - best_time: Best time to visit (morning, afternoon, evening, any)
-           - duration_minutes: Suggested visit duration in minutes
-           - tips: Array of 3-5 practical tips for visitors
-      PROMPT
+      load_prompt("location_enricher/metadata.md.erb",
+        **location_vars(location, place_data),
+        experience_types: supported_experience_types.join(", "))
     end
 
     def build_descriptions_prompt(location, place_data, locales)
-      <<~PROMPT
-        #{cultural_context}
-
-        ---
-
-        TASK: Write engaging descriptions for this tourism location in #{location.city}.
-
-        #{location_info_block(location, place_data)}
-
-        Write descriptions in these languages: #{locales.join(', ')}
-
-        For each language, write a rich, engaging description (1-2 paragraphs, around 100-150 words):
-        - Paint a vivid picture of what makes this place special
-        - Connect to local culture and heritage where relevant
-        - Use local terminology with brief explanations
-        - Include sensory details and atmosphere
-        - Write naturally in each target language (not just translations)
-
-        Return JSON with a "descriptions" object containing each locale code as a key.
-      PROMPT
+      load_prompt("location_enricher/descriptions.md.erb",
+        **location_vars(location, place_data),
+        locales: locales)
     end
 
     def build_historical_context_prompt(location, place_data, locales)
-      <<~PROMPT
-        #{cultural_context}
-
-        ---
-
-        TASK: Write historical/cultural context for audio narration at this tourism location in #{location.city}.
-
-        #{location_info_block(location, place_data)}
-
-        Write historical context in these languages: #{locales.join(', ')}
-
-        For each language, write an engaging essay-style narrative (2-3 paragraphs, around 200-300 words):
-        - Tell the complete story of this place with rich historical details
-        - Include interesting facts, legends, local stories, and anecdotes
-        - Mention specific dates, people, events, and their significance
-        - Describe how this place has evolved through different eras
-        - Make it engaging and captivating for audio narration
-        - Write naturally in each target language (not just translations)
-
-        Return JSON with a "historical_context" object containing each locale code as a key.
-      PROMPT
+      load_prompt("location_enricher/historical_context.md.erb",
+        **location_vars(location, place_data),
+        locales: locales)
     end
 
     def apply_enrichment(location, enrichment)
@@ -421,7 +369,7 @@ module Ai
 
       # Convert Geoapify categories to tags
       category_tags = categories.map do |cat|
-        cat.to_s.split('.').last.gsub('_', '-')
+        cat.to_s.split(".").last.gsub("_", "-")
       end.uniq.first(3)
 
       location.tags = (location.tags + category_tags).uniq
@@ -431,7 +379,7 @@ module Ai
     def determine_location_type(categories)
       return :place if categories.blank?
 
-      category_str = categories.join(' ')
+      category_str = categories.join(" ")
 
       if category_str.match?(/restaurant|cafe|bar|food|catering/)
         :restaurant
@@ -475,7 +423,7 @@ module Ai
 
       # Remove null bytes (0x00) which PostgreSQL rejects in text columns
       # Also remove other control characters except tab, newline, carriage return
-      str.gsub(/[\x00]/, '').gsub(/[\x01-\x08\x0B\x0C\x0E-\x1F]/, '')
+      str.gsub(/[\x00]/, "").gsub(/[\x01-\x08\x0B\x0C\x0E-\x1F]/, "")
     end
 
     def determine_budget(place_data)
@@ -515,7 +463,7 @@ module Ai
       json_str = json_match ? json_match[1] : content
       json_str = sanitize_ai_json(json_str)
       # Final cleanup: strip any trailing comma that might remain after sanitization
-      json_str = json_str.strip.sub(/,\s*\z/, '')
+      json_str = json_str.strip.sub(/,\s*\z/, "")
       JSON.parse(json_str, symbolize_names: true)
     rescue JSON::ParserError => e
       log_error "Failed to parse AI response: #{e.message}"
@@ -530,7 +478,7 @@ module Ai
       # Remove trailing commas (invalid JSON but common in AI output)
       json_str.gsub!(/,(\s*[\}\]])/, '\1')
       # Remove trailing comma at end of stream (e.g., "{ ... },\n" or "{ ... }, ")
-      json_str.gsub!(/,\s*\z/, '')
+      json_str.gsub!(/,\s*\z/, "")
       # Escape control characters and fix structural issues within JSON strings
       json_str = escape_chars_in_json_strings(json_str)
       json_str
@@ -552,7 +500,7 @@ module Ai
         if escape_next
           result << char
           escape_next = false
-        elsif char == '\\'
+        elsif char == "\\"
           if in_string
             # Check if this backslash is followed by a valid JSON escape character
             if next_char && '"\\/bfnrtu'.include?(next_char)
@@ -560,7 +508,7 @@ module Ai
               escape_next = true
             else
               # Invalid escape sequence - escape the backslash itself
-              result << '\\\\'
+              result << "\\\\"
             end
           else
             result << char
@@ -633,6 +581,5 @@ module Ai
       # Look for patterns that suggest continuation of text
       remaining.match?(/\A[a-zA-Z0-9\s,.'!?;:\-]/m)
     end
-
   end
 end

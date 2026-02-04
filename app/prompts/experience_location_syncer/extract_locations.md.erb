@@ -1,0 +1,29 @@
+TASK: Extract specific location/place names mentioned in this tourism experience description.
+
+DESCRIPTION:
+<%= description %>
+
+PRIMARY CITY CONTEXT: <%= primary_city %>
+
+INSTRUCTIONS:
+1. Identify SPECIFIC named places mentioned in the description:
+   - Monuments, landmarks, buildings (e.g., "Baščaršija", "Stari Most", "Gazi Husrev-begova džamija")
+   - Museums, galleries (e.g., "Historijski muzej", "Galerija 11/07/95")
+   - Natural sites (e.g., "Vrelo Bosne", "Trebević", "Skakavac waterfall")
+   - Restaurants, cafes with specific names (e.g., "Čajdžinica Džirlo", "Park Princeva")
+   - Streets, squares with proper names (e.g., "Ferhadija", "Trg oslobođenja")
+   - Other notable places (e.g., "Avaz Twist Tower", "Vijećnica")
+
+2. DO NOT include:
+   - Generic terms (e.g., "the old town", "a mosque", "the river")
+   - Directions or vague references (e.g., "nearby", "in the center")
+   - Categories without specific names (e.g., "traditional restaurants", "local cafes")
+   - City names alone (we already know the city context)
+
+3. For each location, provide:
+   - name: The exact name as it would appear on a map or in local usage
+   - confidence: How confident you are this is a specific, real place (0.0-1.0)
+   - city: Which city this location is in (if mentioned or inferrable)
+   - context: Brief note about what type of place this is
+
+Return ONLY specific, identifiable places that a tourist could find and visit.

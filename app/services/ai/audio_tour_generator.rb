@@ -13,6 +13,7 @@ module Ai
   #
   class AudioTourGenerator
     include Concerns::ErrorReporting
+    include PromptHelper
 
     class GenerationError < StandardError; end
     class AudioAlreadyExistsError < StandardError; end
@@ -291,65 +292,17 @@ module Ai
     private
 
     def build_script_prompt(locale)
-      language_name = locale_to_language(locale)
-
-      <<~PROMPT
-        #{Ai::BihContext::BIH_CULTURAL_CONTEXT}
-
-        ---
-
-        TASK: Write an engaging audio tour narration for a location in Bosnia and Herzegovina.
-        The narration should be written in #{language_name} and designed to be read aloud by a guide.
-
-        LOCATION DETAILS:
-        - Name: #{@location.name}
-        - City: #{@location.city || 'Bosnia and Herzegovina'}
-        - Type: #{@location.category_name}
-        - Description: #{@location.translate(:description, locale)}
-        - Historical Context: #{@location.translate(:historical_context, locale) || 'N/A'}
-        - Tags: #{@location.tags.join(', ')}
-        - Experience Types: #{@location.suitable_experiences.join(', ')}
-
-        NARRATION REQUIREMENTS:
-        1. Length: 4-6 minutes when read aloud (approximately 600-900 words)
-           - This is an in-depth audio tour, not a brief overview
-           - Take time to tell the complete story of this place
-        2. Style: Warm, engaging, conversational - like a passionate local guide sharing their favorite place
-        3. Structure:
-           - Atmospheric welcome and scene-setting introduction
-           - Rich historical narrative with multiple eras and perspectives
-           - Fascinating details, legends, local secrets, and anecdotes
-           - Deep connection to Bosnian culture, traditions, and identity
-           - Personal stories and local voices (quotes, sayings, proverbs)
-           - Practical observations for visitors (what to notice, best viewpoints)
-           - Thoughtful closing that invites reflection and further exploration
-
-        4. Include:
-           - Vivid sensory details (what visitors see, hear, smell, feel)
-           - Local terminology with natural, conversational explanations
-           - Personal touches ("Imagine standing here 500 years ago..." / "Notice how the light...")
-           - Cultural context connecting to broader Bosnian and Balkan heritage
-           - Stories of real people who lived, worked, or visited here
-           - Interesting comparisons or connections to other places
-           - Seasonal changes and different times of day
-
-        5. Avoid:
-           - Dry, encyclopedia-style descriptions
-           - Overwhelming lists of dates and numbers (use them sparingly, meaningfully)
-           - Generic tourism language
-           - Rushing through important details
-
-        Write the narration directly in #{language_name}. Do not include any stage directions,
-        speaker names, or formatting - just the pure spoken text.
-
-        ⚠️ KRITIČNO ZA BOSANSKI JEZIK (ako je locale "bs"):
-        - OBAVEZNO koristiti IJEKAVICU: "lijepo", "vrijeme", "mjesto", "vidjeti", "bijelo", "stoljeća"
-        - NIKAD ekavicu: NE "lepo", "vreme", "mesto", "videti", "belo", "stoleća"
-        - Koristiti "historija" (NE "istorija"), "hiljada" (NE "tisuća")
-        - FALLBACK: Ako niste sigurni, pišite kao na HRVATSKOM - oba jezika koriste ijekavicu!
-
-        Begin the narration:
-      PROMPT
+      load_prompt("audio_tour_generator/script.md.erb",
+        cultural_context: Ai::BihContext::BIH_CULTURAL_CONTEXT,
+        language: locale_to_language(locale),
+        locale: locale.to_s,
+        name: @location.name,
+        city: @location.city || "Bosnia and Herzegovina",
+        category: @location.category_name,
+        description: @location.translate(:description, locale),
+        historical_context: @location.translate(:historical_context, locale) || "N/A",
+        tags: @location.tags.join(", "),
+        experience_types: @location.suitable_experiences.join(", "))
     end
 
     def text_to_speech(script, locale)

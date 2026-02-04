@@ -215,6 +215,67 @@ Referenca: `.claude/planning/IMPLEMENTATION.md` → Faza 1
 
 ## Coding standardi
 
+### AI Promptovi - OBAVEZNO u `app/prompts/`
+
+**PRAVILO:** Svi AI promptovi MORAJU živjeti u `app/prompts/` folderu kao tekstualni fajlovi. NIKAD ne pisati promptove direktno u servisima!
+
+```ruby
+# ❌ LOŠE - prompt direktno u servisu
+class Ai::MyService
+  def generate
+    prompt = <<~PROMPT
+      You are a helpful assistant...
+    PROMPT
+    llm.ask(prompt)
+  end
+end
+
+# ✅ DOBRO - prompt u app/prompts/ kao .md ili .md.erb fajl
+# app/prompts/my_service/system.md
+# You are a helpful assistant for tourism in Bosnia and Herzegovina...
+
+# app/services/ai/my_service.rb
+class Ai::MyService
+  include PromptHelper
+
+  def generate
+    prompt = load_prompt("my_service/system.md")
+    llm.ask(prompt)
+  end
+end
+
+# Za promptove sa varijablama koristi .erb:
+# app/prompts/my_service/classify.md.erb
+# Classify <%= location_name %> in <%= city %>...
+
+prompt = load_prompt("my_service/classify.md.erb",
+  location_name: "Stari Most",
+  city: "Mostar"
+)
+```
+
+**Zašto:**
+- Čisti tekstualni fajlovi - lakše editovanje i čitanje
+- Kompatibilno sa Claude Code (možeš čitati .md)
+- Lakše verzioniranje i diff
+- Nema Ruby boilerplate-a
+
+**Struktura:**
+```
+app/prompts/
+├── experience_type_classifier/
+│   ├── system.md              # Statički prompt
+│   └── classify.md.erb        # Sa varijablama
+├── location_enricher/
+│   ├── metadata.md.erb
+│   ├── descriptions.md.erb
+│   └── historical_context.md.erb
+└── audio_tour_generator/
+    └── script.md.erb
+```
+
+**Helper:** `PromptHelper#load_prompt(path, **vars)`
+
 ### Tool struktura
 ```ruby
 module Platform::Tools::Content
@@ -284,3 +345,4 @@ bin/rails g model PlatformStatistic key:string value:jsonb
 3. **Testovi obavezni** - Nema koda bez testova
 4. **Pitaj kad nisi siguran** - Bolje pitati nego pogriješiti
 5. **Atomic commits** - Mali, fokusirani commitovi
+6. **Promptovi u app/prompts/** - NIKAD pisati AI promptove direktno u servisima

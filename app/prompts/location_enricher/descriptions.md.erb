@@ -1,0 +1,23 @@
+<%= cultural_context %>
+
+---
+
+TASK: Write engaging descriptions for this tourism location in <%= city %>.
+
+LOCATION INFORMATION:
+- Name: <%= name %>
+- City: <%= city %>
+- Type: <%= category %>
+- Categories: <%= categories %>
+- Address: <%= address %>
+
+Write descriptions in these languages: <%= locales.join(", ") %>
+
+For each language, write a rich, engaging description (1-2 paragraphs, around 100-150 words):
+- Paint a vivid picture of what makes this place special
+- Connect to local culture and heritage where relevant
+- Use local terminology with brief explanations
+- Include sensory details and atmosphere
+- Write naturally in each target language (not just translations)
+
+Return JSON with a "descriptions" object containing each locale code as a key.

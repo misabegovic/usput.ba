@@ -1,0 +1,21 @@
+Classify this location:
+
+Name: <%= name %>
+City: <%= city %>
+Category: <%= category %>
+<% if description_bs.present? %>
+Description (BS): <%= description_bs.truncate(500) %>
+<% end %>
+<% if description_en.present? %>
+Description (EN): <%= description_en.truncate(500) %>
+<% end %>
+<% if tags.present? %>
+Tags: <%= tags.join(", ") %>
+<% end %>
+<% if hints.present? %>
+
+Initial suggestions: <%= hints.join(", ") %> (consider these but make your own assessment)
+<% end %>
+
+Based on this information, which experience types is this location suitable for?
+Respond with type keys only, separated by commas.

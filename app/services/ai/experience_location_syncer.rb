@@ -11,6 +11,7 @@ module Ai
   #   # => { locations_added: 2, locations_found_in_db: 1, locations_created: 1, errors: [] }
   class ExperienceLocationSyncer
     include Concerns::ErrorReporting
+    include PromptHelper
 
     class SyncError < StandardError; end
 
@@ -190,37 +191,9 @@ module Ai
 
     # Build the prompt for location extraction
     def build_extraction_prompt(description, primary_city)
-      <<~PROMPT
-        TASK: Extract specific location/place names mentioned in this tourism experience description.
-
-        DESCRIPTION:
-        #{description}
-
-        PRIMARY CITY CONTEXT: #{primary_city || 'Unknown'}
-
-        INSTRUCTIONS:
-        1. Identify SPECIFIC named places mentioned in the description:
-           - Monuments, landmarks, buildings (e.g., "Baščaršija", "Stari Most", "Gazi Husrev-begova džamija")
-           - Museums, galleries (e.g., "Historijski muzej", "Galerija 11/07/95")
-           - Natural sites (e.g., "Vrelo Bosne", "Trebević", "Skakavac waterfall")
-           - Restaurants, cafes with specific names (e.g., "Čajdžinica Džirlo", "Park Princeva")
-           - Streets, squares with proper names (e.g., "Ferhadija", "Trg oslobođenja")
-           - Other notable places (e.g., "Avaz Twist Tower", "Vijećnica")
-
-        2. DO NOT include:
-           - Generic terms (e.g., "the old town", "a mosque", "the river")
-           - Directions or vague references (e.g., "nearby", "in the center")
-           - Categories without specific names (e.g., "traditional restaurants", "local cafes")
-           - City names alone (we already know the city context)
-
-        3. For each location, provide:
-           - name: The exact name as it would appear on a map or in local usage
-           - confidence: How confident you are this is a specific, real place (0.0-1.0)
-           - city: Which city this location is in (if mentioned or inferrable)
-           - context: Brief note about what type of place this is
-
-        Return ONLY specific, identifiable places that a tourist could find and visit.
-      PROMPT
+      load_prompt("experience_location_syncer/extract_locations.md.erb",
+        description: description,
+        primary_city: primary_city || "Unknown")
     end
 
     # JSON Schema for location extraction
@@ -243,7 +216,7 @@ module Ai
             }
           }
         },
-        required: ["locations"],
+        required: [ "locations" ],
         additionalProperties: false
       }
     end
@@ -257,13 +230,13 @@ module Ai
     def find_or_create_location(name:, city:, all_cities:, context:)
       # First, try to find in database by name match
       location = find_location_in_database(name, city, all_cities)
-      return [location, :database] if location
+      return [ location, :database ] if location
 
       # If not found, try to find via Geoapify and create
       location = create_location_via_geoapify(name, city, context)
-      return [location, :geoapify] if location
+      return [ location, :geoapify ] if location
 
-      [nil, nil]
+      [ nil, nil ]
     end
 
     # Search for a location in the database

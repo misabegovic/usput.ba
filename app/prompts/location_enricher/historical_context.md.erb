@@ -1,0 +1,24 @@
+<%= cultural_context %>
+
+---
+
+TASK: Write historical/cultural context for audio narration at this tourism location in <%= city %>.
+
+LOCATION INFORMATION:
+- Name: <%= name %>
+- City: <%= city %>
+- Type: <%= category %>
+- Categories: <%= categories %>
+- Address: <%= address %>
+
+Write historical context in these languages: <%= locales.join(", ") %>
+
+For each language, write an engaging essay-style narrative (2-3 paragraphs, around 200-300 words):
+- Tell the complete story of this place with rich historical details
+- Include interesting facts, legends, local stories, and anecdotes
+- Mention specific dates, people, events, and their significance
+- Describe how this place has evolved through different eras
+- Make it engaging and captivating for audio narration
+- Write naturally in each target language (not just translations)
+
+Return JSON with a "historical_context" object containing each locale code as a key.
