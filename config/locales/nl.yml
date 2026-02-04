@@ -573,7 +573,7 @@ nl:
     curator_required: Je hebt curator privileges nodig om deze pagina te bekijken.
     admin_required: Je hebt beheerder privileges nodig om deze pagina te bekijken.
   profile:
-    title: Mijn Reisprofiel
+    title: Mijn Profiel
     subtitle: Je reizen op één plek
     logged_in_subtitle: Profiel is permanent opgeslagen
     save_title: Sla je profiel op

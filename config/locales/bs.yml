@@ -495,7 +495,7 @@ bs:
     admin_required: Potrebne su ti administratorske privilegije da pristupiš ovoj
       stranici.
   profile:
-    title: Moj Travel Profil
+    title: Moj Profil
     subtitle: Tvoja putovanja na jednom mjestu
     logged_in_subtitle: Profil je trajno sačuvan
     save_title: Sačuvaj svoj profil

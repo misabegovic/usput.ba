@@ -673,7 +673,7 @@ de:
     curator_required: Sie benötigen Kurator-Rechte, um auf diese Seite zuzugreifen.
     admin_required: Sie benötigen Administrator-Rechte, um auf diese Seite zuzugreifen.
   profile:
-    title: Mein Reiseprofil
+    title: Mein Profil
     subtitle: Ihre Reisen an einem Ort
     logged_in_subtitle: Profil ist dauerhaft gespeichert
     save_title: Speichern Sie Ihr Profil

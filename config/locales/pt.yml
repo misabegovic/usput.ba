@@ -621,7 +621,7 @@ pt:
     admin_required: Você precisa de privilégios de administrador para acessar esta
       página.
   profile:
-    title: Meu Perfil de Viagem
+    title: Meu Perfil
     subtitle: Suas viagens em um só lugar
     logged_in_subtitle: Perfil permanentemente salvo
     save_title: Salve seu perfil

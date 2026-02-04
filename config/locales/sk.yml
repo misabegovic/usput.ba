@@ -570,7 +570,7 @@ sk:
     curator_required: Pre prístup k tejto stránke potrebujete oprávnenia kurátora.
     admin_required: Pre prístup k tejto stránke potrebujete oprávnenia administrátora.
   profile:
-    title: Môj Cestovný Profil
+    title: Môj Profil
     subtitle: Vaše cesty na jednom mieste
     logged_in_subtitle: Profil je trvalo uložený
     save_title: Uložte svoj profil

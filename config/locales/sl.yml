@@ -571,7 +571,7 @@ sl:
     curator_required: Za dostop do te strani potrebujete pravice kustosa.
     admin_required: Za dostop do te strani potrebujete skrbniške pravice.
   profile:
-    title: Moj Potovalni Profil
+    title: Moj Profil
     subtitle: Vaša potovanja na enem mestu
     logged_in_subtitle: Profil je trajno shranjen
     save_title: Shranite svoj profil

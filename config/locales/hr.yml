@@ -595,7 +595,7 @@ hr:
     curator_required: Trebaš privilegije kustosa za pristup ovoj stranici.
     admin_required: Trebaš administratorske privilegije za pristup ovoj stranici.
   profile:
-    title: Moj Profil Putovanja
+    title: Moj Profil
     subtitle: Tvoja putovanja na jednom mjestu
     logged_in_subtitle: Profil je trajno spremljen
     save_title: Spremi svoj profil

@@ -669,7 +669,7 @@ fr:
     admin_required: Vous avez besoin de privilèges d'administrateur pour accéder à
       cette page.
   profile:
-    title: Mon Profil de Voyage
+    title: Mon Profil
     subtitle: Vos voyages en un seul endroit
     logged_in_subtitle: Profil enregistré définitivement
     save_title: Enregistrez votre profil

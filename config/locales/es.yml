@@ -658,7 +658,7 @@ es:
     curator_required: Necesitas privilegios de curador para acceder a esta página.
     admin_required: Necesitas privilegios de administrador para acceder a esta página.
   profile:
-    title: Mi Perfil de Viaje
+    title: Mi Perfil
     subtitle: Tus viajes en un solo lugar
     logged_in_subtitle: El perfil está guardado permanentemente
     save_title: Guarda tu perfil

@@ -577,7 +577,7 @@ tr:
     curator_required: Bu sayfaya erişmek için küratör yetkisi gerekiyor.
     admin_required: Bu sayfaya erişmek için yönetici yetkisi gerekiyor.
   profile:
-    title: Seyahat Profilim
+    title: Profilim
     subtitle: Seyahatleriniz tek bir yerde
     logged_in_subtitle: Profil kalıcı olarak kaydedildi
     save_title: Profilinizi kaydedin

@@ -570,7 +570,7 @@ cs:
     curator_required: Pro přístup k této stránce potřebujete oprávnění kurátora.
     admin_required: Pro přístup k této stránce potřebujete oprávnění administrátora.
   profile:
-    title: Můj Cestovní Profil
+    title: Můj Profil
     subtitle: Vaše cesty na jednom místě
     logged_in_subtitle: Profil je trvale uložen
     save_title: Uložte svůj profil

@@ -576,7 +576,7 @@ pl:
     admin_required: Potrzebujesz uprawnień administratora, aby uzyskać dostęp do tej
       strony.
   profile:
-    title: Mój Profil Podróżniczy
+    title: Mój Profil
     subtitle: Twoje podróże w jednym miejscu
     logged_in_subtitle: Profil jest zapisany na stałe
     save_title: Zapisz swój profil

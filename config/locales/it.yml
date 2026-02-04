@@ -660,7 +660,7 @@ it:
     admin_required: Hai bisogno dei privilegi di amministratore per accedere a questa
       pagina.
   profile:
-    title: Il Mio Profilo di Viaggio
+    title: Il Mio Profilo
     subtitle: I tuoi viaggi in un unico posto
     logged_in_subtitle: Profilo salvato permanentemente
     save_title: Salva il tuo profilo
