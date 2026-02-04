@@ -1,8 +1,10 @@
 <div class="space-y-4 sm:space-y-6">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
     <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white"><%= t("curator.experiences.title") %></h1>
-    <%= link_to t("curator.experiences.new"), new_curator_experience_path,
-        class: "inline-flex items-center justify-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 w-full sm:w-auto" %>
+    <% if Flipper.enabled?(:curator_edit_delete) %>
+      <%= link_to t("curator.experiences.new"), new_curator_experience_path,
+          class: "inline-flex items-center justify-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 w-full sm:w-auto" %>
+    <% end %>
   </div>
 
   <!-- Pending Proposals -->

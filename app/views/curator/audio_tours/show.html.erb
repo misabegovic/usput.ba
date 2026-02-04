@@ -70,18 +70,20 @@
         <% end %>
       </dl>
 
-      <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex gap-3">
-        <%= link_to edit_curator_audio_tour_path(@audio_tour),
-            class: "inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500" do %>
-          <%= t("curator.audio_tours.edit") %>
-        <% end %>
-        <%= button_to curator_audio_tour_path(@audio_tour),
-            method: :delete,
-            class: "inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500",
-            data: { turbo_confirm: t("curator.audio_tours.confirm_delete") } do %>
-          <%= t("curator.audio_tours.delete") %>
-        <% end %>
-      </div>
+      <% if Flipper.enabled?(:curator_edit_delete) %>
+        <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex gap-3">
+          <%= link_to edit_curator_audio_tour_path(@audio_tour),
+              class: "inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500" do %>
+            <%= t("curator.audio_tours.edit") %>
+          <% end %>
+          <%= button_to curator_audio_tour_path(@audio_tour),
+              method: :delete,
+              class: "inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500",
+              data: { turbo_confirm: t("curator.audio_tours.confirm_delete") } do %>
+            <%= t("curator.audio_tours.delete") %>
+          <% end %>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>
