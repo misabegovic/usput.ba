@@ -112,15 +112,20 @@ module Platform
               end
             end
 
-            record = model.new(data)
+            # Use LocationCreator service for locations to handle experience types
+            if is_location_table?(table)
+              record = create_location_with_service(data)
+            else
+              record = model.new(data)
 
-            # Mark as AI-generated for models that support this flag
-            if record.respond_to?(:ai_generated=)
-              record.ai_generated = true
-            end
+              # Mark as AI-generated for models that support this flag
+              if record.respond_to?(:ai_generated=)
+                record.ai_generated = true
+              end
 
-            unless record.save
-              raise ExecutionError, "Kreiranje nije uspjelo: #{record.errors.full_messages.join(', ')}"
+              unless record.save
+                raise ExecutionError, "Kreiranje nije uspjelo: #{record.errors.full_messages.join(', ')}"
+              end
             end
 
             {
@@ -150,8 +155,13 @@ module Platform
               hash[key] = record.send(key) if record.respond_to?(key)
             end
 
-            unless record.update(data)
-              raise ExecutionError, "Ažuriranje nije uspjelo: #{record.errors.full_messages.join(', ')}"
+            # Use LocationUpdater service for locations to handle experience types
+            if is_location_table?(table)
+              update_location_with_service(record, data)
+            else
+              unless record.update(data)
+                raise ExecutionError, "Ažuriranje nije uspjelo: #{record.errors.full_messages.join(', ')}"
+              end
             end
 
             # Build changes hash
@@ -223,6 +233,35 @@ module Platform
 
           def is_experience_table?(table)
             %w[experience experiences].include?(table.to_s.downcase)
+          end
+
+          # Create location using LocationCreator service for explicit experience type handling
+          # @param data [Hash] Location attributes
+          # @return [Location] Created location
+          def create_location_with_service(data)
+            # Ensure ai_generated flag is set
+            attrs = data.merge(ai_generated: true)
+
+            creator = LocationCreator.new(attrs)
+            creator.call
+
+            unless creator.success?
+              raise ExecutionError, "Kreiranje nije uspjelo: #{creator.errors.join(', ')}"
+            end
+
+            creator.location
+          end
+
+          # Update location using LocationUpdater service for explicit experience type handling
+          # @param record [Location] Location to update
+          # @param data [Hash] Attributes to update
+          def update_location_with_service(record, data)
+            updater = LocationUpdater.new(record, data)
+            updater.call
+
+            unless updater.success?
+              raise ExecutionError, "Ažuriranje nije uspjelo: #{updater.errors.join(', ')}"
+            end
           end
 
           # Validate location content before creation (checks for hallucinations, duplicates, etc.)
