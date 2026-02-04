@@ -17,12 +17,12 @@ module Ai
 
     # === Constants tests ===
 
-    test "LOCALES_PER_DESCRIPTION_BATCH is reasonable" do
-      assert_equal 5, Ai::LocationEnricher::LOCALES_PER_DESCRIPTION_BATCH
+    test "DescriptionGenerator::LOCALES_PER_BATCH is reasonable" do
+      assert_equal 5, Ai::LocationEnricher::DescriptionGenerator::LOCALES_PER_BATCH
     end
 
-    test "LOCALES_PER_HISTORY_BATCH is reasonable" do
-      assert_equal 3, Ai::LocationEnricher::LOCALES_PER_HISTORY_BATCH
+    test "HistoricalGenerator::LOCALES_PER_BATCH is reasonable" do
+      assert_equal 3, Ai::LocationEnricher::HistoricalGenerator::LOCALES_PER_BATCH
     end
 
     # === determine_location_type tests ===
@@ -166,36 +166,16 @@ module Ai
       assert_equal 123, result
     end
 
-    # === Schema tests ===
+    # === Schema tests (moved to generators) ===
 
-    test "metadata_schema has correct structure" do
-      schema = @enricher.send(:metadata_schema)
+    test "MetadataGenerator has correct schema structure" do
+      schema = Ai::LocationEnricher::MetadataGenerator::SCHEMA
 
       assert_equal "object", schema[:type]
       assert_includes schema[:properties].keys, :suitable_experiences
       assert_includes schema[:properties].keys, :tags
       assert_includes schema[:properties].keys, :practical_info
       assert_equal false, schema[:additionalProperties]
-    end
-
-    test "descriptions_schema includes provided locales" do
-      locales = [ "en", "bs", "de" ]
-      schema = @enricher.send(:descriptions_schema, locales)
-
-      desc_props = schema[:properties][:descriptions][:properties]
-      locales.each do |locale|
-        assert_includes desc_props.keys, locale
-      end
-    end
-
-    test "historical_context_schema includes provided locales" do
-      locales = [ "en", "bs" ]
-      schema = @enricher.send(:historical_context_schema, locales)
-
-      context_props = schema[:properties][:historical_context][:properties]
-      locales.each do |locale|
-        assert_includes context_props.keys, locale
-      end
     end
 
     # === enrich tests ===
@@ -310,120 +290,39 @@ module Ai
     end
 
     # === JSON parsing tests ===
-
-    test "parse_ai_json_response parses valid JSON with string values" do
-      # Note: The parse_ai_json_response method uses heuristics to detect and escape
-      # embedded quotes in AI output. These heuristics work best with string values.
-      # For JSON with numeric values after keys, use JSON.parse directly.
-      content = '{"name": "Test", "description": "A description"}'
-      result = @enricher.send(:parse_ai_json_response, content)
-
-      assert_kind_of Hash, result, "Expected Hash, got #{result.class}"
-      assert_equal "Test", result[:name], "Result was: #{result.inspect}"
-      assert_equal "A description", result[:description]
-    end
-
-    test "parse_ai_json_response extracts JSON from markdown code block" do
-      content = "```json\n{\"name\": \"Test\"}\n```"
-      result = @enricher.send(:parse_ai_json_response, content)
-      assert_equal "Test", result[:name]
-    end
-
-    test "parse_ai_json_response returns empty hash for invalid JSON" do
-      result = @enricher.send(:parse_ai_json_response, "not valid json")
-      assert_equal({}, result)
-    end
-
-    test "sanitize_ai_json removes trailing commas" do
-      json = '{"name": "Test",}'
-      result = @enricher.send(:sanitize_ai_json, json)
-      assert_not_includes result, ",}"
-    end
-
-    test "sanitize_ai_json removes trailing comma at end of stream" do
-      json = '{"name": "Test"},'
-      result = @enricher.send(:sanitize_ai_json, json)
-      assert_not result.end_with?(",")
-    end
-
-    test "sanitize_ai_json converts smart quotes" do
-      json = '{"name": "Test"}'
-      result = @enricher.send(:sanitize_ai_json, json)
-      assert_includes result, '"'
-    end
-
-    # === Control character escaping tests ===
-
-    test "escape_chars_in_json_strings handles newlines" do
-      json = "{\"text\": \"line1\nline2\"}"
-      result = @enricher.send(:escape_chars_in_json_strings, json)
-      assert_includes result, "\\n"
-    end
-
-    test "escape_chars_in_json_strings handles tabs" do
-      json = "{\"text\": \"col1\tcol2\"}"
-      result = @enricher.send(:escape_chars_in_json_strings, json)
-      assert_includes result, "\\t"
-    end
-
-    test "escape_chars_in_json_strings handles carriage returns" do
-      json = "{\"text\": \"line1\rline2\"}"
-      result = @enricher.send(:escape_chars_in_json_strings, json)
-      assert_includes result, "\\r"
-    end
-
-    # === Embedded quote detection tests ===
-
-    test "looks_like_embedded_quote returns false for closing quote" do
-      json = '{"name": "Test"}'
-      # Position of closing quote before }
-      result = @enricher.send(:looks_like_embedded_quote?, json, 14)
-      assert_not result
-    end
-
-    test "looks_like_embedded_quote returns true for mid-string quote" do
-      json = '{"text": "He said hello there"}'
-      result = @enricher.send(:looks_like_embedded_quote?, json, 18)
-      assert result
-    end
-
-    test "looks_like_embedded_quote handles colon after quote" do
-      # Test JSON key-value separator pattern `: "`
-      json = '{"text": "value", "key": "another"}'
-      # Position 16 is the quote after "value" - followed by `, "key"`
-      # This is a real closing quote because it's followed by JSON structure
-      result = @enricher.send(:looks_like_embedded_quote?, json, 16)
-      assert_not result
-    end
+    # NOTE: JSON parsing methods removed - now using OpenaiQueue with JSON mode
 
     # === Error handling tests ===
 
-    test "generate_metadata handles API errors gracefully" do
+    test "MetadataGenerator handles API errors gracefully" do
       mock_location = create_mock_location
       place_data = { categories: [ "tourism" ] }
 
       Ai::OpenaiQueue.stub :request, ->(*) { raise Ai::OpenaiQueue::RequestError, "API error" } do
-        result = @enricher.send(:generate_metadata, mock_location, place_data)
+        generator = Ai::LocationEnricher::MetadataGenerator.new
+        result = generator.generate(mock_location, place_data)
         assert_equal({}, result)
       end
     end
 
-    test "generate_descriptions handles API errors gracefully" do
+    test "DescriptionGenerator handles API errors gracefully" do
       mock_location = create_mock_location
       place_data = { categories: [ "tourism" ] }
 
       Ai::OpenaiQueue.stub :request, ->(*) { raise Ai::OpenaiQueue::RequestError, "API error" } do
-        result = @enricher.send(:generate_descriptions, mock_location, place_data, [ "en", "bs" ])
+        generator = Ai::LocationEnricher::DescriptionGenerator.new
+        result = generator.generate(mock_location, place_data, locales: [ "en", "bs" ])
         assert_equal({}, result)
       end
     end
 
-    test "generate_historical_context handles API errors gracefully" do
+    test "HistoricalGenerator handles API errors gracefully" do
       mock_location = create_mock_location
       place_data = { categories: [ "tourism" ] }
 
       Ai::OpenaiQueue.stub :request, ->(*) { raise Ai::OpenaiQueue::RequestError, "API error" } do
-        result = @enricher.send(:generate_historical_context, mock_location, place_data, [ "en", "bs" ])
+        generator = Ai::LocationEnricher::HistoricalGenerator.new
+        result = generator.generate(mock_location, place_data, locales: [ "en", "bs" ])
         assert_equal({}, result)
       end
     end
@@ -701,29 +600,32 @@ module Ai
       end
     end
 
-    test "generate_metadata returns empty hash on RequestError" do
+    test "MetadataGenerator returns empty hash on RequestError" do
       mock_location = create_mock_location
 
       Ai::OpenaiQueue.stub :request, ->(*) { raise Ai::OpenaiQueue::RequestError, "API Error" } do
-        result = @enricher.send(:generate_metadata, mock_location, {})
+        generator = Ai::LocationEnricher::MetadataGenerator.new
+        result = generator.generate(mock_location, {})
         assert_equal({}, result)
       end
     end
 
-    test "generate_descriptions returns empty hash on RequestError" do
+    test "DescriptionGenerator returns empty hash on RequestError" do
       mock_location = create_mock_location
 
       Ai::OpenaiQueue.stub :request, ->(*) { raise Ai::OpenaiQueue::RequestError, "API Error" } do
-        result = @enricher.send(:generate_descriptions, mock_location, {}, [ "en" ])
+        generator = Ai::LocationEnricher::DescriptionGenerator.new
+        result = generator.generate(mock_location, {}, locales: [ "en" ])
         assert_equal({}, result)
       end
     end
 
-    test "generate_historical_context returns empty hash on RequestError" do
+    test "HistoricalGenerator returns empty hash on RequestError" do
       mock_location = create_mock_location
 
       Ai::OpenaiQueue.stub :request, ->(*) { raise Ai::OpenaiQueue::RequestError, "API Error" } do
-        result = @enricher.send(:generate_historical_context, mock_location, {}, [ "en" ])
+        generator = Ai::LocationEnricher::HistoricalGenerator.new
+        result = generator.generate(mock_location, {}, locales: [ "en" ])
         assert_equal({}, result)
       end
     end
@@ -756,11 +658,12 @@ module Ai
       end
     end
 
-    test "generate_descriptions returns empty hash when result has no descriptions" do
+    test "DescriptionGenerator returns empty hash when result has no descriptions" do
       mock_location = create_mock_location
 
       Ai::OpenaiQueue.stub :request, { other_field: "value" } do
-        result = @enricher.send(:generate_descriptions, mock_location, {}, [ "en" ])
+        generator = Ai::LocationEnricher::DescriptionGenerator.new
+        result = generator.generate(mock_location, {}, locales: [ "en" ])
         assert_equal({}, result)
       end
     end

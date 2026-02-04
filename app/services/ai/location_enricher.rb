@@ -13,11 +13,9 @@ module Ai
 
     class EnrichmentError < StandardError; end
 
-    # Maximum locales per batch to avoid token limit errors
-    # We split descriptions and historical_context into separate requests,
-    # and process locales in batches to stay well under 128K token limit
-    LOCALES_PER_DESCRIPTION_BATCH = 5  # ~150 words each = ~750 words output
-    LOCALES_PER_HISTORY_BATCH = 3      # ~300 words each = ~900 words output
+    # NOTE: Batch constants moved to individual generator modules
+    # - DescriptionGenerator::LOCALES_PER_BATCH
+    # - HistoricalGenerator::LOCALES_PER_BATCH
 
     def initialize
       # No longer using @chat directly - using OpenaiQueue for rate limiting
@@ -133,34 +131,29 @@ module Ai
     private
 
     def generate_enrichment(location, place_data)
-      combined_result = { suitable_experiences: [], descriptions: {}, historical_context: {}, tags: [], practical_info: {} }
+      combined_result = {
+        suitable_experiences: [],
+        descriptions: {},
+        historical_context: {},
+        tags: [],
+        practical_info: {}
+      }
 
-      # Step 1: Generate metadata (suitable_experiences, tags, practical_info) - single request
-      log_info "Generating metadata for #{location.name}"
-      metadata = generate_metadata(location, place_data)
+      # Step 1: Generate metadata
+      metadata = MetadataGenerator.new.generate(location, place_data)
       if metadata.present?
         combined_result[:suitable_experiences] = metadata[:suitable_experiences] || []
         combined_result[:tags] = metadata[:tags] || []
         combined_result[:practical_info] = metadata[:practical_info] || {}
       end
 
-      # Step 2: Generate descriptions in batches
-      description_batches = supported_locales.each_slice(LOCALES_PER_DESCRIPTION_BATCH).to_a
-      description_batches.each_with_index do |batch_locales, batch_index|
-        log_info "Generating descriptions batch #{batch_index + 1}/#{description_batches.count} for #{location.name}: #{batch_locales.join(', ')}"
+      # Step 2: Generate descriptions
+      descriptions = DescriptionGenerator.new.generate(location, place_data)
+      combined_result[:descriptions] = descriptions if descriptions.present?
 
-        descriptions = generate_descriptions(location, place_data, batch_locales)
-        combined_result[:descriptions].merge!(descriptions) if descriptions.present?
-      end
-
-      # Step 3: Generate historical_context in batches
-      history_batches = supported_locales.each_slice(LOCALES_PER_HISTORY_BATCH).to_a
-      history_batches.each_with_index do |batch_locales, batch_index|
-        log_info "Generating historical context batch #{batch_index + 1}/#{history_batches.count} for #{location.name}: #{batch_locales.join(', ')}"
-
-        history = generate_historical_context(location, place_data, batch_locales)
-        combined_result[:historical_context].merge!(history) if history.present?
-      end
+      # Step 3: Generate historical context
+      history = HistoricalGenerator.new.generate(location, place_data)
+      combined_result[:historical_context] = history if history.present?
 
       combined_result
     rescue Ai::OpenaiQueue::RequestError => e
@@ -168,212 +161,12 @@ module Ai
       {}
     end
 
-    def generate_metadata(location, place_data)
-      prompt = build_metadata_prompt(location, place_data)
-      Ai::OpenaiQueue.request(
-        prompt: prompt,
-        schema: metadata_schema,
-        context: "LocationEnricher:metadata:#{location.name}"
-      )
-    rescue Ai::OpenaiQueue::RequestError => e
-      log_warn "Metadata generation failed for #{location.name}: #{e.message}"
-      {}
-    end
-
-    def generate_descriptions(location, place_data, locales)
-      prompt = build_descriptions_prompt(location, place_data, locales)
-      result = Ai::OpenaiQueue.request(
-        prompt: prompt,
-        schema: descriptions_schema(locales),
-        context: "LocationEnricher:descriptions:#{location.name}"
-      )
-      result&.dig(:descriptions) || {}
-    rescue Ai::OpenaiQueue::RequestError => e
-      log_warn "Descriptions generation failed for #{location.name}: #{e.message}"
-      {}
-    end
-
-    def generate_historical_context(location, place_data, locales)
-      prompt = build_historical_context_prompt(location, place_data, locales)
-      result = Ai::OpenaiQueue.request(
-        prompt: prompt,
-        schema: historical_context_schema(locales),
-        context: "LocationEnricher:history:#{location.name}"
-      )
-      result&.dig(:historical_context) || {}
-    rescue Ai::OpenaiQueue::RequestError => e
-      log_warn "Historical context generation failed for #{location.name}: #{e.message}"
-      {}
-    end
-
-    # Schema for metadata only (suitable_experiences, tags, practical_info)
-    def metadata_schema
-      {
-        type: "object",
-        properties: {
-          suitable_experiences: {
-            type: "array",
-            items: { type: "string" },
-            description: "Experience types this location is suitable for"
-          },
-          tags: {
-            type: "array",
-            items: { type: "string" },
-            description: "Relevant tags in English (lowercase, hyphens instead of spaces)"
-          },
-          practical_info: {
-            type: "object",
-            properties: {
-              best_time: { type: "string", description: "Best time to visit (morning, afternoon, evening, any)" },
-              duration_minutes: { type: "integer", description: "Suggested visit duration in minutes" },
-              tips: { type: "array", items: { type: "string" }, description: "Practical tips for visitors" }
-            },
-            required: %w[best_time duration_minutes tips],
-            additionalProperties: false
-          }
-        },
-        required: %w[suitable_experiences tags practical_info],
-        additionalProperties: false
-      }
-    end
-
-    # Schema for descriptions only
-    def descriptions_schema(locales)
-      locale_properties = locales.to_h { |loc| [ loc, { type: "string" } ] }
-      {
-        type: "object",
-        properties: {
-          descriptions: {
-            type: "object",
-            properties: locale_properties,
-            required: locales,
-            additionalProperties: false
-          }
-        },
-        required: %w[descriptions],
-        additionalProperties: false
-      }
-    end
-
-    # Schema for historical context only
-    def historical_context_schema(locales)
-      locale_properties = locales.to_h { |loc| [ loc, { type: "string" } ] }
-      {
-        type: "object",
-        properties: {
-          historical_context: {
-            type: "object",
-            properties: locale_properties,
-            required: locales,
-            additionalProperties: false
-          }
-        },
-        required: %w[historical_context],
-        additionalProperties: false
-      }
-    end
-
-    def location_vars(location, place_data)
-      {
-        name: location.name,
-        city: location.city,
-        category: place_data[:categories]&.first || location.category_name,
-        categories: place_data[:categories]&.join(", "),
-        address: place_data[:formatted] || place_data[:address_line1],
-        lat: location.lat,
-        lng: location.lng,
-        cultural_context: cultural_context
-      }
-    end
-
-    def build_metadata_prompt(location, place_data)
-      load_prompt("location_enricher/metadata.md.erb",
-        **location_vars(location, place_data),
-        experience_types: supported_experience_types.join(", "))
-    end
-
-    def build_descriptions_prompt(location, place_data, locales)
-      load_prompt("location_enricher/descriptions.md.erb",
-        **location_vars(location, place_data),
-        locales: locales)
-    end
-
-    def build_historical_context_prompt(location, place_data, locales)
-      load_prompt("location_enricher/historical_context.md.erb",
-        **location_vars(location, place_data),
-        locales: locales)
-    end
-
     def apply_enrichment(location, enrichment)
-      # Set translations for description and historical_context
-      supported_locales.each do |locale|
-        if (desc = enrichment.dig(:descriptions, locale.to_s) || enrichment.dig(:descriptions, locale.to_sym))
-          location.set_translation(:description, desc, locale)
-        end
-
-        if (context = enrichment.dig(:historical_context, locale.to_s) || enrichment.dig(:historical_context, locale.to_sym))
-          location.set_translation(:historical_context, context, locale)
-        end
-
-        # Set name translation (usually same as original)
-        location.set_translation(:name, location.name, locale)
-      end
-
-      # Set suitable_experiences using focused classifier
-      # Use metadata generation as hints for better accuracy
-      hints = enrichment[:suitable_experiences].presence
-
-      begin
-        classifier = Ai::ExperienceTypeClassifier.new
-        result = classifier.classify(location, dry_run: false, hints: hints)
-
-        if result[:success]
-          log_info "Classified with types: #{result[:types].join(', ')}"
-        elsif hints.present?
-          # Fallback to hints if classifier fails
-          log_warn "Classifier failed, using hints: #{hints.join(', ')}"
-          begin
-            location.set_experience_types(hints)
-          rescue StandardError => e
-            log_warn "Could not set experience types from hints: #{e.message}"
-          end
-        end
-      rescue StandardError => e
-        log_error "Experience type classification failed: #{e.message}"
-        # Fallback to hints if available
-        if hints.present?
-          begin
-            location.set_experience_types(hints)
-          rescue StandardError => e
-            log_warn "Could not set experience types from hints: #{e.message}"
-          end
-        end
-      end
-
-      # Set tags
-      if enrichment[:tags].present?
-        location.tags = (location.tags + enrichment[:tags]).uniq
-      end
-
-      # Store practical info in audio_tour_metadata (existing JSONB field)
-      if enrichment[:practical_info].present?
-        location.audio_tour_metadata ||= {}
-        location.audio_tour_metadata = location.audio_tour_metadata.merge(
-          "practical_info" => enrichment[:practical_info]
-        )
-      end
+      Applicator.new(location).apply(enrichment)
     end
 
     def add_tags_from_categories(location, categories)
-      return if categories.blank?
-
-      # Convert Geoapify categories to tags
-      category_tags = categories.map do |cat|
-        cat.to_s.split(".").last.gsub("_", "-")
-      end.uniq.first(3)
-
-      location.tags = (location.tags + category_tags).uniq
-      location.save
+      Applicator.new(location).add_tags_from_categories(categories)
     end
 
     def determine_location_type(categories)
@@ -457,129 +250,16 @@ module Ai
         %w[culture history sport food nature adventure relaxation]
     end
 
-    def parse_ai_json_response(content)
-      json_match = content.match(/```(?:json)?\s*([\s\S]*?)```/) ||
-                  content.match(/(\{[\s\S]*\})/)
-      json_str = json_match ? json_match[1] : content
-      json_str = sanitize_ai_json(json_str)
-      # Final cleanup: strip any trailing comma that might remain after sanitization
-      json_str = json_str.strip.sub(/,\s*\z/, "")
-      JSON.parse(json_str, symbolize_names: true)
-    rescue JSON::ParserError => e
-      log_error "Failed to parse AI response: #{e.message}"
-      {}
+    def log_info(message)
+      Rails.logger.info "[LocationEnricher] #{message}"
     end
 
-    def sanitize_ai_json(json_str)
-      json_str = json_str.dup
-      # Replace smart/curly quotes with straight quotes
-      json_str.gsub!(/[""]/, '"')
-      json_str.gsub!(/['']/, "'")
-      # Remove trailing commas (invalid JSON but common in AI output)
-      json_str.gsub!(/,(\s*[\}\]])/, '\1')
-      # Remove trailing comma at end of stream (e.g., "{ ... },\n" or "{ ... }, ")
-      json_str.gsub!(/,\s*\z/, "")
-      # Escape control characters and fix structural issues within JSON strings
-      json_str = escape_chars_in_json_strings(json_str)
-      json_str
+    def log_warn(message)
+      Rails.logger.warn "[LocationEnricher] #{message}"
     end
 
-    # Escapes problematic characters that appear within JSON string values
-    # This handles cases where the AI includes literal newlines, unescaped
-    # quotes, or other control characters in text content
-    def escape_chars_in_json_strings(json_str)
-      result = []
-      in_string = false
-      escape_next = false
-      i = 0
-
-      while i < json_str.length
-        char = json_str[i]
-        next_char = json_str[i + 1]
-
-        if escape_next
-          result << char
-          escape_next = false
-        elsif char == "\\"
-          if in_string
-            # Check if this backslash is followed by a valid JSON escape character
-            if next_char && '"\\/bfnrtu'.include?(next_char)
-              result << char
-              escape_next = true
-            else
-              # Invalid escape sequence - escape the backslash itself
-              result << "\\\\"
-            end
-          else
-            result << char
-            escape_next = true
-          end
-        elsif char == '"'
-          if in_string
-            # Check if this quote might be inside a string value (not ending it)
-            # Look ahead to see if this looks like a premature string end
-            if looks_like_embedded_quote?(json_str, i)
-              result << '\\"'
-            else
-              result << char
-              in_string = false
-            end
-          else
-            result << char
-            in_string = true
-          end
-        elsif in_string
-          # Handle control characters within strings
-          case char
-          when "\n"
-            result << '\\n'
-          when "\r"
-            result << '\\r'
-          when "\t"
-            result << '\\t'
-          when "\f"
-            result << '\\f'
-          when "\b"
-            result << '\\b'
-          else
-            # Escape any other control characters (0x00-0x1F)
-            if char.ord < 32
-              result << format('\\u%04x', char.ord)
-            else
-              result << char
-            end
-          end
-        else
-          result << char
-        end
-
-        i += 1
-      end
-
-      result.join
-    end
-
-    # Heuristic to detect if a quote inside a string is likely an embedded quote
-    # rather than the actual end of the string value
-    def looks_like_embedded_quote?(json_str, pos)
-      return false if pos + 1 >= json_str.length
-
-      remaining = json_str[(pos + 1)..-1]
-
-      # If immediately followed by valid JSON structure, it's probably a real end quote
-      # Note: We check for `: "` (colon then quote) separately to avoid false positives
-      # when text contains quotes followed by colons like: "Unity": our strength
-      return false if remaining.match?(/\A\s*[,\}\]]/m)
-
-      # Check for JSON key-value separator pattern (colon followed by a value)
-      return false if remaining.match?(/\A\s*:\s*"/m)
-
-      # If followed by a key pattern like `"key":`, it's probably a real end quote
-      return false if remaining.match?(/\A\s*,?\s*"[^"]+"\s*:/m)
-
-      # Otherwise, this quote is likely embedded in text content
-      # Look for patterns that suggest continuation of text
-      remaining.match?(/\A[a-zA-Z0-9\s,.'!?;:\-]/m)
+    def log_error(message)
+      Rails.logger.error "[LocationEnricher] #{message}"
     end
   end
 end
