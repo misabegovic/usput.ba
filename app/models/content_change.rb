@@ -210,18 +210,11 @@ class ContentChange < ApplicationRecord
     allowed_attrs = safe_attributes_for(klass)
     safe_data = proposed_data.slice(*allowed_attrs)
 
-    # Handle experience_types separately for Location (use relational API)
-    experience_types = nil
-    if klass.name == "Location" && safe_data["suitable_experiences"].present?
-      experience_types = safe_data.delete("suitable_experiences")
-    end
-
-    record = klass.new(safe_data)
-    record.save!
-
-    # Apply experience types after record is persisted
-    if record.is_a?(Location) && experience_types.present?
-      record.set_experience_types(experience_types)
+    # Use service object for Location to handle experience types explicitly
+    if klass.name == "Location"
+      record = apply_create_location!(safe_data)
+    else
+      record = klass.create!(safe_data)
     end
 
     update!(changeable: record)
@@ -235,11 +228,9 @@ class ContentChange < ApplicationRecord
     allowed_attrs = safe_attributes_for(changeable.class)
     safe_data = proposed_data.slice(*allowed_attrs)
 
-    # Handle experience_types separately for Location (use relational API)
-    if changeable.is_a?(Location) && safe_data["suitable_experiences"].present?
-      experience_types = safe_data.delete("suitable_experiences")
-      changeable.update!(safe_data) if safe_data.any?
-      changeable.set_experience_types(experience_types)
+    # Use service object for Location to handle experience types explicitly
+    if changeable.is_a?(Location)
+      apply_update_location!(safe_data)
     else
       changeable.update!(safe_data)
     end
@@ -259,6 +250,28 @@ class ContentChange < ApplicationRecord
     return unless %w[Location Experience Plan].include?(resource.class.name)
 
     resource.update_column(:needs_ai_regeneration, true)
+  end
+
+  # Use LocationCreator service to handle experience types explicitly
+  def apply_create_location!(safe_data)
+    creator = LocationCreator.new(safe_data)
+    creator.call
+
+    unless creator.success?
+      raise ActiveRecord::RecordInvalid.new(creator.location)
+    end
+
+    creator.location
+  end
+
+  # Use LocationUpdater service to handle experience types explicitly
+  def apply_update_location!(safe_data)
+    updater = LocationUpdater.new(changeable, safe_data)
+    updater.call
+
+    unless updater.success?
+      raise ActiveRecord::RecordInvalid.new(changeable)
+    end
   end
 
   # Define safe attributes for each model to prevent unauthorized changes
