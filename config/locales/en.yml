@@ -668,7 +668,7 @@ en:
     curator_required: You need curator privileges to access this page.
     admin_required: You need administrator privileges to access this page.
   profile:
-    title: My Travel Profile
+    title: My Profile
     subtitle: Your travels in one place
     logged_in_subtitle: Profile is permanently saved
     save_title: Save your profile
