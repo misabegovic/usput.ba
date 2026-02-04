@@ -516,20 +516,15 @@ module Ai
     private
 
     def stub_ai_response(response_text)
-      mock_response = OpenStruct.new(content: response_text)
-      mock_llm = OpenStruct.new
-      mock_llm.define_singleton_method(:ask) { |*| mock_response }
-
-      @classifier.instance_variable_set(:@llm, mock_llm)
-      yield
+      Ai::OpenaiQueue.stub :request, response_text do
+        yield
+      end
     end
 
     def stub_ai_error
-      mock_llm = OpenStruct.new
-      mock_llm.define_singleton_method(:ask) { |*| raise StandardError, "AI Error" }
-
-      @classifier.instance_variable_set(:@llm, mock_llm)
-      yield
+      Ai::OpenaiQueue.stub :request, ->(*) { raise Ai::OpenaiQueue::RequestError, "AI Error" } do
+        yield
+      end
     end
   end
 end

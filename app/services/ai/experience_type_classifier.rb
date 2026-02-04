@@ -9,10 +9,6 @@ module Ai
 
     class ClassificationError < StandardError; end
 
-    def initialize
-      @llm = nil
-    end
-
     # Classify a single location and add experience types
     # @param location [Location] Location to classify
     # @param dry_run [Boolean] If true, don't save changes
@@ -120,12 +116,15 @@ module Ai
       user_prompt = build_classification_prompt(location, hints)
       full_prompt = "#{system_prompt}\n\n#{user_prompt}"
 
-      response = llm.ask(full_prompt)
+      # Use OpenaiQueue for rate limiting and retry logic
+      result = Ai::OpenaiQueue.request(
+        prompt: full_prompt,
+        schema: nil,
+        context: "ExperienceTypeClassifier:#{location.name}"
+      )
 
-      # Parse response
-      content = response.content
-      parse_types_from_response(content)
-    rescue StandardError => e
+      parse_types_from_response(result.to_s)
+    rescue Ai::OpenaiQueue::RequestError => e
       log_error "AI request failed: #{e.message}"
       []
     end
@@ -168,10 +167,6 @@ module Ai
       ExperienceType.active.ordered.map do |et|
         "- #{et.key}: #{et.name}#{et.description.present? ? ' - ' + et.description.truncate(100) : ''}"
       end.join("\n")
-    end
-
-    def llm
-      @llm ||= RubyLLM.chat(model: RubyLLM.config.default_model)
     end
 
     def log_info(message)
