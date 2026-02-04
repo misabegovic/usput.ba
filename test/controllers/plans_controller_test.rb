@@ -13,7 +13,7 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
       lng: 17.1858,
       location_type: :place,
       budget: :medium,
-      suitable_experiences: ["culture", "history"]
+      suitable_experiences: [ "culture", "history" ]
     )
 
     # Create test experience
@@ -225,7 +225,7 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
   test "recommendations excludes specified experience IDs" do
     get plans_recommendations_path, params: {
       city_name: "Banja Luka",
-      exclude_ids: [@experience.uuid].to_json
+      exclude_ids: [ @experience.uuid ].to_json
     }
 
     assert_response :success
@@ -257,7 +257,7 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "generate handles different duration values" do
-    ["1", "2-3", "4+"].each do |duration|
+    [ "1", "2-3", "4+" ].each do |duration|
       post plans_generate_path, params: {
         city_name: "Banja Luka",
         duration: duration

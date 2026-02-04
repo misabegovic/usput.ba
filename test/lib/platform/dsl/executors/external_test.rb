@@ -19,7 +19,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "execute_external_query raises for unknown operation" do
     ast = {
       filters: {},
-      operations: [{ name: :unknown_operation }]
+      operations: [ { name: :unknown_operation } ]
     }
 
     error = assert_raises(Platform::DSL::ExecutionError) do
@@ -49,7 +49,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "geocode_address raises without address filter" do
     ast = {
       filters: {},
-      operations: [{ name: :geocode }]
+      operations: [ { name: :geocode } ]
     }
 
     error = assert_raises(Platform::DSL::ExecutionError) do
@@ -71,7 +71,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
       Ai::RateLimiter.stub(:with_delay, ->(opts, &block) { block.call }) do
         ast = {
           filters: { address: "Sarajevo" },
-          operations: [{ name: :geocode }]
+          operations: [ { name: :geocode } ]
         }
 
         result = Platform::DSL::Executors::External.execute_external_query(ast)
@@ -89,7 +89,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "reverse_geocode_coords raises without lat/lng filters" do
     ast = {
       filters: { lat: 43.85 },
-      operations: [{ name: :reverse_geocode }]
+      operations: [ { name: :reverse_geocode } ]
     }
 
     error = assert_raises(Platform::DSL::ExecutionError) do
@@ -114,7 +114,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
       Ai::RateLimiter.stub(:with_delay, ->(opts, &block) { block.call }) do
         ast = {
           filters: { lat: 43.85, lng: 18.41 },
-          operations: [{ name: :reverse_geocode }]
+          operations: [ { name: :reverse_geocode } ]
         }
 
         result = Platform::DSL::Executors::External.execute_external_query(ast)
@@ -133,7 +133,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "validate_location raises without lat/lng filters" do
     ast = {
       filters: { lat: 43.85 },
-      operations: [{ name: :validate_location }]
+      operations: [ { name: :validate_location } ]
     }
 
     error = assert_raises(Platform::DSL::ExecutionError) do
@@ -146,7 +146,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "validate_location for location inside BiH" do
     ast = {
       filters: { lat: 43.85, lng: 18.41 },
-      operations: [{ name: :validate_location }]
+      operations: [ { name: :validate_location } ]
     }
 
     result = Platform::DSL::Executors::External.execute_external_query(ast)
@@ -158,7 +158,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "validate_location for location outside BiH" do
     ast = {
       filters: { lat: 48.85, lng: 2.35 },  # Paris
-      operations: [{ name: :validate }]
+      operations: [ { name: :validate } ]
     }
 
     result = Platform::DSL::Executors::External.execute_external_query(ast)
@@ -176,7 +176,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "check_duplicate raises without name or lat/lng" do
     ast = {
       filters: {},
-      operations: [{ name: :check_duplicate }]
+      operations: [ { name: :check_duplicate } ]
     }
 
     error = assert_raises(Platform::DSL::ExecutionError) do
@@ -189,7 +189,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "check_duplicate by name" do
     ast = {
       filters: { name: @location.name },
-      operations: [{ name: :check_duplicate }]
+      operations: [ { name: :check_duplicate } ]
     }
 
     result = Platform::DSL::Executors::External.execute_external_query(ast)
@@ -201,7 +201,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "check_duplicate by coords" do
     ast = {
       filters: { lat: @location.lat, lng: @location.lng },
-      operations: [{ name: :dedupe }]
+      operations: [ { name: :dedupe } ]
     }
 
     result = Platform::DSL::Executors::External.execute_external_query(ast)
@@ -213,7 +213,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "check_duplicate returns empty for non-matching" do
     ast = {
       filters: { name: "NonExistentLocationXYZ123456" },
-      operations: [{ name: :check_duplicate }]
+      operations: [ { name: :check_duplicate } ]
     }
 
     result = Platform::DSL::Executors::External.execute_external_query(ast)
@@ -229,7 +229,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "search_pois raises without city filter" do
     ast = {
       filters: {},
-      operations: [{ name: :search_pois }]
+      operations: [ { name: :search_pois } ]
     }
 
     error = assert_raises(Platform::DSL::ExecutionError) do
@@ -261,7 +261,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "execute_code_query reads file" do
     ast = {
       filters: { file: "Gemfile" },
-      operations: [{ name: :read_file }]
+      operations: [ { name: :read_file } ]
     }
 
     result = Platform::DSL::Executors::External.execute_code_query(ast)
@@ -274,7 +274,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "read_file raises for missing file" do
     ast = {
       filters: { file: "nonexistent_file_xyz.rb" },
-      operations: [{ name: :read_file }]
+      operations: [ { name: :read_file } ]
     }
 
     error = assert_raises(Platform::DSL::ExecutionError) do
@@ -287,7 +287,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "read_file raises for path outside project" do
     ast = {
       filters: { file: "/etc/passwd" },
-      operations: [{ name: :read_file }]
+      operations: [ { name: :read_file } ]
     }
 
     error = assert_raises(Platform::DSL::ExecutionError) do
@@ -300,7 +300,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "read_file raises without file filter" do
     ast = {
       filters: {},
-      operations: [{ name: :read_file }]
+      operations: [ { name: :read_file } ]
     }
 
     error = assert_raises(Platform::DSL::ExecutionError) do
@@ -313,7 +313,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "read_file with line range" do
     ast = {
       filters: { file: "Gemfile", from: 1, to: 5 },
-      operations: [{ name: :read_file }]
+      operations: [ { name: :read_file } ]
     }
 
     result = Platform::DSL::Executors::External.execute_code_query(ast)
@@ -325,7 +325,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "execute_code_query searches code" do
     ast = {
       filters: { path: "app/models" },
-      operations: [{ name: :search, args: ["ApplicationRecord"] }]
+      operations: [ { name: :search, args: [ "ApplicationRecord" ] } ]
     }
 
     result = Platform::DSL::Executors::External.execute_code_query(ast)
@@ -338,7 +338,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "search_code raises without pattern" do
     ast = {
       filters: {},
-      operations: [{ name: :search, args: nil }]
+      operations: [ { name: :search, args: nil } ]
     }
 
     error = assert_raises(Platform::DSL::ExecutionError) do
@@ -351,7 +351,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "execute_code_query greps code" do
     ast = {
       filters: { path: "app/models" },
-      operations: [{ name: :grep, args: ["has_many"] }]
+      operations: [ { name: :grep, args: [ "has_many" ] } ]
     }
 
     result = Platform::DSL::Executors::External.execute_code_query(ast)
@@ -363,7 +363,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "execute_code_query shows code structure" do
     ast = {
       filters: { path: "app/models" },
-      operations: [{ name: :structure }]
+      operations: [ { name: :structure } ]
     }
 
     result = Platform::DSL::Executors::External.execute_code_query(ast)
@@ -375,7 +375,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "show_code_structure raises for non-existent directory" do
     ast = {
       filters: { path: "nonexistent_directory_xyz" },
-      operations: [{ name: :structure }]
+      operations: [ { name: :structure } ]
     }
 
     error = assert_raises(Platform::DSL::ExecutionError) do
@@ -388,7 +388,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "execute_code_query lists models" do
     ast = {
       filters: {},
-      operations: [{ name: :models }]
+      operations: [ { name: :models } ]
     }
 
     result = Platform::DSL::Executors::External.execute_code_query(ast)
@@ -401,7 +401,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "execute_code_query lists routes" do
     ast = {
       filters: {},
-      operations: [{ name: :routes }]
+      operations: [ { name: :routes } ]
     }
 
     result = Platform::DSL::Executors::External.execute_code_query(ast)
@@ -440,7 +440,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
       lat: 43.85,
       lng: 18.41,
       primary_type: "restaurant",
-      types: ["restaurant", "food"],
+      types: [ "restaurant", "food" ],
       rating: 4.5,
       website: "https://example.com"
     }
@@ -460,7 +460,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
 
     ast = {
       filters: { lat: 43.85, lng: 18.41 },
-      operations: [{ name: :check_duplicate }]
+      operations: [ { name: :check_duplicate } ]
     }
 
     result = Platform::DSL::Executors::External.execute_external_query(ast)
@@ -471,7 +471,7 @@ class Platform::DSL::Executors::ExternalTest < ActiveSupport::TestCase
   test "grep_code with nil args" do
     ast = {
       filters: { path: "app/models" },
-      operations: [{ name: :grep, args: nil }]
+      operations: [ { name: :grep, args: nil } ]
     }
 
     error = assert_raises(Platform::DSL::ExecutionError) do

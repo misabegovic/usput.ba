@@ -59,7 +59,7 @@ module Platform
               coverage: {
                 cities_with_content: Location.distinct.pluck(:city).compact.size,
                 locations_with_audio: Location.with_audio.count,
-                locations_with_description: Location.where.not(description: [nil, ""]).count
+                locations_with_description: Location.where.not(description: [ nil, "" ]).count
               },
               users: {
                 total: User.count,

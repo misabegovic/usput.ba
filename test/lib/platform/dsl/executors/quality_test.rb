@@ -41,7 +41,7 @@ class Platform::DSL::Executors::QualityTest < ActiveSupport::TestCase
   end
 
   test "execute_quality_query with stats returns quality statistics" do
-    ast = { type: :quality_query, filters: {}, operations: [{ name: :stats }] }
+    ast = { type: :quality_query, filters: {}, operations: [ { name: :stats } ] }
 
     result = Platform::DSL::Executors::Quality.execute_quality_query(ast)
 
@@ -63,7 +63,7 @@ class Platform::DSL::Executors::QualityTest < ActiveSupport::TestCase
   end
 
   test "execute_quality_query with audit returns full audit" do
-    ast = { type: :quality_query, filters: {}, operations: [{ name: :audit }] }
+    ast = { type: :quality_query, filters: {}, operations: [ { name: :audit } ] }
 
     result = Platform::DSL::Executors::Quality.execute_quality_query(ast)
 
@@ -74,7 +74,7 @@ class Platform::DSL::Executors::QualityTest < ActiveSupport::TestCase
   end
 
   test "execute_quality_query with locations lists incomplete locations" do
-    ast = { type: :quality_query, filters: { limit: 20 }, operations: [{ name: :locations }] }
+    ast = { type: :quality_query, filters: { limit: 20 }, operations: [ { name: :locations } ] }
 
     result = Platform::DSL::Executors::Quality.execute_quality_query(ast)
 
@@ -84,7 +84,7 @@ class Platform::DSL::Executors::QualityTest < ActiveSupport::TestCase
   end
 
   test "execute_quality_query with experiences lists incomplete experiences" do
-    ast = { type: :quality_query, filters: { limit: 20 }, operations: [{ name: :experiences }] }
+    ast = { type: :quality_query, filters: { limit: 20 }, operations: [ { name: :experiences } ] }
 
     result = Platform::DSL::Executors::Quality.execute_quality_query(ast)
 
@@ -94,7 +94,7 @@ class Platform::DSL::Executors::QualityTest < ActiveSupport::TestCase
   end
 
   test "execute_quality_query raises error for unknown operation" do
-    ast = { type: :quality_query, filters: {}, operations: [{ name: :unknown_op }] }
+    ast = { type: :quality_query, filters: {}, operations: [ { name: :unknown_op } ] }
 
     error = assert_raises(Platform::DSL::ExecutionError) do
       Platform::DSL::Executors::Quality.execute_quality_query(ast)
@@ -104,7 +104,7 @@ class Platform::DSL::Executors::QualityTest < ActiveSupport::TestCase
   end
 
   test "quality stats formatted output includes report sections" do
-    ast = { type: :quality_query, filters: {}, operations: [{ name: :stats }] }
+    ast = { type: :quality_query, filters: {}, operations: [ { name: :stats } ] }
 
     result = Platform::DSL::Executors::Quality.execute_quality_query(ast)
 

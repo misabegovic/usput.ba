@@ -166,7 +166,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
     ast = {
       type: :external_query,
       filters: {},
-      operations: [{ name: :unknown_external_op }]
+      operations: [ { name: :unknown_external_op } ]
     }
 
     assert_raises(Platform::DSL::ExecutionError) do
@@ -328,7 +328,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
     # Ensure no location exists for this city
     Location.where(city: "Trebinje").delete_all
 
-    mock_results = [{ name: "Trebinje", lat: 42.7117, lng: 18.3437 }]
+    mock_results = [ { name: "Trebinje", lat: 42.7117, lng: 18.3437 } ]
     mock_service = create_mock_geoapify_service(text_search_result: mock_results)
 
     Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
@@ -344,7 +344,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
     Location.where(city: "FakeCity").delete_all
 
     # Return results outside BiH
-    mock_results = [{ name: "FakeCity", lat: 48.8566, lng: 2.3522 }]
+    mock_results = [ { name: "FakeCity", lat: 48.8566, lng: 2.3522 } ]
     mock_service = create_mock_geoapify_service(text_search_result: mock_results)
 
     Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
@@ -400,7 +400,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
 
     Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
-        result = Platform::DSL::Executor.send(:search_pois, { city: "Sarajevo" }, ["restaurant"])
+        result = Platform::DSL::Executor.send(:search_pois, { city: "Sarajevo" }, [ "restaurant" ])
 
         assert result.is_a?(Hash)
       end
@@ -574,7 +574,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
     ast = {
       type: :external_query,
       filters: { lat: 43.8563, lng: 18.4131 },
-      operations: [{ name: :validate_location }]
+      operations: [ { name: :validate_location } ]
     }
 
     result = Platform::DSL::Executor.execute(ast)
@@ -586,7 +586,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
     ast = {
       type: :external_query,
       filters: { name: "NonExistent12345" },
-      operations: [{ name: :check_duplicate }]
+      operations: [ { name: :check_duplicate } ]
     }
 
     result = Platform::DSL::Executor.execute(ast)
@@ -598,7 +598,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
     ast = {
       type: :external_query,
       filters: { lat: 43.8563, lng: 18.4131 },
-      operations: [{ name: :validate }]
+      operations: [ { name: :validate } ]
     }
 
     result = Platform::DSL::Executor.execute(ast)
@@ -610,7 +610,7 @@ class Platform::DSL::ExternalQueriesTest < ActiveSupport::TestCase
     ast = {
       type: :external_query,
       filters: { name: "NonExistent12345" },
-      operations: [{ name: :dedupe }]
+      operations: [ { name: :dedupe } ]
     }
 
     result = Platform::DSL::Executor.execute(ast)

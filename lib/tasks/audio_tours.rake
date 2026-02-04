@@ -2,7 +2,7 @@
 
 namespace :audio_tours do
   desc "Generate audio tour for a specific location"
-  task :generate, [:location_id, :locale] => :environment do |_t, args|
+  task :generate, [ :location_id, :locale ] => :environment do |_t, args|
     location_id = args[:location_id]
     locale = args[:locale] || "bs"
 
@@ -17,7 +17,7 @@ namespace :audio_tours do
   end
 
   desc "Generate audio tours for all locations in a city"
-  task :generate_city, [:city_id, :locale] => :environment do |_t, args|
+  task :generate_city, [ :city_id, :locale ] => :environment do |_t, args|
     city_id = args[:city_id]
     locale = args[:locale] || "bs"
 
@@ -65,7 +65,7 @@ namespace :audio_tours do
   end
 
   desc "Preview audio tour script (without generating audio)"
-  task :preview, [:location_id, :locale] => :environment do |_t, args|
+  task :preview, [ :location_id, :locale ] => :environment do |_t, args|
     location_id = args[:location_id]
     locale = args[:locale] || "bs"
 

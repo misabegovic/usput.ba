@@ -127,7 +127,7 @@ class Curator::PhotoSuggestionsControllerTest < ActionDispatch::IntegrationTest
     assert_difference "PhotoSuggestion.count", 1 do
       post curator_location_photo_suggestions_path(@location), params: {
         photo_suggestion: {
-          photos: [fixture_file_upload("test/fixtures/files/test_image.jpg", "image/jpeg")],
+          photos: [ fixture_file_upload("test/fixtures/files/test_image.jpg", "image/jpeg") ],
           description: "Uploaded photo"
         }
       }

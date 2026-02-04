@@ -228,7 +228,7 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
 
   # Audio commands
   test "parses synthesize audio command" do
-    ast = Platform::DSL::Parser.parse('synthesize audio for location { id: 1 }')
+    ast = Platform::DSL::Parser.parse("synthesize audio for location { id: 1 }")
     assert_equal :audio, ast[:type]
     assert_equal :synthesize, ast[:action]
   end

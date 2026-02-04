@@ -5,7 +5,7 @@ module Curator
     # Content changes approval controller for admin users.
     # Allows admins to approve or reject content change proposals from curators.
     class ContentChangesController < BaseController
-      before_action :set_content_change, only: [:show, :approve, :reject]
+      before_action :set_content_change, only: [ :show, :approve, :reject ]
 
       def index
         @content_changes = ContentChange.includes(:user, :changeable, :reviewed_by).order(created_at: :desc)

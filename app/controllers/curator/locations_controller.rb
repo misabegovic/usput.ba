@@ -18,7 +18,7 @@ module Curator
         return render partial: "curator/locations/location_items", locals: { locations: @locations }, layout: false
       end
 
-      @city_names = Location.where.not(city: [nil, ""]).distinct.pluck(:city).sort
+      @city_names = Location.where.not(city: [ nil, "" ]).distinct.pluck(:city).sort
       @location_categories = LocationCategory.active.ordered
 
       # Show pending proposals for this curator
@@ -46,7 +46,7 @@ module Curator
       end
 
       @locations = @locations.page(params[:page]).per(30)
-      @city_names = Location.where.not(city: [nil, ""]).distinct.pluck(:city).sort
+      @city_names = Location.where.not(city: [ nil, "" ]).distinct.pluck(:city).sort
     end
 
     def show
@@ -188,7 +188,7 @@ module Curator
     end
 
     def load_form_options
-      @city_names = Location.where.not(city: [nil, ""]).distinct.pluck(:city).sort
+      @city_names = Location.where.not(city: [ nil, "" ]).distinct.pluck(:city).sort
       @experience_types = ExperienceType.where(active: true).order(:position)
       @location_categories = LocationCategory.active.ordered
     end

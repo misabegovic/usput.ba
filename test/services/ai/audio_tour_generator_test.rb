@@ -406,7 +406,7 @@ module Ai
       audio_tour_2 = OpenStruct.new(locale: "en", language_name: "English", estimated_duration: "3.5 min")
 
       audio_tours_relation = Object.new
-      audio_tours_relation.define_singleton_method(:with_audio) { [audio_tour_1, audio_tour_2] }
+      audio_tours_relation.define_singleton_method(:with_audio) { [ audio_tour_1, audio_tour_2 ] }
       @location.define_singleton_method(:audio_tours) { audio_tours_relation }
 
       result = @generator.available_languages
@@ -542,17 +542,17 @@ module Ai
 
     test "estimate_duration calculates based on 150 words per minute" do
       # 150 words = 1 minute
-      script_150_words = (["word"] * 150).join(" ")
+      script_150_words = ([ "word" ] * 150).join(" ")
       result = @generator.send(:estimate_duration, script_150_words)
       assert_equal "1.0 min", result
 
       # 300 words = 2 minutes
-      script_300_words = (["word"] * 300).join(" ")
+      script_300_words = ([ "word" ] * 300).join(" ")
       result = @generator.send(:estimate_duration, script_300_words)
       assert_equal "2.0 min", result
 
       # 225 words = 1.5 minutes
-      script_225_words = (["word"] * 225).join(" ")
+      script_225_words = ([ "word" ] * 225).join(" ")
       result = @generator.send(:estimate_duration, script_225_words)
       assert_equal "1.5 min", result
     end
@@ -632,7 +632,7 @@ module Ai
     end
 
     test "clear_voice_cache! clears the cached voices" do
-      Ai::AudioTourGenerator.instance_variable_set(:@cached_voices, ["test"])
+      Ai::AudioTourGenerator.instance_variable_set(:@cached_voices, [ "test" ])
       Ai::AudioTourGenerator.clear_voice_cache!
       assert_nil Ai::AudioTourGenerator.instance_variable_get(:@cached_voices)
     end
@@ -676,8 +676,8 @@ module Ai
         name: name,
         city: mock_city,
         location_type: "place",
-        tags: ["historical", "cultural"],
-        suitable_experiences: ["culture", "history"],
+        tags: [ "historical", "cultural" ],
+        suitable_experiences: [ "culture", "history" ],
         audio_tour_metadata: {}
       )
 

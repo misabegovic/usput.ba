@@ -169,7 +169,7 @@ module Platform
           actions.each_cons(2) do |prev, curr|
             if prev[0] == curr[0] && prev[1] == curr[1]
               current_consecutive += 1
-              max_consecutive = [max_consecutive, current_consecutive].max
+              max_consecutive = [ max_consecutive, current_consecutive ].max
             else
               current_consecutive = 1
             end

@@ -41,8 +41,8 @@ class PlansController < ApplicationController
 
     # Find nearest location with a city name
     nearest_location = Location.with_coordinates
-                               .where.not(city: [nil, ""])
-                               .near([lat, lng], 100, units: :km)
+                               .where.not(city: [ nil, "" ])
+                               .near([ lat, lng ], 100, units: :km)
                                .first
 
     if nearest_location
@@ -71,7 +71,7 @@ class PlansController < ApplicationController
 
     # Get distinct city names from locations
     city_names = Location.where("city ILIKE ?", "%#{query}%")
-                         .where.not(city: [nil, ""])
+                         .where.not(city: [ nil, "" ])
                          .distinct
                          .pluck(:city)
                          .sort
@@ -276,7 +276,7 @@ class PlansController < ApplicationController
         locations = locations.where(budget: :low)
       when "medium"
         locations = locations.where(budget: [ :low, :medium ])
-      # high budget = all locations (no filter)
+        # high budget = all locations (no filter)
       end
     end
 

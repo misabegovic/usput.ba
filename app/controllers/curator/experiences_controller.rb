@@ -18,7 +18,7 @@ module Curator
         return render partial: "curator/experiences/experience_items", locals: { experiences: @experiences }, layout: false
       end
 
-      @city_names = Location.joins(:experiences).where.not(city: [nil, ""]).distinct.pluck(:city).sort
+      @city_names = Location.joins(:experiences).where.not(city: [ nil, "" ]).distinct.pluck(:city).sort
       @experience_categories = ExperienceCategory.all
 
       # Show pending proposals for this curator

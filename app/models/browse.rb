@@ -19,7 +19,7 @@ class Browse < ApplicationRecord
     sanitized_query = sanitize_sql_like(query.to_s.strip)
     # Use plainto_tsquery for simple word matching, or websearch_to_tsquery for advanced search
     # Use sanitize_sql_array to prevent SQL injection in order clause
-    order_sql = sanitize_sql_array(["ts_rank(searchable, plainto_tsquery('simple', ?)) DESC", sanitized_query])
+    order_sql = sanitize_sql_array([ "ts_rank(searchable, plainto_tsquery('simple', ?)) DESC", sanitized_query ])
     where("searchable @@ plainto_tsquery('simple', ?)", sanitized_query)
       .order(Arel.sql(order_sql))
   }

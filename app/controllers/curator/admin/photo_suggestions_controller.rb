@@ -5,7 +5,7 @@ module Curator
     # Photo suggestions approval controller for admin users.
     # Allows admins to approve or reject photo suggestions from curators.
     class PhotoSuggestionsController < BaseController
-      before_action :set_photo_suggestion, only: [:show, :approve, :reject]
+      before_action :set_photo_suggestion, only: [ :show, :approve, :reject ]
 
       def index
         @photo_suggestions = PhotoSuggestion.includes(:user, :location).order(created_at: :desc)

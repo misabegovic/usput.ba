@@ -45,13 +45,13 @@ module Platform
         /blagaj/i => { expected_city: "Blagaj", message: "Blagaj je zaseban grad, ne dio %{city}" },
         /trebinje/i => { expected_city: "Trebinje", message: "Trebinje je zaseban grad" },
         /vrelo\s+bosne/i => { expected_city: "Ilidža", message: "Vrelo Bosne je u Ilidži" },
-        /tunel\s+spasa/i => { expected_city: "Sarajevo", alternatives: ["Ilidža"], message: "Tunel spasa je u Sarajevu/Ilidži" }
+        /tunel\s+spasa/i => { expected_city: "Sarajevo", alternatives: [ "Ilidža" ], message: "Tunel spasa je u Sarajevu/Ilidži" }
       }.freeze
 
       # Gradovi koji postoje u drugim državama
       AMBIGUOUS_CITIES = {
-        "Tuzla" => { other_countries: ["Turkey"], warning: "Tuzla postoji i u Turskoj - provjeri da je BiH lokacija" },
-        "Mostar" => { other_countries: ["Czech Republic"], warning: "Postoje mjesta sa sličnim imenom - provjeri koordinate" }
+        "Tuzla" => { other_countries: [ "Turkey" ], warning: "Tuzla postoji i u Turskoj - provjeri da je BiH lokacija" },
+        "Mostar" => { other_countries: [ "Czech Republic" ], warning: "Postoje mjesta sa sličnim imenom - provjeri koordinate" }
       }.freeze
 
       class << self
@@ -367,7 +367,7 @@ module Platform
             next unless loc1.geocoded? && loc2.geocoded?
 
             distance = loc1.distance_from(loc2.lat, loc2.lng)
-            max_distance = [max_distance, distance].max if distance
+            max_distance = [ max_distance, distance ].max if distance
           end
 
           # Upozori ako su lokacije predaleko (>200km)

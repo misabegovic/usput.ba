@@ -59,9 +59,9 @@ class Curator::LocationsControllerTest < ActionDispatch::IntegrationTest
 
   teardown do
     # Clean up content changes first (due to foreign keys)
-    ContentChange.where(user: [@curator, @other_curator, @admin]).destroy_all
-    ContentChange.where(changeable: [@location, @other_location]).destroy_all
-    CuratorActivity.where(user: [@curator, @other_curator, @admin]).destroy_all
+    ContentChange.where(user: [ @curator, @other_curator, @admin ]).destroy_all
+    ContentChange.where(changeable: [ @location, @other_location ]).destroy_all
+    CuratorActivity.where(user: [ @curator, @other_curator, @admin ]).destroy_all
 
     # Clean up locations
     @location&.destroy
@@ -357,7 +357,7 @@ class Curator::LocationsControllerTest < ActionDispatch::IntegrationTest
         city: "Sarajevo",
         lat: 43.85,
         lng: 18.41,
-        location_category_ids: [@category.id.to_s, ""]
+        location_category_ids: [ @category.id.to_s, "" ]
       }
     }
 
@@ -381,7 +381,7 @@ class Curator::LocationsControllerTest < ActionDispatch::IntegrationTest
     }
 
     proposal = ContentChange.last
-    assert_equal ["historic", "museum", "culture"], proposal.proposed_data["tags"]
+    assert_equal [ "historic", "museum", "culture" ], proposal.proposed_data["tags"]
 
     proposal.destroy
   end
@@ -488,7 +488,7 @@ class Curator::LocationsControllerTest < ActionDispatch::IntegrationTest
     end
 
     activity = CuratorActivity.last
-    assert_includes ["proposal_updated", "proposal_contributed"], activity.action
+    assert_includes [ "proposal_updated", "proposal_contributed" ], activity.action
     assert_equal @curator, activity.user
 
     ContentChange.last.destroy
@@ -682,7 +682,7 @@ class Curator::LocationsControllerTest < ActionDispatch::IntegrationTest
     # - 422 if validation fails
     post curator_locations_path, params: { location: {} }
     # All are acceptable graceful handling (no 500 error)
-    assert_includes [302, 400, 422], response.status
+    assert_includes [ 302, 400, 422 ], response.status
   end
 
   private

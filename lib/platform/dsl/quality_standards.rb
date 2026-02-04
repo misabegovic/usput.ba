@@ -176,27 +176,27 @@ module Platform
           # Count locations with BS description
           locs_with_bs_desc = Translation
             .where(translatable_type: "Location", field_name: "description", locale: "bs")
-            .where.not(value: [nil, ""])
+            .where.not(value: [ nil, "" ])
             .where("LENGTH(value) >= ?", LOCATION_REQUIREMENTS[:min_description_length])
             .distinct.count(:translatable_id)
 
           # Count locations with EN description
           locs_with_en_desc = Translation
             .where(translatable_type: "Location", field_name: "description", locale: "en")
-            .where.not(value: [nil, ""])
+            .where.not(value: [ nil, "" ])
             .distinct.count(:translatable_id)
 
           # Count experiences with BS description
           exps_with_bs_desc = Translation
             .where(translatable_type: "Experience", field_name: "description", locale: "bs")
-            .where.not(value: [nil, ""])
+            .where.not(value: [ nil, "" ])
             .where("LENGTH(value) >= ?", EXPERIENCE_REQUIREMENTS[:min_description_length])
             .distinct.count(:translatable_id)
 
           # Count experiences with EN description
           exps_with_en_desc = Translation
             .where(translatable_type: "Experience", field_name: "description", locale: "en")
-            .where.not(value: [nil, ""])
+            .where.not(value: [ nil, "" ])
             .distinct.count(:translatable_id)
 
           # Count experiences with minimum locations

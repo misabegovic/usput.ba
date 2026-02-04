@@ -5,7 +5,7 @@ module Curator
     # Curator applications approval controller for admin users.
     # Allows admins to approve or reject curator applications.
     class CuratorApplicationsController < BaseController
-      before_action :set_application, only: [:show, :approve, :reject]
+      before_action :set_application, only: [ :show, :approve, :reject ]
 
       def index
         @applications = CuratorApplication.includes(:user, :reviewed_by).recent

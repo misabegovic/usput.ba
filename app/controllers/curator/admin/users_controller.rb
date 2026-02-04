@@ -5,7 +5,7 @@ module Curator
     # User management controller for admin users.
     # Allows admins to view, edit, and manage user accounts.
     class UsersController < BaseController
-      before_action :set_user, only: [:show, :edit, :update, :unblock]
+      before_action :set_user, only: [ :show, :edit, :update, :unblock ]
 
       def index
         @users = User.order(created_at: :desc)

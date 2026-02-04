@@ -99,7 +99,7 @@ class Location < ApplicationRecord
        WHERE lca.location_id = locations.id AND lc.key = ?)", category_key
     )
   }
-  scope :with_contact_info, -> { where.not(phone: [nil, ""]).or(where.not(email: [nil, ""])) }
+  scope :with_contact_info, -> { where.not(phone: [ nil, "" ]).or(where.not(email: [ nil, "" ])) }
 
   # Filter by type/category
   scope :by_type, ->(type) {

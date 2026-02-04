@@ -72,7 +72,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
   test "create merges travel profile from localStorage" do
     travel_profile = {
-      "visited" => [{ "id" => "test-id" }],
+      "visited" => [ { "id" => "test-id" } ],
       "favorites" => []
     }.to_json
 
@@ -120,7 +120,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create returns travel profile data in JSON response" do
-    @user.update!(travel_profile_data: { "visited" => [{ "id" => "test" }] })
+    @user.update!(travel_profile_data: { "visited" => [ { "id" => "test" } ] })
 
     post login_path, params: { username: @user.username, password: "password123" }, as: :json
 

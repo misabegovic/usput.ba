@@ -81,7 +81,7 @@ module Ai
     end
 
     test "classify uses hints when provided" do
-      hints = ["culture", "history"]
+      hints = [ "culture", "history" ]
       stub_ai_response("culture, history, architecture") do
         result = @classifier.classify(@location, dry_run: true, hints: hints)
 
@@ -155,7 +155,7 @@ module Ai
         lng: 18.2622,
         location_type: "place"
       )
-      locations = [@location, location2]
+      locations = [ @location, location2 ]
 
       stub_ai_response("culture, history") do
         result = @classifier.classify_batch(Location.where(id: locations.map(&:id)), dry_run: true)
@@ -175,7 +175,7 @@ module Ai
         lng: 18.2622,
         location_type: "place"
       )
-      locations = [@location, location2]
+      locations = [ @location, location2 ]
 
       stub_ai_response("culture, nature") do
         result = @classifier.classify_batch(Location.where(id: locations.map(&:id)), dry_run: true)
@@ -193,12 +193,12 @@ module Ai
         lng: 18.2622,
         location_type: "place"
       )
-      locations = [@location, location2]
+      locations = [ @location, location2 ]
 
       call_count = 0
       @classifier.stub :ai_classify_location, ->(*) {
         call_count += 1
-        call_count == 1 ? ["culture"] : raise("AI Error")
+        call_count == 1 ? [ "culture" ] : raise("AI Error")
       } do
         result = @classifier.classify_batch(Location.where(id: locations.map(&:id)), dry_run: true)
 
@@ -266,13 +266,13 @@ module Ai
         lng: 18.0,
         location_type: "place"
       )
-      locations = [@location, location2, location3]
+      locations = [ @location, location2, location3 ]
 
       call_count = 0
       @classifier.stub :classify, ->(loc, dry_run:) {
         call_count += 1
         if call_count == 1
-          { success: true, location_id: loc.id, types: ["culture"] }
+          { success: true, location_id: loc.id, types: [ "culture" ] }
         else
           { success: false, location_id: loc.id, types: [], error: "Error #{call_count}" }
         end
@@ -404,7 +404,7 @@ module Ai
     end
 
     test "build_classification_prompt includes hints when provided" do
-      hints = ["culture", "history"]
+      hints = [ "culture", "history" ]
       prompt = @classifier.send(:build_classification_prompt, @location, hints)
 
       assert_includes prompt, "Initial suggestions: culture, history"
@@ -417,7 +417,7 @@ module Ai
     end
 
     test "build_classification_prompt includes descriptions when available" do
-      @location.stub :translate, "Test description", [:description, :bs] do
+      @location.stub :translate, "Test description", [ :description, :bs ] do
         prompt = @classifier.send(:build_classification_prompt, @location, nil)
         assert_includes prompt, "Description (BS): Test description"
       end
@@ -489,7 +489,7 @@ module Ai
     end
 
     test "classify_batch logs final summary" do
-      locations = [@location]
+      locations = [ @location ]
 
       stub_ai_response("culture") do
         result = @classifier.classify_batch(Location.where(id: locations.map(&:id)), dry_run: true)
@@ -501,7 +501,7 @@ module Ai
     end
 
     test "classify uses hints in log message when provided" do
-      hints = ["culture", "history"]
+      hints = [ "culture", "history" ]
 
       stub_ai_response("culture, history, architecture") do
         result = @classifier.classify(@location, dry_run: true, hints: hints)

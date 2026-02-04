@@ -80,7 +80,7 @@ class NewDesignController < ApplicationController
     build_browse_queries(search_types)
 
     # Load city names for filter dropdown
-    @city_names = Location.where.not(city: [nil, ""])
+    @city_names = Location.where.not(city: [ nil, "" ])
                           .distinct
                           .pluck(:city)
                           .sort
@@ -177,7 +177,7 @@ class NewDesignController < ApplicationController
 
     # Preserve the order from Browse search (by relevance)
     # Use sanitized SQL to prevent SQL injection (matching_ids are integers from DB)
-    scope = scope.order(Arel.sql(ActiveRecord::Base.sanitize_sql_array(["array_position(ARRAY[?]::bigint[], locations.id)", matching_ids]))) if matching_ids.any?
+    scope = scope.order(Arel.sql(ActiveRecord::Base.sanitize_sql_array([ "array_position(ARRAY[?]::bigint[], locations.id)", matching_ids ]))) if matching_ids.any?
     scope = apply_location_sort(scope) unless @sort == "relevance"
 
     scope.page(@locations_page).per(PER_PAGE)
@@ -203,7 +203,7 @@ class NewDesignController < ApplicationController
 
     # Preserve the order from Browse search (by relevance)
     # Use sanitized SQL to prevent SQL injection (matching_ids are integers from DB)
-    scope = scope.order(Arel.sql(ActiveRecord::Base.sanitize_sql_array(["array_position(ARRAY[?]::bigint[], experiences.id)", matching_ids]))) if matching_ids.any?
+    scope = scope.order(Arel.sql(ActiveRecord::Base.sanitize_sql_array([ "array_position(ARRAY[?]::bigint[], experiences.id)", matching_ids ]))) if matching_ids.any?
     scope = apply_experience_sort(scope) unless @sort == "relevance"
 
     scope.page(@experiences_page).per(PER_PAGE)
@@ -228,7 +228,7 @@ class NewDesignController < ApplicationController
 
     # Preserve the order from Browse search (by relevance)
     # Use sanitized SQL to prevent SQL injection (matching_ids are integers from DB)
-    scope = scope.order(Arel.sql(ActiveRecord::Base.sanitize_sql_array(["array_position(ARRAY[?]::bigint[], plans.id)", matching_ids]))) if matching_ids.any?
+    scope = scope.order(Arel.sql(ActiveRecord::Base.sanitize_sql_array([ "array_position(ARRAY[?]::bigint[], plans.id)", matching_ids ]))) if matching_ids.any?
     scope = apply_plan_sort(scope) unless @sort == "relevance"
 
     scope.page(@plans_page).per(PER_PAGE)
@@ -373,7 +373,7 @@ class NewDesignController < ApplicationController
       if @query.present?
         # Use sanitized SQL to prevent SQL injection
         sanitized_query = ActiveRecord::Base.sanitize_sql_like(@query.downcase)
-        scope.order(Arel.sql(ActiveRecord::Base.sanitize_sql_array(["CASE WHEN LOWER(locations.name) LIKE ? THEN 0 ELSE 1 END", "#{sanitized_query}%"])), :name)
+        scope.order(Arel.sql(ActiveRecord::Base.sanitize_sql_array([ "CASE WHEN LOWER(locations.name) LIKE ? THEN 0 ELSE 1 END", "#{sanitized_query}%" ])), :name)
       else
         scope.order(average_rating: :desc, reviews_count: :desc)
       end
@@ -394,7 +394,7 @@ class NewDesignController < ApplicationController
       if @query.present?
         # Use sanitized SQL to prevent SQL injection
         sanitized_query = ActiveRecord::Base.sanitize_sql_like(@query.downcase)
-        scope.order(Arel.sql(ActiveRecord::Base.sanitize_sql_array(["CASE WHEN LOWER(experiences.title) LIKE ? THEN 0 ELSE 1 END", "#{sanitized_query}%"])), :title)
+        scope.order(Arel.sql(ActiveRecord::Base.sanitize_sql_array([ "CASE WHEN LOWER(experiences.title) LIKE ? THEN 0 ELSE 1 END", "#{sanitized_query}%" ])), :title)
       else
         scope.order(average_rating: :desc, reviews_count: :desc)
       end

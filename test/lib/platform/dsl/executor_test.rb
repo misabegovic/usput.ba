@@ -182,7 +182,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
   # Aggregate tests
   test "aggregate sum" do
     result = Platform::DSL::Executor.send(:apply_aggregate, Review.all, {
-      args: ["sum", :rating],
+      args: [ "sum", :rating ],
       group_by: nil
     })
 
@@ -192,7 +192,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
   test "aggregate avg" do
     result = Platform::DSL::Executor.send(:apply_aggregate, Review.all, {
-      args: ["avg", :rating],
+      args: [ "avg", :rating ],
       group_by: nil
     })
 
@@ -201,7 +201,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
   test "aggregate avg with group_by" do
     result = Platform::DSL::Executor.send(:apply_aggregate, Location.all, {
-      args: ["count"],
+      args: [ "count" ],
       group_by: :city
     })
 
@@ -211,7 +211,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
   test "raises error for unknown aggregate function" do
     assert_raises(Platform::DSL::ExecutionError) do
       Platform::DSL::Executor.send(:apply_aggregate, Location.all, {
-        args: ["unknown_func"],
+        args: [ "unknown_func" ],
         group_by: nil
       })
     end
@@ -298,7 +298,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
   # Apply filter edge cases
   test "apply_filter with array value" do
-    scope = Platform::DSL::Executor.send(:apply_filter, Location.all, :city, ["Sarajevo", "Mostar"])
+    scope = Platform::DSL::Executor.send(:apply_filter, Location.all, :city, [ "Sarajevo", "Mostar" ])
 
     assert scope.to_sql.include?("IN")
   end
@@ -395,7 +395,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
   end
 
   test "check_storage_health handles errors" do
-    ActiveStorage::Blob.stub(:service, ->{ raise "Storage error" }) do
+    ActiveStorage::Blob.stub(:service, -> { raise "Storage error" }) do
       result = Platform::DSL::Executor.send(:check_storage_health)
 
       assert_equal "error", result[:status]
@@ -434,7 +434,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
   # Apply operation edge cases - test with valid operations only
   test "apply_operation with order operation" do
-    result = Platform::DSL::Executor.send(:apply_operation, Location.all, { name: :order, args: [:name, :asc] })
+    result = Platform::DSL::Executor.send(:apply_operation, Location.all, { name: :order, args: [ :name, :asc ] })
 
     # Should return an ActiveRecord relation
     assert result.is_a?(ActiveRecord::Relation)
@@ -677,7 +677,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
   test "get_city_coordinates falls back for unknown city" do
     # Mock geoapify service
     mock_service = Object.new
-    mock_service.define_singleton_method(:text_search) { |**_| [{ lat: 43.0, lng: 18.0 }] }
+    mock_service.define_singleton_method(:text_search) { |**_| [ { lat: 43.0, lng: 18.0 } ] }
 
     Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       result = Platform::DSL::Executor.send(:get_city_coordinates, "UnknownTestCity123")
@@ -969,47 +969,47 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
   # Apply operation - aggregate with sum
   test "apply_aggregate with sum function" do
-    result = Platform::DSL::Executor.send(:apply_aggregate, Location.all, { name: :aggregate, args: ["sum", :id] })
+    result = Platform::DSL::Executor.send(:apply_aggregate, Location.all, { name: :aggregate, args: [ "sum", :id ] })
 
     # Should return a sum value
     assert result.is_a?(Numeric) || result.is_a?(BigDecimal)
   end
 
   test "apply_aggregate with avg function" do
-    result = Platform::DSL::Executor.send(:apply_aggregate, Location.all, { name: :aggregate, args: ["avg", :id] })
+    result = Platform::DSL::Executor.send(:apply_aggregate, Location.all, { name: :aggregate, args: [ "avg", :id ] })
 
     # Should return an average value
     assert result.is_a?(Numeric) || result.is_a?(BigDecimal) || result.nil?
   end
 
   test "apply_aggregate with sum and group_by" do
-    result = Platform::DSL::Executor.send(:apply_aggregate, Location.all, { name: :aggregate, args: ["sum", :id], group_by: :city })
+    result = Platform::DSL::Executor.send(:apply_aggregate, Location.all, { name: :aggregate, args: [ "sum", :id ], group_by: :city })
 
     assert result.is_a?(Hash)
   end
 
   test "apply_aggregate with avg and group_by" do
-    result = Platform::DSL::Executor.send(:apply_aggregate, Location.all, { name: :aggregate, args: ["avg", :id], group_by: :city })
+    result = Platform::DSL::Executor.send(:apply_aggregate, Location.all, { name: :aggregate, args: [ "avg", :id ], group_by: :city })
 
     assert result.is_a?(Hash)
   end
 
   test "apply_aggregate raises for unknown function" do
     assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL::Executor.send(:apply_aggregate, Location.all, { name: :aggregate, args: ["unknown_func"] })
+      Platform::DSL::Executor.send(:apply_aggregate, Location.all, { name: :aggregate, args: [ "unknown_func" ] })
     end
   end
 
   # Apply operation - select
   test "apply_operation with select" do
-    result = Platform::DSL::Executor.send(:apply_operation, Location.all, { name: :select, args: [:name, :city] })
+    result = Platform::DSL::Executor.send(:apply_operation, Location.all, { name: :select, args: [ :name, :city ] })
 
     assert result.is_a?(ActiveRecord::Relation)
   end
 
   # Apply operation - limit with argument
   test "apply_operation limit with specific number" do
-    result = Platform::DSL::Executor.send(:apply_operation, Location.all, { name: :limit, args: [5] })
+    result = Platform::DSL::Executor.send(:apply_operation, Location.all, { name: :limit, args: [ 5 ] })
 
     assert result.is_a?(Array)
     assert result.length <= 5
@@ -1049,7 +1049,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
   # External geocode operation
   test "geocode_address returns hash for valid address" do
     mock_service = Object.new
-    mock_service.define_singleton_method(:text_search) { |**_| [{ name: "Test", lat: 43.85, lng: 18.41, primary_type: "poi" }] }
+    mock_service.define_singleton_method(:text_search) { |**_| [ { name: "Test", lat: 43.85, lng: 18.41, primary_type: "poi" } ] }
 
     Platform::DSL::Executors::External.stub(:geoapify_service, mock_service) do
       Ai::RateLimiter.stub(:with_delay, ->(**_opts, &block) { block.call }) do
@@ -1120,7 +1120,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
   # Test execute_schema_query with unknown operation
   test "execute_schema_query raises for unknown operation" do
-    ast = { operations: [{ name: :unknown_schema_op }] }
+    ast = { operations: [ { name: :unknown_schema_op } ] }
 
     assert_raises(Platform::DSL::ExecutionError) do
       Platform::DSL::Executor.send(:execute_schema_query, ast)
@@ -1239,7 +1239,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
   # Test apply_operation with where
   test "apply_operation with where" do
-    result = Platform::DSL::Executor.send(:apply_operation, Location.all, { name: :where, args: ["id > 0"] })
+    result = Platform::DSL::Executor.send(:apply_operation, Location.all, { name: :where, args: [ "id > 0" ] })
 
     assert result.is_a?(ActiveRecord::Relation) || result.is_a?(Array)
   end
@@ -1426,7 +1426,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     Location.create!(name: "High Rated", city: "Sarajevo", lat: 43.85, lng: 18.41, average_rating: 4.5)
     Location.create!(name: "Low Rated", city: "Sarajevo", lat: 43.86, lng: 18.42, average_rating: 2.5)
 
-    operation = { name: :where, args: ["average_rating > 4"] }
+    operation = { name: :where, args: [ "average_rating > 4" ] }
     result = Platform::DSL::Executor.send(:apply_operation, Location.all, operation)
 
     assert result.is_a?(ActiveRecord::Relation)
@@ -1434,7 +1434,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
   # Test apply_operation with select
   test "apply_operation handles select operation" do
-    operation = { name: :select, args: [:id, :name] }
+    operation = { name: :select, args: [ :id, :name ] }
     result = Platform::DSL::Executor.send(:apply_operation, Location.all, operation)
 
     assert result.is_a?(ActiveRecord::Relation)
@@ -1442,7 +1442,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
   # Test apply_aggregate without group_by for count
   test "apply_aggregate handles count without group_by" do
-    operation = { name: :aggregate, args: ["count"], group_by: nil }
+    operation = { name: :aggregate, args: [ "count" ], group_by: nil }
     result = Platform::DSL::Executor.send(:apply_aggregate, Location.all, operation)
 
     assert result.is_a?(Integer)
@@ -1450,7 +1450,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
   # Test apply_aggregate with sum
   test "apply_aggregate handles sum with field" do
-    operation = { name: :aggregate, args: ["sum", "reviews_count"], group_by: nil }
+    operation = { name: :aggregate, args: [ "sum", "reviews_count" ], group_by: nil }
     result = Platform::DSL::Executor.send(:apply_aggregate, Location.all, operation)
 
     assert result.is_a?(Numeric)
@@ -1458,7 +1458,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
   # Test apply_aggregate with avg
   test "apply_aggregate handles avg with field" do
-    operation = { name: :aggregate, args: ["avg", "average_rating"], group_by: nil }
+    operation = { name: :aggregate, args: [ "avg", "average_rating" ], group_by: nil }
     result = Platform::DSL::Executor.send(:apply_aggregate, Location.all, operation)
 
     assert result.is_a?(Numeric) || result.nil?
@@ -1501,7 +1501,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
   # Test schema describe with no table raises error
   test "execute_schema_query describe without table raises error" do
-    ast = { operations: [{ name: :describe, args: nil }] }
+    ast = { operations: [ { name: :describe, args: nil } ] }
 
     assert_raises(Platform::DSL::ExecutionError) do
       Platform::DSL::Executor.send(:execute_schema_query, ast)
@@ -1510,7 +1510,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
   # Test apply_operation sample with explicit limit
   test "apply_operation sample uses provided limit" do
-    operation = { name: :sample, args: [3] }
+    operation = { name: :sample, args: [ 3 ] }
     result = Platform::DSL::Executor.send(:apply_operation, Location.all, operation)
 
     assert result.is_a?(Array)
@@ -1519,7 +1519,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
   # Test apply_operation sort with field and direction
   test "apply_operation sort with field and direction" do
-    operation = { name: :sort, args: [:name, :desc] }
+    operation = { name: :sort, args: [ :name, :desc ] }
     result = Platform::DSL::Executor.send(:apply_operation, Location.all, operation)
 
     assert result.is_a?(ActiveRecord::Relation)

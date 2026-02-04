@@ -321,7 +321,7 @@ class Curator::ExperiencesControllerTest < ActionDispatch::IntegrationTest
   test "create includes location_uuids in proposal data" do
     login_as(@curator)
 
-    params = valid_experience_params.merge(location_uuids: [@location.uuid])
+    params = valid_experience_params.merge(location_uuids: [ @location.uuid ])
     post curator_experiences_path, params: { experience: params }
 
     proposal = ContentChange.last
@@ -429,7 +429,7 @@ class Curator::ExperiencesControllerTest < ActionDispatch::IntegrationTest
     end
 
     activity = CuratorActivity.last
-    assert_includes ["proposal_updated", "proposal_contributed"], activity.action
+    assert_includes [ "proposal_updated", "proposal_contributed" ], activity.action
     assert_equal @curator, activity.user
 
     activity.destroy
@@ -580,11 +580,11 @@ class Curator::ExperiencesControllerTest < ActionDispatch::IntegrationTest
   test "create filters blank location_uuids" do
     login_as(@curator)
 
-    params = valid_experience_params.merge(location_uuids: ["", @location.uuid, ""])
+    params = valid_experience_params.merge(location_uuids: [ "", @location.uuid, "" ])
     post curator_experiences_path, params: { experience: params }
 
     proposal = ContentChange.last
-    assert_equal [@location.uuid], proposal.proposed_data["location_uuids"]
+    assert_equal [ @location.uuid ], proposal.proposed_data["location_uuids"]
 
     proposal.destroy
   end
@@ -592,11 +592,11 @@ class Curator::ExperiencesControllerTest < ActionDispatch::IntegrationTest
   test "create handles seasons array" do
     login_as(@curator)
 
-    params = valid_experience_params.merge(seasons: ["spring", "summer"])
+    params = valid_experience_params.merge(seasons: [ "spring", "summer" ])
     post curator_experiences_path, params: { experience: params }
 
     proposal = ContentChange.last
-    assert_equal ["spring", "summer"], proposal.proposed_data["seasons"]
+    assert_equal [ "spring", "summer" ], proposal.proposed_data["seasons"]
 
     proposal.destroy
   end

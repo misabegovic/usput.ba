@@ -49,8 +49,8 @@ class GeoapifyServiceTest < ActiveSupport::TestCase
 
   test "search_nearby filters out excluded places by category" do
     mock_response = mock_places_response([
-      { name: "Good Restaurant", place_id: "place_1", lat: 43.856, lng: 18.413, categories: ["catering.restaurant"] },
-      { name: "Retirement Home", place_id: "place_2", lat: 43.857, lng: 18.414, categories: ["service.social_facility"] }
+      { name: "Good Restaurant", place_id: "place_1", lat: 43.856, lng: 18.413, categories: [ "catering.restaurant" ] },
+      { name: "Retirement Home", place_id: "place_2", lat: 43.857, lng: 18.414, categories: [ "service.social_facility" ] }
     ])
 
     service = build_service_with_stubbed_connection(mock_response)
@@ -108,7 +108,7 @@ class GeoapifyServiceTest < ActiveSupport::TestCase
     service = build_service_with_stubbed_connection(mock_response)
 
     # Using Google-style types that should be converted
-    results = service.search_nearby(lat: 43.856, lng: 18.413, types: ["museum"])
+    results = service.search_nearby(lat: 43.856, lng: 18.413, types: [ "museum" ])
 
     assert_kind_of Array, results
   end
@@ -208,7 +208,7 @@ class GeoapifyServiceTest < ActiveSupport::TestCase
             "place_id" => "detail_123",
             "name" => "Stari Most",
             "formatted" => "Stari Most, Mostar",
-            "categories" => ["tourism.sights.bridge"],
+            "categories" => [ "tourism.sights.bridge" ],
             "rating" => 4.8,
             "rating_count" => 1500,
             "website" => "https://example.com",
@@ -219,7 +219,7 @@ class GeoapifyServiceTest < ActiveSupport::TestCase
           },
           "geometry" => {
             "type" => "Point",
-            "coordinates" => [17.815, 43.337]
+            "coordinates" => [ 17.815, 43.337 ]
           }
         }
       ]
@@ -254,11 +254,11 @@ class GeoapifyServiceTest < ActiveSupport::TestCase
           "properties" => {
             "place_id" => "polygon_123",
             "name" => "Vrelo Bosne",
-            "categories" => ["natural.water.spring"]
+            "categories" => [ "natural.water.spring" ]
           },
           "geometry" => {
             "type" => "Polygon",
-            "coordinates" => [[[18.26, 43.82], [18.27, 43.82], [18.27, 43.83], [18.26, 43.83], [18.26, 43.82]]]
+            "coordinates" => [ [ [ 18.26, 43.82 ], [ 18.27, 43.82 ], [ 18.27, 43.83 ], [ 18.26, 43.83 ], [ 18.26, 43.82 ] ] ]
           }
         }
       ]
@@ -473,13 +473,13 @@ class GeoapifyServiceTest < ActiveSupport::TestCase
     result = service.send(:parse_opening_hours, "Mo-Fr 08:00-18:00")
 
     assert_nil result[:open_now]
-    assert_equal ["Mo-Fr 08:00-18:00"], result[:weekday_text]
+    assert_equal [ "Mo-Fr 08:00-18:00" ], result[:weekday_text]
   end
 
   test "parse_opening_hours handles array input" do
     service = build_service_with_api_key
 
-    hours_array = ["Monday: 9:00-17:00", "Tuesday: 9:00-17:00"]
+    hours_array = [ "Monday: 9:00-17:00", "Tuesday: 9:00-17:00" ]
     result = service.send(:parse_opening_hours, hours_array)
 
     assert_equal hours_array, result[:weekday_text]
@@ -604,7 +604,7 @@ class GeoapifyServiceTest < ActiveSupport::TestCase
           "place_id" => place[:place_id],
           "name" => place[:name],
           "formatted" => place[:address] || "#{place[:name]}, Bosnia",
-          "categories" => place[:categories] || ["tourism.attraction"],
+          "categories" => place[:categories] || [ "tourism.attraction" ],
           "rating" => place[:rating],
           "rating_count" => place[:rating_count],
           "website" => place[:website],
@@ -613,7 +613,7 @@ class GeoapifyServiceTest < ActiveSupport::TestCase
         },
         "geometry" => {
           "type" => "Point",
-          "coordinates" => [place[:lng], place[:lat]]
+          "coordinates" => [ place[:lng], place[:lat] ]
         }
       }
     end

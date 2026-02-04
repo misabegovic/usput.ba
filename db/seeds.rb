@@ -255,9 +255,9 @@ locations_data = [
     lat: 43.8598,
     lng: 18.4313,
     budget: :low,
-    categories: ["place"],
-    tags: ["historic", "shopping", "culture", "ottoman", "old-town"],
-    suitable_experiences: ["culture", "history", "food"],
+    categories: [ "place" ],
+    tags: [ "historic", "shopping", "culture", "ottoman", "old-town" ],
+    suitable_experiences: [ "culture", "history", "food" ],
     video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
   },
   {
@@ -267,9 +267,9 @@ locations_data = [
     lat: 43.8598,
     lng: 18.4312,
     budget: :low,
-    categories: ["place"],
-    tags: ["landmark", "historic", "photography", "ottoman"],
-    suitable_experiences: ["culture", "history"]
+    categories: [ "place" ],
+    tags: [ "landmark", "historic", "photography", "ottoman" ],
+    suitable_experiences: [ "culture", "history" ]
   },
   {
     name: "Gazi Husrev-beg Mosque",
@@ -278,9 +278,9 @@ locations_data = [
     lat: 43.8597,
     lng: 18.4291,
     budget: :low,
-    categories: ["place"],
-    tags: ["mosque", "historic", "architecture", "ottoman", "religious"],
-    suitable_experiences: ["religious", "history", "culture", "art"],
+    categories: [ "place" ],
+    tags: [ "mosque", "historic", "architecture", "ottoman", "religious" ],
+    suitable_experiences: [ "religious", "history", "culture", "art" ],
     video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
   },
   {
@@ -290,9 +290,9 @@ locations_data = [
     lat: 43.8575,
     lng: 18.4287,
     budget: :low,
-    categories: ["place"],
-    tags: ["historic", "bridge", "wwi", "landmark"],
-    suitable_experiences: ["history", "culture"]
+    categories: [ "place" ],
+    tags: [ "historic", "bridge", "wwi", "landmark" ],
+    suitable_experiences: [ "history", "culture" ]
   },
   {
     name: "Sarajevo City Hall (Vijećnica)",
@@ -301,9 +301,9 @@ locations_data = [
     lat: 43.8582,
     lng: 18.4343,
     budget: :low,
-    categories: ["place"],
-    tags: ["architecture", "historic", "library", "landmark", "austro-hungarian"],
-    suitable_experiences: ["culture", "history", "art"],
+    categories: [ "place" ],
+    tags: [ "architecture", "historic", "library", "landmark", "austro-hungarian" ],
+    suitable_experiences: [ "culture", "history", "art" ],
     video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
   },
   {
@@ -313,9 +313,9 @@ locations_data = [
     lat: 43.8577,
     lng: 18.4213,
     budget: :low,
-    categories: ["place"],
-    tags: ["cathedral", "church", "architecture", "religious"],
-    suitable_experiences: ["religious", "history", "culture", "art"]
+    categories: [ "place" ],
+    tags: [ "cathedral", "church", "architecture", "religious" ],
+    suitable_experiences: [ "religious", "history", "culture", "art" ]
   },
   {
     name: "Old Orthodox Church",
@@ -324,9 +324,9 @@ locations_data = [
     lat: 43.8588,
     lng: 18.4273,
     budget: :low,
-    categories: ["place"],
-    tags: ["church", "orthodox", "museum", "historic"],
-    suitable_experiences: ["religious", "history", "art"]
+    categories: [ "place" ],
+    tags: [ "church", "orthodox", "museum", "historic" ],
+    suitable_experiences: [ "religious", "history", "art" ]
   },
   {
     name: "Jewish Museum Sarajevo",
@@ -335,9 +335,9 @@ locations_data = [
     lat: 43.8590,
     lng: 18.4270,
     budget: :low,
-    categories: ["place"],
-    tags: ["museum", "jewish", "history", "synagogue"],
-    suitable_experiences: ["history", "culture", "religious"]
+    categories: [ "place" ],
+    tags: [ "museum", "jewish", "history", "synagogue" ],
+    suitable_experiences: [ "history", "culture", "religious" ]
   },
 
   # Food & Drink
@@ -347,9 +347,9 @@ locations_data = [
     lat: 43.8596,
     lng: 18.4314,
     budget: :low,
-    categories: ["restaurant"],
-    tags: ["cevapi", "traditional", "bosnian-food", "legendary"],
-    suitable_experiences: ["food", "meat"]
+    categories: [ "restaurant" ],
+    tags: [ "cevapi", "traditional", "bosnian-food", "legendary" ],
+    suitable_experiences: [ "food", "meat" ]
   },
   {
     name: "Inat Kuća (Spite House)",
@@ -358,9 +358,9 @@ locations_data = [
     lat: 43.8580,
     lng: 18.4350,
     budget: :medium,
-    categories: ["restaurant"],
-    tags: ["traditional", "bosnian-food", "historic", "spite-house"],
-    suitable_experiences: ["food", "history", "culture"]
+    categories: [ "restaurant" ],
+    tags: [ "traditional", "bosnian-food", "historic", "spite-house" ],
+    suitable_experiences: [ "food", "history", "culture" ]
   },
   {
     name: "Morica Han",
@@ -369,9 +369,9 @@ locations_data = [
     lat: 43.8600,
     lng: 18.4303,
     budget: :medium,
-    categories: ["restaurant"],
-    tags: ["traditional", "han", "historic", "coffee"],
-    suitable_experiences: ["food", "history", "culture"]
+    categories: [ "restaurant" ],
+    tags: [ "traditional", "han", "historic", "coffee" ],
+    suitable_experiences: [ "food", "history", "culture" ]
   },
   {
     name: "Kafana Tito",
@@ -379,9 +379,9 @@ locations_data = [
     lat: 43.8555,
     lng: 18.4180,
     budget: :medium,
-    categories: ["restaurant"],
-    tags: ["kafana", "live-music", "nightlife", "traditional"],
-    suitable_experiences: ["food", "nightlife", "culture"]
+    categories: [ "restaurant" ],
+    tags: [ "kafana", "live-music", "nightlife", "traditional" ],
+    suitable_experiences: [ "food", "nightlife", "culture" ]
   },
   {
     name: "Buregdžinica Sač",
@@ -389,9 +389,9 @@ locations_data = [
     lat: 43.8595,
     lng: 18.4300,
     budget: :low,
-    categories: ["restaurant"],
-    tags: ["burek", "breakfast", "traditional", "cheap-eats"],
-    suitable_experiences: ["food"]
+    categories: [ "restaurant" ],
+    tags: [ "burek", "breakfast", "traditional", "cheap-eats" ],
+    suitable_experiences: [ "food" ]
   },
   {
     name: "Zlatna Ribica",
@@ -399,9 +399,9 @@ locations_data = [
     lat: 43.8558,
     lng: 18.4200,
     budget: :medium,
-    categories: ["restaurant"],
-    tags: ["bar", "cocktails", "unique", "nightlife"],
-    suitable_experiences: ["nightlife", "culture"]
+    categories: [ "restaurant" ],
+    tags: [ "bar", "cocktails", "unique", "nightlife" ],
+    suitable_experiences: [ "nightlife", "culture" ]
   },
 
   # Nature & Parks
@@ -411,9 +411,9 @@ locations_data = [
     lat: 43.8190,
     lng: 18.2680,
     budget: :low,
-    categories: ["place"],
-    tags: ["nature", "park", "spring", "walking", "family-friendly"],
-    suitable_experiences: ["nature", "wellness"],
+    categories: [ "place" ],
+    tags: [ "nature", "park", "spring", "walking", "family-friendly" ],
+    suitable_experiences: [ "nature", "wellness" ],
     video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
   },
   {
@@ -423,9 +423,9 @@ locations_data = [
     lat: 43.8392,
     lng: 18.4508,
     budget: :low,
-    categories: ["place"],
-    tags: ["mountain", "hiking", "olympics", "bobsled", "viewpoint"],
-    suitable_experiences: ["nature", "sport", "mountains", "history"],
+    categories: [ "place" ],
+    tags: [ "mountain", "hiking", "olympics", "bobsled", "viewpoint" ],
+    suitable_experiences: [ "nature", "sport", "mountains", "history" ],
     video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
   },
   {
@@ -435,9 +435,9 @@ locations_data = [
     lat: 43.8628,
     lng: 18.4381,
     budget: :low,
-    categories: ["place"],
-    tags: ["viewpoint", "fortress", "sunset", "photography", "historic"],
-    suitable_experiences: ["nature", "history", "culture"]
+    categories: [ "place" ],
+    tags: [ "viewpoint", "fortress", "sunset", "photography", "historic" ],
+    suitable_experiences: [ "nature", "history", "culture" ]
   },
   {
     name: "White Fortress (Bijela Tabija)",
@@ -446,9 +446,9 @@ locations_data = [
     lat: 43.8640,
     lng: 18.4350,
     budget: :low,
-    categories: ["place"],
-    tags: ["viewpoint", "fortress", "historic", "photography"],
-    suitable_experiences: ["nature", "history", "culture"]
+    categories: [ "place" ],
+    tags: [ "viewpoint", "fortress", "historic", "photography" ],
+    suitable_experiences: [ "nature", "history", "culture" ]
   },
 
   # Museums
@@ -458,9 +458,9 @@ locations_data = [
     lat: 43.8554,
     lng: 18.4111,
     budget: :low,
-    categories: ["place"],
-    tags: ["museum", "war", "moving", "history", "siege"],
-    suitable_experiences: ["history", "culture", "art"]
+    categories: [ "place" ],
+    tags: [ "museum", "war", "moving", "history", "siege" ],
+    suitable_experiences: [ "history", "culture", "art" ]
   },
   {
     name: "Historical Museum of BiH",
@@ -468,9 +468,9 @@ locations_data = [
     lat: 43.8500,
     lng: 18.3930,
     budget: :low,
-    categories: ["place"],
-    tags: ["museum", "history", "national"],
-    suitable_experiences: ["history", "culture"]
+    categories: [ "place" ],
+    tags: [ "museum", "history", "national" ],
+    suitable_experiences: [ "history", "culture" ]
   },
   {
     name: "Tunnel of Hope (Tunel Spasa)",
@@ -479,9 +479,9 @@ locations_data = [
     lat: 43.8181,
     lng: 18.3331,
     budget: :medium,
-    categories: ["place"],
-    tags: ["museum", "war", "siege", "history", "tunnel"],
-    suitable_experiences: ["history", "culture"],
+    categories: [ "place" ],
+    tags: [ "museum", "war", "siege", "history", "tunnel" ],
+    suitable_experiences: [ "history", "culture" ],
     video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
   },
   {
@@ -491,9 +491,9 @@ locations_data = [
     lat: 43.8510,
     lng: 18.3990,
     budget: :low,
-    categories: ["place"],
-    tags: ["museum", "archaeology", "haggadah", "national"],
-    suitable_experiences: ["history", "culture", "art"]
+    categories: [ "place" ],
+    tags: [ "museum", "archaeology", "haggadah", "national" ],
+    suitable_experiences: [ "history", "culture", "art" ]
   },
 
   # Sports & Winter
@@ -503,9 +503,9 @@ locations_data = [
     lat: 43.7347,
     lng: 18.5681,
     budget: :high,
-    categories: ["place"],
-    tags: ["skiing", "winter-sports", "olympics", "mountain"],
-    suitable_experiences: ["sport", "mountains", "nature"]
+    categories: [ "place" ],
+    tags: [ "skiing", "winter-sports", "olympics", "mountain" ],
+    suitable_experiences: [ "sport", "mountains", "nature" ]
   },
   {
     name: "Bjelašnica Ski Center",
@@ -513,9 +513,9 @@ locations_data = [
     lat: 43.7167,
     lng: 18.2667,
     budget: :high,
-    categories: ["place"],
-    tags: ["skiing", "winter-sports", "olympics", "mountain"],
-    suitable_experiences: ["sport", "mountains", "nature"]
+    categories: [ "place" ],
+    tags: [ "skiing", "winter-sports", "olympics", "mountain" ],
+    suitable_experiences: [ "sport", "mountains", "nature" ]
   },
   {
     name: "Olympic Complex Zetra",
@@ -524,9 +524,9 @@ locations_data = [
     lat: 43.8450,
     lng: 18.3870,
     budget: :medium,
-    categories: ["place"],
-    tags: ["sports", "olympics", "ice-skating", "concerts"],
-    suitable_experiences: ["sport", "culture"]
+    categories: [ "place" ],
+    tags: [ "sports", "olympics", "ice-skating", "concerts" ],
+    suitable_experiences: [ "sport", "culture" ]
   }
 ]
 
@@ -570,70 +570,70 @@ experiences_data = [
     description: "Explore the rich Ottoman heritage of Sarajevo, from the iconic Baščaršija bazaar to magnificent mosques and hidden hans. Discover 500 years of history in this immersive walking tour.",
     estimated_duration: 180,
     category_key: "historical_walk",
-    location_names: ["Baščaršija", "Sebilj Fountain", "Gazi Husrev-beg Mosque", "Morica Han"]
+    location_names: [ "Baščaršija", "Sebilj Fountain", "Gazi Husrev-beg Mosque", "Morica Han" ]
   },
   {
     title: "Sarajevo Food Adventure",
     description: "Taste your way through Sarajevo's culinary scene, from legendary ćevapi to sweet baklava. Experience the flavors that make Bosnian cuisine unique.",
     estimated_duration: 240,
     category_key: "foodie_tour",
-    location_names: ["Ćevabdžinica Željo", "Buregdžinica Sač", "Morica Han", "Inat Kuća (Spite House)"]
+    location_names: [ "Ćevabdžinica Željo", "Buregdžinica Sač", "Morica Han", "Inat Kuća (Spite House)" ]
   },
   {
     title: "Sarajevo's Siege History",
     description: "A moving journey through Sarajevo's recent history, visiting key sites from the 1992-1996 siege that shaped the city's resilience.",
     estimated_duration: 240,
     category_key: "historical_walk",
-    location_names: ["Tunnel of Hope (Tunel Spasa)", "War Childhood Museum", "Historical Museum of BiH", "Latin Bridge"]
+    location_names: [ "Tunnel of Hope (Tunel Spasa)", "War Childhood Museum", "Historical Museum of BiH", "Latin Bridge" ]
   },
   {
     title: "Religious Harmony Tour",
     description: "Discover how Sarajevo earned its nickname 'Jerusalem of Europe' by visiting mosques, churches, and a synagogue all within walking distance.",
     estimated_duration: 180,
     category_key: "religious_heritage",
-    location_names: ["Gazi Husrev-beg Mosque", "Sacred Heart Cathedral", "Old Orthodox Church", "Jewish Museum Sarajevo"]
+    location_names: [ "Gazi Husrev-beg Mosque", "Sacred Heart Cathedral", "Old Orthodox Church", "Jewish Museum Sarajevo" ]
   },
   {
     title: "Sarajevo Panorama Hike",
     description: "Hike to Sarajevo's best viewpoints for stunning panoramas of the city nestled in its mountain valley. Visit Ottoman fortresses and catch an unforgettable sunset.",
     estimated_duration: 300,
     category_key: "nature_adventure",
-    location_names: ["Yellow Fortress (Žuta Tabija)", "White Fortress (Bijela Tabija)", "Trebević Mountain"]
+    location_names: [ "Yellow Fortress (Žuta Tabija)", "White Fortress (Bijela Tabija)", "Trebević Mountain" ]
   },
   {
     title: "Olympic Winter Legacy",
     description: "Explore the venues and legacy of the 1984 Winter Olympics, from the iconic Zetra arena to mountain ski resorts.",
     estimated_duration: 360,
     category_key: "mountain_escape",
-    location_names: ["Olympic Complex Zetra", "Trebević Mountain", "Jahorina Olympic Center"]
+    location_names: [ "Olympic Complex Zetra", "Trebević Mountain", "Jahorina Olympic Center" ]
   },
   {
     title: "Sarajevo Art & Culture",
     description: "Immerse yourself in Sarajevo's vibrant cultural scene, from historic museums to architectural masterpieces.",
     estimated_duration: 240,
     category_key: "art_exploration",
-    location_names: ["Sarajevo City Hall (Vijećnica)", "National Museum of BiH", "War Childhood Museum"]
+    location_names: [ "Sarajevo City Hall (Vijećnica)", "National Museum of BiH", "War Childhood Museum" ]
   },
   {
     title: "Nature Escape to Vrelo Bosne",
     description: "Escape the city to the serene springs of the Bosna River. Enjoy a peaceful walk through lush parkland with crystal-clear waters.",
     estimated_duration: 180,
     category_key: "nature_adventure",
-    location_names: ["Vrelo Bosne"]
+    location_names: [ "Vrelo Bosne" ]
   },
   {
     title: "Sarajevo Nightlife Experience",
     description: "Experience Sarajevo after dark, from quirky cocktail bars to traditional kafanas with live music.",
     estimated_duration: 240,
     category_key: "local_life",
-    location_names: ["Zlatna Ribica", "Kafana Tito"]
+    location_names: [ "Zlatna Ribica", "Kafana Tito" ]
   },
   {
     title: "Complete Sarajevo Heritage Tour",
     description: "A comprehensive tour covering Sarajevo's most significant historical and cultural landmarks, spanning Ottoman, Austro-Hungarian, and modern eras.",
     estimated_duration: 360,
     category_key: "cultural_heritage",
-    location_names: ["Baščaršija", "Latin Bridge", "Sarajevo City Hall (Vijećnica)", "Gazi Husrev-beg Mosque", "Sacred Heart Cathedral"]
+    location_names: [ "Baščaršija", "Latin Bridge", "Sarajevo City Hall (Vijećnica)", "Gazi Husrev-beg Mosque", "Sacred Heart Cathedral" ]
   }
 ]
 
@@ -668,11 +668,11 @@ plans_data = [
     start_date: Date.today + 14,
     end_date: Date.today + 16,
     notes: "Kompletno iskustvo Sarajeva - od historije i kulture do hrane i prirode.",
-    preferences: { "budget" => "medium", "daily_hours" => 8, "interests" => ["history", "culture", "food"] },
+    preferences: { "budget" => "medium", "daily_hours" => 8, "interests" => [ "history", "culture", "food" ] },
     days: {
-      1 => ["Ottoman Sarajevo Walking Tour", "Sarajevo Food Adventure"],
-      2 => ["Religious Harmony Tour", "Sarajevo Art & Culture"],
-      3 => ["Sarajevo Panorama Hike", "Nature Escape to Vrelo Bosne"]
+      1 => [ "Ottoman Sarajevo Walking Tour", "Sarajevo Food Adventure" ],
+      2 => [ "Religious Harmony Tour", "Sarajevo Art & Culture" ],
+      3 => [ "Sarajevo Panorama Hike", "Nature Escape to Vrelo Bosne" ]
     }
   },
   {
@@ -682,10 +682,10 @@ plans_data = [
     start_date: Date.today + 7,
     end_date: Date.today + 8,
     notes: "Kratki vikend getaway sa najboljim od Sarajeva.",
-    preferences: { "budget" => "low", "daily_hours" => 6, "interests" => ["culture", "food"] },
+    preferences: { "budget" => "low", "daily_hours" => 6, "interests" => [ "culture", "food" ] },
     days: {
-      1 => ["Complete Sarajevo Heritage Tour"],
-      2 => ["Sarajevo Food Adventure", "Sarajevo Nightlife Experience"]
+      1 => [ "Complete Sarajevo Heritage Tour" ],
+      2 => [ "Sarajevo Food Adventure", "Sarajevo Nightlife Experience" ]
     }
   },
   {
@@ -695,10 +695,10 @@ plans_data = [
     start_date: Date.today + 21,
     end_date: Date.today + 22,
     notes: "Za ljubitelje historije - od Osmanlija do modernog doba.",
-    preferences: { "budget" => "low", "daily_hours" => 7, "interests" => ["history"] },
+    preferences: { "budget" => "low", "daily_hours" => 7, "interests" => [ "history" ] },
     days: {
-      1 => ["Ottoman Sarajevo Walking Tour", "Religious Harmony Tour"],
-      2 => ["Sarajevo's Siege History"]
+      1 => [ "Ottoman Sarajevo Walking Tour", "Religious Harmony Tour" ],
+      2 => [ "Sarajevo's Siege History" ]
     }
   },
   {
@@ -708,12 +708,12 @@ plans_data = [
     start_date: Date.today + 30,
     end_date: Date.today + 33,
     notes: "Aktivni odmor sa planinarenjem, skijanjem i prirodom.",
-    preferences: { "budget" => "high", "daily_hours" => 10, "meat_lover" => true, "interests" => ["sport", "nature", "mountains"] },
+    preferences: { "budget" => "high", "daily_hours" => 10, "meat_lover" => true, "interests" => [ "sport", "nature", "mountains" ] },
     days: {
-      1 => ["Sarajevo Panorama Hike"],
-      2 => ["Olympic Winter Legacy"],
-      3 => ["Nature Escape to Vrelo Bosne", "Sarajevo Food Adventure"],
-      4 => ["Complete Sarajevo Heritage Tour"]
+      1 => [ "Sarajevo Panorama Hike" ],
+      2 => [ "Olympic Winter Legacy" ],
+      3 => [ "Nature Escape to Vrelo Bosne", "Sarajevo Food Adventure" ],
+      4 => [ "Complete Sarajevo Heritage Tour" ]
     }
   }
 ]
@@ -880,7 +880,7 @@ author_names = [
 # Add reviews to locations
 Location.all.each do |location|
   rand(3..8).times do
-    rating = [5, 5, 5, 4, 4, 4, 4, 3].sample
+    rating = [ 5, 5, 5, 4, 4, 4, 4, 3 ].sample
     comment = review_comments[rating].sample
 
     Review.create!(
@@ -896,7 +896,7 @@ end
 # Add reviews to experiences
 Experience.all.each do |experience|
   rand(2..5).times do
-    rating = [5, 5, 4, 4, 4, 3].sample
+    rating = [ 5, 5, 4, 4, 4, 3 ].sample
     comment = review_comments[rating].sample
 
     Review.create!(
@@ -912,7 +912,7 @@ end
 # Add reviews to plans
 Plan.all.each do |plan|
   rand(2..5).times do
-    rating = [5, 5, 4, 4, 4, 3].sample
+    rating = [ 5, 5, 4, 4, 4, 3 ].sample
     comment = review_comments[rating].sample
 
     Review.create!(

@@ -18,7 +18,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   end
 
   test "execute_infrastructure returns queue_status" do
-    ast = { filters: {}, operations: [{ name: :queue_status }] }
+    ast = { filters: {}, operations: [ { name: :queue_status } ] }
 
     result = Platform::DSL::Executors::Infrastructure.execute_infrastructure(ast)
 
@@ -26,7 +26,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   end
 
   test "execute_infrastructure returns health" do
-    ast = { filters: {}, operations: [{ name: :health }] }
+    ast = { filters: {}, operations: [ { name: :health } ] }
 
     result = Platform::DSL::Executors::Infrastructure.execute_infrastructure(ast)
 
@@ -36,7 +36,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   end
 
   test "execute_infrastructure returns processes" do
-    ast = { filters: {}, operations: [{ name: :processes }] }
+    ast = { filters: {}, operations: [ { name: :processes } ] }
 
     result = Platform::DSL::Executors::Infrastructure.execute_infrastructure(ast)
 
@@ -48,7 +48,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   end
 
   test "execute_infrastructure returns storage" do
-    ast = { filters: {}, operations: [{ name: :storage }] }
+    ast = { filters: {}, operations: [ { name: :storage } ] }
 
     result = Platform::DSL::Executors::Infrastructure.execute_infrastructure(ast)
 
@@ -56,7 +56,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   end
 
   test "execute_infrastructure returns database" do
-    ast = { filters: {}, operations: [{ name: :database }] }
+    ast = { filters: {}, operations: [ { name: :database } ] }
 
     result = Platform::DSL::Executors::Infrastructure.execute_infrastructure(ast)
 
@@ -65,7 +65,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   end
 
   test "execute_infrastructure returns cache" do
-    ast = { filters: {}, operations: [{ name: :cache }] }
+    ast = { filters: {}, operations: [ { name: :cache } ] }
 
     result = Platform::DSL::Executors::Infrastructure.execute_infrastructure(ast)
 
@@ -75,7 +75,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
 
 
   test "execute_logs shows errors" do
-    ast = { filters: {}, operations: [{ name: :errors }] }
+    ast = { filters: {}, operations: [ { name: :errors } ] }
 
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
@@ -84,7 +84,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   end
 
   test "execute_logs shows errors with time filter" do
-    ast = { filters: { last: "24h" }, operations: [{ name: :errors }] }
+    ast = { filters: { last: "24h" }, operations: [ { name: :errors } ] }
 
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
@@ -93,7 +93,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   end
 
   test "execute_logs shows slow_queries" do
-    ast = { filters: {}, operations: [{ name: :slow_queries }] }
+    ast = { filters: {}, operations: [ { name: :slow_queries } ] }
 
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
@@ -101,7 +101,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   end
 
   test "execute_logs shows slow_queries with threshold" do
-    ast = { filters: { threshold: 500 }, operations: [{ name: :slow_queries }] }
+    ast = { filters: { threshold: 500 }, operations: [ { name: :slow_queries } ] }
 
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
@@ -110,7 +110,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   end
 
   test "execute_logs shows recent logs" do
-    ast = { filters: {}, operations: [{ name: :recent }] }
+    ast = { filters: {}, operations: [ { name: :recent } ] }
 
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
@@ -119,7 +119,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   end
 
   test "execute_logs shows recent logs with limit" do
-    ast = { filters: { limit: 10 }, operations: [{ name: :recent }] }
+    ast = { filters: { limit: 10 }, operations: [ { name: :recent } ] }
 
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
@@ -127,7 +127,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   end
 
   test "execute_logs shows audit logs" do
-    ast = { filters: {}, operations: [{ name: :audit }] }
+    ast = { filters: {}, operations: [ { name: :audit } ] }
 
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
@@ -138,7 +138,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   test "execute_logs shows audit logs with filters" do
     ast = {
       filters: { action: "create", record_type: "Location" },
-      operations: [{ name: :audit }]
+      operations: [ { name: :audit } ]
     }
 
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
@@ -148,7 +148,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   end
 
   test "execute_logs shows dsl logs" do
-    ast = { filters: {}, operations: [{ name: :dsl }] }
+    ast = { filters: {}, operations: [ { name: :dsl } ] }
 
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
@@ -157,7 +157,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   end
 
   test "execute_logs shows dsl logs with time filter" do
-    ast = { filters: { last: "7d" }, operations: [{ name: :dsl }] }
+    ast = { filters: { last: "7d" }, operations: [ { name: :dsl } ] }
 
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
@@ -313,7 +313,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   # Additional coverage tests for uncovered branches
 
   test "show_errors returns errors without audit logs" do
-    ast = { filters: { last: "24h" }, operations: [{ name: :errors }] }
+    ast = { filters: { last: "24h" }, operations: [ { name: :errors } ] }
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
     assert_equal :show_errors, result[:action]
@@ -324,7 +324,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   test "show_audit_logs with triggered_by filter" do
     ast = {
       filters: { triggered_by: "special_trigger" },
-      operations: [{ name: :audit }]
+      operations: [ { name: :audit } ]
     }
 
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
@@ -336,7 +336,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   test "show_audit_logs with last time filter" do
     ast = {
       filters: { last: "1h" },
-      operations: [{ name: :audit }]
+      operations: [ { name: :audit } ]
     }
 
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
@@ -482,7 +482,7 @@ class Platform::DSL::Executors::InfrastructureTest < ActiveSupport::TestCase
   # Additional branch coverage tests
 
   test "recent_logs returns message about removed functionality" do
-    ast = { filters: {}, operations: [{ name: :recent }] }
+    ast = { filters: {}, operations: [ { name: :recent } ] }
     result = Platform::DSL::Executors::Infrastructure.execute_logs(ast)
 
     assert_equal :recent_logs, result[:action]

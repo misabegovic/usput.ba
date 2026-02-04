@@ -156,7 +156,7 @@ module Platform
 
             # Build changes hash
             changes = data.keys.each_with_object({}) do |key, hash|
-              hash[key.to_s] = [old_values[key], record.send(key)]
+              hash[key.to_s] = [ old_values[key], record.send(key) ]
             end
 
             {
@@ -207,11 +207,11 @@ module Platform
 
           def validate_mutation_data!(table, data, action)
             if is_location_table?(table) && action == :create
-              required = [:name, :city]
+              required = [ :name, :city ]
               missing = required.select { |f| data[f].blank? }
               raise ExecutionError, "Nedostaju obavezna polja: #{missing.join(', ')}" if missing.any?
             elsif is_experience_table?(table) && action == :create
-              required = [:title]
+              required = [ :title ]
               missing = required.select { |f| data[f].blank? }
               raise ExecutionError, "Nedostaju obavezna polja: #{missing.join(', ')}" if missing.any?
             end
@@ -294,8 +294,8 @@ module Platform
                   city_lower = city.downcase
 
                   # Check if the address contains the city name (with some flexibility for diacritics)
-                  city_normalized = city_lower.gsub(/[čćžšđ]/, 'c' => 'c', 'ć' => 'c', 'ž' => 'z', 'š' => 's', 'đ' => 'd')
-                  address_normalized = address_lower.gsub(/[čćžšđ]/, 'c' => 'c', 'ć' => 'c', 'ž' => 'z', 'š' => 's', 'đ' => 'd')
+                  city_normalized = city_lower.gsub(/[čćžšđ]/, "c" => "c", "ć" => "c", "ž" => "z", "š" => "s", "đ" => "d")
+                  address_normalized = address_lower.gsub(/[čćžšđ]/, "c" => "c", "ć" => "c", "ž" => "z", "š" => "s", "đ" => "d")
 
                   unless address_normalized.include?(city_normalized) || address_lower.include?(city_lower)
                     Rails.logger.warn "[DSL::Content] Geoapify result for '#{name}' is not in expected city '#{city}'. Address: #{best_match[:address]}. Skipping coordinates."
@@ -322,14 +322,14 @@ module Platform
               all_types = []
               all_types += Array(place_details[:types]) if place_details.present?
               all_types += Array(best_match[:types])
-              all_types += [best_match[:primary_type]] if best_match[:primary_type].present?
+              all_types += [ best_match[:primary_type] ] if best_match[:primary_type].present?
 
               if all_types.present?
                 # Clean up tags - remove dots, underscores, get meaningful parts
                 geoapify_tags = all_types.flat_map do |t|
                   parts = t.to_s.split(".")
                   # Include both full category and last part
-                  [parts.last, parts[-2]].compact.map { |p| p.gsub("_", " ") }
+                  [ parts.last, parts[-2] ].compact.map { |p| p.gsub("_", " ") }
                 end.compact.uniq.reject(&:blank?)
 
                 existing_tags = Array(data[:tags])
@@ -463,7 +463,7 @@ module Platform
             translatable_fields = if record.class.respond_to?(:translatable_fields)
               record.class.translatable_fields
             else
-              [:name, :description].select { |f| record.respond_to?(f) }
+              [ :name, :description ].select { |f| record.respond_to?(f) }
             end
 
             translations_created = []
@@ -587,7 +587,7 @@ module Platform
 
             # Use LLM estimate as a sanity check (minimum)
             llm_minutes = (llm_estimate || 0) * 60
-            [calculated_duration, llm_minutes, 60].max # At least 1 hour
+            [ calculated_duration, llm_minutes, 60 ].max # At least 1 hour
           end
 
           # Infer experience seasons from location seasons
@@ -815,7 +815,7 @@ module Platform
               total_locations: total_locations,
               estimated_characters: total_chars,
               estimated_cost_usd: estimated_cost.round(2),
-              cost_per_location: (estimated_cost / [total_locations, 1].max).round(2),
+              cost_per_location: (estimated_cost / [ total_locations, 1 ].max).round(2),
               by_city: by_city,
               notes: [
                 "Procjena bazirana na prosječnom skriptu od #{chars_per_tour} karaktera",

@@ -150,7 +150,7 @@ class PlanTest < ActiveSupport::TestCase
     plan.add_experience(exp2, day_number: 1)
 
     positions = plan.plan_experiences.where(day_number: 1).pluck(:position)
-    assert_equal [1, 2], positions.sort
+    assert_equal [ 1, 2 ], positions.sort
 
     plan.destroy
     exp2.destroy

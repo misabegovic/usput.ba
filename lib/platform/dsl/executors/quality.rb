@@ -87,7 +87,7 @@ module Platform
             # Find locations without BS description
             ids_with_bs_desc = Translation
               .where(translatable_type: "Location", field_name: "description", locale: "bs")
-              .where.not(value: [nil, ""])
+              .where.not(value: [ nil, "" ])
               .where("LENGTH(value) >= ?", QualityStandards::LOCATION_REQUIREMENTS[:min_description_length])
               .pluck(:translatable_id)
 
@@ -110,7 +110,7 @@ module Platform
             # Find experiences without BS description or without enough locations
             ids_with_bs_desc = Translation
               .where(translatable_type: "Experience", field_name: "description", locale: "bs")
-              .where.not(value: [nil, ""])
+              .where.not(value: [ nil, "" ])
               .where("LENGTH(value) >= ?", QualityStandards::EXPERIENCE_REQUIREMENTS[:min_description_length])
               .pluck(:translatable_id)
 
@@ -225,7 +225,7 @@ module Platform
           end
 
           def format_scan_results(results)
-            lines = ["=== SUSPICIOUS PATTERNS SCAN ===", ""]
+            lines = [ "=== SUSPICIOUS PATTERNS SCAN ===", "" ]
 
             summary = results[:summary]
             lines << "SUMMARY:"
@@ -268,7 +268,7 @@ module Platform
           end
 
           def format_duplicates_results(name, duplicates)
-            lines = ["=== DUPLICATE SEARCH: #{name} ===", ""]
+            lines = [ "=== DUPLICATE SEARCH: #{name} ===", "" ]
 
             if duplicates.empty?
               lines << "✅ No duplicates found"

@@ -7,7 +7,7 @@ class PlanExperience < ApplicationRecord
   validates :day_number, presence: true, numericality: { greater_than: 0 }
   validates :position, presence: true, numericality: { greater_than_or_equal_to: 0 }
   # Allow same experience on different days (unique per plan+experience+day via DB index)
-  validates :experience_id, uniqueness: { scope: [:plan_id, :day_number], message: "already exists on this day" }
+  validates :experience_id, uniqueness: { scope: [ :plan_id, :day_number ], message: "already exists on this day" }
 
   # Scopes
   scope :ordered, -> { order(day_number: :asc, position: :asc) }
@@ -68,5 +68,4 @@ class PlanExperience < ApplicationRecord
   def next_position_for_day(day_num)
     (plan&.plan_experiences&.where(day_number: day_num)&.maximum(:position) || 0) + 1
   end
-
 end

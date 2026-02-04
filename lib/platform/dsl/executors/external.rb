@@ -304,7 +304,7 @@ module Platform
               action: :read_file,
               path: file_path,
               total_lines: lines.size,
-              showing: "#{start_line + 1}-#{[end_line, lines.size].min}",
+              showing: "#{start_line + 1}-#{[ end_line, lines.size ].min}",
               content: selected_lines&.join || "",
               file_type: File.extname(file_path).delete(".")
             }

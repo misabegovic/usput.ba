@@ -65,28 +65,28 @@ module Platform
       id = request["id"]
 
       result = case method
-               when "initialize"
+      when "initialize"
                  handle_initialize(params)
-               when "initialized"
+      when "initialized"
                  nil # Notification, no response needed
-               when "tools/list"
+      when "tools/list"
                  handle_tools_list
-               when "tools/call"
+      when "tools/call"
                  handle_tools_call(params)
-               when "resources/list"
+      when "resources/list"
                  handle_resources_list
-               when "resources/read"
+      when "resources/read"
                  handle_resources_read(params)
-               when "prompts/list"
+      when "prompts/list"
                  handle_prompts_list
-               when "prompts/get"
+      when "prompts/get"
                  handle_prompts_get(params)
-               when "shutdown"
+      when "shutdown"
                  @running = false
                  {}
-               else
+      else
                  { error: { code: -32601, message: "Method not found: #{method}" } }
-               end
+      end
 
       return nil unless id # Notifications don't get responses
 
@@ -126,7 +126,7 @@ module Platform
                   description: "The DSL query to execute. Examples: 'locations { city: \"Mostar\" } | count', 'schema | stats', 'infrastructure | health'"
                 }
               },
-              required: ["query"]
+              required: [ "query" ]
             }
           },
           {
@@ -145,7 +145,7 @@ module Platform
               properties: {
                 status: {
                   type: "string",
-                  enum: ["pending", "in_progress", "applied", "rejected"],
+                  enum: [ "pending", "in_progress", "applied", "rejected" ],
                   description: "Filter by prompt status"
                 }
               }
@@ -163,7 +163,7 @@ module Platform
                 },
                 severity: {
                   type: "string",
-                  enum: ["critical", "high", "medium", "low"],
+                  enum: [ "critical", "high", "medium", "low" ],
                   description: "Severity of the issue"
                 },
                 file: {
@@ -171,7 +171,7 @@ module Platform
                   description: "Target file path"
                 }
               },
-              required: ["description"]
+              required: [ "description" ]
             }
           },
           {
@@ -185,7 +185,7 @@ module Platform
                   description: "Description of the feature to add"
                 }
               },
-              required: ["description"]
+              required: [ "description" ]
             }
           }
         ]
@@ -310,7 +310,7 @@ module Platform
     # Tool implementations
 
     def execute_dsl(query)
-      return { content: [{ type: "text", text: "Error: query is required" }], isError: true } if query.blank?
+      return { content: [ { type: "text", text: "Error: query is required" } ], isError: true } if query.blank?
 
       begin
         result = Platform::DSL.execute(query)
@@ -320,11 +320,11 @@ module Platform
           ]
         }
       rescue Platform::DSL::ParseError => e
-        { content: [{ type: "text", text: "Parse Error: #{e.message}" }], isError: true }
+        { content: [ { type: "text", text: "Parse Error: #{e.message}" } ], isError: true }
       rescue Platform::DSL::ExecutionError => e
-        { content: [{ type: "text", text: "Execution Error: #{e.message}" }], isError: true }
+        { content: [ { type: "text", text: "Execution Error: #{e.message}" } ], isError: true }
       rescue => e
-        { content: [{ type: "text", text: "Error: #{e.message}" }], isError: true }
+        { content: [ { type: "text", text: "Error: #{e.message}" } ], isError: true }
       end
     end
 
@@ -336,7 +336,7 @@ module Platform
         ]
       }
     rescue => e
-      { content: [{ type: "text", text: "Error: #{e.message}" }], isError: true }
+      { content: [ { type: "text", text: "Error: #{e.message}" } ], isError: true }
     end
 
     def list_prompts(status)
@@ -348,7 +348,7 @@ module Platform
         ]
       }
     rescue => e
-      { content: [{ type: "text", text: "Error: #{e.message}" }], isError: true }
+      { content: [ { type: "text", text: "Error: #{e.message}" } ], isError: true }
     end
 
     def prepare_fix(arguments)
@@ -367,7 +367,7 @@ module Platform
         ]
       }
     rescue => e
-      { content: [{ type: "text", text: "Error: #{e.message}" }], isError: true }
+      { content: [ { type: "text", text: "Error: #{e.message}" } ], isError: true }
     end
 
     def prepare_feature(arguments)
@@ -380,7 +380,7 @@ module Platform
         ]
       }
     rescue => e
-      { content: [{ type: "text", text: "Error: #{e.message}" }], isError: true }
+      { content: [ { type: "text", text: "Error: #{e.message}" } ], isError: true }
     end
 
     # Resource readers

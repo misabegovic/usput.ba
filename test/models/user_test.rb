@@ -53,7 +53,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "username only allows alphanumeric and underscore" do
-    invalid_usernames = ["user@name", "user name", "user-name", "user.name"]
+    invalid_usernames = [ "user@name", "user name", "user-name", "user.name" ]
     invalid_usernames.each do |username|
       user = User.new(@valid_params.merge(username: username))
       assert_not user.valid?, "#{username} should be invalid"
@@ -161,7 +161,7 @@ class UserTest < ActiveSupport::TestCase
     user = User.create!(@valid_params)
 
     user.merge_travel_profile({
-      "visited" => [{ "id" => "loc1" }],
+      "visited" => [ { "id" => "loc1" } ],
       "favorites" => []
     })
 

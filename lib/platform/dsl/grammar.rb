@@ -21,8 +21,8 @@ module Platform
 
       # Basic elements
       rule(:newline)    { match('[\n\r]') }
-      rule(:digit)      { match('[0-9]') }
-      rule(:letter)     { match('[a-zA-Z_]') }
+      rule(:digit)      { match("[0-9]") }
+      rule(:letter)     { match("[a-zA-Z_]") }
       rule(:identifier) { letter >> (letter | digit).repeat }
 
       # Literals
@@ -35,7 +35,7 @@ module Platform
       end
 
       rule(:string) do
-        str('"') >> (str('\\') >> any | str('"').absent? >> any).repeat.as(:string) >> str('"')
+        str('"') >> (str("\\") >> any | str('"').absent? >> any).repeat.as(:string) >> str('"')
       end
 
       rule(:boolean) do

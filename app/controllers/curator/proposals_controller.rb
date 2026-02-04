@@ -2,7 +2,7 @@
 
 module Curator
   class ProposalsController < BaseController
-    before_action :set_proposal, only: [:show, :add_review]
+    before_action :set_proposal, only: [ :show, :add_review ]
 
     def index
       @proposals = ContentChange.pending_review

@@ -35,9 +35,9 @@ class LocationCategory < ApplicationRecord
     return existing if existing
 
     create(
-      key: key.to_s.downcase.gsub(/\s+/, '_'),
+      key: key.to_s.downcase.gsub(/\s+/, "_"),
       name: name || key.to_s.titleize,
-      icon: icon || 'circle',
+      icon: icon || "circle",
       active: true,
       position: maximum(:position).to_i + 1
     )

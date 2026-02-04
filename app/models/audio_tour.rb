@@ -74,7 +74,7 @@ class AudioTour < ApplicationRecord
 
   # Get locale options for select dropdown
   def self.locale_options
-    SUPPORTED_LOCALES.map { |code, name| [name, code.to_s] }
+    SUPPORTED_LOCALES.map { |code, name| [ name, code.to_s ] }
   end
 
   # Get locales that are available for a specific location

@@ -25,7 +25,7 @@ class TravelProfilesControllerTest < ActionDispatch::IntegrationTest
       lng: 18.4131,
       location_type: :place,
       budget: :medium,
-      tags: ["culture", "history"]
+      tags: [ "culture", "history" ]
     )
 
     @experience = Experience.create!(
@@ -168,7 +168,7 @@ class TravelProfilesControllerTest < ActionDispatch::IntegrationTest
   test "update merges travel profile data" do
     login_as(@user)
     new_data = {
-      "visited" => [{ "id" => "test-id", "type" => "location" }],
+      "visited" => [ { "id" => "test-id", "type" => "location" } ],
       "favorites" => []
     }.to_json
 
@@ -243,8 +243,8 @@ class TravelProfilesControllerTest < ActionDispatch::IntegrationTest
   test "sync merges incoming profile data" do
     login_as(@user)
     sync_data = {
-      "visited" => [{ "id" => "synced-id", "type" => "location" }],
-      "favorites" => [{ "id" => "fav-id" }]
+      "visited" => [ { "id" => "synced-id", "type" => "location" } ],
+      "favorites" => [ { "id" => "fav-id" } ]
     }.to_json
 
     post sync_travel_profile_path, params: { travel_profile_data: sync_data }, as: :json
@@ -514,7 +514,7 @@ class TravelProfilesControllerTest < ActionDispatch::IntegrationTest
 
   test "update handles empty visited array" do
     login_as(@user)
-    @user.update!(travel_profile_data: { "visited" => [{ "id" => "old" }] })
+    @user.update!(travel_profile_data: { "visited" => [ { "id" => "old" } ] })
 
     patch travel_profile_path, params: {
       travel_profile_data: { "visited" => [] }.to_json
@@ -528,14 +528,14 @@ class TravelProfilesControllerTest < ActionDispatch::IntegrationTest
   test "sync preserves existing data not in incoming data" do
     login_as(@user)
     @user.update!(travel_profile_data: {
-      "visited" => [{ "id" => "existing" }],
-      "favorites" => [{ "id" => "fav" }],
+      "visited" => [ { "id" => "existing" } ],
+      "favorites" => [ { "id" => "fav" } ],
       "stats" => { "totalVisits" => 5 }
     })
 
     # Sync only visited, favorites should be overwritten (client authoritative)
     post sync_travel_profile_path, params: {
-      travel_profile_data: { "visited" => [{ "id" => "new" }] }.to_json
+      travel_profile_data: { "visited" => [ { "id" => "new" } ] }.to_json
     }, as: :json
 
     assert_response :success

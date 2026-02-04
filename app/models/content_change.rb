@@ -184,7 +184,7 @@ class ContentChange < ApplicationRecord
 
   # All users involved (proposer + contributors)
   def all_contributors
-    ([user] + contributors).uniq
+    ([ user ] + contributors).uniq
   end
 
   private

@@ -8,7 +8,7 @@ class PhotoSuggestion < ApplicationRecord
   belongs_to :reviewed_by, class_name: "User", optional: true
 
   has_many_attached :photos do |attachable|
-    attachable.variant :thumb, resize_to_limit: [200, 200]
+    attachable.variant :thumb, resize_to_limit: [ 200, 200 ]
   end
 
   enum :status, { pending: 0, approved: 1, rejected: 2 }
@@ -30,7 +30,7 @@ class PhotoSuggestion < ApplicationRecord
       end
 
       # Only images
-      acceptable_types = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+      acceptable_types = [ "image/jpeg", "image/png", "image/gif", "image/webp" ]
       unless acceptable_types.include?(photo.blob.content_type)
         errors.add(:photos, "must be JPEG, PNG, GIF, or WebP")
         break
@@ -114,7 +114,7 @@ class PhotoSuggestion < ApplicationRecord
     if photos.attached?
       photos.map { |photo| Rails.application.routes.url_helpers.rails_blob_path(photo, only_path: true) }
     elsif photo_url.present?
-      [photo_url]
+      [ photo_url ]
     else
       []
     end
@@ -141,11 +141,11 @@ class PhotoSuggestion < ApplicationRecord
   # Uses content type to determine extension, not the URL path
   def generate_safe_filename(content_type)
     extension = case content_type&.downcase
-                when /png/ then ".png"
-                when /gif/ then ".gif"
-                when /webp/ then ".webp"
-                else ".jpg"
-                end
+    when /png/ then ".png"
+    when /gif/ then ".gif"
+    when /webp/ then ".webp"
+    else ".jpg"
+    end
 
     "photo_#{id}_#{SecureRandom.hex(4)}#{extension}"
   end

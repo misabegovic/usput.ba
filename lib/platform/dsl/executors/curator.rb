@@ -514,9 +514,9 @@ module Platform
 
             curator = if filters[:id]
                         User.find_by(id: filters[:id])
-                      else
+            else
                         User.find_by(username: filters[:username])
-                      end
+            end
 
             raise ExecutionError, "Kurator nije pronađen" unless curator
             raise ExecutionError, "Korisnik nije kurator" unless curator.curator? || curator.admin?

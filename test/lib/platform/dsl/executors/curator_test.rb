@@ -90,7 +90,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_proposals_query shows single proposal" do
     ast = {
       filters: { id: @content_change.id },
-      operations: [{ name: :show }]
+      operations: [ { name: :show } ]
     }
 
     result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
@@ -103,7 +103,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_proposals_query raises for non-existent proposal" do
     ast = {
       filters: { id: 999999 },
-      operations: [{ name: :show }]
+      operations: [ { name: :show } ]
     }
 
     error = assert_raises(Platform::DSL::ExecutionError) do
@@ -116,7 +116,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_proposals_query counts proposals" do
     ast = {
       filters: {},
-      operations: [{ name: :count }]
+      operations: [ { name: :count } ]
     }
 
     result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
@@ -146,7 +146,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_applications_query shows single application" do
     ast = {
       filters: { id: @curator_application.id },
-      operations: [{ name: :show }]
+      operations: [ { name: :show } ]
     }
 
     result = Platform::DSL::Executors::Curator.execute_applications_query(ast)
@@ -159,7 +159,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_applications_query raises for non-existent application" do
     ast = {
       filters: { id: 999999 },
-      operations: [{ name: :show }]
+      operations: [ { name: :show } ]
     }
 
     error = assert_raises(Platform::DSL::ExecutionError) do
@@ -172,7 +172,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_applications_query counts applications" do
     ast = {
       filters: {},
-      operations: [{ name: :count }]
+      operations: [ { name: :count } ]
     }
 
     result = Platform::DSL::Executors::Curator.execute_applications_query(ast)
@@ -361,7 +361,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_curators_query shows single curator" do
     ast = {
       filters: { id: @curator.id },
-      operations: [{ name: :show }]
+      operations: [ { name: :show } ]
     }
 
     result = Platform::DSL::Executors::Curator.execute_curators_query(ast)
@@ -374,7 +374,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_curators_query shows curator by username" do
     ast = {
       filters: { username: @curator.username },
-      operations: [{ name: :show }]
+      operations: [ { name: :show } ]
     }
 
     result = Platform::DSL::Executors::Curator.execute_curators_query(ast)
@@ -386,7 +386,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_curators_query raises for non-existent curator" do
     ast = {
       filters: { id: 999999 },
-      operations: [{ name: :show }]
+      operations: [ { name: :show } ]
     }
 
     error = assert_raises(Platform::DSL::ExecutionError) do
@@ -399,7 +399,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_curators_query raises for non-curator user" do
     ast = {
       filters: { id: @user.id },
-      operations: [{ name: :show }]
+      operations: [ { name: :show } ]
     }
 
     error = assert_raises(Platform::DSL::ExecutionError) do
@@ -412,7 +412,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_curators_query shows curator activity" do
     ast = {
       filters: { id: @curator.id },
-      operations: [{ name: :activity }]
+      operations: [ { name: :activity } ]
     }
 
     result = Platform::DSL::Executors::Curator.execute_curators_query(ast)
@@ -426,7 +426,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_curators_query checks spam for single curator" do
     ast = {
       filters: { id: @curator.id },
-      operations: [{ name: :check_spam }]
+      operations: [ { name: :check_spam } ]
     }
 
     Platform::Services::SpamDetector.stub(:check_curator, { spam_detected: false }) do
@@ -440,7 +440,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_curators_query checks spam for all curators" do
     ast = {
       filters: {},
-      operations: [{ name: :check_spam }]
+      operations: [ { name: :check_spam } ]
     }
 
     Platform::Services::SpamDetector.stub(:check_all, { checked: 5 }) do
@@ -455,7 +455,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_curators_query counts curators" do
     ast = {
       filters: {},
-      operations: [{ name: :count }]
+      operations: [ { name: :count } ]
     }
 
     result = Platform::DSL::Executors::Curator.execute_curators_query(ast)
@@ -469,7 +469,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_curators_query returns stats" do
     ast = {
       filters: {},
-      operations: [{ name: :stats }]
+      operations: [ { name: :stats } ]
     }
 
     Platform::Services::SpamDetector.stub(:statistics, { total: 100 }) do
@@ -637,7 +637,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_proposals_query with unknown operation falls back to list" do
     ast = {
       filters: {},
-      operations: [{ name: :unknown_operation }]
+      operations: [ { name: :unknown_operation } ]
     }
 
     result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
@@ -648,7 +648,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_applications_query with unknown operation falls back to list" do
     ast = {
       filters: {},
-      operations: [{ name: :unknown_operation }]
+      operations: [ { name: :unknown_operation } ]
     }
 
     result = Platform::DSL::Executors::Curator.execute_applications_query(ast)
@@ -659,7 +659,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   test "execute_curators_query with unknown operation falls back to list" do
     ast = {
       filters: {},
-      operations: [{ name: :unknown_operation }]
+      operations: [ { name: :unknown_operation } ]
     }
 
     result = Platform::DSL::Executors::Curator.execute_curators_query(ast)
@@ -694,7 +694,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
 
     ast = {
       filters: { id: @content_change.id },
-      operations: [{ name: :show }]
+      operations: [ { name: :show } ]
     }
 
     result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
@@ -708,7 +708,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
 
     ast = {
       filters: { id: @curator_application.id },
-      operations: [{ name: :show }]
+      operations: [ { name: :show } ]
     }
 
     result = Platform::DSL::Executors::Curator.execute_applications_query(ast)
@@ -804,7 +804,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
 
     ast = {
       filters: { id: @curator.id },
-      operations: [{ name: :show }]
+      operations: [ { name: :show } ]
     }
 
     result = Platform::DSL::Executors::Curator.execute_curators_query(ast)
@@ -864,7 +864,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
 
     ast = {
       filters: { id: @content_change.id },
-      operations: [{ name: :show }]
+      operations: [ { name: :show } ]
     }
 
     result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
@@ -879,7 +879,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
 
     ast = {
       filters: { id: @curator_application.id },
-      operations: [{ name: :show }]
+      operations: [ { name: :show } ]
     }
 
     result = Platform::DSL::Executors::Curator.execute_applications_query(ast)

@@ -84,7 +84,7 @@ class ExperienceTest < ActiveSupport::TestCase
     experience.add_location(location2)
 
     positions = experience.experience_locations.pluck(:position)
-    assert_equal [1, 2], positions.sort
+    assert_equal [ 1, 2 ], positions.sort
 
     experience.destroy
     location2.destroy
@@ -113,7 +113,7 @@ class ExperienceTest < ActiveSupport::TestCase
     experience.add_location(location2, position: 2)
 
     # Reorder: swap positions
-    experience.reorder_locations([location2.id, @location.id])
+    experience.reorder_locations([ location2.id, @location.id ])
 
     experience.reload
     assert_equal 1, experience.experience_locations.find_by(location: location2).position
@@ -168,7 +168,7 @@ class ExperienceTest < ActiveSupport::TestCase
   end
 
   test "available_in_season? works correctly" do
-    experience = Experience.new(@valid_params.merge(seasons: ["summer", "spring"]))
+    experience = Experience.new(@valid_params.merge(seasons: [ "summer", "spring" ]))
     assert experience.available_in_season?("summer")
     assert_not experience.available_in_season?("winter")
   end
@@ -188,14 +188,14 @@ class ExperienceTest < ActiveSupport::TestCase
   end
 
   test "set_year_round! clears seasons" do
-    experience = Experience.create!(@valid_params.merge(seasons: ["summer"]))
+    experience = Experience.create!(@valid_params.merge(seasons: [ "summer" ]))
     experience.set_year_round!
     assert_equal [], experience.seasons
     experience.destroy
   end
 
   test "season_names returns humanized names" do
-    experience = Experience.new(@valid_params.merge(seasons: ["summer", "winter"]))
+    experience = Experience.new(@valid_params.merge(seasons: [ "summer", "winter" ]))
     names = experience.season_names
     assert_includes names, "Summer"
     assert_includes names, "Winter"
@@ -203,7 +203,7 @@ class ExperienceTest < ActiveSupport::TestCase
 
   test "season_names returns Year-round when empty" do
     experience = Experience.new(@valid_params)
-    assert_equal ["Year-round"], experience.season_names
+    assert_equal [ "Year-round" ], experience.season_names
   end
 
   # === City helpers ===
@@ -333,7 +333,7 @@ class ExperienceTest < ActiveSupport::TestCase
   end
 
   test "by_season scope filters by season" do
-    summer = Experience.create!(@valid_params.merge(title: "Summer", seasons: ["summer"]))
+    summer = Experience.create!(@valid_params.merge(title: "Summer", seasons: [ "summer" ]))
     year_round = Experience.create!(@valid_params.merge(title: "Year Round", seasons: []))
 
     results = Experience.by_season("summer")

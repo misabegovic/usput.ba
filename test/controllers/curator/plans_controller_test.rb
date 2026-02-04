@@ -357,7 +357,7 @@ class Curator::PlansControllerTest < ActionDispatch::IntegrationTest
 
     activity = CuratorActivity.last
     # First update creates "proposal_updated"
-    assert_includes ["proposal_updated", "proposal_contributed"], activity.action
+    assert_includes [ "proposal_updated", "proposal_contributed" ], activity.action
     assert_equal @curator, activity.user
 
     ContentChange.last.destroy

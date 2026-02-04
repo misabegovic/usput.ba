@@ -23,96 +23,96 @@ module Geo
     # The polygon includes approximately 45 points for accurate border tracing.
     BIH_BORDER_POLYGON = [
       # Northwest - Croatian border near Bihać
-      [44.95, 15.73],
-      [45.05, 15.78],
-      [45.15, 15.95],
-      [45.20, 16.10],
+      [ 44.95, 15.73 ],
+      [ 45.05, 15.78 ],
+      [ 45.15, 15.95 ],
+      [ 45.20, 16.10 ],
 
       # Northern border with Croatia - moving east
-      [45.25, 16.35],
-      [45.27, 16.60],
-      [45.26, 16.85],
-      [45.22, 17.15],
-      [45.20, 17.45],
-      [45.15, 17.75],
-      [45.08, 18.05],
-      [45.05, 18.35],
-      [45.02, 18.55],
+      [ 45.25, 16.35 ],
+      [ 45.27, 16.60 ],
+      [ 45.26, 16.85 ],
+      [ 45.22, 17.15 ],
+      [ 45.20, 17.45 ],
+      [ 45.15, 17.75 ],
+      [ 45.08, 18.05 ],
+      [ 45.05, 18.35 ],
+      [ 45.02, 18.55 ],
 
       # Northeast - Brčko district and Posavina
-      [44.95, 18.75],
-      [44.88, 18.85],
-      [44.87, 18.95],
+      [ 44.95, 18.75 ],
+      [ 44.88, 18.85 ],
+      [ 44.87, 18.95 ],
 
       # Northeast corner - Semberija region (includes Bijeljina)
       # Updated 2026-01-17: Extended polygon to include Bijeljina (44.75, 19.21)
       # The border follows the Sava river north, then turns south along Drina
-      [44.90, 19.10],
-      [44.88, 19.22],  # Along Sava towards Drina confluence
-      [44.85, 19.28],  # Northeast corner - Sava-Drina confluence
-      [44.80, 19.32],  # East of Bijeljina
-      [44.75, 19.30],  # Bijeljina area (city at 44.75, 19.21)
-      [44.70, 19.25],  # South of Bijeljina, towards Zvornik
+      [ 44.90, 19.10 ],
+      [ 44.88, 19.22 ],  # Along Sava towards Drina confluence
+      [ 44.85, 19.28 ],  # Northeast corner - Sava-Drina confluence
+      [ 44.80, 19.32 ],  # East of Bijeljina
+      [ 44.75, 19.30 ],  # Bijeljina area (city at 44.75, 19.21)
+      [ 44.70, 19.25 ],  # South of Bijeljina, towards Zvornik
 
       # Eastern border - Drina river (critical for excluding Serbia)
       # Updated 2026-01-16: Fixed to include Srebrenica and Potočari
       # The Drina river meanders significantly - traced from actual river course
-      [44.65, 19.15],
-      [44.60, 19.10],  # North of Zvornik
-      [44.50, 19.10],  # Zvornik area - river is narrow here
-      [44.40, 19.10],  # South of Zvornik - Drina at ~19.10-19.11
-      [44.35, 19.18],  # Drina bends east toward Bratunac
-      [44.30, 19.32],  # Near Bratunac - river bends significantly east
-      [44.20, 19.35],  # Bratunac area
-      [44.15, 19.37],  # Between Bratunac and Srebrenica
-      [44.10, 19.38],  # Srebrenica area - include Potočari (19.30)
-      [44.00, 19.40],  # Near Skelani
-      [43.90, 19.40],
-      [43.80, 19.38],  # Near Višegrad
-      [43.70, 19.40],
-      [43.60, 19.38],
-      [43.50, 19.32],
-      [43.40, 19.22],
-      [43.30, 19.12],  # Near Foča
+      [ 44.65, 19.15 ],
+      [ 44.60, 19.10 ],  # North of Zvornik
+      [ 44.50, 19.10 ],  # Zvornik area - river is narrow here
+      [ 44.40, 19.10 ],  # South of Zvornik - Drina at ~19.10-19.11
+      [ 44.35, 19.18 ],  # Drina bends east toward Bratunac
+      [ 44.30, 19.32 ],  # Near Bratunac - river bends significantly east
+      [ 44.20, 19.35 ],  # Bratunac area
+      [ 44.15, 19.37 ],  # Between Bratunac and Srebrenica
+      [ 44.10, 19.38 ],  # Srebrenica area - include Potočari (19.30)
+      [ 44.00, 19.40 ],  # Near Skelani
+      [ 43.90, 19.40 ],
+      [ 43.80, 19.38 ],  # Near Višegrad
+      [ 43.70, 19.40 ],
+      [ 43.60, 19.38 ],
+      [ 43.50, 19.32 ],
+      [ 43.40, 19.22 ],
+      [ 43.30, 19.12 ],  # Near Foča
 
       # Southeast - border with Montenegro
-      [43.20, 18.95],
-      [43.10, 18.85],
-      [43.00, 18.70],
-      [42.90, 18.55],
-      [42.80, 18.45],
-      [42.70, 18.35],  # Near Trebinje
-      [42.60, 18.20],
-      [42.55, 18.05],
+      [ 43.20, 18.95 ],
+      [ 43.10, 18.85 ],
+      [ 43.00, 18.70 ],
+      [ 42.90, 18.55 ],
+      [ 42.80, 18.45 ],
+      [ 42.70, 18.35 ],  # Near Trebinje
+      [ 42.60, 18.20 ],
+      [ 42.55, 18.05 ],
 
       # Southern border with Montenegro/Croatia
-      [42.58, 17.85],
-      [42.65, 17.65],
-      [42.75, 17.50],
-      [42.85, 17.40],
+      [ 42.58, 17.85 ],
+      [ 42.65, 17.65 ],
+      [ 42.75, 17.50 ],
+      [ 42.85, 17.40 ],
 
       # Southwest - Neum area (BiH coast)
-      [42.92, 17.55],
-      [42.95, 17.45],
-      [43.00, 17.35],
-      [43.08, 17.28],
-      [43.18, 17.25],
+      [ 42.92, 17.55 ],
+      [ 42.95, 17.45 ],
+      [ 43.00, 17.35 ],
+      [ 43.08, 17.28 ],
+      [ 43.18, 17.25 ],
 
       # Western border with Croatia - moving north
-      [43.30, 17.15],
-      [43.45, 17.00],
-      [43.60, 16.85],
-      [43.75, 16.75],
-      [43.90, 16.60],
-      [44.05, 16.45],
-      [44.20, 16.30],
-      [44.35, 16.15],
-      [44.50, 16.00],
-      [44.65, 15.88],
-      [44.80, 15.78],
+      [ 43.30, 17.15 ],
+      [ 43.45, 17.00 ],
+      [ 43.60, 16.85 ],
+      [ 43.75, 16.75 ],
+      [ 43.90, 16.60 ],
+      [ 44.05, 16.45 ],
+      [ 44.20, 16.30 ],
+      [ 44.35, 16.15 ],
+      [ 44.50, 16.00 ],
+      [ 44.65, 15.88 ],
+      [ 44.80, 15.78 ],
 
       # Close the polygon back to start
-      [44.95, 15.73]
+      [ 44.95, 15.73 ]
     ].freeze
 
     # Simple bounding box for quick pre-filtering

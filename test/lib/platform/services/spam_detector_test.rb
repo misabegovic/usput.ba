@@ -124,17 +124,17 @@ class Platform::Services::SpamDetectorTest < ActiveSupport::TestCase
   end
 
   test "calculate_duplicate_score returns 0 for single action" do
-    actions = [["proposal_created", "Location", 1]]
+    actions = [ [ "proposal_created", "Location", 1 ] ]
     score = Platform::Services::SpamDetector.send(:calculate_duplicate_score, actions)
     assert_equal 0, score
   end
 
   test "calculate_duplicate_score counts consecutive same actions" do
     actions = [
-      ["proposal_created", "Location", 1],
-      ["proposal_created", "Location", 1],
-      ["proposal_created", "Location", 1],
-      ["proposal_updated", "Location", 2]
+      [ "proposal_created", "Location", 1 ],
+      [ "proposal_created", "Location", 1 ],
+      [ "proposal_created", "Location", 1 ],
+      [ "proposal_updated", "Location", 2 ]
     ]
     score = Platform::Services::SpamDetector.send(:calculate_duplicate_score, actions)
     assert_equal 3, score

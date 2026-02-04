@@ -225,7 +225,7 @@ class ExperiencesControllerTest < ActionDispatch::IntegrationTest
     seasonal_exp = Experience.create!(
       title: "Summer Beach Tour",
       description: "Beach experience",
-      seasons: ["summer", "spring"]
+      seasons: [ "summer", "spring" ]
     )
 
     get experience_path(seasonal_exp)

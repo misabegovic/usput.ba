@@ -2,8 +2,8 @@
 
 module Curator
   class PhotoSuggestionsController < BaseController
-    before_action :set_location, only: [:new, :create]
-    before_action :set_photo_suggestion, only: [:show]
+    before_action :set_location, only: [ :new, :create ]
+    before_action :set_photo_suggestion, only: [ :show ]
 
     def index
       @photo_suggestions = current_user.photo_suggestions

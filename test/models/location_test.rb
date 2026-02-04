@@ -129,7 +129,7 @@ class LocationTest < ActiveSupport::TestCase
 
   test "coordinates returns array of lat/lng" do
     location = Location.new(@valid_params)
-    assert_equal [43.8563, 18.4131], location.coordinates
+    assert_equal [ 43.8563, 18.4131 ], location.coordinates
   end
 
   test "coordinates returns nil when not geocoded" do
@@ -214,7 +214,7 @@ class LocationTest < ActiveSupport::TestCase
   end
 
   test "year_round? returns false when seasons set" do
-    location = Location.new(@valid_params.merge(seasons: ["summer"]))
+    location = Location.new(@valid_params.merge(seasons: [ "summer" ]))
     assert_not location.year_round?
   end
 
@@ -225,13 +225,13 @@ class LocationTest < ActiveSupport::TestCase
   end
 
   test "available_in_season? returns true when season matches" do
-    location = Location.new(@valid_params.merge(seasons: ["summer"]))
+    location = Location.new(@valid_params.merge(seasons: [ "summer" ]))
     assert location.available_in_season?("summer")
     assert_not location.available_in_season?("winter")
   end
 
   test "available_in_season? works with symbol argument" do
-    location = Location.new(@valid_params.merge(seasons: ["summer"]))
+    location = Location.new(@valid_params.merge(seasons: [ "summer" ]))
     assert location.available_in_season?(:summer)
   end
 
@@ -281,7 +281,7 @@ class LocationTest < ActiveSupport::TestCase
   end
 
   test "set_year_round! clears all seasons" do
-    location = Location.create!(@valid_params.merge(seasons: ["summer", "winter"]))
+    location = Location.create!(@valid_params.merge(seasons: [ "summer", "winter" ]))
     location.set_year_round!
     assert_equal [], location.seasons
     location.destroy
@@ -289,11 +289,11 @@ class LocationTest < ActiveSupport::TestCase
 
   test "season_names returns Year-round when empty" do
     location = Location.new(@valid_params)
-    assert_equal ["Year-round"], location.season_names
+    assert_equal [ "Year-round" ], location.season_names
   end
 
   test "season_names returns titleized season names" do
-    location = Location.new(@valid_params.merge(seasons: ["summer", "winter"]))
+    location = Location.new(@valid_params.merge(seasons: [ "summer", "winter" ]))
     assert_includes location.season_names, "Summer"
     assert_includes location.season_names, "Winter"
     assert_equal 2, location.season_names.size
@@ -953,12 +953,12 @@ class LocationTest < ActiveSupport::TestCase
   end
 
   test "with_tag scope filters by tag" do
-    tagged = Location.create!(@valid_params.merge(tags: ["historic", "unesco"]))
+    tagged = Location.create!(@valid_params.merge(tags: [ "historic", "unesco" ]))
     untagged = Location.create!(@valid_params.merge(
       name: "Untagged",
       lat: 43.8570,
       lng: 18.4140,
-      tags: ["modern"]
+      tags: [ "modern" ]
     ))
 
     results = Location.with_tag("historic")
@@ -1114,7 +1114,7 @@ class LocationTest < ActiveSupport::TestCase
   end
 
   test "by_season scope filters by season" do
-    summer_only = Location.create!(@valid_params.merge(seasons: ["summer"]))
+    summer_only = Location.create!(@valid_params.merge(seasons: [ "summer" ]))
     year_round = Location.create!(@valid_params.merge(
       name: "Year Round",
       lat: 43.8570,
@@ -1125,7 +1125,7 @@ class LocationTest < ActiveSupport::TestCase
       name: "Winter Only",
       lat: 43.8580,
       lng: 18.4150,
-      seasons: ["winter"]
+      seasons: [ "winter" ]
     ))
 
     results = Location.by_season("summer")
@@ -1139,28 +1139,28 @@ class LocationTest < ActiveSupport::TestCase
   end
 
   test "by_season scope returns all for blank season" do
-    location = Location.create!(@valid_params.merge(seasons: ["summer"]))
+    location = Location.create!(@valid_params.merge(seasons: [ "summer" ]))
     results = Location.by_season("")
     assert_includes results, location
     location.destroy
   end
 
   test "by_seasons scope filters by multiple seasons with OR logic" do
-    summer_only = Location.create!(@valid_params.merge(seasons: ["summer"]))
+    summer_only = Location.create!(@valid_params.merge(seasons: [ "summer" ]))
     winter_only = Location.create!(@valid_params.merge(
       name: "Winter Only",
       lat: 43.8570,
       lng: 18.4140,
-      seasons: ["winter"]
+      seasons: [ "winter" ]
     ))
     fall_only = Location.create!(@valid_params.merge(
       name: "Fall Only",
       lat: 43.8580,
       lng: 18.4150,
-      seasons: ["fall"]
+      seasons: [ "fall" ]
     ))
 
-    results = Location.by_seasons(["summer", "winter"])
+    results = Location.by_seasons([ "summer", "winter" ])
     assert_includes results, summer_only
     assert_includes results, winter_only
     assert_not_includes results, fall_only
@@ -1183,7 +1183,7 @@ class LocationTest < ActiveSupport::TestCase
       name: "Seasonal",
       lat: 43.8570,
       lng: 18.4140,
-      seasons: ["summer"]
+      seasons: [ "summer" ]
     ))
 
     results = Location.year_round
@@ -1432,13 +1432,13 @@ class LocationTest < ActiveSupport::TestCase
     location = Location.create!(@valid_params)
 
     # Update via suitable_experiences setter (updates relational data + JSON cache)
-    location.update!(suitable_experiences: ["callback_test"])
+    location.update!(suitable_experiences: [ "callback_test" ])
 
     # Reload and check association was updated (source of truth)
     location.reload
     assert location.experience_types.exists?(key: "callback_test")
     # JSON cache should also be synced
-    assert_equal ["callback_test"], location.read_attribute(:suitable_experiences)
+    assert_equal [ "callback_test" ], location.read_attribute(:suitable_experiences)
 
     location.destroy
     exp_type.destroy
@@ -1450,7 +1450,7 @@ class LocationTest < ActiveSupport::TestCase
     exp_type = ExperienceType.create!(key: "setter_test", name: "Setter Test", active: true, position: 1)
     location = Location.create!(@valid_params)
 
-    location.suitable_experiences = ["setter_test"]
+    location.suitable_experiences = [ "setter_test" ]
     location.reload
 
     assert location.has_experience_type?("setter_test")
@@ -1460,12 +1460,12 @@ class LocationTest < ActiveSupport::TestCase
   end
 
   test "suitable_experiences reads from JSON when association not loaded" do
-    location = Location.create!(@valid_params.merge(suitable_experiences: ["test_exp"]))
+    location = Location.create!(@valid_params.merge(suitable_experiences: [ "test_exp" ]))
     location.reload  # Ensures association is not loaded
 
     # Access suitable_experiences without loading association
     result = location.read_attribute(:suitable_experiences)
-    assert_equal ["test_exp"], result
+    assert_equal [ "test_exp" ], result
 
     location.destroy
   end
@@ -1476,7 +1476,7 @@ class LocationTest < ActiveSupport::TestCase
     location = Location.create!(@valid_params)
 
     # Use set_experience_types (main API)
-    location.set_experience_types(["source_test_1", "source_test_2"])
+    location.set_experience_types([ "source_test_1", "source_test_2" ])
 
     # Check relational data (source of truth)
     assert location.has_experience_type?("source_test_1")
@@ -1513,7 +1513,7 @@ class LocationTest < ActiveSupport::TestCase
   end
 
   test "by_seasons handles single season passed as array" do
-    location = Location.create!(@valid_params.merge(seasons: ["summer"]))
+    location = Location.create!(@valid_params.merge(seasons: [ "summer" ]))
     results = Location.by_seasons("summer")  # Single string, not array
     assert_includes results, location
     location.destroy
@@ -1629,10 +1629,10 @@ class LocationTest < ActiveSupport::TestCase
       name: "Summer Only",
       lat: 43.8570,
       lng: 18.4140,
-      seasons: ["summer"]
+      seasons: [ "summer" ]
     ))
 
-    results = Location.by_seasons(["summer"])
+    results = Location.by_seasons([ "summer" ])
     assert_includes results, year_round
     assert_includes results, summer_only
 

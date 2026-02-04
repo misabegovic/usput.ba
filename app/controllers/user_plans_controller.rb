@@ -1,6 +1,6 @@
 class UserPlansController < ApplicationController
   before_action :require_login
-  before_action :set_plan, only: [:show, :update, :destroy, :toggle_visibility]
+  before_action :set_plan, only: [ :show, :update, :destroy, :toggle_visibility ]
 
   # Accept both form and JSON requests
   protect_from_forgery with: :null_session, if: -> { request.format.json? }
@@ -174,16 +174,16 @@ class UserPlansController < ApplicationController
 
     unless @plan
       render json: { error: "Plan not found" }, status: :not_found
-      return
+      nil
     end
   end
 
   def plan_params
     params.require(:plan).permit(
       :id, :generated_at, :duration_days, :saved, :savedAt, :custom_title, :notes,
-      city: [:id, :name, :display_name],
-      preferences: [:budget, :meat_lover, :custom_title, interests: []],
-      days: [:day_number, :date, experiences: [:id, :title, :description, :formatted_duration, locations: []]]
+      city: [ :id, :name, :display_name ],
+      preferences: [ :budget, :meat_lover, :custom_title, interests: [] ],
+      days: [ :day_number, :date, experiences: [ :id, :title, :description, :formatted_duration, locations: [] ] ]
     )
   end
 

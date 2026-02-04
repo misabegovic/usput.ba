@@ -114,7 +114,7 @@ class Platform::DSL::Executors::TableQueryTest < ActiveSupport::TestCase
   end
 
   test "apply_operation with sample with limit" do
-    result = Platform::DSL::Executors::TableQuery.send(:apply_operation, Location.all, { name: :sample, args: [5] })
+    result = Platform::DSL::Executors::TableQuery.send(:apply_operation, Location.all, { name: :sample, args: [ 5 ] })
     assert result.is_a?(Array)
     assert result.size <= 5
   end
@@ -125,23 +125,23 @@ class Platform::DSL::Executors::TableQueryTest < ActiveSupport::TestCase
   end
 
   test "apply_operation with limit with args" do
-    result = Platform::DSL::Executors::TableQuery.send(:apply_operation, Location.all, { name: :limit, args: [3] })
+    result = Platform::DSL::Executors::TableQuery.send(:apply_operation, Location.all, { name: :limit, args: [ 3 ] })
     assert result.is_a?(Array)
     assert result.size <= 3
   end
 
   test "apply_operation with aggregate" do
-    result = Platform::DSL::Executors::TableQuery.send(:apply_operation, Location.all, { name: :aggregate, args: [:count] })
+    result = Platform::DSL::Executors::TableQuery.send(:apply_operation, Location.all, { name: :aggregate, args: [ :count ] })
     assert result.is_a?(Integer) || result.is_a?(Hash)
   end
 
   test "apply_operation with where" do
-    result = Platform::DSL::Executors::TableQuery.send(:apply_operation, Location.all, { name: :where, args: ["id > 0"] })
+    result = Platform::DSL::Executors::TableQuery.send(:apply_operation, Location.all, { name: :where, args: [ "id > 0" ] })
     assert result.is_a?(ActiveRecord::Relation)
   end
 
   test "apply_operation with select" do
-    result = Platform::DSL::Executors::TableQuery.send(:apply_operation, Location.all, { name: :select, args: [:id, :name] })
+    result = Platform::DSL::Executors::TableQuery.send(:apply_operation, Location.all, { name: :select, args: [ :id, :name ] })
     assert result.is_a?(ActiveRecord::Relation)
   end
 
@@ -151,12 +151,12 @@ class Platform::DSL::Executors::TableQueryTest < ActiveSupport::TestCase
   end
 
   test "apply_operation with sort with field" do
-    result = Platform::DSL::Executors::TableQuery.send(:apply_operation, Location.all, { name: :sort, args: [:name] })
+    result = Platform::DSL::Executors::TableQuery.send(:apply_operation, Location.all, { name: :sort, args: [ :name ] })
     assert result.is_a?(ActiveRecord::Relation)
   end
 
   test "apply_operation with sort with field and direction" do
-    result = Platform::DSL::Executors::TableQuery.send(:apply_operation, Location.all, { name: :sort, args: [:name, :desc] })
+    result = Platform::DSL::Executors::TableQuery.send(:apply_operation, Location.all, { name: :sort, args: [ :name, :desc ] })
     assert result.is_a?(ActiveRecord::Relation)
   end
 
@@ -178,33 +178,33 @@ class Platform::DSL::Executors::TableQueryTest < ActiveSupport::TestCase
   # ===================
 
   test "apply_aggregate with count without group_by" do
-    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: [:count] })
+    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: [ :count ] })
     assert result.is_a?(Integer)
   end
 
   test "apply_aggregate with count with group_by" do
-    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: [:count], group_by: :city })
+    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: [ :count ], group_by: :city })
     assert result.is_a?(Hash)
   end
 
   test "apply_aggregate with sum without group_by" do
-    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: [:sum, :id] })
+    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: [ :sum, :id ] })
     # Sum of ids
     assert result.is_a?(Integer) || result.is_a?(BigDecimal) || result.nil?
   end
 
   test "apply_aggregate with sum with group_by" do
-    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: [:sum, :id], group_by: :city })
+    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: [ :sum, :id ], group_by: :city })
     assert result.is_a?(Hash)
   end
 
   test "apply_aggregate with avg without group_by" do
-    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: [:avg, :id] })
+    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: [ :avg, :id ] })
     assert result.is_a?(Float) || result.is_a?(BigDecimal) || result.nil?
   end
 
   test "apply_aggregate with avg with group_by" do
-    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: [:avg, :id], group_by: :city })
+    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: [ :avg, :id ], group_by: :city })
     assert result.is_a?(Hash)
   end
 
@@ -215,7 +215,7 @@ class Platform::DSL::Executors::TableQueryTest < ActiveSupport::TestCase
 
   test "apply_aggregate with unknown function raises" do
     error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: [:unknown_func] })
+      Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: [ :unknown_func ] })
     end
 
     assert_match(/Nepoznata agregacijska funkcija/i, error.message)
@@ -282,7 +282,7 @@ class Platform::DSL::Executors::TableQueryTest < ActiveSupport::TestCase
     ast = {
       table: "locations",
       filters: { city: "Sarajevo" },
-      operations: [{ name: :count }]
+      operations: [ { name: :count } ]
     }
 
     result = Platform::DSL::Executors::TableQuery.execute(ast)
@@ -296,8 +296,8 @@ class Platform::DSL::Executors::TableQueryTest < ActiveSupport::TestCase
       table: "locations",
       filters: { city: "Sarajevo" },
       operations: [
-        { name: :sort, args: [:name, :asc] },
-        { name: :limit, args: [5] }
+        { name: :sort, args: [ :name, :asc ] },
+        { name: :limit, args: [ 5 ] }
       ]
     }
 
@@ -410,12 +410,12 @@ class Platform::DSL::Executors::TableQueryTest < ActiveSupport::TestCase
   # ===================
 
   test "apply_aggregate with count() string" do
-    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: ["count()"] })
+    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: [ "count()" ] })
     assert result.is_a?(Integer)
   end
 
   test "apply_aggregate with count() string and group_by" do
-    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: ["count()"], group_by: :city })
+    result = Platform::DSL::Executors::TableQuery.send(:apply_aggregate, Location.all, { args: [ "count()" ], group_by: :city })
     assert result.is_a?(Hash)
   end
 
@@ -438,7 +438,7 @@ class Platform::DSL::Executors::TableQueryTest < ActiveSupport::TestCase
   # ===================
 
   test "apply_operation with order alias" do
-    result = Platform::DSL::Executors::TableQuery.send(:apply_operation, Location.all, { name: :order, args: [:name, :desc] })
+    result = Platform::DSL::Executors::TableQuery.send(:apply_operation, Location.all, { name: :order, args: [ :name, :desc ] })
     assert result.is_a?(ActiveRecord::Relation)
   end
 end

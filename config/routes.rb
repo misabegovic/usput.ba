@@ -85,7 +85,7 @@ Rails.application.routes.draw do
   # Curator dashboard - for curators and admins
   namespace :curator do
     resources :locations do
-      resources :photo_suggestions, only: [:new, :create]
+      resources :photo_suggestions, only: [ :new, :create ]
       collection do
         get :needs_photos
       end
@@ -99,28 +99,28 @@ Rails.application.routes.draw do
         post :add_review
       end
     end
-    resources :photo_suggestions, only: [:index, :show]
+    resources :photo_suggestions, only: [ :index, :show ]
 
     # Admin features for admin users within curator dashboard
     namespace :admin do
-      resources :photo_suggestions, only: [:index, :show] do
+      resources :photo_suggestions, only: [ :index, :show ] do
         member do
           post :approve
           post :reject
         end
       end
-      resources :users, only: [:index, :show, :edit, :update] do
+      resources :users, only: [ :index, :show, :edit, :update ] do
         member do
           post :unblock
         end
       end
-      resources :curator_applications, only: [:index, :show] do
+      resources :curator_applications, only: [ :index, :show ] do
         member do
           post :approve
           post :reject
         end
       end
-      resources :content_changes, only: [:index, :show] do
+      resources :content_changes, only: [ :index, :show ] do
         member do
           post :approve
           post :reject

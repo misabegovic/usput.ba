@@ -20,7 +20,7 @@ class Platform::DSL::ExternalTest < ActiveSupport::TestCase
 
   # validate_location tests (no API calls needed)
   test "validates location inside BiH" do
-    result = Platform::DSL.execute('external { lat: 43.8563, lng: 18.4131 } | validate_location')
+    result = Platform::DSL.execute("external { lat: 43.8563, lng: 18.4131 } | validate_location")
 
     assert_kind_of Hash, result
     assert_equal true, result[:in_bih]
@@ -31,7 +31,7 @@ class Platform::DSL::ExternalTest < ActiveSupport::TestCase
 
   test "validates location outside BiH" do
     # Belgrade coordinates
-    result = Platform::DSL.execute('external { lat: 44.82, lng: 20.45 } | validate_location')
+    result = Platform::DSL.execute("external { lat: 44.82, lng: 20.45 } | validate_location")
 
     assert_kind_of Hash, result
     assert_equal false, result[:in_bih]
@@ -41,7 +41,7 @@ class Platform::DSL::ExternalTest < ActiveSupport::TestCase
   end
 
   test "validate shorthand works" do
-    result = Platform::DSL.execute('external { lat: 43.8563, lng: 18.4131 } | validate')
+    result = Platform::DSL.execute("external { lat: 43.8563, lng: 18.4131 } | validate")
 
     assert_kind_of Hash, result
     assert_equal true, result[:valid]
@@ -59,7 +59,7 @@ class Platform::DSL::ExternalTest < ActiveSupport::TestCase
 
   test "finds duplicate by proximity" do
     # Very close to existing location
-    result = Platform::DSL.execute('external { lat: 43.8598, lng: 18.4313 } | check_duplicate')
+    result = Platform::DSL.execute("external { lat: 43.8598, lng: 18.4313 } | check_duplicate")
 
     assert_kind_of Hash, result
     # Should find the nearby location
@@ -87,19 +87,19 @@ class Platform::DSL::ExternalTest < ActiveSupport::TestCase
   # Error handling tests
   test "raises error for validate without coordinates" do
     assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL.execute('external | validate_location')
+      Platform::DSL.execute("external | validate_location")
     end
   end
 
   test "raises error for check_duplicate without name or coordinates" do
     assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL.execute('external | check_duplicate')
+      Platform::DSL.execute("external | check_duplicate")
     end
   end
 
   test "raises error for unknown external operation" do
     assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL.execute('external | unknown_operation')
+      Platform::DSL.execute("external | unknown_operation")
     end
   end
 
@@ -113,7 +113,7 @@ class Platform::DSL::ExternalTest < ActiveSupport::TestCase
   end
 
   test "parses external with multiple filters" do
-    ast = Platform::DSL::Parser.parse('external { lat: 43.85, lng: 18.41 } | validate')
+    ast = Platform::DSL::Parser.parse("external { lat: 43.85, lng: 18.41 } | validate")
 
     assert_equal :external_query, ast[:type]
     assert_in_delta 43.85, ast[:filters][:lat], 0.01

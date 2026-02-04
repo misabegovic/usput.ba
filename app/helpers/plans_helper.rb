@@ -38,13 +38,13 @@ module PlansHelper
     if hours > 0 && mins > 0
       "#{I18n.t('experiences.duration.hours', count: hours)} #{I18n.t('experiences.duration.minutes', count: mins)}"
     elsif hours > 0
-      I18n.t('experiences.duration.hours', count: hours)
+      I18n.t("experiences.duration.hours", count: hours)
     else
-      I18n.t('experiences.duration.minutes', count: mins)
+      I18n.t("experiences.duration.minutes", count: mins)
     end
   end
 
   def day_label(day_number)
-    I18n.t('plans.show.day', number: day_number)
+    I18n.t("plans.show.day", number: day_number)
   end
 end

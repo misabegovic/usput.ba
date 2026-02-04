@@ -102,10 +102,10 @@ module Ai
       experience = create_mock_experience
       location = create_mock_location
 
-      extracted = [{ name: "Test Location", confidence: 0.9, city: "Sarajevo", context: "museum" }]
+      extracted = [ { name: "Test Location", confidence: 0.9, city: "Sarajevo", context: "museum" } ]
 
       @syncer.stub(:extract_locations_from_description, extracted) do
-        @syncer.stub(:find_or_create_location, [location, :database]) do
+        @syncer.stub(:find_or_create_location, [ location, :database ]) do
           result = @syncer.sync_locations(experience, dry_run: true)
 
           assert_equal 1, result[:locations_added]
@@ -122,12 +122,12 @@ module Ai
         add_location_called = true
       end
 
-      extracted = [{ name: "Test Location", confidence: 0.9, city: "Sarajevo", context: "museum" }]
+      extracted = [ { name: "Test Location", confidence: 0.9, city: "Sarajevo", context: "museum" } ]
 
       @syncer.stub(:extract_locations_from_description, extracted) do
         # Use proc with keyword args pattern matching
         @syncer.define_singleton_method(:find_or_create_location) do |name:, city:, all_cities:, context:|
-          [location, :database]
+          [ location, :database ]
         end
 
         @syncer.sync_locations(experience, dry_run: false)
@@ -142,9 +142,9 @@ module Ai
 
     test "sync_locations skips locations already connected to experience" do
       existing_location = create_mock_location(name: "Baščaršija")
-      experience = create_mock_experience(locations: [existing_location])
+      experience = create_mock_experience(locations: [ existing_location ])
 
-      extracted = [{ name: "Baščaršija", confidence: 0.9, city: "Sarajevo", context: "landmark" }]
+      extracted = [ { name: "Baščaršija", confidence: 0.9, city: "Sarajevo", context: "landmark" } ]
 
       @syncer.stub(:extract_locations_from_description, extracted) do
         result = @syncer.sync_locations(experience)
@@ -158,7 +158,7 @@ module Ai
     test "sync_locations skips locations with confidence below MIN_CONFIDENCE" do
       experience = create_mock_experience
 
-      extracted = [{ name: "Test Location", confidence: 0.5, city: "Sarajevo", context: "place" }]
+      extracted = [ { name: "Test Location", confidence: 0.5, city: "Sarajevo", context: "place" } ]
 
       @syncer.stub(:extract_locations_from_description, extracted) do
         result = @syncer.sync_locations(experience)
@@ -173,10 +173,10 @@ module Ai
       experience = create_mock_experience
       location = create_mock_location
 
-      extracted = [{ name: "Test Location", city: "Sarajevo", context: "place" }]
+      extracted = [ { name: "Test Location", city: "Sarajevo", context: "place" } ]
 
       @syncer.stub(:extract_locations_from_description, extracted) do
-        @syncer.stub(:find_or_create_location, [location, :database]) do
+        @syncer.stub(:find_or_create_location, [ location, :database ]) do
           result = @syncer.sync_locations(experience, dry_run: true)
 
           assert_equal 1, result[:locations_added]
@@ -188,10 +188,10 @@ module Ai
       experience = create_mock_experience
       location = create_mock_location
 
-      extracted = [{ name: "Test Location", confidence: 0.9, city: "Sarajevo", context: "place" }]
+      extracted = [ { name: "Test Location", confidence: 0.9, city: "Sarajevo", context: "place" } ]
 
       @syncer.stub(:extract_locations_from_description, extracted) do
-        @syncer.stub(:find_or_create_location, [location, :database]) do
+        @syncer.stub(:find_or_create_location, [ location, :database ]) do
           result = @syncer.sync_locations(experience, dry_run: true)
 
           assert_equal 1, result[:locations_found_in_db]
@@ -205,10 +205,10 @@ module Ai
       experience = create_mock_experience
       location = create_mock_location
 
-      extracted = [{ name: "New Place", confidence: 0.9, city: "Sarajevo", context: "place" }]
+      extracted = [ { name: "New Place", confidence: 0.9, city: "Sarajevo", context: "place" } ]
 
       @syncer.stub(:extract_locations_from_description, extracted) do
-        @syncer.stub(:find_or_create_location, [location, :geoapify]) do
+        @syncer.stub(:find_or_create_location, [ location, :geoapify ]) do
           result = @syncer.sync_locations(experience, dry_run: true)
 
           assert_equal 0, result[:locations_found_in_db]
@@ -221,10 +221,10 @@ module Ai
     test "sync_locations counts locations not found" do
       experience = create_mock_experience
 
-      extracted = [{ name: "Nonexistent Place", confidence: 0.9, city: "Sarajevo", context: "place" }]
+      extracted = [ { name: "Nonexistent Place", confidence: 0.9, city: "Sarajevo", context: "place" } ]
 
       @syncer.stub(:extract_locations_from_description, extracted) do
-        @syncer.stub(:find_or_create_location, [nil, nil]) do
+        @syncer.stub(:find_or_create_location, [ nil, nil ]) do
           result = @syncer.sync_locations(experience)
 
           assert_equal 1, result[:locations_not_found]
@@ -236,7 +236,7 @@ module Ai
     test "sync_locations handles errors during location processing" do
       experience = create_mock_experience
 
-      extracted = [{ name: "Error Location", confidence: 0.9, city: "Sarajevo", context: "place" }]
+      extracted = [ { name: "Error Location", confidence: 0.9, city: "Sarajevo", context: "place" } ]
 
       @syncer.stub(:extract_locations_from_description, extracted) do
         @syncer.stub(:find_or_create_location, ->(*) { raise StandardError, "Something went wrong" }) do
@@ -263,7 +263,7 @@ module Ai
       @syncer.stub(:extract_locations_from_description, extracted) do
         @syncer.stub(:find_or_create_location, ->(*) {
           call_count += 1
-          call_count == 1 ? [loc1, :database] : [loc2, :geoapify]
+          call_count == 1 ? [ loc1, :database ] : [ loc2, :geoapify ]
         }) do
           result = @syncer.sync_locations(experience, dry_run: true)
 
@@ -276,16 +276,16 @@ module Ai
     end
 
     test "sync_locations uses city from extracted data when available" do
-      experience = create_mock_experience(city: "Sarajevo", cities: ["Sarajevo", "Mostar"])
+      experience = create_mock_experience(city: "Sarajevo", cities: [ "Sarajevo", "Mostar" ])
       location = create_mock_location
 
-      extracted = [{ name: "Test", confidence: 0.9, city: "Mostar", context: "bridge" }]
+      extracted = [ { name: "Test", confidence: 0.9, city: "Mostar", context: "bridge" } ]
 
       captured_city = nil
       @syncer.stub(:extract_locations_from_description, extracted) do
         @syncer.define_singleton_method(:find_or_create_location) do |name:, city:, all_cities:, context:|
           captured_city = city
-          [location, :database]
+          [ location, :database ]
         end
 
         @syncer.sync_locations(experience, dry_run: true)
@@ -303,7 +303,7 @@ module Ai
       experience2 = create_mock_experience(id: 2, title: "Exp 2")
 
       @syncer.stub(:extract_locations_from_description, []) do
-        result = @syncer.sync_all([experience1, experience2], dry_run: true)
+        result = @syncer.sync_all([ experience1, experience2 ], dry_run: true)
 
         assert_equal 2, result[:experiences_processed]
         assert_includes result.keys, :total_locations_added
@@ -321,15 +321,15 @@ module Ai
       exp2 = create_mock_experience(id: 2)
       location = create_mock_location
 
-      extracted = [{ name: "Test", confidence: 0.9, city: "Sarajevo", context: "place" }]
+      extracted = [ { name: "Test", confidence: 0.9, city: "Sarajevo", context: "place" } ]
 
       call_count = 0
       @syncer.stub(:extract_locations_from_description, extracted) do
         @syncer.stub(:find_or_create_location, ->(*) {
           call_count += 1
-          call_count == 1 ? [location, :database] : [location, :geoapify]
+          call_count == 1 ? [ location, :database ] : [ location, :geoapify ]
         }) do
-          result = @syncer.sync_all([exp1, exp2], dry_run: true)
+          result = @syncer.sync_all([ exp1, exp2 ], dry_run: true)
 
           assert_equal 2, result[:total_locations_added]
           assert_equal 1, result[:total_locations_found_in_db]
@@ -342,11 +342,11 @@ module Ai
       exp1 = create_mock_experience(id: 1)
       exp2 = create_mock_experience(id: 2)
 
-      extracted = [{ name: "Error", confidence: 0.9, city: "Sarajevo", context: "place" }]
+      extracted = [ { name: "Error", confidence: 0.9, city: "Sarajevo", context: "place" } ]
 
       @syncer.stub(:extract_locations_from_description, extracted) do
         @syncer.stub(:find_or_create_location, ->(*) { raise StandardError, "Error" }) do
-          result = @syncer.sync_all([exp1, exp2])
+          result = @syncer.sync_all([ exp1, exp2 ])
 
           assert_equal 2, result[:total_errors]
         end
@@ -585,7 +585,7 @@ module Ai
     test "excluded_location returns true for social facility categories" do
       result = {
         name: "Dom za stare",
-        types: ["service.social_facility"]
+        types: [ "service.social_facility" ]
       }
 
       assert @syncer.send(:excluded_location?, result)
@@ -594,7 +594,7 @@ module Ai
     test "excluded_location returns true for nursing home categories" do
       result = {
         name: "Care Home",
-        types: ["healthcare.nursing_home"]
+        types: [ "healthcare.nursing_home" ]
       }
 
       assert @syncer.send(:excluded_location?, result)
@@ -603,7 +603,7 @@ module Ai
     test "excluded_location returns true for excluded keywords in name" do
       result = {
         name: "Gerontološki centar",
-        types: ["building"],
+        types: [ "building" ],
         address: "Sarajevo"
       }
 
@@ -613,7 +613,7 @@ module Ai
     test "excluded_location returns true for soup kitchen keywords" do
       result = {
         name: "Narodna kuhinja",
-        types: ["catering"],
+        types: [ "catering" ],
         address: "Mostar"
       }
 
@@ -623,7 +623,7 @@ module Ai
     test "excluded_location returns false for normal tourist places" do
       result = {
         name: "Vijećnica",
-        types: ["tourism.sights"],
+        types: [ "tourism.sights" ],
         address: "Sarajevo"
       }
 
@@ -637,7 +637,7 @@ module Ai
     test "excluded_location returns false for hash with no matching exclusions" do
       result = {
         name: "Regular Place",
-        types: ["tourism"],
+        types: [ "tourism" ],
         address: "Some Street"
       }
       assert_not @syncer.send(:excluded_location?, result)
@@ -655,7 +655,7 @@ module Ai
         lng: 18.413
       )
 
-      found = @syncer.send(:find_location_in_database, "Test Location", "Sarajevo", ["Sarajevo"])
+      found = @syncer.send(:find_location_in_database, "Test Location", "Sarajevo", [ "Sarajevo" ])
 
       assert_equal location.id, found.id
 
@@ -670,7 +670,7 @@ module Ai
         lng: 18.414
       )
 
-      found = @syncer.send(:find_location_in_database, "TEST LOCATION", "Sarajevo", ["Sarajevo"])
+      found = @syncer.send(:find_location_in_database, "TEST LOCATION", "Sarajevo", [ "Sarajevo" ])
 
       assert_equal location.id, found.id
 
@@ -685,7 +685,7 @@ module Ai
         lng: 18.415
       )
 
-      found = @syncer.send(:find_location_in_database, "Historijski muzej", "Sarajevo", ["Sarajevo"])
+      found = @syncer.send(:find_location_in_database, "Historijski muzej", "Sarajevo", [ "Sarajevo" ])
 
       assert_equal location.id, found.id
 
@@ -700,7 +700,7 @@ module Ai
         lng: 17.808
       )
 
-      found = @syncer.send(:find_location_in_database, "Test Place", "Sarajevo", ["Sarajevo"])
+      found = @syncer.send(:find_location_in_database, "Test Place", "Sarajevo", [ "Sarajevo" ])
 
       assert_nil found
 
@@ -708,7 +708,7 @@ module Ai
     end
 
     test "find_location_in_database returns nil when not found" do
-      found = @syncer.send(:find_location_in_database, "Nonexistent Location", "Sarajevo", ["Sarajevo"])
+      found = @syncer.send(:find_location_in_database, "Nonexistent Location", "Sarajevo", [ "Sarajevo" ])
 
       assert_nil found
     end
@@ -857,7 +857,7 @@ module Ai
         description: "Visit the historic Baščaršija bazaar in Sarajevo."
       )
 
-      extracted = [{ name: "Baščaršija", confidence: 0.95, city: "Sarajevo", context: "bazaar" }]
+      extracted = [ { name: "Baščaršija", confidence: 0.95, city: "Sarajevo", context: "bazaar" } ]
 
       @syncer.stub(:extract_locations_from_description, extracted) do
         result = @syncer.sync_locations(experience, dry_run: true)
@@ -882,7 +882,7 @@ module Ai
       title: "Test Experience",
       description: "A test experience description with Baščaršija mentioned.",
       city: "Sarajevo",
-      cities: ["Sarajevo"],
+      cities: [ "Sarajevo" ],
       locations: []
     )
       mock = OpenStruct.new(

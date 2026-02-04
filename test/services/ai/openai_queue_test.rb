@@ -263,13 +263,13 @@ module Ai
     test "enqueue passes all parameters to job" do
       assert_enqueued_with(
         job: OpenaiRequestJob,
-        args: [{
+        args: [ {
           prompt: "Test prompt",
           schema: { type: "object" },
           context: "TestContext",
           callback_class: "TestCallback",
           callback_id: 456
-        }]
+        } ]
       ) do
         Ai::OpenaiQueue.enqueue(
           prompt: "Test prompt",

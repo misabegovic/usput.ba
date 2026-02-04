@@ -487,7 +487,7 @@ class GeoapifyService
     "tourism.sights.bridge" => "bridge",
     "tourism.information" => "tourist_information",
     "tourism.information.office" => "tourist_information",
-    "tourism.information.map" => "tourist_information",
+    "tourism.information.map" => "tourist_information"
     # Note: tourism.viewpoint, tourism.artwork, tourism.artwork.*, tourism.alpine_hut,
     # tourism.picnic_site, tourism.camp_site, tourism.sights.palace, tourism.sights.manor,
     # tourism.sights.statue, tourism.information.visitor_centre are invalid

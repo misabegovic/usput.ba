@@ -65,7 +65,7 @@ module Platform
         rescue ParseError => e
           {
             valid: false,
-            errors: [e.message],
+            errors: [ e.message ],
             warnings: [],
             estimated_cost: :unknown,
             ast: nil

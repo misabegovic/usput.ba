@@ -149,8 +149,8 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
   test "create merges travel profile from localStorage" do
     travel_profile = {
-      "visited" => [{ "id" => "test-location" }],
-      "favorites" => ["fav-1"]
+      "visited" => [ { "id" => "test-location" } ],
+      "favorites" => [ "fav-1" ]
     }.to_json
 
     post register_path, params: {

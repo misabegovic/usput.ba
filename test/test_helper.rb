@@ -53,7 +53,7 @@ class Location
     category_key = @_temp_location_type.to_s
     category = LocationCategory.find_or_create_by!(key: category_key) do |cat|
       cat.name = category_key.titleize
-      cat.icon = 'circle'
+      cat.icon = "circle"
       cat.active = true
       cat.position = LocationCategory.maximum(:position).to_i + 1
     end

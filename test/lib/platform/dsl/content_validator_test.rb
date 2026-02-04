@@ -147,7 +147,7 @@ class Platform::DSL::ContentValidatorTest < ActiveSupport::TestCase
   # ===================
 
   test "validate_experience requires minimum 2 locations" do
-    result = Platform::DSL::ContentValidator.validate_experience(location_ids: [1])
+    result = Platform::DSL::ContentValidator.validate_experience(location_ids: [ 1 ])
 
     refute result.valid?
     assert result.errors.any? { |e| e[:code] == :insufficient_locations }
@@ -155,7 +155,7 @@ class Platform::DSL::ContentValidatorTest < ActiveSupport::TestCase
 
   test "validate_experience detects missing locations" do
     result = Platform::DSL::ContentValidator.validate_experience(
-      location_ids: [@existing_location.id, 999999]
+      location_ids: [ @existing_location.id, 999999 ]
     )
 
     refute result.valid?
@@ -175,7 +175,7 @@ class Platform::DSL::ContentValidatorTest < ActiveSupport::TestCase
     )
 
     result = Platform::DSL::ContentValidator.validate_experience(
-      location_ids: [loc1.id, loc2.id]
+      location_ids: [ loc1.id, loc2.id ]
     )
 
     assert result.valid?
@@ -222,7 +222,7 @@ class Platform::DSL::ContentValidatorTest < ActiveSupport::TestCase
     assert_equal :validation, ast[:type]
     assert_equal :validate, ast[:action]
     assert_equal :experience, ast[:validate_type]
-    assert_equal [1, 2, 3], ast[:location_ids]
+    assert_equal [ 1, 2, 3 ], ast[:location_ids]
   end
 
   test "DSL parses scan suspicious patterns command" do

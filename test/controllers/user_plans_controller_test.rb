@@ -275,7 +275,7 @@ class UserPlansControllerTest < ActionDispatch::IntegrationTest
       days: [
         {
           day_number: 1,
-          experiences: [{ id: @experience.uuid }]
+          experiences: [ { id: @experience.uuid } ]
         }
       ]
     )
@@ -297,7 +297,7 @@ class UserPlansControllerTest < ActionDispatch::IntegrationTest
       days: [
         {
           day_number: 1,
-          experiences: [{ id: "non-existent-experience-id" }]
+          experiences: [ { id: "non-existent-experience-id" } ]
         }
       ]
     )
@@ -374,7 +374,7 @@ class UserPlansControllerTest < ActionDispatch::IntegrationTest
         days: [
           {
             day_number: 1,
-            experiences: [{ id: @experience2.uuid }]
+            experiences: [ { id: @experience2.uuid } ]
           }
         ]
       }
@@ -468,7 +468,7 @@ class UserPlansControllerTest < ActionDispatch::IntegrationTest
         "days" => [
           {
             "day_number" => 1,
-            "experiences" => [{ "id" => @experience.uuid }]
+            "experiences" => [ { "id" => @experience.uuid } ]
           }
         ]
       }
@@ -560,7 +560,7 @@ class UserPlansControllerTest < ActionDispatch::IntegrationTest
       "days" => [
         {
           "day_number" => 1,
-          "experiences" => [{ "id" => @experience.uuid }]
+          "experiences" => [ { "id" => @experience.uuid } ]
         }
       ]
     }

@@ -49,7 +49,7 @@ class SyncExperienceTypesFromJsonTest < ActiveSupport::TestCase
     )
 
     # Manually set the JSON field without triggering callbacks
-    location.update_column(:suitable_experiences, ["culture", "history"])
+    location.update_column(:suitable_experiences, [ "culture", "history" ])
 
     # Remove any existing relations (in case callbacks created them)
     location.location_experience_types.destroy_all
@@ -95,7 +95,7 @@ class SyncExperienceTypesFromJsonTest < ActiveSupport::TestCase
       lng: 18.4133
     )
 
-    location.update_column(:suitable_experiences, ["culture"])
+    location.update_column(:suitable_experiences, [ "culture" ])
 
     # Create one relation manually
     LocationExperienceType.create!(
@@ -122,7 +122,7 @@ class SyncExperienceTypesFromJsonTest < ActiveSupport::TestCase
       lng: 18.4134
     )
 
-    location.update_column(:suitable_experiences, ["culture", "nonexistent"])
+    location.update_column(:suitable_experiences, [ "culture", "nonexistent" ])
     location.location_experience_types.destroy_all
 
     # Run sync (should not raise error)
@@ -145,7 +145,7 @@ class SyncExperienceTypesFromJsonTest < ActiveSupport::TestCase
       lng: 18.4135
     )
 
-    location.update_column(:suitable_experiences, ["Culture", "HISTORY"])
+    location.update_column(:suitable_experiences, [ "Culture", "HISTORY" ])
     location.location_experience_types.destroy_all
 
     # Run sync
@@ -168,7 +168,7 @@ class SyncExperienceTypesFromJsonTest < ActiveSupport::TestCase
         lat: 43.8570 + i * 0.001,
         lng: 18.4136 + i * 0.001
       )
-      location.update_column(:suitable_experiences, ["culture", "food"])
+      location.update_column(:suitable_experiences, [ "culture", "food" ])
       location.location_experience_types.destroy_all
       locations << location
     end

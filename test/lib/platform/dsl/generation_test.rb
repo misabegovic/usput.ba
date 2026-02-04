@@ -23,7 +23,7 @@ class Platform::DSL::GenerationTest < ActiveSupport::TestCase
 
   # Parser tests
   test "parses generate description command" do
-    ast = Platform::DSL::Parser.parse('generate description for location { id: 123 }')
+    ast = Platform::DSL::Parser.parse("generate description for location { id: 123 }")
 
     assert_equal :generation, ast[:type]
     assert_equal :description, ast[:gen_type]
@@ -51,11 +51,11 @@ class Platform::DSL::GenerationTest < ActiveSupport::TestCase
   end
 
   test "parses generate experience command" do
-    ast = Platform::DSL::Parser.parse('generate experience from locations [1, 2, 3]')
+    ast = Platform::DSL::Parser.parse("generate experience from locations [1, 2, 3]")
 
     assert_equal :generation, ast[:type]
     assert_equal :experience, ast[:gen_type]
-    assert_equal [1, 2, 3], ast[:location_ids]
+    assert_equal [ 1, 2, 3 ], ast[:location_ids]
   end
 
   # Execution tests with mocked LLM
@@ -145,7 +145,7 @@ class Platform::DSL::GenerationTest < ActiveSupport::TestCase
   # Error handling
   test "raises error for non-existent record" do
     error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL.execute('generate description for location { id: 999999 }')
+      Platform::DSL.execute("generate description for location { id: 999999 }")
     end
 
     assert_match(/nije pronađen/i, error.message)

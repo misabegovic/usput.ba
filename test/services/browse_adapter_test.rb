@@ -13,8 +13,8 @@ class BrowseAdapterTest < ActiveSupport::TestCase
       lng: 18.4131,
       location_type: :place,
       budget: :medium,
-      tags: ["culture", "history"],
-      seasons: ["spring", "summer", "fall", "winter"],
+      tags: [ "culture", "history" ],
+      seasons: [ "spring", "summer", "fall", "winter" ],
       ai_generated: false
     )
 
@@ -22,7 +22,7 @@ class BrowseAdapterTest < ActiveSupport::TestCase
       title: "City Walking Tour",
       description: "A guided tour of the city",
       estimated_duration: 120,
-      seasons: ["spring", "summer"],
+      seasons: [ "spring", "summer" ],
       ai_generated: true
     )
     @experience.add_location(@location, position: 1)
@@ -91,7 +91,7 @@ class BrowseAdapterTest < ActiveSupport::TestCase
   test "attributes_for location includes seasons" do
     attrs = BrowseAdapter.attributes_for(@location)
 
-    assert_equal ["spring", "summer", "fall", "winter"], attrs[:seasons]
+    assert_equal [ "spring", "summer", "fall", "winter" ], attrs[:seasons]
   end
 
   test "attributes_for location includes contact types" do
@@ -139,7 +139,7 @@ class BrowseAdapterTest < ActiveSupport::TestCase
   test "attributes_for experience includes seasons" do
     attrs = BrowseAdapter.attributes_for(@experience)
 
-    assert_equal ["spring", "summer"], attrs[:seasons]
+    assert_equal [ "spring", "summer" ], attrs[:seasons]
   end
 
   test "attributes_for experience with category" do

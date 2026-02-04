@@ -14,7 +14,7 @@ class Review < ApplicationRecord
 
   scope :recent, -> { order(created_at: :desc) }
   scope :by_rating, ->(rating) { where(rating: rating) }
-  scope :with_comments, -> { where.not(comment: [nil, ""]) }
+  scope :with_comments, -> { where.not(comment: [ nil, "" ]) }
 
   private
 

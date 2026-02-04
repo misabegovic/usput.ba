@@ -57,14 +57,14 @@ class Platform::DSL::ApprovalTest < ActiveSupport::TestCase
   end
 
   test "parses proposals show command" do
-    ast = Platform::DSL::Parser.parse('proposals { id: 123 } | show')
+    ast = Platform::DSL::Parser.parse("proposals { id: 123 } | show")
 
     assert_equal :proposals_query, ast[:type]
     assert_equal 123, ast[:filters][:id]
   end
 
   test "parses proposals without filters" do
-    ast = Platform::DSL::Parser.parse('proposals | list')
+    ast = Platform::DSL::Parser.parse("proposals | list")
 
     assert_equal :proposals_query, ast[:type]
   end
@@ -78,7 +78,7 @@ class Platform::DSL::ApprovalTest < ActiveSupport::TestCase
   end
 
   test "parses applications show command" do
-    ast = Platform::DSL::Parser.parse('applications { id: 456 } | show')
+    ast = Platform::DSL::Parser.parse("applications { id: 456 } | show")
 
     assert_equal :applications_query, ast[:type]
     assert_equal 456, ast[:filters][:id]
@@ -86,7 +86,7 @@ class Platform::DSL::ApprovalTest < ActiveSupport::TestCase
 
   # Parser tests - Approve commands
   test "parses approve proposal command" do
-    ast = Platform::DSL::Parser.parse('approve proposal { id: 123 }')
+    ast = Platform::DSL::Parser.parse("approve proposal { id: 123 }")
 
     assert_equal :approval, ast[:type]
     assert_equal :approve, ast[:action]
@@ -103,7 +103,7 @@ class Platform::DSL::ApprovalTest < ActiveSupport::TestCase
   end
 
   test "parses approve application command" do
-    ast = Platform::DSL::Parser.parse('approve application { id: 789 }')
+    ast = Platform::DSL::Parser.parse("approve application { id: 789 }")
 
     assert_equal :approval, ast[:type]
     assert_equal :approve, ast[:action]
@@ -150,7 +150,7 @@ class Platform::DSL::ApprovalTest < ActiveSupport::TestCase
   end
 
   test "counts proposals by status" do
-    result = Platform::DSL.execute('proposals | count')
+    result = Platform::DSL.execute("proposals | count")
 
     assert result[:pending] >= 1
     assert result[:total] >= 1

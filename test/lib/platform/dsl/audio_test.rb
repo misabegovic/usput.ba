@@ -23,7 +23,7 @@ class Platform::DSL::AudioTest < ActiveSupport::TestCase
 
   # Parser tests
   test "parses synthesize audio command" do
-    ast = Platform::DSL::Parser.parse('synthesize audio for location { id: 123 }')
+    ast = Platform::DSL::Parser.parse("synthesize audio for location { id: 123 }")
 
     assert_equal :audio, ast[:type]
     assert_equal :synthesize, ast[:action]
@@ -78,7 +78,7 @@ class Platform::DSL::AudioTest < ActiveSupport::TestCase
   end
 
   test "estimates audio cost with breakdown by city" do
-    result = Platform::DSL.execute('estimate audio cost for locations { }')
+    result = Platform::DSL.execute("estimate audio cost for locations { }")
 
     assert_equal :estimate_audio_cost, result[:action]
     assert result[:total_locations] >= 2
@@ -88,7 +88,7 @@ class Platform::DSL::AudioTest < ActiveSupport::TestCase
   # Error handling
   test "rejects audio synthesis for non-location tables" do
     error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL.execute('synthesize audio for experience { id: 1 }')
+      Platform::DSL.execute("synthesize audio for experience { id: 1 }")
     end
 
     assert_match(/samo za lokacije/i, error.message)
@@ -96,7 +96,7 @@ class Platform::DSL::AudioTest < ActiveSupport::TestCase
 
   test "rejects audio cost estimation for non-location tables" do
     error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL.execute('estimate audio cost for experiences { }')
+      Platform::DSL.execute("estimate audio cost for experiences { }")
     end
 
     assert_match(/samo za lokacije/i, error.message)
@@ -104,7 +104,7 @@ class Platform::DSL::AudioTest < ActiveSupport::TestCase
 
   test "rejects synthesize for non-existent location" do
     error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL.execute('synthesize audio for location { id: 999999 }')
+      Platform::DSL.execute("synthesize audio for location { id: 999999 }")
     end
 
     assert_match(/nije pronađen/i, error.message)

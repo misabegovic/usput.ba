@@ -76,7 +76,7 @@ module Platform
               # Translations are stored in translations table with field_name='description'
               ids_with_description = Translation
                 .where(translatable_type: scope.model.name, field_name: "description")
-                .where.not(value: [nil, ""])
+                .where.not(value: [ nil, "" ])
                 .distinct
                 .pluck(:translatable_id)
 
@@ -124,33 +124,33 @@ module Platform
           def apply_operation(scope, operation)
             case operation[:name]
             when :count
-              return scope.count
+              scope.count
             when :sample
               limit = operation[:args]&.first || 10
-              return scope.order("RANDOM()").limit(limit).to_a.map { |r| format_record(r) }
+              scope.order("RANDOM()").limit(limit).to_a.map { |r| format_record(r) }
             when :limit
               limit = operation[:args]&.first || 10
-              return scope.limit(limit).to_a.map { |r| format_record(r) }
+              scope.limit(limit).to_a.map { |r| format_record(r) }
             when :aggregate
-              return apply_aggregate(scope, operation)
+              apply_aggregate(scope, operation)
             when :where
               condition = operation[:args]&.first
-              return apply_where_condition(scope, condition)
+              apply_where_condition(scope, condition)
             when :select
               fields = operation[:args] || []
-              return scope.select(*fields)
+              scope.select(*fields)
             when :sort, :order
               field = operation[:args]&.first || :id
               direction = operation[:args]&.[](1) || :asc
-              return scope.order(field => direction)
+              scope.order(field => direction)
             when :show, :list
-              return scope.limit(100).to_a.map { |r| format_record(r) }
+              scope.limit(100).to_a.map { |r| format_record(r) }
             when :first
               record = scope.first
-              return record ? format_record(record) : nil
+              record ? format_record(record) : nil
             when :last
               record = scope.last
-              return record ? format_record(record) : nil
+              record ? format_record(record) : nil
             else
               raise ExecutionError, "Nepoznata operacija: #{operation[:name]}"
             end
