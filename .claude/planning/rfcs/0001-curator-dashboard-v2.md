@@ -52,6 +52,7 @@ Feature flag `curator_edit_delete` je disabled na produkciji. Jedina funkcionaln
 - **Jedan pending suggestion per resurs** — unique constraint, više kuratora doprinosi istom
 - **PhotoSuggestion se ukida** — slike idu u LocationSuggestion
 - **Multi-contributor** — svaki kurator doprinosi istom suggestion-u, typed kolone za audit trail
+- **Human vs AI origin** — svaki suggestion ima `origin` (human/ai_generated) i `ai_service` polje. AI servisi kreiraju suggestion-e umjesto direktnog pisanja u bazu. Kuratori vide human i AI prijedloge odvojeno (ADR-0007)
 
 ### Princip dizajna: Dva režima rada
 
@@ -80,6 +81,12 @@ module Suggestable
     has_many :contributions  # Per-resource contribution model
     enum :status, { pending: 0, approved: 1, rejected: 2 }
     enum :change_type, { create_resource: 0, update_resource: 1, delete_resource: 2 }
+  end
+
+    enum :origin, { human: 0, ai_generated: 1 }, prefix: :origin
+    attribute :ai_service, :string  # "location_enricher", "experience_syncer", ...
+    scope :human_suggestions, -> { where(origin: :human) }
+    scope :ai_suggestions, -> { where(origin: :ai_generated) }
   end
 
   def approve!(admin, notes: nil) ... end
@@ -335,6 +342,20 @@ Zamijeniti ContentChange + PhotoSuggestion sa LocationSuggestion, ExperienceSugg
 - [ ] Admin unified suggestion inbox + per-type approval panel
 - [ ] Migracija pending PhotoSuggestion → LocationSuggestion
 - [ ] Migracija ili cleanup starih ContentChange zapisa
+
+### Faza 2.5: AI Pipeline Adaptation (prioritet: VISOK)
+Adaptirati AI servise da kreiraju suggestion-e umjesto direktnog pisanja u bazu (ADR-0007).
+
+**Deliverables:**
+- [ ] System user (`ai@usput.ba`) seed
+- [ ] `Ai::LocationEnricher` → kreira `LocationSuggestion` (origin: ai_generated)
+- [ ] `Ai::ExperienceTypeClassifier` → kreira `LocationSuggestion` za experience_type_ids
+- [ ] `Ai::ExperienceLocationSyncer` → kreira `ExperienceSuggestion` za location_uuids
+- [ ] Dashboard: odvojeni tabovi [Human] / [AI] / [All] za pending suggestions
+- [ ] `needs_ai_regeneration` flag → trigeruje kreiranje AI suggestion-a umjesto direktne promjene
+- [ ] Testovi za AI → suggestion tok
+
+**Izuzetak:** `Ai::AudioTourGenerator` ostaje direktan (admin-only akcija = eksplicitno odobrenje).
 
 ### Faza 3: Reviews Management (prioritet: SREDNJI)
 Dodati moderation workflow za korisničke recenzije.

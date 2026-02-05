@@ -155,16 +155,19 @@ module Suggestable
   extend ActiveSupport::Concern
 
   included do
-    belongs_to :user                      # Kurator koji je kreirao
+    belongs_to :user                      # Kurator/admin ili system_user za AI
     belongs_to :reviewed_by, class_name: "User", optional: true
 
     enum :status, { pending: 0, approved: 1, rejected: 2 }
     enum :change_type, { create_resource: 0, update_resource: 1, delete_resource: 2 }
+    enum :origin, { human: 0, ai_generated: 1 }, prefix: :origin  # ADR-0007
 
     validates :user, presence: true
 
     scope :pending_review, -> { where(status: :pending) }
     scope :recent, -> { order(created_at: :desc) }
+    scope :human_suggestions, -> { where(origin: :human) }
+    scope :ai_suggestions, -> { where(origin: :ai_generated) }
   end
 
   def approve!(admin, notes: nil)
@@ -257,6 +260,8 @@ class CreateLocationSuggestions < ActiveRecord::Migration[8.0]
 
       t.integer :status, default: 0, null: false
       t.integer :change_type, default: 0, null: false
+      t.integer :origin, default: 0, null: false   # 0=human, 1=ai_generated (ADR-0007)
+      t.string :ai_service                          # Koji AI servis (ADR-0007)
       t.datetime :reviewed_at
       t.text :admin_notes
 
