@@ -12,7 +12,7 @@
         </svg>
         <%= t("curator.experiences.view_in_app", default: "View in App") %>
       <% end %>
-      <% if Flipper.enabled?(:curator_edit_delete) %>
+      <% if admin_direct_crud? %>
         <%= link_to edit_curator_experience_path(@experience),
             class: "inline-flex items-center justify-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500" do %>
           <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">

@@ -38,7 +38,78 @@ module Curator
     end
 
     def create
-      # Instead of creating directly, create a proposal for admin review
+      if admin_direct_crud?
+        create_directly
+      else
+        create_proposal
+      end
+    end
+
+    def edit
+      @pending_proposal = pending_proposal_for(@experience)
+    end
+
+    def update
+      if admin_direct_crud?
+        update_directly
+      else
+        update_proposal
+      end
+    end
+
+    def destroy
+      if admin_direct_crud?
+        destroy_directly
+      else
+        destroy_proposal
+      end
+    end
+
+    private
+
+    # === Admin direct CRUD ===
+
+    def create_directly
+      @experience = Experience.new(experience_params)
+
+      if @experience.save
+        update_experience_locations(@experience)
+        record_activity("resource_created", recordable: @experience, metadata: { type: "Experience", title: @experience.title })
+        redirect_to curator_experience_path(@experience), notice: t("curator.experiences.created", default: "Iskustvo kreirano."), status: :see_other
+      else
+        flash.now[:alert] = @experience.errors.full_messages.join(", ")
+        render :new, status: :unprocessable_entity
+      end
+    end
+
+    def update_directly
+      if @experience.update(experience_params)
+        update_experience_locations(@experience)
+        record_activity("resource_updated", recordable: @experience, metadata: { type: "Experience", title: @experience.title })
+        redirect_to curator_experience_path(@experience), notice: t("curator.experiences.updated", default: "Iskustvo ažurirano."), status: :see_other
+      else
+        flash.now[:alert] = @experience.errors.full_messages.join(", ")
+        render :edit, status: :unprocessable_entity
+      end
+    end
+
+    def destroy_directly
+      title = @experience.title
+      @experience.destroy!
+      record_activity("resource_deleted", recordable: nil, metadata: { type: "Experience", title: title })
+      redirect_to curator_experiences_path, notice: t("curator.experiences.deleted", default: "Iskustvo obrisano."), status: :see_other
+    end
+
+    def update_experience_locations(experience)
+      if params[:experience][:location_uuids].present?
+        uuids = params[:experience][:location_uuids].reject(&:blank?)
+        experience.location_uuids = uuids
+      end
+    end
+
+    # === Curator proposal workflow ===
+
+    def create_proposal
       proposal = current_user.content_changes.build(
         change_type: :create_content,
         changeable_class: "Experience",
@@ -55,12 +126,7 @@ module Curator
       end
     end
 
-    def edit
-      @pending_proposal = pending_proposal_for(@experience)
-    end
-
-    def update
-      # Use find_or_create to ensure only one pending proposal per resource
+    def update_proposal
       proposal = ContentChange.find_or_create_for_update(
         changeable: @experience,
         user: current_user,
@@ -78,8 +144,7 @@ module Curator
       end
     end
 
-    def destroy
-      # Use find_or_create to ensure only one pending proposal per resource
+    def destroy_proposal
       proposal = ContentChange.find_or_create_for_delete(
         changeable: @experience,
         user: current_user,
@@ -93,8 +158,6 @@ module Curator
         redirect_to curator_experiences_path, alert: t("curator.proposals.failed_to_submit"), status: :see_other
       end
     end
-
-    private
 
     def set_experience
       @experience = Experience.find_by_public_id!(params[:id])

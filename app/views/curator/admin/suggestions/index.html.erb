@@ -1,0 +1,403 @@
+<div class="space-y-6">
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Prijedlozi za pregled</h1>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+    <div class="overflow-hidden rounded-lg bg-indigo-50 dark:bg-indigo-900/30 px-3 py-3 shadow sm:px-4 sm:py-5 sm:p-6">
+      <dt class="truncate text-xs sm:text-sm font-medium text-indigo-600 dark:text-indigo-400">Ukupno</dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-indigo-900 dark:text-indigo-100"><%= @stats[:total_pending] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-blue-50 dark:bg-blue-900/30 px-3 py-3 shadow sm:px-4 sm:py-5 sm:p-6">
+      <dt class="truncate text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-400">Lokacije</dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-blue-900 dark:text-blue-100"><%= @stats[:location_pending] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-purple-50 dark:bg-purple-900/30 px-3 py-3 shadow sm:px-4 sm:py-5 sm:p-6">
+      <dt class="truncate text-xs sm:text-sm font-medium text-purple-600 dark:text-purple-400">Iskustva</dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-purple-900 dark:text-purple-100"><%= @stats[:experience_pending] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-pink-50 dark:bg-pink-900/30 px-3 py-3 shadow sm:px-4 sm:py-5 sm:p-6">
+      <dt class="truncate text-xs sm:text-sm font-medium text-pink-600 dark:text-pink-400">Planovi</dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-pink-900 dark:text-pink-100"><%= @stats[:plan_pending] %></dd>
+    </div>
+  </div>
+
+  <!-- Location Suggestions -->
+  <% if @location_suggestions.any? %>
+    <div class="space-y-4">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Lokacije</h2>
+
+      <!-- Desktop table -->
+      <div class="hidden sm:block overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-700">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Lokacija</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tip izmjene</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Porijeklo</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kurator</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Datum</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Doprinosi</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Akcije</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <% @location_suggestions.each do |suggestion| %>
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">
+                    <%= suggestion.location&.name || "Nova lokacija" %>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% case suggestion.change_type %>
+                  <% when "create_resource" %>
+                    <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/40 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:text-green-300">
+                      Kreiranje
+                    </span>
+                  <% when "update_resource" %>
+                    <span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/40 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">
+                      Izmjena
+                    </span>
+                  <% when "delete_resource" %>
+                    <span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:text-red-300">
+                      Brisanje
+                    </span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if suggestion.origin_human? %>
+                    <span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/40 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">
+                      Kurator
+                    </span>
+                  <% else %>
+                    <span class="inline-flex items-center rounded-full bg-purple-100 dark:bg-purple-900/40 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:text-purple-300">
+                      AI
+                    </span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                  <%= suggestion.user.username %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  <%= suggestion.created_at.strftime("%d.%m.%Y") %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  <%= suggestion.contributions.count %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                  <%= link_to "Pregledaj", curator_admin_location_suggestion_path(suggestion),
+                      class: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 font-medium" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile cards -->
+      <div class="sm:hidden space-y-3">
+        <% @location_suggestions.each do |suggestion| %>
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-medium text-gray-900 dark:text-white text-sm">
+                <%= suggestion.location&.name || "Nova lokacija" %>
+              </span>
+              <% case suggestion.change_type %>
+              <% when "create_resource" %>
+                <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/40 px-2 py-0.5 text-xs font-medium text-green-800 dark:text-green-300">
+                  Kreiranje
+                </span>
+              <% when "update_resource" %>
+                <span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/40 px-2 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">
+                  Izmjena
+                </span>
+              <% when "delete_resource" %>
+                <span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2 py-0.5 text-xs font-medium text-red-800 dark:text-red-300">
+                  Brisanje
+                </span>
+              <% end %>
+            </div>
+            <div class="flex items-center gap-2 mb-2">
+              <% if suggestion.origin_human? %>
+                <span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/40 px-2 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">
+                  Kurator
+                </span>
+              <% else %>
+                <span class="inline-flex items-center rounded-full bg-purple-100 dark:bg-purple-900/40 px-2 py-0.5 text-xs font-medium text-purple-800 dark:text-purple-300">
+                  AI
+                </span>
+              <% end %>
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                <%= suggestion.user.username %>
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                <%= suggestion.created_at.strftime("%d.%m.%Y") %> • <%= suggestion.contributions.count %> doprinosa
+              </span>
+              <%= link_to "Pregledaj", curator_admin_location_suggestion_path(suggestion),
+                  class: "text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 font-medium" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Experience Suggestions -->
+  <% if @experience_suggestions.any? %>
+    <div class="space-y-4">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Iskustva</h2>
+
+      <!-- Desktop table -->
+      <div class="hidden sm:block overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-700">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Iskustvo</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tip izmjene</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Porijeklo</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kurator</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Datum</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Doprinosi</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Akcije</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <% @experience_suggestions.each do |suggestion| %>
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">
+                    <%= suggestion.experience&.title || "Novo iskustvo" %>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% case suggestion.change_type %>
+                  <% when "create_resource" %>
+                    <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/40 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:text-green-300">
+                      Kreiranje
+                    </span>
+                  <% when "update_resource" %>
+                    <span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/40 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">
+                      Izmjena
+                    </span>
+                  <% when "delete_resource" %>
+                    <span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:text-red-300">
+                      Brisanje
+                    </span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if suggestion.origin_human? %>
+                    <span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/40 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">
+                      Kurator
+                    </span>
+                  <% else %>
+                    <span class="inline-flex items-center rounded-full bg-purple-100 dark:bg-purple-900/40 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:text-purple-300">
+                      AI
+                    </span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                  <%= suggestion.user.username %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  <%= suggestion.created_at.strftime("%d.%m.%Y") %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  <%= suggestion.contributions.count %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                  <%= link_to "Pregledaj", curator_admin_experience_suggestion_path(suggestion),
+                      class: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 font-medium" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile cards -->
+      <div class="sm:hidden space-y-3">
+        <% @experience_suggestions.each do |suggestion| %>
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-medium text-gray-900 dark:text-white text-sm">
+                <%= suggestion.experience&.title || "Novo iskustvo" %>
+              </span>
+              <% case suggestion.change_type %>
+              <% when "create_resource" %>
+                <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/40 px-2 py-0.5 text-xs font-medium text-green-800 dark:text-green-300">
+                  Kreiranje
+                </span>
+              <% when "update_resource" %>
+                <span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/40 px-2 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">
+                  Izmjena
+                </span>
+              <% when "delete_resource" %>
+                <span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2 py-0.5 text-xs font-medium text-red-800 dark:text-red-300">
+                  Brisanje
+                </span>
+              <% end %>
+            </div>
+            <div class="flex items-center gap-2 mb-2">
+              <% if suggestion.origin_human? %>
+                <span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/40 px-2 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">
+                  Kurator
+                </span>
+              <% else %>
+                <span class="inline-flex items-center rounded-full bg-purple-100 dark:bg-purple-900/40 px-2 py-0.5 text-xs font-medium text-purple-800 dark:text-purple-300">
+                  AI
+                </span>
+              <% end %>
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                <%= suggestion.user.username %>
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                <%= suggestion.created_at.strftime("%d.%m.%Y") %> • <%= suggestion.contributions.count %> doprinosa
+              </span>
+              <%= link_to "Pregledaj", curator_admin_experience_suggestion_path(suggestion),
+                  class: "text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 font-medium" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Plan Suggestions -->
+  <% if @plan_suggestions.any? %>
+    <div class="space-y-4">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Planovi</h2>
+
+      <!-- Desktop table -->
+      <div class="hidden sm:block overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-700">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Plan</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tip izmjene</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Porijeklo</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kurator</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Datum</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Doprinosi</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Akcije</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <% @plan_suggestions.each do |suggestion| %>
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">
+                    <%= suggestion.plan&.title || "Novi plan" %>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% case suggestion.change_type %>
+                  <% when "create_resource" %>
+                    <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/40 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:text-green-300">
+                      Kreiranje
+                    </span>
+                  <% when "update_resource" %>
+                    <span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/40 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">
+                      Izmjena
+                    </span>
+                  <% when "delete_resource" %>
+                    <span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:text-red-300">
+                      Brisanje
+                    </span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if suggestion.origin_human? %>
+                    <span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/40 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">
+                      Kurator
+                    </span>
+                  <% else %>
+                    <span class="inline-flex items-center rounded-full bg-purple-100 dark:bg-purple-900/40 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:text-purple-300">
+                      AI
+                    </span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                  <%= suggestion.user.username %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  <%= suggestion.created_at.strftime("%d.%m.%Y") %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  <%= suggestion.contributions.count %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                  <%= link_to "Pregledaj", curator_admin_plan_suggestion_path(suggestion),
+                      class: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 font-medium" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile cards -->
+      <div class="sm:hidden space-y-3">
+        <% @plan_suggestions.each do |suggestion| %>
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-medium text-gray-900 dark:text-white text-sm">
+                <%= suggestion.plan&.title || "Novi plan" %>
+              </span>
+              <% case suggestion.change_type %>
+              <% when "create_resource" %>
+                <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/40 px-2 py-0.5 text-xs font-medium text-green-800 dark:text-green-300">
+                  Kreiranje
+                </span>
+              <% when "update_resource" %>
+                <span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/40 px-2 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">
+                  Izmjena
+                </span>
+              <% when "delete_resource" %>
+                <span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2 py-0.5 text-xs font-medium text-red-800 dark:text-red-300">
+                  Brisanje
+                </span>
+              <% end %>
+            </div>
+            <div class="flex items-center gap-2 mb-2">
+              <% if suggestion.origin_human? %>
+                <span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/40 px-2 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">
+                  Kurator
+                </span>
+              <% else %>
+                <span class="inline-flex items-center rounded-full bg-purple-100 dark:bg-purple-900/40 px-2 py-0.5 text-xs font-medium text-purple-800 dark:text-purple-300">
+                  AI
+                </span>
+              <% end %>
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                <%= suggestion.user.username %>
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                <%= suggestion.created_at.strftime("%d.%m.%Y") %> • <%= suggestion.contributions.count %> doprinosa
+              </span>
+              <%= link_to "Pregledaj", curator_admin_plan_suggestion_path(suggestion),
+                  class: "text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 font-medium" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Empty state -->
+  <% if @location_suggestions.empty? && @experience_suggestions.empty? && @plan_suggestions.empty? %>
+    <div class="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
+      <div class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+        Nema prijedloga za pregled
+      </div>
+    </div>
+  <% end %>
+</div>

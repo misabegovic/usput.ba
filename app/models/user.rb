@@ -38,6 +38,11 @@ class User < ApplicationRecord
   # Normalize username to lowercase
   before_save { self.username = username.downcase }
 
+  # Flipper actor support (for per-user feature flags)
+  def flipper_id
+    "User;#{id}"
+  end
+
   # Permission helpers
   def can_curate?
     curator? || admin?

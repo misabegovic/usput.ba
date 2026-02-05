@@ -1,0 +1,351 @@
+<div class="space-y-6">
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+      Prijedlog za iskustvo: <%= @suggestion.experience&.title || "Novo iskustvo" %>
+    </h1>
+    <div class="mt-3 sm:mt-0">
+      <%= link_to "Nazad na pregled", curator_admin_suggestions_path,
+          class: "inline-flex items-center rounded-md bg-white dark:bg-gray-800 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700" %>
+    </div>
+  </div>
+
+  <!-- Status and Actions -->
+  <div class="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
+    <div class="px-4 py-4 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div class="space-y-2">
+          <div>
+            <span class="text-sm text-gray-500 dark:text-gray-400">Status:</span>
+            <% case @suggestion.status %>
+            <% when "pending" %>
+              <span class="ml-2 inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900/40 px-3 py-1 text-sm font-medium text-yellow-800 dark:text-yellow-300">
+                Na čekanju
+              </span>
+            <% when "approved" %>
+              <span class="ml-2 inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/40 px-3 py-1 text-sm font-medium text-green-800 dark:text-green-300">
+                Odobreno
+              </span>
+            <% when "rejected" %>
+              <span class="ml-2 inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-3 py-1 text-sm font-medium text-red-800 dark:text-red-300">
+                Odbijeno
+              </span>
+            <% end %>
+          </div>
+          <div>
+            <span class="text-sm text-gray-500 dark:text-gray-400">Tip izmjene:</span>
+            <span class="ml-2 text-sm text-gray-900 dark:text-white">
+              <% case @suggestion.change_type %>
+              <% when "create_resource" %>
+                Kreiranje
+              <% when "update_resource" %>
+                Izmjena
+              <% when "delete_resource" %>
+                Brisanje
+              <% end %>
+            </span>
+          </div>
+          <div>
+            <span class="text-sm text-gray-500 dark:text-gray-400">Porijeklo:</span>
+            <span class="ml-2 text-sm text-gray-900 dark:text-white">
+              <% if @suggestion.origin_human? %>
+                Kurator
+              <% else %>
+                AI generisano
+              <% end %>
+            </span>
+          </div>
+        </div>
+
+        <% if @suggestion.pending? %>
+          <div class="flex flex-col gap-3">
+            <%= form_with url: approve_curator_admin_experience_suggestion_path(@suggestion), method: :post, class: "flex flex-col gap-2" do |f| %>
+              <%= f.text_field :admin_notes,
+                  placeholder: "Bilješke admina (opcionalno)",
+                  class: "rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm w-full" %>
+              <%= f.submit "Odobri prijedlog",
+                  class: "inline-flex items-center justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 cursor-pointer w-full",
+                  data: { turbo_confirm: "Jeste li sigurni da želite odobriti ovaj prijedlog?" } %>
+            <% end %>
+
+            <%= form_with url: reject_curator_admin_experience_suggestion_path(@suggestion), method: :post, class: "flex flex-col gap-2" do |f| %>
+              <%= f.text_field :admin_notes,
+                  placeholder: "Razlog odbijanja",
+                  class: "rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm w-full" %>
+              <%= f.submit "Odbij prijedlog",
+                  class: "inline-flex items-center justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 cursor-pointer w-full",
+                  data: { turbo_confirm: "Jeste li sigurni da želite odbiti ovaj prijedlog?" } %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <% if @suggestion.reviewed_by.present? %>
+        <div class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+          Pregledao: <%= @suggestion.reviewed_by.username %> - <%= @suggestion.reviewed_at.strftime("%d.%m.%Y %H:%M") %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Cover Photo -->
+  <% if @suggestion.proposed_cover_photo.attached? %>
+    <div class="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
+      <div class="bg-gray-100 dark:bg-gray-700 p-4">
+        <div class="flex items-center justify-center">
+          <%= image_tag @suggestion.proposed_cover_photo, class: "max-h-96 object-contain rounded-lg" %>
+        </div>
+        <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-3">
+          Naslovna fotografija
+        </p>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Proposed Changes -->
+  <div class="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
+    <div class="px-4 py-5 sm:p-6">
+      <h3 class="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-4">Predložene izmjene</h3>
+      <dl class="space-y-6">
+        <% if @suggestion.proposed_title.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Naslov</dt>
+            <% if @suggestion.update_resource? && @suggestion.experience.present? %>
+              <dd class="mt-1 text-sm">
+                <div class="text-gray-500 dark:text-gray-400 line-through">
+                  <%= @suggestion.experience.title %>
+                </div>
+                <div class="text-gray-900 dark:text-white font-semibold">
+                  <%= @suggestion.proposed_title %>
+                </div>
+              </dd>
+            <% else %>
+              <dd class="mt-1 text-sm text-gray-900 dark:text-white font-semibold">
+                <%= @suggestion.proposed_title %>
+              </dd>
+            <% end %>
+          </div>
+        <% end %>
+
+        <% if @suggestion.proposed_description.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Opis</dt>
+            <% if @suggestion.update_resource? && @suggestion.experience.present? && @suggestion.experience.description.present? %>
+              <dd class="mt-1 text-sm">
+                <div class="text-gray-500 dark:text-gray-400 line-through whitespace-pre-wrap bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg mb-2">
+                  <%= @suggestion.experience.description %>
+                </div>
+                <div class="text-gray-900 dark:text-white font-semibold whitespace-pre-wrap bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+                  <%= @suggestion.proposed_description %>
+                </div>
+              </dd>
+            <% else %>
+              <dd class="mt-1 text-sm text-gray-900 dark:text-white font-semibold whitespace-pre-wrap bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+                <%= @suggestion.proposed_description %>
+              </dd>
+            <% end %>
+          </div>
+        <% end %>
+
+        <% if @suggestion.proposed_seasons.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Sezone</dt>
+            <dd class="mt-1">
+              <div class="flex flex-wrap gap-2">
+                <% @suggestion.proposed_seasons.each do |season| %>
+                  <span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/40 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">
+                    <%= season %>
+                  </span>
+                <% end %>
+              </div>
+            </dd>
+          </div>
+        <% end %>
+
+        <% if @suggestion.proposed_contact_name.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Kontakt ime</dt>
+            <% if @suggestion.update_resource? && @suggestion.experience.present? %>
+              <dd class="mt-1 text-sm">
+                <div class="text-gray-500 dark:text-gray-400 line-through">
+                  <%= @suggestion.experience.contact_name %>
+                </div>
+                <div class="text-gray-900 dark:text-white font-semibold">
+                  <%= @suggestion.proposed_contact_name %>
+                </div>
+              </dd>
+            <% else %>
+              <dd class="mt-1 text-sm text-gray-900 dark:text-white font-semibold">
+                <%= @suggestion.proposed_contact_name %>
+              </dd>
+            <% end %>
+          </div>
+        <% end %>
+
+        <% if @suggestion.proposed_contact_email.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Kontakt email</dt>
+            <% if @suggestion.update_resource? && @suggestion.experience.present? %>
+              <dd class="mt-1 text-sm">
+                <div class="text-gray-500 dark:text-gray-400 line-through">
+                  <%= @suggestion.experience.contact_email %>
+                </div>
+                <div class="text-gray-900 dark:text-white font-semibold">
+                  <%= @suggestion.proposed_contact_email %>
+                </div>
+              </dd>
+            <% else %>
+              <dd class="mt-1 text-sm text-gray-900 dark:text-white font-semibold">
+                <%= @suggestion.proposed_contact_email %>
+              </dd>
+            <% end %>
+          </div>
+        <% end %>
+
+        <% if @suggestion.proposed_contact_phone.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Kontakt telefon</dt>
+            <% if @suggestion.update_resource? && @suggestion.experience.present? %>
+              <dd class="mt-1 text-sm">
+                <div class="text-gray-500 dark:text-gray-400 line-through">
+                  <%= @suggestion.experience.contact_phone %>
+                </div>
+                <div class="text-gray-900 dark:text-white font-semibold">
+                  <%= @suggestion.proposed_contact_phone %>
+                </div>
+              </dd>
+            <% else %>
+              <dd class="mt-1 text-sm text-gray-900 dark:text-white font-semibold">
+                <%= @suggestion.proposed_contact_phone %>
+              </dd>
+            <% end %>
+          </div>
+        <% end %>
+
+        <% if @suggestion.proposed_contact_website.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Kontakt website</dt>
+            <% if @suggestion.update_resource? && @suggestion.experience.present? %>
+              <dd class="mt-1 text-sm">
+                <div class="text-gray-500 dark:text-gray-400 line-through">
+                  <%= @suggestion.experience.contact_website %>
+                </div>
+                <div class="text-gray-900 dark:text-white font-semibold">
+                  <%= link_to @suggestion.proposed_contact_website, @suggestion.proposed_contact_website, target: "_blank", class: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300" %>
+                </div>
+              </dd>
+            <% else %>
+              <dd class="mt-1 text-sm text-gray-900 dark:text-white font-semibold">
+                <%= link_to @suggestion.proposed_contact_website, @suggestion.proposed_contact_website, target: "_blank", class: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300" %>
+              </dd>
+            <% end %>
+          </div>
+        <% end %>
+
+        <% if @suggestion.proposed_location_uuids.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Povezane lokacije</dt>
+            <dd class="mt-1">
+              <% locations = Location.where(uuid: @suggestion.proposed_location_uuids) %>
+              <% if locations.any? %>
+                <ul class="space-y-1">
+                  <% locations.each do |location| %>
+                    <li class="text-sm">
+                      <%= link_to location.name, location_path(location), class: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300" %>
+                    </li>
+                  <% end %>
+                </ul>
+              <% else %>
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                  <%= @suggestion.proposed_location_uuids.count %> lokacija
+                </span>
+              <% end %>
+            </dd>
+          </div>
+        <% end %>
+
+        <% if @suggestion.proposed_video_urls.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Video URL-ovi</dt>
+            <dd class="mt-1">
+              <ul class="space-y-1">
+                <% @suggestion.proposed_video_urls.each do |url| %>
+                  <li class="text-sm">
+                    <%= link_to url, url, target: "_blank", class: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 break-all" %>
+                  </li>
+                <% end %>
+              </ul>
+            </dd>
+          </div>
+        <% end %>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Contributions -->
+  <% if @suggestion.contributions.any? %>
+    <div class="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-4">Doprinosi (<%= @suggestion.contributions.count %>)</h3>
+        <div class="space-y-4">
+          <% @suggestion.contributions.order(created_at: :asc).each do |contribution| %>
+            <div class="border-l-4 border-indigo-500 pl-4 py-2">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-900 dark:text-white">
+                  <%= contribution.user.username %>
+                </span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">
+                  <%= contribution.created_at.strftime("%d.%m.%Y %H:%M") %>
+                </span>
+              </div>
+              <% if contribution.notes.present? %>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-2"><%= contribution.notes %></p>
+              <% end %>
+              <div class="text-xs text-gray-500 dark:text-gray-400">
+                Izmijenjeno polja: <%= contribution.attributes.keys.select { |k| k.start_with?("proposed_") && contribution[k].present? }.map { |k| k.gsub("proposed_", "") }.join(", ") %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Suggestion Info -->
+  <div class="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
+    <div class="px-4 py-5 sm:p-6">
+      <h3 class="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-4">Informacije</h3>
+      <dl class="space-y-4">
+        <div>
+          <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Predložio</dt>
+          <dd class="mt-1 text-sm text-gray-900 dark:text-white"><%= @suggestion.user.username %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Datum predlaganja</dt>
+          <dd class="mt-1 text-sm text-gray-900 dark:text-white"><%= @suggestion.created_at.strftime("%d.%m.%Y %H:%M") %></dd>
+        </div>
+
+        <% if @suggestion.experience.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Postojeće iskustvo</dt>
+            <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+              <%= link_to @suggestion.experience.title, experience_path(@suggestion.experience), class: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300" %>
+            </dd>
+          </div>
+        <% end %>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Admin Notes -->
+  <% if @suggestion.admin_notes.present? %>
+    <div class="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-4">Bilješke admina</h3>
+        <div class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+          <%= @suggestion.admin_notes %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

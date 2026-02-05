@@ -86,14 +86,26 @@ Rails.application.routes.draw do
   namespace :curator do
     resources :locations do
       resources :photo_suggestions, only: [ :new, :create ]
+      resources :location_suggestions, only: [ :new, :create, :edit, :update ]
       collection do
         get :needs_photos
       end
+      member do
+        post :generate_audio_tour
+      end
     end
-    resources :experiences
-    resources :reviews, only: [ :index, :show, :destroy ]
+    resources :experiences do
+      resources :experience_suggestions, only: [ :new, :create, :edit, :update ]
+    end
+    resources :reviews, only: [ :index, :show, :destroy ] do
+      member do
+        post :flag
+      end
+    end
     resources :audio_tours
-    resources :plans
+    resources :plans do
+      resources :plan_suggestions, only: [ :new, :create, :edit, :update ]
+    end
     resources :proposals, only: [ :index, :show ] do
       member do
         post :add_review
@@ -103,10 +115,35 @@ Rails.application.routes.draw do
 
     # Admin features for admin users within curator dashboard
     namespace :admin do
+      resources :suggestions, only: [ :index ]
       resources :photo_suggestions, only: [ :index, :show ] do
         member do
           post :approve
           post :reject
+        end
+      end
+      resources :location_suggestions, only: [ :show ] do
+        member do
+          post :approve
+          post :reject
+        end
+      end
+      resources :experience_suggestions, only: [ :show ] do
+        member do
+          post :approve
+          post :reject
+        end
+      end
+      resources :plan_suggestions, only: [ :show ] do
+        member do
+          post :approve
+          post :reject
+        end
+      end
+      resources :reviews, only: [ :index, :show ] do
+        member do
+          post :approve
+          post :remove
         end
       end
       resources :users, only: [ :index, :show, :edit, :update ] do

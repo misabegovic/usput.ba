@@ -662,6 +662,73 @@ class Curator::LocationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   # ==========================================================================
+  # Audio Tour Generation Tests
+  # ==========================================================================
+
+  test "generate_audio_tour requires admin" do
+    login_as(@curator)
+    post generate_audio_tour_curator_location_path(@location), params: { locale: "bs" }
+    assert_redirected_to curator_location_path(@location)
+    follow_redirect!
+    assert_match "Samo admin može generisati audio ture.", response.body
+  end
+
+  test "admin can trigger audio tour generation" do
+    login_as(@admin)
+
+    assert_enqueued_with(job: AudioTourGenerateJob) do
+      post generate_audio_tour_curator_location_path(@location), params: { locale: "en" }
+    end
+
+    assert_redirected_to curator_location_path(@location)
+    follow_redirect!
+    assert_match "Audio tura za EN se generise u pozadini.", response.body
+  end
+
+  test "generate_audio_tour records curator activity" do
+    login_as(@admin)
+
+    assert_difference "CuratorActivity.count", 1 do
+      post generate_audio_tour_curator_location_path(@location), params: { locale: "bs" }
+    end
+
+    activity = CuratorActivity.last
+    assert_equal "audio_tour_generation_requested", activity.action
+    assert_equal @admin, activity.user
+    assert_equal @location, activity.recordable
+    assert_equal "bs", activity.metadata["locale"]
+  end
+
+  test "generate_audio_tour prevents duplicate requests within 10 minutes" do
+    login_as(@admin)
+
+    # First request
+    CuratorActivity.record(
+      user: @admin,
+      action: "audio_tour_generation_requested",
+      recordable: @location,
+      metadata: { locale: "bs" }
+    )
+
+    # Second request within 10 minutes should be blocked
+    assert_no_enqueued_jobs do
+      post generate_audio_tour_curator_location_path(@location), params: { locale: "bs" }
+    end
+
+    assert_redirected_to curator_location_path(@location)
+    follow_redirect!
+    assert_match "Generisanje je već pokrenuto", response.body
+  end
+
+  test "generate_audio_tour uses bs locale by default" do
+    login_as(@admin)
+
+    assert_enqueued_with(job: AudioTourGenerateJob, args: [ { location_id: @location.id, locale: "bs", requested_by_id: @admin.id } ]) do
+      post generate_audio_tour_curator_location_path(@location)
+    end
+  end
+
+  # ==========================================================================
   # Edge Cases
   # ==========================================================================
 

@@ -1,0 +1,17 @@
+one:
+  uuid: "33333333-3333-3333-3333-333333333333"
+  username: curator1
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  user_type: 1
+
+two:
+  uuid: "44444444-4444-4444-4444-444444444444"
+  username: curator2
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  user_type: 1
+
+admin:
+  uuid: "55555555-5555-5555-5555-555555555555"
+  username: admin1
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  user_type: 2

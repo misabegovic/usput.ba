@@ -61,4 +61,52 @@
       </div>
     </div>
   </div>
+
+  <!-- Flag Section -->
+  <div class="rounded-lg bg-white dark:bg-gray-800 shadow">
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
+      <h2 class="text-lg font-medium text-gray-900 dark:text-white">Prijavi neprimjerenu recenziju</h2>
+    </div>
+    <div class="px-4 py-5 sm:px-6">
+      <% if @review.flagged_by?(current_user) %>
+        <div class="rounded-md bg-yellow-50 dark:bg-yellow-900/30 p-4">
+          <p class="text-sm text-yellow-800 dark:text-yellow-300">Već ste prijavili ovu recenziju.</p>
+        </div>
+      <% else %>
+        <%= form_with url: flag_curator_review_path(@review), method: :post, class: "space-y-4" do |f| %>
+          <div>
+            <label for="reason" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Razlog prijave</label>
+            <select name="reason" id="reason" required
+                class="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+              <option value="">Odaberite razlog</option>
+              <option value="spam">Spam</option>
+              <option value="inappropriate">Neprimjeren sadržaj</option>
+              <option value="inaccurate">Netačne informacije</option>
+              <option value="other">Ostalo</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dodatne napomene (opcionalno)</label>
+            <textarea name="notes" id="notes" rows="3"
+                class="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                placeholder="Dodatne informacije o prijavi..."></textarea>
+          </div>
+
+          <div>
+            <%= f.submit "Prijavi recenziju", class: "inline-flex items-center rounded-md bg-orange-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-500" %>
+          </div>
+        <% end %>
+      <% end %>
+
+      <!-- Show flag count and list if any -->
+      <% if @review.review_flags.any? %>
+        <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Ova recenzija ima <%= @review.review_flags.count %> prijava.
+          </p>
+        </div>
+      <% end %>
+    </div>
+  </div>
 </div>

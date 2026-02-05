@@ -38,6 +38,12 @@ module Curator
       current_user.check_spam_activity!
     end
 
+    # Admin direct CRUD: admin users can edit/delete directly without proposals
+    def admin_direct_crud?
+      current_user.admin? && Flipper.enabled?(:curator_edit_delete, current_user)
+    end
+    helper_method :admin_direct_crud?
+
     # Find pending proposal for a resource (for display on show/edit pages)
     def pending_proposal_for(resource)
       return nil unless resource.present?

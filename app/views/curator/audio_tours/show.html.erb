@@ -70,7 +70,7 @@
         <% end %>
       </dl>
 
-      <% if Flipper.enabled?(:curator_edit_delete) %>
+      <% if admin_direct_crud? %>
         <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex gap-3">
           <%= link_to edit_curator_audio_tour_path(@audio_tour),
               class: "inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500" do %>
