@@ -113,7 +113,8 @@ class ExperienceSuggestion < ApplicationRecord
   belongs_to :experience, optional: true
   has_many :contributions, class_name: "ExperienceSuggestionContribution"
   has_one_attached :proposed_cover_photo
-  # Typed kolone: proposed_title, proposed_description, proposed_seasons, ...
+  # Typed kolone: proposed_title, proposed_description, proposed_seasons,
+  #   proposed_video_urls (jsonb), proposed_contact_*, ...
 end
 
 # PlanSuggestion
@@ -121,6 +122,7 @@ class PlanSuggestion < ApplicationRecord
   include Suggestable
   belongs_to :plan, optional: true
   has_many :contributions, class_name: "PlanSuggestionContribution"
+  has_one_attached :proposed_cover_photo  # ADR-0006: direktan cover photo
   # Typed kolone: proposed_title, proposed_city_name, proposed_experience_days, ...
 end
 ```

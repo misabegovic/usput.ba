@@ -271,7 +271,7 @@ class CreateLocationSuggestions < ActiveRecord::Migration[8.0]
       t.string :proposed_phone
       t.string :proposed_email
       t.string :proposed_website
-      t.string :proposed_video_url
+      t.jsonb :proposed_video_urls, default: []    # Array URL-ova (ADR-0006)
       t.jsonb :proposed_social_links, default: {}
       t.jsonb :proposed_tags, default: []
       t.jsonb :proposed_category_ids, default: []
@@ -309,7 +309,7 @@ class CreateLocationSuggestionContributions < ActiveRecord::Migration[8.0]
       t.string :proposed_phone
       t.string :proposed_email
       t.string :proposed_website
-      t.string :proposed_video_url
+      t.jsonb :proposed_video_urls                  # Array URL-ova (ADR-0006)
       t.jsonb :proposed_social_links
       t.jsonb :proposed_tags
       t.jsonb :proposed_category_ids
@@ -327,7 +327,20 @@ class CreateLocationSuggestionContributions < ActiveRecord::Migration[8.0]
 end
 ```
 
-**Isti pattern za ExperienceSuggestion i PlanSuggestion** — svaki sa svojim typed kolonama i contribution tabelom.
+**ExperienceSuggestion** — typed kolone:
+- `proposed_title`, `proposed_description`, `proposed_category_id`, `proposed_duration`
+- `proposed_seasons` (jsonb), `proposed_location_uuids` (jsonb)
+- `proposed_contact_name`, `proposed_contact_email`, `proposed_contact_phone`, `proposed_contact_website`
+- `proposed_video_urls` (jsonb, ADR-0006)
+- `has_one_attached :proposed_cover_photo`
+
+**PlanSuggestion** — typed kolone:
+- `proposed_title`, `proposed_city_name`, `proposed_notes`, `proposed_visibility`
+- `proposed_start_date`, `proposed_end_date`
+- `proposed_preferences` (jsonb), `proposed_experience_days` (jsonb)
+- `has_one_attached :proposed_cover_photo` (ADR-0006)
+
+Svaki sa odgovarajućom contribution tabelom (iste typed kolone).
 
 ### Cleanup plan
 

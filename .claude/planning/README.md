@@ -89,6 +89,7 @@ Product i tehničke odluke koje utiču na arhitekturu.
 | 2026-02-05 | Per-Resource Suggestion Models (ADR-0003) | Proposed |
 | 2026-02-05 | Reviews Management System (ADR-0004) | Proposed |
 | 2026-02-05 | Audio Tour Generation Integration (ADR-0005) | Proposed |
+| 2026-02-05 | Multiple Video URLs + Cover Photo Support (ADR-0006) | Proposed |
 
 **Location:** `.claude/planning/decisions/`
 
