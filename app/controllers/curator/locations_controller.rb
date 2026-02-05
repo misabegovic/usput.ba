@@ -2,7 +2,7 @@
 
 module Curator
   class LocationsController < BaseController
-    before_action :set_location, only: [ :show, :edit, :update, :destroy ]
+    before_action :set_location, only: [ :show, :edit, :update, :destroy, :generate_audio_tour ]
     before_action :load_form_options, only: [ :new, :create, :edit, :update ]
 
     def index
@@ -65,7 +65,107 @@ module Curator
     end
 
     def create
-      # Instead of creating directly, create a proposal for admin review
+      if admin_direct_crud?
+        create_directly
+      else
+        create_proposal
+      end
+    end
+
+    def edit
+      @pending_proposal = pending_proposal_for(@location)
+    end
+
+    def update
+      if admin_direct_crud?
+        update_directly
+      else
+        update_proposal
+      end
+    end
+
+    def destroy
+      if admin_direct_crud?
+        destroy_directly
+      else
+        destroy_proposal
+      end
+    end
+
+    def generate_audio_tour
+      unless current_user.admin?
+        redirect_to curator_location_path(@location), alert: "Samo admin može generisati audio ture."
+        return
+      end
+
+      locale = params[:locale] || "bs"
+
+      # Check for recent generation request to prevent duplicate jobs
+      recent_request = CuratorActivity
+        .where(action: "audio_tour_generation_requested")
+        .where(recordable: @location)
+        .where("created_at > ?", 10.minutes.ago)
+        .exists?
+
+      if recent_request
+        redirect_to curator_location_path(@location), alert: "Generisanje je već pokrenuto. Sačekajte da se završi."
+        return
+      end
+
+      AudioTourGenerateJob.perform_later(
+        location_id: @location.id,
+        locale: locale,
+        requested_by_id: current_user.id
+      )
+
+      record_activity("audio_tour_generation_requested",
+        recordable: @location,
+        metadata: { locale: locale }
+      )
+
+      redirect_to curator_location_path(@location),
+        notice: "Audio tura za #{locale.upcase} se generise u pozadini."
+    end
+
+    private
+
+    # === Admin direct CRUD ===
+
+    def create_directly
+      result = LocationCreator.new(location_params.to_h).call
+
+      if result.success?
+        record_activity("resource_created", recordable: result.location, metadata: { type: "Location", name: result.location.name })
+        redirect_to curator_location_path(result.location), notice: t("curator.locations.created", default: "Lokacija kreirana."), status: :see_other
+      else
+        @location = Location.new(location_params)
+        flash.now[:alert] = result.errors.join(", ")
+        render :new, status: :unprocessable_entity
+      end
+    end
+
+    def update_directly
+      result = LocationUpdater.new(@location, location_params.to_h).call
+
+      if result.success?
+        record_activity("resource_updated", recordable: @location, metadata: { type: "Location", name: @location.name })
+        redirect_to curator_location_path(@location), notice: t("curator.locations.updated", default: "Lokacija ažurirana."), status: :see_other
+      else
+        flash.now[:alert] = result.errors.join(", ")
+        render :edit, status: :unprocessable_entity
+      end
+    end
+
+    def destroy_directly
+      name = @location.name
+      @location.destroy!
+      record_activity("resource_deleted", recordable: nil, metadata: { type: "Location", name: name })
+      redirect_to curator_locations_path, notice: t("curator.locations.deleted", default: "Lokacija obrisana."), status: :see_other
+    end
+
+    # === Curator proposal workflow ===
+
+    def create_proposal
       proposal = current_user.content_changes.build(
         change_type: :create_content,
         changeable_class: "Location",
@@ -82,25 +182,13 @@ module Curator
       end
     end
 
-    def edit
-      @pending_proposal = pending_proposal_for(@location)
-    end
-
-    def update
-      Rails.logger.info "[Curator::Locations] Update called for location #{@location.id} by user #{current_user.id}"
-      Rails.logger.info "[Curator::Locations] Params: #{params.inspect}"
-      Rails.logger.info "[Curator::Locations] Proposal data: #{proposal_data_from_params.inspect}"
-
-      # Use find_or_create to ensure only one pending proposal per resource
-      # This allows multiple curators to contribute to the same proposal
+    def update_proposal
       proposal = ContentChange.find_or_create_for_update(
         changeable: @location,
         user: current_user,
         original_data: build_original_data,
         proposed_data: proposal_data_from_params
       )
-
-      Rails.logger.info "[Curator::Locations] Proposal created: persisted=#{proposal.persisted?}, errors=#{proposal.errors.full_messages}"
 
       if proposal.persisted?
         action = proposal.contributions.exists?(user: current_user) ? "proposal_contributed" : "proposal_updated"
@@ -116,8 +204,7 @@ module Curator
       render :edit, status: :unprocessable_entity
     end
 
-    def destroy
-      # Use find_or_create to ensure only one pending proposal per resource
+    def destroy_proposal
       proposal = ContentChange.find_or_create_for_delete(
         changeable: @location,
         user: current_user,
@@ -131,8 +218,6 @@ module Curator
         redirect_to curator_locations_path, alert: t("curator.proposals.failed_to_submit"), status: :see_other
       end
     end
-
-    private
 
     def set_location
       @location = Location.find_by_public_id!(params[:id])

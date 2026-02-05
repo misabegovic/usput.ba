@@ -1,0 +1,15 @@
+one:
+  uuid: "11111111-1111-1111-1111-111111111111"
+  name: "Stari Most"
+  city: "Mostar"
+  lat: 43.3377
+  lng: 17.8154
+  description: "Famous bridge in Mostar"
+
+two:
+  uuid: "22222222-2222-2222-2222-222222222222"
+  name: "Baščaršija"
+  city: "Sarajevo"
+  lat: 43.8594
+  lng: 18.4320
+  description: "Historic market in Sarajevo"

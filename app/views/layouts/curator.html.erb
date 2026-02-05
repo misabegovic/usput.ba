@@ -105,6 +105,10 @@
                           class: "block whitespace-nowrap px-4 py-2 text-sm #{request.path.start_with?(curator_admin_curator_applications_path) ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}" %>
                       <%= link_to t("curator.nav.admin_photo_suggestions", default: "Fotografije"), curator_admin_photo_suggestions_path,
                           class: "block whitespace-nowrap px-4 py-2 text-sm #{request.path.start_with?(curator_admin_photo_suggestions_path) ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}" %>
+                      <%= link_to "Prijedlozi", curator_admin_suggestions_path,
+                          class: "block whitespace-nowrap px-4 py-2 text-sm #{request.path.start_with?(curator_admin_suggestions_path) ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}" %>
+                      <%= link_to "Recenzije", curator_admin_reviews_path,
+                          class: "block whitespace-nowrap px-4 py-2 text-sm #{request.path.start_with?(curator_admin_reviews_path) ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}" %>
                       <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
                       <%= link_to t("curator.nav.admin_users", default: "Korisnici"), curator_admin_users_path,
                           class: "block whitespace-nowrap px-4 py-2 text-sm #{request.path.start_with?(curator_admin_users_path) ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}" %>
@@ -201,6 +205,10 @@
                     class: "block rounded-md px-3 py-2 text-base font-medium #{request.path.start_with?(curator_admin_curator_applications_path) ? 'bg-red-800 dark:bg-red-900 text-white' : 'text-red-200 dark:text-red-300 hover:bg-red-600 dark:hover:bg-red-800'}" %>
                 <%= link_to t("curator.nav.admin_photo_suggestions", default: "Fotografije"), curator_admin_photo_suggestions_path,
                     class: "block rounded-md px-3 py-2 text-base font-medium #{request.path.start_with?(curator_admin_photo_suggestions_path) ? 'bg-red-800 dark:bg-red-900 text-white' : 'text-red-200 dark:text-red-300 hover:bg-red-600 dark:hover:bg-red-800'}" %>
+                <%= link_to "Prijedlozi", curator_admin_suggestions_path,
+                    class: "block rounded-md px-3 py-2 text-base font-medium #{request.path.start_with?(curator_admin_suggestions_path) ? 'bg-red-800 dark:bg-red-900 text-white' : 'text-red-200 dark:text-red-300 hover:bg-red-600 dark:hover:bg-red-800'}" %>
+                <%= link_to "Recenzije", curator_admin_reviews_path,
+                    class: "block rounded-md px-3 py-2 text-base font-medium #{request.path.start_with?(curator_admin_reviews_path) ? 'bg-red-800 dark:bg-red-900 text-white' : 'text-red-200 dark:text-red-300 hover:bg-red-600 dark:hover:bg-red-800'}" %>
                 <%= link_to t("curator.nav.admin_users", default: "Korisnici"), curator_admin_users_path,
                     class: "block rounded-md px-3 py-2 text-base font-medium #{request.path.start_with?(curator_admin_users_path) ? 'bg-red-800 dark:bg-red-900 text-white' : 'text-red-200 dark:text-red-300 hover:bg-red-600 dark:hover:bg-red-800'}" %>
               </div>

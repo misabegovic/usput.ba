@@ -1,12 +1,13 @@
 module Curator
   class ReviewsController < BaseController
-    before_action :set_review, only: [ :show, :destroy ]
+    before_action :set_review, only: [ :show, :destroy, :flag ]
     rescue_from ActiveRecord::RecordNotFound, with: :review_not_found
 
     def index
       @reviews = Review.includes(:reviewable, :user).order(created_at: :desc)
       @reviews = @reviews.by_rating(params[:rating]) if params[:rating].present?
       @reviews = @reviews.where(reviewable_type: params[:type]) if params[:type].present?
+      @reviews = @reviews.where(moderation_status: params[:moderation_status]) if params[:moderation_status].present?
 
       if params[:search].present?
         @reviews = @reviews.where("comment ILIKE ? OR author_name ILIKE ?", "%#{params[:search]}%", "%#{params[:search]}%")
@@ -47,10 +48,30 @@ module Curator
       end
     end
 
+    def flag
+      if @review.flagged_by?(current_user)
+        redirect_to curator_reviews_path, alert: "Već ste prijavili ovu recenziju."
+        return
+      end
+
+      flag = @review.review_flags.build(
+        user: current_user,
+        reason: params[:reason],
+        notes: params[:notes]
+      )
+
+      if flag.save
+        record_activity("review_flagged", recordable: @review)
+        redirect_to curator_reviews_path, notice: "Recenzija prijavljena."
+      else
+        redirect_to curator_review_path(@review), alert: flag.errors.full_messages.join(", ")
+      end
+    end
+
     private
 
     def set_review
-      @review = Review.find(params[:id])
+      @review = Review.find_by!(uuid: params[:id])
     end
 
     def review_not_found

@@ -1,0 +1,218 @@
+<div class="space-y-6">
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Moderacija recenzija</h1>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-4">
+    <div class="overflow-hidden rounded-lg bg-gray-50 dark:bg-gray-800/50 px-3 py-3 shadow sm:px-4 sm:py-5 sm:p-6">
+      <dt class="truncate text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Ukupno</dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-100"><%= @stats[:total] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-yellow-50 dark:bg-yellow-900/30 px-3 py-3 shadow sm:px-4 sm:py-5 sm:p-6">
+      <dt class="truncate text-xs sm:text-sm font-medium text-yellow-600 dark:text-yellow-400">Nepregledan</dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-yellow-900 dark:text-yellow-100"><%= @stats[:unreviewed] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-orange-50 dark:bg-orange-900/30 px-3 py-3 shadow sm:px-4 sm:py-5 sm:p-6">
+      <dt class="truncate text-xs sm:text-sm font-medium text-orange-600 dark:text-orange-400">Prijavljen</dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-orange-900 dark:text-orange-100"><%= @stats[:flagged] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-green-50 dark:bg-green-900/30 px-3 py-3 shadow sm:px-4 sm:py-5 sm:p-6">
+      <dt class="truncate text-xs sm:text-sm font-medium text-green-600 dark:text-green-400">Odobren</dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-green-900 dark:text-green-100"><%= @stats[:approved] %></dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-red-50 dark:bg-red-900/30 px-3 py-3 shadow sm:px-4 sm:py-5 sm:p-6">
+      <dt class="truncate text-xs sm:text-sm font-medium text-red-600 dark:text-red-400">Uklonjen</dt>
+      <dd class="mt-1 text-xl sm:text-3xl font-semibold tracking-tight text-red-900 dark:text-red-100"><%= @stats[:removed] %></dd>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "Sve", curator_admin_reviews_path,
+        class: "px-3 py-1 rounded-full text-xs sm:text-sm #{params[:moderation_status].blank? ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}" %>
+    <%= link_to "Nepregledano", curator_admin_reviews_path(moderation_status: :unreviewed),
+        class: "px-3 py-1 rounded-full text-xs sm:text-sm #{params[:moderation_status] == 'unreviewed' ? 'bg-yellow-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}" %>
+    <%= link_to "Prijavljeno", curator_admin_reviews_path(moderation_status: :flagged),
+        class: "px-3 py-1 rounded-full text-xs sm:text-sm #{params[:moderation_status] == 'flagged' ? 'bg-orange-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}" %>
+    <%= link_to "Odobreno", curator_admin_reviews_path(moderation_status: :approved),
+        class: "px-3 py-1 rounded-full text-xs sm:text-sm #{params[:moderation_status] == 'approved' ? 'bg-green-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}" %>
+    <%= link_to "Uklonjeno", curator_admin_reviews_path(moderation_status: :removed),
+        class: "px-3 py-1 rounded-full text-xs sm:text-sm #{params[:moderation_status] == 'removed' ? 'bg-red-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}" %>
+  </div>
+
+  <!-- Type Filters -->
+  <div class="flex flex-wrap gap-2">
+    <span class="text-sm text-gray-500 dark:text-gray-400">Tip:</span>
+    <%= link_to "Sve", curator_admin_reviews_path(moderation_status: params[:moderation_status]),
+        class: "px-3 py-1 rounded-full text-xs sm:text-sm #{params[:type].blank? ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}" %>
+    <%= link_to "Location", curator_admin_reviews_path(type: "Location", moderation_status: params[:moderation_status]),
+        class: "px-3 py-1 rounded-full text-xs sm:text-sm #{params[:type] == 'Location' ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}" %>
+    <%= link_to "Experience", curator_admin_reviews_path(type: "Experience", moderation_status: params[:moderation_status]),
+        class: "px-3 py-1 rounded-full text-xs sm:text-sm #{params[:type] == 'Experience' ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}" %>
+    <%= link_to "Plan", curator_admin_reviews_path(type: "Plan", moderation_status: params[:moderation_status]),
+        class: "px-3 py-1 rounded-full text-xs sm:text-sm #{params[:type] == 'Plan' ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}" %>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="hidden sm:block overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+    <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-700">
+      <thead class="bg-gray-50 dark:bg-gray-800">
+        <tr>
+          <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6">Autor</th>
+          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Ocjena</th>
+          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Komentar</th>
+          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Resurs</th>
+          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Status</th>
+          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Prijave</th>
+          <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+            <span class="sr-only">Akcije</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
+        <% @reviews.each do |review| %>
+          <tr>
+            <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-white sm:pl-6">
+              <%= review.author_name.presence || review.user&.username || "Anonimno" %>
+            </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+              <div class="flex items-center">
+                <% review.rating.times do %>
+                  <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                <% end %>
+              </div>
+            </td>
+            <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">
+              <%= review.comment.presence || "-" %>
+            </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+              <% if review.reviewable %>
+                <div class="text-gray-900 dark:text-white"><%= review.reviewable.try(:name) || review.reviewable.try(:title) %></div>
+                <div class="text-gray-500 dark:text-gray-400"><%= review.reviewable_type %></div>
+              <% else %>
+                <span class="text-red-500 dark:text-red-400">Obrisano</span>
+              <% end %>
+            </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm">
+              <% case review.moderation_status %>
+              <% when "unreviewed" %>
+                <span class="inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900/40 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:text-yellow-300">
+                  Nepregledano
+                </span>
+              <% when "flagged" %>
+                <span class="inline-flex items-center rounded-full bg-orange-100 dark:bg-orange-900/40 px-2 py-0.5 text-xs font-medium text-orange-800 dark:text-orange-300">
+                  Prijavljeno
+                </span>
+              <% when "approved" %>
+                <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/40 px-2 py-0.5 text-xs font-medium text-green-800 dark:text-green-300">
+                  Odobreno
+                </span>
+              <% when "removed" %>
+                <span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2 py-0.5 text-xs font-medium text-red-800 dark:text-red-300">
+                  Uklonjeno
+                </span>
+              <% end %>
+            </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+              <% if review.review_flags.any? %>
+                <span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2 py-0.5 text-xs font-medium text-red-800 dark:text-red-300">
+                  <%= review.review_flags.count %>
+                </span>
+              <% else %>
+                -
+              <% end %>
+            </td>
+            <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+              <%= link_to "Prikaži", curator_admin_review_path(review), class: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300" %>
+            </td>
+          </tr>
+        <% end %>
+
+        <% if @reviews.empty? %>
+          <tr>
+            <td colspan="7" class="px-3 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+              Nema recenzija.
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="sm:hidden space-y-4">
+    <% @reviews.each do |review| %>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-medium text-gray-900 dark:text-white text-sm">
+            <%= review.author_name.presence || review.user&.username || "Anonimno" %>
+          </span>
+          <% case review.moderation_status %>
+          <% when "unreviewed" %>
+            <span class="inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900/40 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:text-yellow-300">
+              Nepregledano
+            </span>
+          <% when "flagged" %>
+            <span class="inline-flex items-center rounded-full bg-orange-100 dark:bg-orange-900/40 px-2 py-0.5 text-xs font-medium text-orange-800 dark:text-orange-300">
+              Prijavljeno
+            </span>
+          <% when "approved" %>
+            <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/40 px-2 py-0.5 text-xs font-medium text-green-800 dark:text-green-300">
+              Odobreno
+            </span>
+          <% when "removed" %>
+            <span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2 py-0.5 text-xs font-medium text-red-800 dark:text-red-300">
+              Uklonjeno
+            </span>
+          <% end %>
+        </div>
+
+        <div class="flex items-center mb-2">
+          <% review.rating.times do %>
+            <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+          <% end %>
+        </div>
+
+        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2 line-clamp-2">
+          <%= review.comment.presence || "-" %>
+        </p>
+
+        <% if review.reviewable %>
+          <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">
+            <span class="font-medium"><%= review.reviewable.try(:name) || review.reviewable.try(:title) %></span>
+            (<%= review.reviewable_type %>)
+          </p>
+        <% else %>
+          <p class="text-xs text-red-500 dark:text-red-400 mb-2">Resurs obrisan</p>
+        <% end %>
+
+        <% if review.review_flags.any? %>
+          <p class="text-xs text-red-600 dark:text-red-400 mb-2">
+            <span class="font-medium"><%= review.review_flags.count %></span> prijava
+          </p>
+        <% end %>
+
+        <%= link_to "Prikaži detalje", curator_admin_review_path(review),
+            class: "text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 font-medium" %>
+      </div>
+    <% end %>
+
+    <% if @reviews.empty? %>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center text-gray-500 dark:text-gray-400">
+        Nema recenzija.
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Pagination -->
+  <% if @reviews.total_pages > 1 %>
+    <div class="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 sm:px-6 rounded-lg">
+      <%= paginate @reviews %>
+    </div>
+  <% end %>
+</div>

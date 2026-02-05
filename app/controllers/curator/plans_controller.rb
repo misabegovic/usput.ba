@@ -46,7 +46,82 @@ module Curator
     end
 
     def create
-      # Instead of creating directly, create a proposal for admin review
+      if admin_direct_crud?
+        create_directly
+      else
+        create_proposal
+      end
+    end
+
+    def edit
+      @pending_proposal = pending_proposal_for(@plan)
+    end
+
+    def update
+      if admin_direct_crud?
+        update_directly
+      else
+        update_proposal
+      end
+    end
+
+    def destroy
+      if admin_direct_crud?
+        destroy_directly
+      else
+        destroy_proposal
+      end
+    end
+
+    private
+
+    # === Admin direct CRUD ===
+
+    def create_directly
+      @plan = Plan.new(plan_params)
+      @plan.preferences = build_preferences_from_params
+      @plan.user = current_user
+
+      if @plan.save
+        update_plan_experiences(@plan)
+        record_activity("resource_created", recordable: @plan, metadata: { type: "Plan", title: @plan.title })
+        redirect_to curator_plan_path(@plan), notice: t("curator.plans.created", default: "Plan kreiran."), status: :see_other
+      else
+        flash.now[:alert] = @plan.errors.full_messages.join(", ")
+        render :new, status: :unprocessable_entity
+      end
+    end
+
+    def update_directly
+      @plan.assign_attributes(plan_params)
+      @plan.preferences = build_preferences_from_params
+
+      if @plan.save
+        update_plan_experiences(@plan)
+        record_activity("resource_updated", recordable: @plan, metadata: { type: "Plan", title: @plan.title })
+        redirect_to curator_plan_path(@plan), notice: t("curator.plans.updated", default: "Plan ažuriran."), status: :see_other
+      else
+        flash.now[:alert] = @plan.errors.full_messages.join(", ")
+        render :edit, status: :unprocessable_entity
+      end
+    end
+
+    def destroy_directly
+      title = @plan.title
+      @plan.destroy!
+      record_activity("resource_deleted", recordable: nil, metadata: { type: "Plan", title: title })
+      redirect_to curator_plans_path, notice: t("curator.plans.deleted", default: "Plan obrisan."), status: :see_other
+    end
+
+    def update_plan_experiences(plan)
+      if params[:plan][:experience_days].present?
+        plan.experience_days = params[:plan][:experience_days].to_unsafe_h
+      end
+    end
+
+    # === Curator proposal workflow ===
+
+    def create_proposal
       proposal = current_user.content_changes.build(
         change_type: :create_content,
         changeable_class: "Plan",
@@ -63,12 +138,7 @@ module Curator
       end
     end
 
-    def edit
-      @pending_proposal = pending_proposal_for(@plan)
-    end
-
-    def update
-      # Use find_or_create to ensure only one pending proposal per resource
+    def update_proposal
       proposal = ContentChange.find_or_create_for_update(
         changeable: @plan,
         user: current_user,
@@ -86,8 +156,7 @@ module Curator
       end
     end
 
-    def destroy
-      # Use find_or_create to ensure only one pending proposal per resource
+    def destroy_proposal
       proposal = ContentChange.find_or_create_for_delete(
         changeable: @plan,
         user: current_user,
@@ -101,8 +170,6 @@ module Curator
         redirect_to curator_plans_path, alert: t("curator.proposals.failed_to_submit"), status: :see_other
       end
     end
-
-    private
 
     def set_plan
       @plan = Plan.find_by_public_id!(params[:id])

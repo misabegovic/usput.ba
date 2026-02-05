@@ -1,0 +1,13 @@
+one:
+  uuid: "55555555-5555-5555-5555-555555555555"
+  reviewable: one (Location)
+  rating: 5
+  comment: "Great place!"
+  moderation_status: 0
+
+two:
+  uuid: "66666666-6666-6666-6666-666666666666"
+  reviewable: two (Location)
+  rating: 4
+  comment: "Nice location"
+  moderation_status: 0

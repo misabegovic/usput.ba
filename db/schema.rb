@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_03_150742) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_05_224100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -233,6 +233,57 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_03_150742) do
     t.index ["location_id"], name: "index_experience_locations_on_location_id"
   end
 
+  create_table "experience_suggestion_contributions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "experience_suggestion_id", null: false
+    t.text "notes"
+    t.string "proposed_contact_email"
+    t.string "proposed_contact_name"
+    t.string "proposed_contact_phone"
+    t.string "proposed_contact_website"
+    t.text "proposed_description"
+    t.integer "proposed_estimated_duration"
+    t.bigint "proposed_experience_category_id"
+    t.jsonb "proposed_location_uuids"
+    t.jsonb "proposed_seasons"
+    t.string "proposed_title"
+    t.jsonb "proposed_video_urls"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["experience_suggestion_id", "user_id"], name: "idx_exp_suggestion_contrib_unique_user", unique: true
+    t.index ["experience_suggestion_id"], name: "idx_on_experience_suggestion_id_86aa4e8014"
+    t.index ["user_id"], name: "index_experience_suggestion_contributions_on_user_id"
+  end
+
+  create_table "experience_suggestions", force: :cascade do |t|
+    t.text "admin_notes"
+    t.string "ai_service"
+    t.integer "change_type", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.bigint "experience_id"
+    t.integer "origin", default: 0, null: false
+    t.string "proposed_contact_email"
+    t.string "proposed_contact_name"
+    t.string "proposed_contact_phone"
+    t.string "proposed_contact_website"
+    t.text "proposed_description"
+    t.integer "proposed_estimated_duration"
+    t.bigint "proposed_experience_category_id"
+    t.jsonb "proposed_location_uuids", default: []
+    t.jsonb "proposed_seasons", default: []
+    t.string "proposed_title"
+    t.jsonb "proposed_video_urls", default: []
+    t.datetime "reviewed_at"
+    t.bigint "reviewed_by_id"
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["experience_id"], name: "idx_one_pending_per_experience", unique: true, where: "((status = 0) AND (experience_id IS NOT NULL))"
+    t.index ["experience_id"], name: "index_experience_suggestions_on_experience_id"
+    t.index ["reviewed_by_id"], name: "index_experience_suggestions_on_reviewed_by_id"
+    t.index ["user_id"], name: "index_experience_suggestions_on_user_id"
+  end
+
   create_table "experience_types", force: :cascade do |t|
     t.boolean "active", default: true
     t.string "color"
@@ -345,6 +396,65 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_03_150742) do
     t.index ["location_id"], name: "index_location_experience_types_on_location_id"
   end
 
+  create_table "location_suggestion_contributions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "location_suggestion_id", null: false
+    t.text "notes"
+    t.integer "proposed_budget"
+    t.jsonb "proposed_category_ids"
+    t.string "proposed_city"
+    t.text "proposed_description"
+    t.string "proposed_email"
+    t.jsonb "proposed_experience_type_ids"
+    t.text "proposed_historical_context"
+    t.decimal "proposed_lat", precision: 10, scale: 6
+    t.decimal "proposed_lng", precision: 10, scale: 6
+    t.string "proposed_name"
+    t.string "proposed_phone"
+    t.jsonb "proposed_social_links"
+    t.jsonb "proposed_tags"
+    t.jsonb "proposed_video_urls"
+    t.string "proposed_website"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["location_suggestion_id", "user_id"], name: "idx_loc_suggestion_contrib_unique_user", unique: true
+    t.index ["location_suggestion_id"], name: "idx_on_location_suggestion_id_bc9b5ee6b7"
+    t.index ["user_id"], name: "index_location_suggestion_contributions_on_user_id"
+  end
+
+  create_table "location_suggestions", force: :cascade do |t|
+    t.text "admin_notes"
+    t.string "ai_service"
+    t.integer "change_type", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.bigint "location_id"
+    t.integer "origin", default: 0, null: false
+    t.integer "proposed_budget"
+    t.jsonb "proposed_category_ids", default: []
+    t.string "proposed_city"
+    t.text "proposed_description"
+    t.string "proposed_email"
+    t.jsonb "proposed_experience_type_ids", default: []
+    t.text "proposed_historical_context"
+    t.decimal "proposed_lat", precision: 10, scale: 6
+    t.decimal "proposed_lng", precision: 10, scale: 6
+    t.string "proposed_name"
+    t.string "proposed_phone"
+    t.jsonb "proposed_social_links", default: {}
+    t.jsonb "proposed_tags", default: []
+    t.jsonb "proposed_video_urls", default: []
+    t.string "proposed_website"
+    t.datetime "reviewed_at"
+    t.bigint "reviewed_by_id"
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["location_id"], name: "idx_one_pending_per_location", unique: true, where: "((status = 0) AND (location_id IS NOT NULL))"
+    t.index ["location_id"], name: "index_location_suggestions_on_location_id"
+    t.index ["reviewed_by_id"], name: "index_location_suggestions_on_reviewed_by_id"
+    t.index ["user_id"], name: "index_location_suggestions_on_user_id"
+  end
+
   create_table "locations", force: :cascade do |t|
     t.boolean "ai_generated", default: false, null: false
     t.jsonb "audio_tour_metadata"
@@ -413,6 +523,51 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_03_150742) do
     t.index ["plan_id"], name: "index_plan_experiences_on_plan_id"
   end
 
+  create_table "plan_suggestion_contributions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "notes"
+    t.bigint "plan_suggestion_id", null: false
+    t.string "proposed_city_name"
+    t.date "proposed_end_date"
+    t.jsonb "proposed_experience_days"
+    t.text "proposed_notes"
+    t.jsonb "proposed_preferences"
+    t.date "proposed_start_date"
+    t.string "proposed_title"
+    t.integer "proposed_visibility"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["plan_suggestion_id", "user_id"], name: "idx_plan_suggestion_contrib_unique_user", unique: true
+    t.index ["plan_suggestion_id"], name: "index_plan_suggestion_contributions_on_plan_suggestion_id"
+    t.index ["user_id"], name: "index_plan_suggestion_contributions_on_user_id"
+  end
+
+  create_table "plan_suggestions", force: :cascade do |t|
+    t.text "admin_notes"
+    t.string "ai_service"
+    t.integer "change_type", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.integer "origin", default: 0, null: false
+    t.bigint "plan_id"
+    t.string "proposed_city_name"
+    t.date "proposed_end_date"
+    t.jsonb "proposed_experience_days", default: {}
+    t.text "proposed_notes"
+    t.jsonb "proposed_preferences", default: {}
+    t.date "proposed_start_date"
+    t.string "proposed_title"
+    t.integer "proposed_visibility"
+    t.datetime "reviewed_at"
+    t.bigint "reviewed_by_id"
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["plan_id"], name: "idx_one_pending_per_plan", unique: true, where: "((status = 0) AND (plan_id IS NOT NULL))"
+    t.index ["plan_id"], name: "index_plan_suggestions_on_plan_id"
+    t.index ["reviewed_by_id"], name: "index_plan_suggestions_on_reviewed_by_id"
+    t.index ["user_id"], name: "index_plan_suggestions_on_user_id"
+  end
+
   create_table "plans", force: :cascade do |t|
     t.boolean "ai_generated", default: false, null: false
     t.decimal "average_rating", precision: 3, scale: 2, default: "0.0"
@@ -445,16 +600,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_03_150742) do
     t.index ["visibility"], name: "index_plans_on_visibility"
   end
 
+  create_table "review_flags", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "notes"
+    t.string "reason", null: false
+    t.bigint "review_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["review_id", "user_id"], name: "index_review_flags_on_review_id_and_user_id", unique: true
+    t.index ["review_id"], name: "index_review_flags_on_review_id"
+    t.index ["user_id"], name: "index_review_flags_on_user_id"
+  end
+
   create_table "reviews", force: :cascade do |t|
     t.string "author_name"
     t.text "comment"
     t.datetime "created_at", null: false
+    t.integer "moderation_status", default: 0, null: false
     t.integer "rating", null: false
     t.bigint "reviewable_id", null: false
     t.string "reviewable_type", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id"
     t.string "uuid", limit: 36, null: false
+    t.index ["moderation_status"], name: "index_reviews_on_moderation_status"
     t.index ["rating"], name: "index_reviews_on_rating"
     t.index ["reviewable_type", "reviewable_id", "created_at"], name: "index_reviews_on_reviewable_and_created_at"
     t.index ["reviewable_type", "reviewable_id"], name: "index_reviews_on_reviewable"
@@ -522,16 +691,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_03_150742) do
   add_foreign_key "experience_category_types", "experience_types"
   add_foreign_key "experience_locations", "experiences"
   add_foreign_key "experience_locations", "locations"
+  add_foreign_key "experience_suggestion_contributions", "experience_suggestions"
+  add_foreign_key "experience_suggestion_contributions", "users"
+  add_foreign_key "experience_suggestions", "experiences"
+  add_foreign_key "experience_suggestions", "users"
+  add_foreign_key "experience_suggestions", "users", column: "reviewed_by_id"
   add_foreign_key "experiences", "experience_categories"
   add_foreign_key "location_category_assignments", "location_categories"
   add_foreign_key "location_category_assignments", "locations"
   add_foreign_key "location_experience_types", "experience_types"
   add_foreign_key "location_experience_types", "locations"
+  add_foreign_key "location_suggestion_contributions", "location_suggestions"
+  add_foreign_key "location_suggestion_contributions", "users"
+  add_foreign_key "location_suggestions", "locations"
+  add_foreign_key "location_suggestions", "users"
+  add_foreign_key "location_suggestions", "users", column: "reviewed_by_id"
   add_foreign_key "photo_suggestions", "locations"
   add_foreign_key "photo_suggestions", "users"
   add_foreign_key "photo_suggestions", "users", column: "reviewed_by_id"
   add_foreign_key "plan_experiences", "experiences"
   add_foreign_key "plan_experiences", "plans"
+  add_foreign_key "plan_suggestion_contributions", "plan_suggestions"
+  add_foreign_key "plan_suggestion_contributions", "users"
+  add_foreign_key "plan_suggestions", "plans"
+  add_foreign_key "plan_suggestions", "users"
+  add_foreign_key "plan_suggestions", "users", column: "reviewed_by_id"
   add_foreign_key "plans", "users"
+  add_foreign_key "review_flags", "reviews"
+  add_foreign_key "review_flags", "users"
   add_foreign_key "reviews", "users"
 end

@@ -12,7 +12,7 @@
         </svg>
         <%= t("curator.locations.view_in_app", default: "View in App") %>
       <% end %>
-      <% if Flipper.enabled?(:curator_edit_delete) %>
+      <% if admin_direct_crud? %>
         <%= link_to edit_curator_location_path(@location),
             class: "inline-flex items-center justify-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500" do %>
           <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -217,29 +217,51 @@
   <% end %>
 
   <%# Audio Tours %>
-  <% if @location.has_audio_tours? %>
-    <div class="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
-      <div class="px-4 py-4 sm:py-5 sm:px-6">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-medium text-gray-900 dark:text-white"><%= t("curator.locations.sections.audio", default: "Audio Tours") %></h3>
-          <%= link_to curator_audio_tours_path(location_id: @location.to_param), class: "text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300" do %>
-            <%= t("curator.locations.manage_all", default: "Manage all") %> →
-          <% end %>
-        </div>
-        <div class="space-y-3">
-          <% @location.audio_tours.with_audio.each do |audio_tour| %>
+  <div class="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
+    <div class="px-4 py-4 sm:py-5 sm:px-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Audio Ture</h3>
+        <%= link_to curator_audio_tours_path(location_id: @location.to_param), class: "text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300" do %>
+          Upravljaj svima →
+        <% end %>
+      </div>
+
+      <% audio_tours_with_audio = @location.audio_tours.with_audio %>
+      <% if audio_tours_with_audio.any? %>
+        <div class="space-y-3 mb-4">
+          <% audio_tours_with_audio.each do |audio_tour| %>
             <div class="flex items-center gap-4 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-              <span class="text-sm font-medium text-gray-700 dark:text-gray-300 w-20"><%= audio_tour.language_name %></span>
-              <audio controls class="flex-grow">
+              <span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/40 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300 w-20 justify-center">
+                <%= audio_tour.language_name %>
+              </span>
+              <audio controls class="flex-grow h-8">
                 <source src="<%= url_for(audio_tour.audio_file) %>" type="<%= audio_tour.audio_file.content_type %>">
-                <%= t("curator.locations.audio_not_supported", default: "Your browser does not support audio playback.") %>
               </audio>
+              <span class="text-xs text-gray-500 dark:text-gray-400 hidden sm:inline"><%= audio_tour.estimated_duration || "-" %></span>
             </div>
           <% end %>
         </div>
-      </div>
+      <% else %>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Nema audio tura za ovu lokaciju.</p>
+      <% end %>
+
+      <% if current_user.admin? %>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+          <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Generiši audio turu</p>
+          <%= form_with url: generate_audio_tour_curator_location_path(@location), method: :post, class: "flex flex-col sm:flex-row items-stretch sm:items-center gap-3" do |f| %>
+            <%= f.select :locale,
+                AudioTour.locale_options,
+                { selected: "bs" },
+                class: "block w-full sm:w-auto rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500" %>
+            <%= f.submit "Generiši audio turu",
+                class: "inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 cursor-pointer",
+                data: { turbo_confirm: "Generisanje audio ture košta ~$1-1.50 (ElevenLabs). Nastaviti?" } %>
+          <% end %>
+          <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Audio tura se generise u pozadini. Osvježite stranicu za status.</p>
+        </div>
+      <% end %>
     </div>
-  <% end %>
+  </div>
 
   <%# Metadata %>
   <div class="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
