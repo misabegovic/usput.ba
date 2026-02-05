@@ -13,7 +13,9 @@ Centralna lokacija za svu plansku dokumentaciju projekta.
 ├── IMPLEMENTATION.md      # 17 faza implementacije
 ├── DEVELOPER_ONBOARDING.md
 ├── TAILWIND_GUIDE.md
+├── rfcs/                  # Request for Comments
 ├── adr/                   # Architecture Decision Records
+├── decisions/             # Product i tehničke odluke
 ├── architecture/          # Arhitekturni dokumenti
 ├── testing/               # Test planovi i scenariji
 └── archive/               # Stari dokumenti
@@ -63,6 +65,19 @@ Architecture Decision Records - dokumentovane ključne tehničke odluke.
 
 ---
 
+## RFCs (rfcs/)
+
+Request for Comments - veće promjene koje zahtijevaju diskusiju.
+
+| Broj | Naslov | Status | Datum |
+|------|--------|--------|-------|
+| RFC-0001 | Curator Dashboard v2: Per-Resource Suggestions, Reviews, Audio Tours | Proposed | 2026-02-05 |
+
+**Location:** `.claude/planning/rfcs/`
+**Kreiranje:** Koristi `/rfc` komandu.
+
+---
+
 ## Decisions (decisions/)
 
 Product i tehničke odluke koje utiču na arhitekturu.
@@ -71,6 +86,9 @@ Product i tehničke odluke koje utiču na arhitekturu.
 |-------|--------|--------|
 | 2026-02-03 | Remove Platform Database | Accepted |
 | 2026-02-04 | AI Services DSL Migration | Proposed |
+| 2026-02-05 | Per-Resource Suggestion Models (ADR-0003) | Proposed |
+| 2026-02-05 | Reviews Management System (ADR-0004) | Proposed |
+| 2026-02-05 | Audio Tour Generation Integration (ADR-0005) | Proposed |
 
 **Location:** `.claude/planning/decisions/`
 
@@ -150,4 +168,4 @@ Stari dokumenti za referencu. Ne koristi za aktivni development.
 
 ---
 
-*Zadnje ažuriranje: 2026-02-04*
+*Zadnje ažuriranje: 2026-02-05*
