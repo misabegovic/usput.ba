@@ -41,13 +41,17 @@ Feature flag `curator_edit_delete` je disabled na produkciji. Jedina funkcionaln
 │              │  + Pokretanje audio tour generisanja      │
 ├──────────────┼──────────────────────────────────────────┤
 │   Curator    │  Read-only pregled resursa               │
-│   (user_type │  + PhotoSuggestion (postoji, radi)       │
-│    = curator)│  + LocationSuggestion (novo)             │
-│              │  + ExperienceSuggestion (novo)           │
+│   (user_type │  + LocationSuggestion (tekst + slike)    │
+│    = curator)│  + ExperienceSuggestion (novo)           │
 │              │  + PlanSuggestion (novo)                 │
-│              │  + Pregled reviews                       │
+│              │  + Pregled reviews + flagging             │
 └──────────────┴──────────────────────────────────────────┘
 ```
+
+**Ključne razlike od prethodnog sistema:**
+- **Jedan pending suggestion per resurs** — unique constraint, više kuratora doprinosi istom
+- **PhotoSuggestion se ukida** — slike idu u LocationSuggestion
+- **Multi-contributor** — svaki kurator doprinosi istom suggestion-u, typed kolone za audit trail
 
 ### Princip dizajna: Dva režima rada
 
@@ -59,174 +63,71 @@ Feature flag `curator_edit_delete` je disabled na produkciji. Jedina funkcionaln
 
 #### A. Per-Resource Suggestion modeli
 
+**Ključni principi:**
+- **Jedan pending suggestion per resurs** (unique constraint u bazi)
+- **Multi-contributor** — više kuratora doprinosi istom suggestion-u
+- **Typed kolone** umjesto JSONB — i na suggestion i na contribution modelima
+- **Active Storage za fajlove** — slike idu uz suggestion (zamjenjuje PhotoSuggestion)
+
+Detaljan dizajn: vidi **ADR-0003** (`.claude/planning/decisions/2026-02-05-per-resource-suggestion-models.md`)
+
 ```ruby
-# Zajednički concern za sve suggestion modele
-# app/models/concerns/suggestable.rb
+# Suggestable concern — zajednicka logika
 module Suggestable
-  extend ActiveSupport::Concern
-
   included do
-    belongs_to :user                      # Kurator koji predlaže
+    belongs_to :user
     belongs_to :reviewed_by, class_name: "User", optional: true
-
+    has_many :contributions  # Per-resource contribution model
     enum :status, { pending: 0, approved: 1, rejected: 2 }
     enum :change_type, { create_resource: 0, update_resource: 1, delete_resource: 2 }
-
-    validates :status, presence: true
-    validates :user, presence: true
-
-    scope :pending_review, -> { where(status: :pending) }
-    scope :recent, -> { order(created_at: :desc) }
   end
 
-  def approve!(admin, notes: nil)
-    transaction do
-      apply_changes!
-      update!(
-        status: :approved,
-        reviewed_by: admin,
-        reviewed_at: Time.current,
-        admin_notes: notes
-      )
-    end
-  end
-
-  def reject!(admin, notes: nil)
-    update!(
-      status: :rejected,
-      reviewed_by: admin,
-      reviewed_at: Time.current,
-      admin_notes: notes
-    )
-  end
+  def approve!(admin, notes: nil) ... end
+  def reject!(admin, notes: nil) ... end
+  def add_contribution(user:, **proposed_fields) ... end
 end
 ```
 
 ```ruby
-# app/models/location_suggestion.rb
+# LocationSuggestion — zamjenjuje i ContentChange i PhotoSuggestion za lokacije
 class LocationSuggestion < ApplicationRecord
   include Suggestable
+  belongs_to :location, optional: true
+  has_many :contributions, class_name: "LocationSuggestionContribution"
+  has_many_attached :proposed_photos  # Zamjenjuje PhotoSuggestion
+  # Typed kolone: proposed_name, proposed_city, proposed_description, ...
+end
 
-  belongs_to :location, optional: true  # nil za create_resource
-
-  # Typed kolone umjesto JSONB
-  # Tekst polja
-  attribute :proposed_name, :string
-  attribute :proposed_city, :string
-  attribute :proposed_description, :text
-  attribute :proposed_historical_context, :text
-
-  # Koordinate
-  attribute :proposed_lat, :decimal
-  attribute :proposed_lng, :decimal
-
-  # Kontakt
-  attribute :proposed_phone, :string
-  attribute :proposed_email, :string
-  attribute :proposed_website, :string
-
-  # Kategorije i tagovi
-  attribute :proposed_category_ids, :json     # Array integer IDs
-  attribute :proposed_experience_type_ids, :json
-  attribute :proposed_tags, :json             # Array stringova
-
-  # Fotografije - Active Storage
-  has_many_attached :proposed_photos
-
-  validates :proposed_name, presence: true, if: :create_resource?
-  validates :proposed_city, presence: true, if: :create_resource?
-  validates :location, presence: true, unless: :create_resource?
-
-  private
-
-  def apply_changes!
-    case change_type.to_sym
-    when :create_resource
-      location = LocationCreator.new(build_attributes).call
-      update!(location: location.location)
-    when :update_resource
-      LocationUpdater.new(location, changed_attributes_only).call
-    when :delete_resource
-      location.destroy!
-    end
-  end
-
-  def build_attributes
-    # Vraća hash samo sa popunjenim poljima, typed
-    # Nema JSONB konverzija, nema type mismatch
-  end
-
-  def changed_attributes_only
-    # Vraća samo polja koja se razlikuju od location originals
-  end
+# LocationSuggestionContribution — audit trail, iste typed kolone
+class LocationSuggestionContribution < ApplicationRecord
+  belongs_to :location_suggestion
+  belongs_to :user
+  # Iste typed kolone — samo popunjena = polja koja ovaj kurator mijenja
 end
 ```
 
 ```ruby
-# app/models/experience_suggestion.rb
+# ExperienceSuggestion
 class ExperienceSuggestion < ApplicationRecord
   include Suggestable
-
   belongs_to :experience, optional: true
-
-  attribute :proposed_title, :string
-  attribute :proposed_description, :text
-  attribute :proposed_category_id, :integer
-  attribute :proposed_duration, :integer
-  attribute :proposed_seasons, :json            # ["spring", "summer"]
-  attribute :proposed_location_uuids, :json     # ordered array
-
-  # Kontakt
-  attribute :proposed_contact_name, :string
-  attribute :proposed_contact_email, :string
-  attribute :proposed_contact_phone, :string
-  attribute :proposed_contact_website, :string
-
-  # Cover photo
+  has_many :contributions, class_name: "ExperienceSuggestionContribution"
   has_one_attached :proposed_cover_photo
-
-  validates :proposed_title, presence: true, if: :create_resource?
-  validates :experience, presence: true, unless: :create_resource?
-
-  private
-
-  def apply_changes!
-    case change_type.to_sym
-    when :create_resource
-      # Kreira experience + sync lokacije
-    when :update_resource
-      # Update experience + re-sync lokacije ako se promijenile
-    when :delete_resource
-      experience.destroy!
-    end
-  end
+  # Typed kolone: proposed_title, proposed_description, proposed_seasons, ...
 end
-```
 
-```ruby
-# app/models/plan_suggestion.rb
+# PlanSuggestion
 class PlanSuggestion < ApplicationRecord
   include Suggestable
-
   belongs_to :plan, optional: true
-
-  attribute :proposed_title, :string
-  attribute :proposed_city_name, :string
-  attribute :proposed_notes, :text
-  attribute :proposed_visibility, :string
-  attribute :proposed_start_date, :date
-  attribute :proposed_end_date, :date
-  attribute :proposed_preferences, :json     # {budget:, daily_hours:}
-  attribute :proposed_experience_days, :json # {1: [uuid1], 2: [uuid2]}
-
-  validates :proposed_title, presence: true, if: :create_resource?
-  validates :plan, presence: true, unless: :create_resource?
+  has_many :contributions, class_name: "PlanSuggestionContribution"
+  # Typed kolone: proposed_title, proposed_city_name, proposed_experience_days, ...
 end
 ```
 
-#### B. PhotoSuggestion — ZADRŽAVA SE
+#### B. PhotoSuggestion — UKIDA SE
 
-`PhotoSuggestion` ostaje kakav jeste. Radi, testiran je, na produkciji je. Nema razloga da se mijenja.
+`PhotoSuggestion` se apsorbira u `LocationSuggestion`. Funkcionalnost slika postaje dio unified suggestion workflow-a. Pending photo suggestion-e se migriraju u LocationSuggestion zapise.
 
 #### C. Reviews upravljanje
 
@@ -296,8 +197,8 @@ UI na location show stranici:
 ```ruby
 namespace :curator do
   resources :locations do
-    resources :photo_suggestions, only: [:new, :create]
-    resources :location_suggestions, only: [:new, :create]
+    # Suggestion-i (kurator predlaže promjenu ili dodaje contribution)
+    resources :location_suggestions, only: [:new, :create, :edit, :update]
     member do
       post :generate_audio_tour  # Admin only
     end
@@ -307,11 +208,11 @@ namespace :curator do
   end
 
   resources :experiences do
-    resources :experience_suggestions, only: [:new, :create]
+    resources :experience_suggestions, only: [:new, :create, :edit, :update]
   end
 
   resources :plans do
-    resources :plan_suggestions, only: [:new, :create]
+    resources :plan_suggestions, only: [:new, :create, :edit, :update]
   end
 
   resources :reviews, only: [:index, :show] do
@@ -322,16 +223,15 @@ namespace :curator do
 
   # Admin sekcija
   namespace :admin do
-    resources :photo_suggestions, only: [:index, :show] do
+    # Unified suggestion pregled — svi tipovi na jednom mjestu
+    resources :suggestions, only: [:index] # Dashboard sa svim pending
+    resources :location_suggestions, only: [:show] do
       member { post :approve; post :reject }
     end
-    resources :location_suggestions, only: [:index, :show] do
+    resources :experience_suggestions, only: [:show] do
       member { post :approve; post :reject }
     end
-    resources :experience_suggestions, only: [:index, :show] do
-      member { post :approve; post :reject }
-    end
-    resources :plan_suggestions, only: [:index, :show] do
+    resources :plan_suggestions, only: [:show] do
       member { post :approve; post :reject }
     end
     resources :reviews, only: [:index, :show] do
@@ -349,8 +249,8 @@ end
 
 #### Location Show (Kurator)
 - Pregled svih podataka (read-only)
-- Dugme "Predloži promjenu" → otvara LocationSuggestion formu
-- Dugme "Predloži slike" → otvara PhotoSuggestion formu (postoji)
+- Dugme "Predloži promjenu" → otvara LocationSuggestion formu (tekst + slike zajedno)
+- Ako postoji pending suggestion, dugme "Doprinesi" → otvara isti formular sa current suggestion podacima
 - Sekcija "Reviews" sa listom i flag opcijom
 - Audio player ako tura postoji
 
@@ -376,10 +276,10 @@ end
 
 ## Drawbacks
 
-1. **Više modela/tabela** — Umjesto jednog ContentChange, imamo 3 nova suggestion modela + review_flags. Više migracija, više kontrolera.
-2. **Dupliciranje logike** — `Suggestable` concern pokriva zajednički dio, ali svaki model ima svoju `apply_changes!` metodu. To je trade-off za ispravnost.
-3. **Migracija podataka** — Ako postoje pending ContentChange zapisi na produkciji, trebaju se migrirati ili odbaciti.
-4. **PhotoSuggestion ostaje odvojen** — Konzistentnije bi bilo imati `LocationPhotoSuggestion`, ali PhotoSuggestion radi i nema razloga ga dirati.
+1. **Više modela/tabela** — 3 suggestion modela + 3 contribution modela + review_flags = 7 novih tabela. Više migracija, više kontrolera.
+2. **Duplicirane kolone** — Suggestion i Contribution imaju iste typed kolone. Kad se doda polje na resurs, treba dodati na oba.
+3. **Migracija podataka** — Pending ContentChange + pending PhotoSuggestion zapise treba migrirati ili odbaciti.
+4. **Kompleksniji merge** — Typed kolone rješavaju type safety, ali logika "ažuriraj suggestion + sačuvaj contribution" je više koda.
 
 ## Alternatives
 
@@ -406,9 +306,9 @@ Svaki kurator radi na "branchu" resursa, admin "merge-a".
 
 ## Unresolved Questions
 
-1. **Migracija ContentChange podataka** — Ima li pending prijedloga koji trebaju biti migrirani? Ili su svi stale i mogu se odbaciti?
-2. **CuratorReview model** — Da li zadržati peer-review sistem ili je dovoljan samo admin approve/reject?
-3. **Notifikacije** — Da li kuratori trebaju email/in-app notifikaciju kad admin odobri/odbije suggestion?
+1. **Migracija podataka** — Koliko ima pending ContentChange i PhotoSuggestion zapisa na produkciji? Migrirati ih ili odbaciti?
+2. **Contribution conflict resolution** — Kad kurator B prepiše polje kuratora A, da li kurator A dobije notifikaciju? Ili je "last write wins" dovoljno uz audit trail?
+3. **Notifikacije** — Da li kuratori trebaju email/in-app notifikaciju kad admin odobri/odbije suggestion ili kad neko doprinese?
 4. **Audio tour cost control** — Generisanje audio tura košta (ElevenLabs API). Treba li limit po lokaciji/danu?
 5. **Review moderation default** — Da li novi reviews trebaju biti `approved` po defaultu ili `unreviewed`?
 
@@ -423,16 +323,16 @@ Omogućiti `curator_edit_delete` flag za admin korisnike putem Flipper actors. A
 - [ ] Testovi za oba režima
 
 ### Faza 2: Per-Resource Suggestion modeli (prioritet: VISOK)
-Zamijeniti ContentChange sa LocationSuggestion, ExperienceSuggestion, PlanSuggestion.
+Zamijeniti ContentChange + PhotoSuggestion sa LocationSuggestion, ExperienceSuggestion, PlanSuggestion.
 
 **Deliverables:**
 - [ ] `Suggestable` concern
-- [ ] `LocationSuggestion` model + migracija + kontroler + forme + testovi
-- [ ] `ExperienceSuggestion` model + migracija + kontroler + forme + testovi
-- [ ] `PlanSuggestion` model + migracija + kontroler + forme + testovi
-- [ ] Admin approval panel za svaki tip
+- [ ] `LocationSuggestion` model + `LocationSuggestionContribution` + migracija + kontroler + forme + testovi
+- [ ] `ExperienceSuggestion` model + `ExperienceSuggestionContribution` + migracija + kontroler + forme + testovi
+- [ ] `PlanSuggestion` model + `PlanSuggestionContribution` + migracija + kontroler + forme + testovi
+- [ ] Admin unified suggestion inbox + per-type approval panel
+- [ ] Migracija pending PhotoSuggestion → LocationSuggestion
 - [ ] Migracija ili cleanup starih ContentChange zapisa
-- [ ] Uklanjanje ContentChange, CuratorReview, ContentChangeContribution modela
 
 ### Faza 3: Reviews Management (prioritet: SREDNJI)
 Dodati moderation workflow za korisničke recenzije.
@@ -458,6 +358,8 @@ Integrisati audio tour generisanje u curator dashboard.
 - [ ] Ukloniti `ContentChange` model, migracije, kontrolere, views
 - [ ] Ukloniti `CuratorReview` model
 - [ ] Ukloniti `ContentChangeContribution` model
+- [ ] Ukloniti `PhotoSuggestion` model + kontroleri + views
 - [ ] Ukloniti `Proposals` kontroler i views
 - [ ] Ukloniti `curator_edit_delete` feature flag (više nije potreban)
 - [ ] Ažurirati CuratorActivity action types
+- [ ] Drop tabele: `content_changes`, `content_change_contributions`, `photo_suggestions`

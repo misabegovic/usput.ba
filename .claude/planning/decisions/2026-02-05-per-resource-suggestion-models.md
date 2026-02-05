@@ -44,15 +44,64 @@ Curator dashboard koristi polimorfni `ContentChange` model za sve content prijed
 
 **Zamijeniti `ContentChange` sa per-resource suggestion modelima:**
 
-- `LocationSuggestion` — za predlaganje promjena na lokacijama
+- `LocationSuggestion` — za predlaganje promjena na lokacijama (uključujući slike — zamjenjuje i `PhotoSuggestion`)
 - `ExperienceSuggestion` — za predlaganje promjena na iskustvima
 - `PlanSuggestion` — za predlaganje promjena na planove
 
-**Zadržati `PhotoSuggestion`** bez promjena — radi, testirano je.
+**Ukinuti `PhotoSuggestion`** — funkcionalnost slika se apsorbira u `LocationSuggestion` koji podržava Active Storage. Nema razloga za odvojen model kad LocationSuggestion može držati i tekst i slike.
 
 ### Ključni principi dizajna
 
-#### 1. Typed kolone umjesto JSONB
+#### 1. Jedan pending suggestion per resurs + multi-contributor
+
+```ruby
+# Unique constraint: samo JEDAN pending suggestion po resursu
+add_index :location_suggestions, :location_id,
+          unique: true,
+          where: "status = 0 AND location_id IS NOT NULL",
+          name: "idx_one_pending_per_location"
+
+# Više kuratora doprinosi ISTOM suggestion-u
+class LocationSuggestionContribution < ApplicationRecord
+  belongs_to :location_suggestion
+  belongs_to :user
+
+  # Iste typed kolone kao LocationSuggestion
+  # Samo popunjena polja = polja koja ovaj kurator mijenja
+  t.string :proposed_name          # nil ako ne mijenja name
+  t.text :proposed_description     # nil ako ne mijenja opis
+  t.text :notes                    # Komentar kuratora
+
+  validates :user_id, uniqueness: {
+    scope: :location_suggestion_id,
+    message: "already contributed"
+  }
+end
+```
+
+**Kako radi merge:** Suggestion drži "finalno stanje" prijedloga. Kad kurator B doprinese, njegovi non-nil values se upisuju u suggestion polja, a stari values (od kuratora A) se čuvaju u contribution-u kuratora A. Admin vidi finalno stanje + historiju ko je šta mijenjao.
+
+```ruby
+# Primjer toka:
+# 1. Kurator A predlaže: name="Stari Most", description="..."
+suggestion = LocationSuggestion.find_or_create_pending!(location, user: kurator_a)
+# → suggestion.proposed_name = "Stari Most"
+# → suggestion.proposed_description = "..."
+
+# 2. Kurator B doprinosi: description="bolja verzija", city="Mostar"
+suggestion.add_contribution(user: kurator_b,
+  proposed_description: "bolja verzija",
+  proposed_city: "Mostar")
+# → Kreira contribution za kuratora A sa starim description
+# → Ažurira suggestion: description="bolja verzija", city="Mostar"
+# → Kreira contribution za kuratora B sa novim vrijednostima
+
+# 3. Admin vidi finalno stanje + diff + ko je šta mijenjao
+```
+
+**Zašto ne odvojeni suggestion-i po kuratoru:** Korisnik je rekao da želi jedan suggestion per resurs sa višestrukim kontributorima. Ovo sprečava konflikte (dva kuratora rade na istom resursu nezavisno, admin mora da bira). Umjesto toga, kuratori kolaboriraju na jednom prijedlogu.
+
+#### 2. Typed kolone umjesto JSONB
 
 ```ruby
 # LOŠE (ContentChange)
@@ -65,13 +114,28 @@ t.text :proposed_description
 t.json :proposed_category_ids    # Typed kao Array<Integer>
 ```
 
-**Zašto:** Rails zna tip svake kolone. Nema type mismatch pri approve. Validacije rade normalno. Migracije dokumentuju schema.
+**Zašto:** Rails zna tip svake kolone. Nema type mismatch pri approve. Validacije rade normalno.
 
-#### 2. Active Storage za fajlove
+**Ključna razlika od ContentChange:** Contribution model ima **iste typed kolone** kao suggestion model. Nema JSONB. Merge je per-kolona i type-safe.
+
+#### 3. Active Storage za fajlove (zamjenjuje PhotoSuggestion)
 
 ```ruby
 class LocationSuggestion < ApplicationRecord
   has_many_attached :proposed_photos
+
+  validate :acceptable_photos
+
+  def acceptable_photos
+    return unless proposed_photos.attached?
+    proposed_photos.each do |photo|
+      errors.add(:proposed_photos, "max 10MB") if photo.blob.byte_size > 10.megabytes
+      unless %w[image/jpeg image/png image/gif image/webp].include?(photo.blob.content_type)
+        errors.add(:proposed_photos, "must be JPEG, PNG, GIF, or WebP")
+      end
+    end
+    errors.add(:proposed_photos, "max 10") if proposed_photos.size > 10
+  end
 end
 
 class ExperienceSuggestion < ApplicationRecord
@@ -79,45 +143,84 @@ class ExperienceSuggestion < ApplicationRecord
 end
 ```
 
-**Zašto:** Fajlovi se čuvaju uz suggestion, ne gube se. Kad admin odobri, attachmenti se kopiraju na resurs.
+**Zašto apsorbirati PhotoSuggestion:** Kurator predlaže promjene na lokaciji — ime, opis, koordinate, I slike. Razdvajanje teksta i slika u odvojene modele znači dva proposal workflow-a za isti resurs. Sa LocationSuggestion, jedan prijedlog pokriva sve.
 
-#### 3. Suggestable concern za zajedničku logiku
+**Migracija sa PhotoSuggestion:** Pending photo suggestion-e migrirati u LocationSuggestion zapise (samo sa proposed_photos). Odobrene/odbijene ostaviti kao historiju.
+
+#### 4. Suggestable concern za zajedničku logiku
 
 ```ruby
+# app/models/concerns/suggestable.rb
 module Suggestable
   extend ActiveSupport::Concern
 
   included do
-    belongs_to :user
+    belongs_to :user                      # Kurator koji je kreirao
     belongs_to :reviewed_by, class_name: "User", optional: true
 
     enum :status, { pending: 0, approved: 1, rejected: 2 }
     enum :change_type, { create_resource: 0, update_resource: 1, delete_resource: 2 }
 
+    validates :user, presence: true
+
     scope :pending_review, -> { where(status: :pending) }
+    scope :recent, -> { order(created_at: :desc) }
   end
 
   def approve!(admin, notes: nil)
     transaction do
       apply_changes!
-      update!(status: :approved, reviewed_by: admin,
-              reviewed_at: Time.current, admin_notes: notes)
+      update!(
+        status: :approved,
+        reviewed_by: admin,
+        reviewed_at: Time.current,
+        admin_notes: notes
+      )
     end
   end
 
   def reject!(admin, notes: nil)
-    update!(status: :rejected, reviewed_by: admin,
-            reviewed_at: Time.current, admin_notes: notes)
+    update!(
+      status: :rejected,
+      reviewed_by: admin,
+      reviewed_at: Time.current,
+      admin_notes: notes
+    )
   end
 
-  # Svaki model implementira svoju verziju
+  # Dodaj contribution od drugog kuratora
+  def add_contribution(user:, notes: nil, **proposed_fields)
+    non_nil_fields = proposed_fields.compact
+
+    transaction do
+      # Sačuvaj contribution za audit trail
+      contribution = contributions.create!(
+        user: user,
+        notes: notes,
+        **non_nil_fields
+      )
+
+      # Ažuriraj suggestion sa novim vrijednostima
+      non_nil_fields.each do |field, value|
+        self[field] = value if respond_to?("#{field}=")
+      end
+      save!
+    end
+  end
+
+  # Svaki model implementira
   def apply_changes!
     raise NotImplementedError
+  end
+
+  # Polja koja su popunjena (non-nil proposed_* kolone)
+  def proposed_changes
+    attributes.select { |k, v| k.start_with?("proposed_") && v.present? }
   end
 end
 ```
 
-#### 4. Admin = direktan CRUD, Kurator = suggestion
+#### 5. Admin = direktan CRUD, Kurator = suggestion
 
 ```ruby
 # app/controllers/curator/locations_controller.rb
@@ -127,21 +230,19 @@ def update
     LocationUpdater.new(@location, location_params).call
     redirect_to curator_location_path(@location)
   else
-    # Kreiraj suggestion
-    suggestion = @location.location_suggestions.build(
+    # Find or create pending suggestion za ovaj resurs
+    suggestion = LocationSuggestion.find_or_create_pending!(
+      @location, user: current_user
+    )
+    suggestion.add_contribution(
       user: current_user,
-      change_type: :update_resource,
       **suggestion_params
     )
-    suggestion.save!
-    redirect_to curator_location_path(@location)
+    redirect_to curator_location_path(@location),
+      notice: "Promjene predložene za pregled."
   end
 end
 ```
-
-#### 5. Nema multi-contributor na jednom suggestion-u
-
-Svaki kurator kreira svoj suggestion. Admin vidi sve pending suggestion-e za resurs i odlučuje koji prihvata. Eliminise merge problem potpuno.
 
 ### Migracije
 
@@ -150,7 +251,7 @@ Svaki kurator kreira svoj suggestion. Admin vidi sve pending suggestion-e za res
 class CreateLocationSuggestions < ActiveRecord::Migration[8.0]
   def change
     create_table :location_suggestions do |t|
-      t.references :location, foreign_key: true  # nil za create
+      t.references :location, foreign_key: true  # nil za create_resource
       t.references :user, null: false, foreign_key: true
       t.references :reviewed_by, foreign_key: { to_table: :users }
 
@@ -159,7 +260,7 @@ class CreateLocationSuggestions < ActiveRecord::Migration[8.0]
       t.datetime :reviewed_at
       t.text :admin_notes
 
-      # Typed polja
+      # Typed polja — ista kao Location atributi
       t.string :proposed_name
       t.string :proposed_city
       t.text :proposed_description
@@ -175,27 +276,70 @@ class CreateLocationSuggestions < ActiveRecord::Migration[8.0]
       t.jsonb :proposed_tags, default: []
       t.jsonb :proposed_category_ids, default: []
       t.jsonb :proposed_experience_type_ids, default: []
+      # Slike idu kroz Active Storage (has_many_attached :proposed_photos)
 
       t.timestamps
     end
 
-    add_index :location_suggestions, [:location_id, :status],
-              where: "status = 0",
-              name: "idx_pending_location_suggestion"
+    # Jedan pending suggestion per lokacija
+    add_index :location_suggestions, :location_id,
+              unique: true,
+              where: "status = 0 AND location_id IS NOT NULL",
+              name: "idx_one_pending_per_location"
+  end
+end
+
+# Contribution tabela — ISTE typed kolone za audit trail
+class CreateLocationSuggestionContributions < ActiveRecord::Migration[8.0]
+  def change
+    create_table :location_suggestion_contributions do |t|
+      t.references :location_suggestion, null: false, foreign_key: true
+      t.references :user, null: false, foreign_key: true
+      t.text :notes
+
+      # Typed polja — kopija suggestion kolona
+      # Samo non-nil polja = polja koja ovaj kurator mijenja
+      t.string :proposed_name
+      t.string :proposed_city
+      t.text :proposed_description
+      t.text :proposed_historical_context
+      t.decimal :proposed_lat, precision: 10, scale: 7
+      t.decimal :proposed_lng, precision: 10, scale: 7
+      t.integer :proposed_budget
+      t.string :proposed_phone
+      t.string :proposed_email
+      t.string :proposed_website
+      t.string :proposed_video_url
+      t.jsonb :proposed_social_links
+      t.jsonb :proposed_tags
+      t.jsonb :proposed_category_ids
+      t.jsonb :proposed_experience_type_ids
+
+      t.timestamps
+    end
+
+    # Jedan contribution per kurator per suggestion
+    add_index :location_suggestion_contributions,
+              [:location_suggestion_id, :user_id],
+              unique: true,
+              name: "idx_loc_suggestion_contrib_unique_user"
   end
 end
 ```
+
+**Isti pattern za ExperienceSuggestion i PlanSuggestion** — svaki sa svojim typed kolonama i contribution tabelom.
 
 ### Cleanup plan
 
 Kad novi suggestion modeli budu na produkciji i funkcionišu:
 
-1. Migracija: obrisati `content_changes`, `content_change_contributions` tabele
-2. Ukloniti modele: `ContentChange`, `ContentChangeContribution`, `CuratorReview`
-3. Ukloniti kontrolere: `Curator::ProposalsController`, `Curator::Admin::ContentChangesController`
-4. Ukloniti views: `curator/proposals/`
-5. Ukloniti feature flag: `curator_edit_delete`
-6. Ažurirati `CuratorActivity` action types
+1. Migrirati pending PhotoSuggestion zapise u LocationSuggestion
+2. Obrisati tabele: `content_changes`, `content_change_contributions`, `photo_suggestions`
+3. Ukloniti modele: `ContentChange`, `ContentChangeContribution`, `CuratorReview`, `PhotoSuggestion`
+4. Ukloniti kontrolere: `Curator::ProposalsController`, `Curator::Admin::ContentChangesController`, `Curator::PhotoSuggestionsController`, `Curator::Admin::PhotoSuggestionsController`
+5. Ukloniti views: `curator/proposals/`, `curator/photo_suggestions/`, `curator/admin/photo_suggestions/`
+6. Ukloniti feature flag: `curator_edit_delete`
+7. Ažurirati `CuratorActivity` action types
 
 ## Consequences
 
@@ -204,22 +348,24 @@ Kad novi suggestion modeli budu na produkciji i funkcionišu:
 - **Radi na produkciji** — Typed kolone eliminišu type mismatch. Active Storage drži fajlove uz suggestion.
 - **Testabilnost** — Svaki model se testira nezavisno sa pravim tipovima, ne JSONB mockovima.
 - **Jasna odgovornost** — `LocationSuggestion` zna sve o lokacijama. Ne treba `safe_attributes_for` whitelist.
-- **File support** — Fotografije i cover photo su dio suggestion-a, ne gube se.
-- **Jednostavniji merge** — Nema merge-a. Svaki kurator = svoj suggestion. Admin bira.
-- **Lakše dodavanje polja** — Novo polje = nova kolona na odgovarajućem suggestion modelu. Migracija dokumentuje promjenu.
+- **Unified prijedlozi** — Tekst + slike u jednom suggestion-u. Nema odvojenog PhotoSuggestion. Jedan workflow za sve.
+- **Type-safe merge** — Contribution model ima iste typed kolone. Merge je per-kolona, ne JSONB. Admin vidi ko je šta mijenjao.
+- **Kolaboracija** — Više kuratora radi na istom prijedlogu. Unique constraint sprečava konflikte.
+- **Lakše dodavanje polja** — Novo polje = nova kolona na suggestion + contribution modelu. Migracija dokumentuje promjenu.
 - **Admin efikasnost** — Direktan CRUD bez proposal overhead-a.
 
 ### Negative
 
-- **Više tabela** — 3 nove tabele umjesto jedne. Više migracija.
-- **Dupliciran boilerplate** — Svaki suggestion model ima svoju `apply_changes!` metodu. Concern pokriva samo zajedničko.
-- **PhotoSuggestion ostaje odvojen** — Moglo bi se preimenovati u `LocationPhotoSuggestion` za konzistentnost, ali breaking change bez benefita.
-- **Migracija podataka** — Existing ContentChange zapisi trebaju cleanup (vjerovatno nema pending na prod jer feature je disabled).
+- **Više tabela** — 3 suggestion tabele + 3 contribution tabele = 6 novih tabela. Značajno više od jednog ContentChange.
+- **Duplicirane kolone** — Suggestion i Contribution imaju iste kolone. Kad se doda polje, treba dodati na oba mjesta.
+- **Kompleksniji merge** — Iako je type-safe, logika "ažuriraj suggestion polja + sačuvaj contribution" je više koda nego jednostavan `Hash#merge!`.
+- **Migracija PhotoSuggestion** — Pending photo suggestion-e treba migrirati. Approved/rejected su historija.
+- **Migracija ContentChange** — Existing zapisi trebaju cleanup.
 
 ### Neutral
 
-- **Broj modela raste** — Od 3 (ContentChange + 2 pomoćna) na 3 (LocationSuggestion + ExperienceSuggestion + PlanSuggestion) + concern. Neto isti broj fajlova.
-- **Testovi se moraju prepisati** — 480+ linija ContentChange testova se zamjenjuju sa testovima per model. Neto sličan obim.
+- **Neto broj modela** — Od 4 (ContentChange + Contribution + CuratorReview + PhotoSuggestion) na 6 (3 suggestion + 3 contribution) + concern. Više fajlova ali svaki je jednostavniji.
+- **Testovi se moraju prepisati** — Ali testovi per model su fokusiraniji i lakši za održavanje.
 
 ## Alternatives Considered
 
@@ -231,21 +377,29 @@ Dodati type casting u `approve!()`, Active Storage polje, fix merge logic.
 - **Mane:** JSONB serialization ostaje fragilan. Svaki novi resurs/polje zahtijeva ručno rukovanje. Root cause se ne rješava.
 - **Zašto odbačeno:** Fundamentalni problem je arhitekturni — jedan generički model ne može ispravno pokriti specifičnosti različitih resursa. Popravke bi bile zakrpe.
 
-### Opcija 2: Field-level suggestions
+### Opcija 2: Odvojeni suggestion-i per kurator (bez multi-contributor)
+
+Svaki kurator kreira svoj suggestion. Admin bira koji prihvata.
+
+- **Prednosti:** Nema merge logike. Jednostavnije.
+- **Mane:** Dva kuratora rade na istoj lokaciji nezavisno. Dupli posao. Admin mora uporediti i birati. Ne skalira.
+- **Zašto odbačeno:** Korisnik eksplicitno želi kolaboraciju na jednom prijedlogu per resurs.
+
+### Opcija 3: Field-level suggestions
 
 Kurator predlaže promjenu jednog polja (ne cijelog resursa).
 
 - **Prednosti:** Minimalna forma. Lako za review.
 - **Mane:** Ne pokriva create workflow. Admin mora odobriti svako polje pojedinačno.
-- **Zašto odbačeno:** Može se dodati kao poboljšanje (faza 3+), ali per-resource suggestion je potreban za create i bulk update.
+- **Zašto odbačeno:** Može se dodati kao poboljšanje u budućnosti, ali per-resource suggestion je potreban za create i bulk update.
 
-### Opcija 3: Draft system
+### Opcija 4: Zadržati PhotoSuggestion odvojeno
 
-Kurator kreira "draft" resurs koji admin "publish-a".
+Ostaviti PhotoSuggestion kakav jeste, novi suggestion modeli samo za tekst.
 
-- **Prednosti:** Intuitivan za kuratore — vide šta kreiraju.
-- **Mane:** Dupli zapisi u bazi (draft + published). Kompleksni query-ji da se izbjegnu draft-ovi na public stranicama. STI ili status kolona na svakom modelu.
-- **Zašto odbačeno:** Zahtijeva promjene na svim resursnim modelima. Suggestion model je izolovana promjena.
+- **Prednosti:** PhotoSuggestion radi, ne dirati.
+- **Mane:** Dva odvojena workflow-a za isti resurs (tekst vs slike). Kurator mora koristiti dva različita formulara. Admin mora pregledati dva tipa prijedloga za istu lokaciju.
+- **Zašto odbačeno:** Unified prijedlog (tekst + slike) je bolji UX i za kuratora i za admina.
 
 ## References
 
