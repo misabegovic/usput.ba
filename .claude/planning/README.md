@@ -63,6 +63,14 @@ Architecture Decision Records - dokumentovane ključne tehničke odluke.
 
 ---
 
+## Feature Plans
+
+| Dokument | Opis | Status |
+|----------|------|--------|
+| `REVIEW_APPROVAL_SYSTEM.md` | Review moderacija i approval flow | Proposed |
+
+---
+
 ## Decisions (decisions/)
 
 Product i tehničke odluke koje utiču na arhitekturu.
