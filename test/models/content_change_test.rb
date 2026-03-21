@@ -109,6 +109,31 @@ class ContentChangeTest < ActiveSupport::TestCase
     assert_equal "Updated Bridge Name", @location.name
   end
 
+  test "approve updates location accessibility for update_content" do
+    change = ContentChange.create!(
+      user: @curator,
+      change_type: :update_content,
+      changeable: @location,
+      original_data: { "accessibility" => @location.accessibility },
+      proposed_data: {
+        "accessibility" => {
+          "wheelchair_access" => "partial",
+          "ramp" => true,
+          "wheelchair_toilet" => true,
+          "notes" => "Ramp at side entrance"
+        }
+      }
+    )
+
+    assert change.approve!(@admin)
+
+    @location.reload
+    assert_equal "partial", @location.wheelchair_access
+    assert @location.accessibility_feature?(:ramp)
+    assert @location.accessibility_feature?(:wheelchair_toilet)
+    assert_equal "Ramp at side entrance", @location.accessibility_notes
+  end
+
   test "approve destroys record for delete_content" do
     # Create a separate location for this test since it will be destroyed
     delete_location = Location.create!(
@@ -450,6 +475,32 @@ class ContentChangeTest < ActiveSupport::TestCase
 
     created_location = change.changeable
     assert created_location.needs_ai_regeneration, "Newly created location should need AI regeneration"
+
+    created_location.destroy
+  end
+
+  test "approve creates new location with accessibility data" do
+    change = ContentChange.create!(
+      user: @curator,
+      change_type: :create_content,
+      changeable_class: "Location",
+      proposed_data: {
+        "name" => "Accessible Location",
+        "city" => "Sarajevo",
+        "accessibility" => {
+          "wheelchair_access" => "full",
+          "ramp" => true,
+          "notes" => "Step-free entrance"
+        }
+      }
+    )
+
+    assert change.approve!(@admin)
+
+    created_location = change.changeable
+    assert_equal "full", created_location.wheelchair_access
+    assert created_location.accessibility_feature?(:ramp)
+    assert_equal "Step-free entrance", created_location.accessibility_notes
 
     created_location.destroy
   end

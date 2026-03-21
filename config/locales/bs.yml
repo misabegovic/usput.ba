@@ -63,6 +63,7 @@ bs:
       rating: Minimalna ocjena
       sort: Sortiraj po
       audio_support: Audio ture
+      accessible: "♿ Pristupačno"
       origin: Porijeklo
     origins:
       ai: AI Generirano
@@ -1300,3 +1301,20 @@ bs:
       pending_application: Tvoja prijava za kuratora je na čekanju.
       view_application: Pogledaj prijavu
       apply_now: Prijavi se sada
+  accessibility:
+    section_title: Pristupačnost
+    wheelchair_access: Pristup kolicima
+    features_label: Dostupne pogodnosti
+    notes_label: Napomene o pristupačnosti
+    notes_placeholder: "npr. Rampa na glavnom ulazu. WC na spratu bez lifta."
+    levels:
+      unknown: Nepoznato
+      full: Potpuno pristupačno
+      partial: Djelomično pristupačno
+      none: Nije pristupačno
+    features:
+      ramp: Rampa
+      elevator: Lift
+      flat_terrain: Ravan teren
+      wheelchair_parking: Parking
+      wheelchair_toilet: Pristupačan WC

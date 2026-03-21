@@ -1663,4 +1663,153 @@ class LocationTest < ActiveSupport::TestCase
     location.destroy
     exp_type.destroy
   end
+
+  # === Accessibility helpers ===
+
+  test "accessibility returns empty hash by default" do
+    location = Location.new(@valid_params)
+    assert_equal({}, location.accessibility)
+  end
+
+  test "wheelchair_access returns unknown by default" do
+    location = Location.new(@valid_params)
+    assert_equal "unknown", location.wheelchair_access
+  end
+
+  test "wheelchair_access returns stored value" do
+    location = Location.new(@valid_params.merge(accessibility: { "wheelchair_access" => "full" }))
+    assert_equal "full", location.wheelchair_access
+  end
+
+  test "wheelchair_access= sets valid level" do
+    location = Location.new(@valid_params)
+    location.wheelchair_access = "full"
+    assert_equal "full", location.wheelchair_access
+  end
+
+  test "wheelchair_access= ignores invalid level" do
+    location = Location.new(@valid_params)
+    location.wheelchair_access = "invalid"
+    assert_equal "unknown", location.wheelchair_access
+  end
+
+  test "wheelchair_accessible? returns true for full access" do
+    location = Location.new(@valid_params.merge(accessibility: { "wheelchair_access" => "full" }))
+    assert location.wheelchair_accessible?
+  end
+
+  test "wheelchair_accessible? returns true for partial access" do
+    location = Location.new(@valid_params.merge(accessibility: { "wheelchair_access" => "partial" }))
+    assert location.wheelchair_accessible?
+  end
+
+  test "wheelchair_accessible? returns false for none" do
+    location = Location.new(@valid_params.merge(accessibility: { "wheelchair_access" => "none" }))
+    assert_not location.wheelchair_accessible?
+  end
+
+  test "wheelchair_accessible? returns false for unknown" do
+    location = Location.new(@valid_params)
+    assert_not location.wheelchair_accessible?
+  end
+
+  test "accessibility_feature? checks specific feature" do
+    location = Location.new(@valid_params.merge(accessibility: { "ramp" => true, "elevator" => false }))
+    assert location.accessibility_feature?(:ramp)
+    assert_not location.accessibility_feature?(:elevator)
+  end
+
+  test "set_accessibility_feature sets valid feature" do
+    location = Location.new(@valid_params)
+    location.set_accessibility_feature(:ramp, true)
+    assert location.accessibility_feature?(:ramp)
+  end
+
+  test "set_accessibility_feature ignores invalid feature" do
+    location = Location.new(@valid_params)
+    location.set_accessibility_feature(:invalid_feature, true)
+    assert_not location.accessibility.key?("invalid_feature")
+  end
+
+  test "accessibility_notes returns notes" do
+    location = Location.new(@valid_params.merge(accessibility: { "notes" => "Rampa na ulazu" }))
+    assert_equal "Rampa na ulazu", location.accessibility_notes
+  end
+
+  test "accessibility_notes= sets notes" do
+    location = Location.new(@valid_params)
+    location.accessibility_notes = "Pristupačan ulaz"
+    assert_equal "Pristupačan ulaz", location.accessibility_notes
+  end
+
+  test "accessibility_notes= clears blank notes" do
+    location = Location.new(@valid_params.merge(accessibility: { "notes" => "Old note" }))
+    location.accessibility_notes = ""
+    assert_nil location.accessibility_notes
+  end
+
+  test "accessibility_known? returns false by default" do
+    location = Location.new(@valid_params)
+    assert_not location.accessibility_known?
+  end
+
+  test "accessibility_known? returns true when wheelchair_access set" do
+    location = Location.new(@valid_params.merge(accessibility: { "wheelchair_access" => "full" }))
+    assert location.accessibility_known?
+  end
+
+  test "accessibility_known? returns true when feature set" do
+    location = Location.new(@valid_params.merge(accessibility: { "ramp" => true }))
+    assert location.accessibility_known?
+  end
+
+  test "accessibility_known? returns true when notes set" do
+    location = Location.new(@valid_params.merge(accessibility: { "notes" => "Step-free side entrance" }))
+    assert location.accessibility_known?
+  end
+
+  test "accessibility_summary returns structured data" do
+    location = Location.new(@valid_params.merge(accessibility: {
+      "wheelchair_access" => "partial",
+      "ramp" => true,
+      "flat_terrain" => true,
+      "elevator" => false,
+      "notes" => "Rampa na glavnom ulazu"
+    }))
+
+    summary = location.accessibility_summary
+    assert_equal "partial", summary[:wheelchair_access]
+    assert_includes summary[:features], "ramp"
+    assert_includes summary[:features], "flat_terrain"
+    assert_not_includes summary[:features], "elevator"
+    assert_equal "Rampa na glavnom ulazu", summary[:notes]
+  end
+
+  test "wheelchair_accessible scope filters accessible locations" do
+    accessible = Location.create!(@valid_params.merge(
+      accessibility: { "wheelchair_access" => "full" }
+    ))
+    partial = Location.create!(@valid_params.merge(
+      name: "Partial Access",
+      lat: 43.8570, lng: 18.4140,
+      accessibility: { "wheelchair_access" => "partial" }
+    ))
+    not_accessible = Location.create!(@valid_params.merge(
+      name: "Not Accessible",
+      lat: 43.8580, lng: 18.4150,
+      accessibility: { "wheelchair_access" => "none" }
+    ))
+    unknown = Location.create!(@valid_params.merge(
+      name: "Unknown Access",
+      lat: 43.8590, lng: 18.4160
+    ))
+
+    results = Location.wheelchair_accessible
+    assert_includes results, accessible
+    assert_includes results, partial
+    assert_not_includes results, not_accessible
+    assert_not_includes results, unknown
+
+    [accessible, partial, not_accessible, unknown].each(&:destroy)
+  end
 end

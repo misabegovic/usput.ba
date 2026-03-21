@@ -476,6 +476,32 @@ class Curator::LocationsControllerTest < ActionDispatch::IntegrationTest
     proposal.destroy
   end
 
+  test "update with accessibility data stores normalized accessibility in proposal" do
+    login_as(@curator)
+
+    patch curator_location_path(@location), params: {
+      location: {
+        accessibility: {
+          wheelchair_access: "partial",
+          ramp: "true",
+          wheelchair_toilet: "true",
+          notes: "Ramp at side entrance"
+        }
+      }
+    }
+
+    assert_redirected_to curator_location_path(@location)
+
+    proposal = ContentChange.last
+    assert_equal({}, proposal.original_data["accessibility"])
+    assert_equal "partial", proposal.proposed_data["accessibility"]["wheelchair_access"]
+    assert_equal true, proposal.proposed_data["accessibility"]["ramp"]
+    assert_equal true, proposal.proposed_data["accessibility"]["wheelchair_toilet"]
+    assert_equal "Ramp at side entrance", proposal.proposed_data["accessibility"]["notes"]
+
+    proposal.destroy
+  end
+
   test "update records curator activity" do
     login_as(@curator)
 

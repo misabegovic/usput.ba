@@ -64,6 +64,7 @@ en:
       rating: Minimum rating
       sort: Sort by
       audio_support: Audio tours
+      accessible: "♿ Accessible"
       origin: Origin
     origins:
       ai: AI Generated
@@ -1529,3 +1530,20 @@ en:
       pending_application: Your curator application is pending.
       view_application: View application
       apply_now: Apply now
+  accessibility:
+    section_title: Accessibility
+    wheelchair_access: Wheelchair Access
+    features_label: Available Features
+    notes_label: Accessibility Notes
+    notes_placeholder: "e.g. Ramp at main entrance. Restroom on 2nd floor, no elevator."
+    levels:
+      unknown: Unknown
+      full: Fully accessible
+      partial: Partially accessible
+      none: Not accessible
+    features:
+      ramp: Ramp
+      elevator: Elevator
+      flat_terrain: Flat terrain
+      wheelchair_parking: Parking
+      wheelchair_toilet: Accessible WC
