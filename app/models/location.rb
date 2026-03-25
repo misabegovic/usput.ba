@@ -63,6 +63,9 @@ class Location < ApplicationRecord
   }
   scope :with_tag, ->(tag) { where("tags @> ?", [ tag ].to_json) }
   scope :with_coordinates, -> { where.not(lat: nil, lng: nil) }
+  scope :wheelchair_accessible, -> {
+    where("accessibility->>'wheelchair_access' IN (?)", %w[full partial])
+  }
 
   # Scope for locations with audio tours
   scope :with_audio, -> {
@@ -369,6 +372,77 @@ class Location < ApplicationRecord
   def season_names
     return [ "Year-round" ] if seasons.empty?
     seasons.map(&:titleize)
+  end
+
+  # ============================================================================
+  # ACCESSIBILITY HELPERS
+  # ============================================================================
+
+  WHEELCHAIR_ACCESS_LEVELS = %w[full partial none unknown].freeze
+
+  ACCESSIBILITY_FEATURES = %w[
+    wheelchair_parking wheelchair_toilet flat_terrain elevator ramp
+  ].freeze
+
+  # Ensure accessibility is always a hash
+  def accessibility
+    super || {}
+  end
+
+  # Get wheelchair access level (full, partial, none, unknown)
+  def wheelchair_access
+    accessibility["wheelchair_access"] || "unknown"
+  end
+
+  # Set wheelchair access level
+  def wheelchair_access=(level)
+    level = level.to_s
+    return unless WHEELCHAIR_ACCESS_LEVELS.include?(level)
+    self.accessibility = accessibility.merge("wheelchair_access" => level)
+  end
+
+  # Check if location is wheelchair accessible (full or partial)
+  def wheelchair_accessible?
+    %w[full partial].include?(wheelchair_access)
+  end
+
+  # Check a specific accessibility feature
+  def accessibility_feature?(feature)
+    accessibility[feature.to_s] == true
+  end
+
+  # Set a specific accessibility feature
+  def set_accessibility_feature(feature, value)
+    feature = feature.to_s
+    return unless ACCESSIBILITY_FEATURES.include?(feature)
+    self.accessibility = accessibility.merge(feature => value)
+  end
+
+  # Get accessibility notes
+  def accessibility_notes
+    accessibility["notes"]
+  end
+
+  # Set accessibility notes
+  def accessibility_notes=(text)
+    self.accessibility = accessibility.merge("notes" => text.presence)
+  end
+
+  # Get a human-readable summary of accessibility features
+  def accessibility_summary
+    features = ACCESSIBILITY_FEATURES.select { |f| accessibility_feature?(f) }
+    {
+      wheelchair_access: wheelchair_access,
+      features: features,
+      notes: accessibility_notes
+    }
+  end
+
+  # Check if any accessibility data has been set
+  def accessibility_known?
+    wheelchair_access != "unknown" ||
+      ACCESSIBILITY_FEATURES.any? { |f| accessibility.key?(f) } ||
+      accessibility_notes.present?
   end
 
   # Check if this is a contact type (guide, business, artisan)

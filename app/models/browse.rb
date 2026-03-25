@@ -116,6 +116,12 @@ class Browse < ApplicationRecord
     end
   }
 
+  # Filter by wheelchair accessibility
+  scope :by_accessible, ->(accessible) {
+    return all unless accessible.present? && accessible.to_s == "true"
+    where(wheelchair_accessible: true)
+  }
+
   # Filter by season - matches if seasons array contains the season OR is empty (year-round)
   # Seasons: spring, summer, fall, winter
   scope :by_season, ->(season) {

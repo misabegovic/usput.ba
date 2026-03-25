@@ -977,4 +977,53 @@ class BrowseTest < ActiveSupport::TestCase
 
     location.destroy
   end
+
+  # === Wheelchair accessibility scope ===
+
+  test "by_accessible filters to wheelchair accessible browses" do
+    accessible_loc = create_test_location(
+      name: "Accessible Place",
+      accessibility: { "wheelchair_access" => "full" }
+    )
+    inaccessible_loc = create_test_location(
+      name: "Inaccessible Place",
+      accessibility: { "wheelchair_access" => "none" }
+    )
+
+    BrowseAdapter.sync_location(accessible_loc)
+    BrowseAdapter.sync_location(inaccessible_loc)
+
+    results = Browse.by_accessible("true")
+    accessible_ids = results.pluck(:browsable_id)
+
+    assert_includes accessible_ids, accessible_loc.id
+    assert_not_includes accessible_ids, inaccessible_loc.id
+
+    accessible_loc.destroy
+    inaccessible_loc.destroy
+  end
+
+  test "by_accessible returns all when not filtering" do
+    location = create_test_location(name: "Any Place")
+    BrowseAdapter.sync_location(location)
+
+    all_count = Browse.count
+    filtered_count = Browse.by_accessible(nil).count
+
+    assert_equal all_count, filtered_count
+
+    location.destroy
+  end
+
+  test "by_accessible returns all when value is false string" do
+    location = create_test_location(name: "Any Place 2")
+    BrowseAdapter.sync_location(location)
+
+    all_count = Browse.count
+    filtered_count = Browse.by_accessible("false").count
+
+    assert_equal all_count, filtered_count
+
+    location.destroy
+  end
 end

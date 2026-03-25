@@ -278,7 +278,7 @@ class ContentChange < ApplicationRecord
   def safe_attributes_for(klass)
     case klass.name
     when "Location"
-      %w[name description historical_context city lat lng budget phone email website video_url tags suitable_experiences social_links location_category_ids]
+      %w[name description historical_context city lat lng budget phone email website video_url tags suitable_experiences social_links location_category_ids accessibility]
     when "Experience"
       %w[title description experience_category_id estimated_duration contact_name contact_email contact_phone contact_website seasons location_uuids]
     when "Plan"

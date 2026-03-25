@@ -32,7 +32,8 @@ class BrowseAdapter
         budget: location.budget_before_type_cast,
         category_keys: location.category_keys,
         seasons: location.seasons,
-        ai_generated: location.ai_generated
+        ai_generated: location.ai_generated,
+        wheelchair_accessible: location.wheelchair_accessible?
       }
     end
 
@@ -91,6 +92,7 @@ class BrowseAdapter
       parts << location.category_name if location.category_name.present?
       parts << location.tags.join(" ") if location.tags.present?
       parts << location.city if location.city.present?
+      parts << "pristupačno wheelchair accessible" if location.wheelchair_accessible?
       parts.join(" ")
     end
 

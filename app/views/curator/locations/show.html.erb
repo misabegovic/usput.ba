@@ -216,6 +216,58 @@
     </div>
   <% end %>
 
+  <%# Accessibility %>
+  <div class="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
+    <div class="px-4 py-4 sm:py-5 sm:px-6">
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+        <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+        <%= t("curator.locations.sections.accessibility", default: "Accessibility") %>
+      </h3>
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-6 sm:grid-cols-2">
+        <div>
+          <dt class="text-sm font-medium text-gray-500 dark:text-gray-400"><%= t("accessibility.wheelchair_access", default: "Wheelchair Access") %></dt>
+          <dd class="mt-1">
+            <% level = @location.wheelchair_access %>
+            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                         <%= case level
+                             when 'full' then 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                             when 'partial' then 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                             when 'none' then 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                             else 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                             end %>">
+              <%= t("accessibility.levels.#{level}", default: level.humanize) %>
+            </span>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500 dark:text-gray-400"><%= t("accessibility.features_label", default: "Features") %></dt>
+          <dd class="mt-1">
+            <% features = Location::ACCESSIBILITY_FEATURES.select { |f| @location.accessibility_feature?(f) } %>
+            <% if features.any? %>
+              <div class="flex flex-wrap gap-1.5">
+                <% features.each do |feature| %>
+                  <span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/30 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">
+                    <%= t("accessibility.features.#{feature}", default: feature.humanize) %>
+                  </span>
+                <% end %>
+              </div>
+            <% else %>
+              <span class="text-sm text-gray-400 dark:text-gray-500">-</span>
+            <% end %>
+          </dd>
+        </div>
+        <% if @location.accessibility_notes.present? %>
+          <div class="sm:col-span-2">
+            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400"><%= t("accessibility.notes_label", default: "Notes") %></dt>
+            <dd class="mt-1 text-sm text-gray-900 dark:text-white"><%= @location.accessibility_notes %></dd>
+          </div>
+        <% end %>
+      </dl>
+    </div>
+  </div>
+
   <%# Audio Tours %>
   <% if @location.has_audio_tours? %>
     <div class="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow">
