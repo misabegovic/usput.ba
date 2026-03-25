@@ -153,6 +153,7 @@ class PlansController < ApplicationController
     duration = parse_duration(params[:duration])
     budget = validate_budget(params[:budget])
     meat_lover = params[:meat_lover] == "true" || params[:meat_lover] == true
+    accessibility_required = params[:accessibility_required] == true || params[:accessibility_required] == "true"
     daily_hours = parse_daily_hours(params[:daily_hours])
     interests = parse_interests(params[:interests])
 
@@ -163,7 +164,7 @@ class PlansController < ApplicationController
     end
 
     # Pronađi relevantne lokacije
-    locations = find_matching_locations(city_name, budget, meat_lover, interests)
+    locations = find_matching_locations(city_name, budget, meat_lover, interests, accessibility_required: accessibility_required)
 
     if locations.empty?
       # Try without filters if no locations match
@@ -266,8 +267,11 @@ class PlansController < ApplicationController
     hours.clamp(MIN_DAILY_HOURS, MAX_DAILY_HOURS)
   end
 
-  def find_matching_locations(city_name, budget, meat_lover, interests)
+  def find_matching_locations(city_name, budget, meat_lover, interests, accessibility_required: false)
     locations = Location.where(city: city_name)
+
+    # Filter by accessibility
+    locations = locations.wheelchair_accessible if accessibility_required
 
     # Filter by budget (already validated by validate_budget)
     if budget.present?

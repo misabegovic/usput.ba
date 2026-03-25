@@ -275,14 +275,14 @@ class ContentChange < ApplicationRecord
   end
 
   # Define safe attributes for each model to prevent unauthorized changes
-    def safe_attributes_for(klass)
-      case klass.name
-      when "Location"
+  def safe_attributes_for(klass)
+    case klass.name
+    when "Location"
       %w[name description historical_context city lat lng budget phone email website video_url tags suitable_experiences social_links location_category_ids accessibility]
-      when "Experience"
-        %w[title description experience_category_id estimated_duration contact_name contact_email contact_phone contact_website seasons location_uuids]
-      when "Plan"
-        %w[title notes city_name visibility start_date end_date user_id preferences experience_days]
+    when "Experience"
+      %w[title description experience_category_id estimated_duration contact_name contact_email contact_phone contact_website seasons location_uuids]
+    when "Plan"
+      %w[title notes city_name visibility start_date end_date user_id preferences experience_days]
     when "AudioTour"
       %w[location_id locale script word_count duration]
     when "Review"

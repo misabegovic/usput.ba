@@ -317,6 +317,10 @@ en:
       balanced: Balanced
       active: Active
       intensive: Intensive
+      accessibility: Accessibility
+      accessibility_label: Only accessible locations
+      accessibility_hint: Show only wheelchair accessible locations
+      accessibility_aria: Only show wheelchair accessible locations
       food: Food
       meat_lover: Meat lover
       vegetarian: Vegetarian option
@@ -1532,6 +1536,7 @@ en:
       apply_now: Apply now
   accessibility:
     section_title: Accessibility
+    wheelchair_accessible: Wheelchair accessible
     wheelchair_access: Wheelchair Access
     features_label: Available Features
     notes_label: Accessibility Notes

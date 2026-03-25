@@ -194,10 +194,13 @@ module Curator
       end
 
       # Process accessibility: convert string "true" to boolean for feature checkboxes
+      # Initialize all features to false so unchecked checkboxes are properly cleared
       if permitted[:accessibility].present?
         acc = permitted[:accessibility].to_h
+        base = Location::ACCESSIBILITY_FEATURES.each_with_object({}) { |f, h| h[f] = false }
+        acc = base.merge(acc)
         Location::ACCESSIBILITY_FEATURES.each do |feature|
-          acc[feature] = acc[feature] == "true" if acc.key?(feature)
+          acc[feature] = acc[feature] == "true" if acc[feature].is_a?(String)
         end
         acc["notes"] = acc["notes"].presence
         permitted[:accessibility] = acc

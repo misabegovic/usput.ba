@@ -502,6 +502,55 @@ class Curator::LocationsControllerTest < ActionDispatch::IntegrationTest
     proposal.destroy
   end
 
+  test "update with accessibility clears unchecked features to false" do
+    login_as(@curator)
+
+    # First submit with ramp and elevator checked
+    patch curator_location_path(@location), params: {
+      location: {
+        accessibility: {
+          wheelchair_access: "full",
+          ramp: "true",
+          elevator: "true",
+          notes: "Both available"
+        }
+      }
+    }
+
+    first_proposal = ContentChange.last
+    assert_equal true, first_proposal.proposed_data["accessibility"]["ramp"]
+    assert_equal true, first_proposal.proposed_data["accessibility"]["elevator"]
+    # Features not submitted should be initialized to false
+    assert_equal false, first_proposal.proposed_data["accessibility"]["wheelchair_parking"]
+    assert_equal false, first_proposal.proposed_data["accessibility"]["wheelchair_toilet"]
+    assert_equal false, first_proposal.proposed_data["accessibility"]["flat_terrain"]
+
+    first_proposal.destroy
+  end
+
+  test "update with accessibility without any features sets all features to false" do
+    login_as(@curator)
+
+    patch curator_location_path(@location), params: {
+      location: {
+        accessibility: {
+          wheelchair_access: "partial",
+          notes: "Limited access"
+        }
+      }
+    }
+
+    proposal = ContentChange.last
+    assert_equal "partial", proposal.proposed_data["accessibility"]["wheelchair_access"]
+    # All feature checkboxes not submitted should default to false
+    Location::ACCESSIBILITY_FEATURES.each do |feature|
+      assert_equal false, proposal.proposed_data["accessibility"][feature],
+        "Expected #{feature} to be false when not submitted"
+    end
+
+    proposal.destroy
+  end
+
   test "update records curator activity" do
     login_as(@curator)
 

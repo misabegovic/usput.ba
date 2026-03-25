@@ -264,6 +264,29 @@
           </div>
         </div>
 
+        <!-- Accessibility preference -->
+        <div class="mb-8">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+            <%= t('wizard.preferences.accessibility', default: 'Pristupačnost') %>
+          </h3>
+          <label class="flex items-center gap-3 p-3 sm:p-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl hover:border-blue-500 transition-colors cursor-pointer"
+                 data-plan-wizard-target="accessibilityOption"
+                 aria-label="<%= t('wizard.preferences.accessibility_aria', default: 'Only show wheelchair accessible locations') %>">
+            <input type="checkbox"
+                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-5 h-5"
+                   data-action="change->plan-wizard#toggleAccessibility"
+                   aria-label="<%= t('wizard.preferences.accessibility_aria', default: 'Only show wheelchair accessible locations') %>">
+            <div>
+              <span class="text-gray-900 dark:text-white font-medium text-sm sm:text-base">
+                <%= t('wizard.preferences.accessibility_label', default: 'Samo pristupačne lokacije') %>
+              </span>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                <%= t('wizard.preferences.accessibility_hint', default: 'Prikaži samo lokacije pristupačne za invalidska kolica') %>
+              </p>
+            </div>
+          </label>
+        </div>
+
         <!-- Daily hours preference -->
         <div>
           <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">

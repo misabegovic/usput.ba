@@ -317,6 +317,10 @@ bs:
       balanced: Uravnoteženo
       active: Aktivno
       intensive: Intenzivno
+      accessibility: Pristupačnost
+      accessibility_label: Samo pristupačne lokacije
+      accessibility_hint: Prikaži samo lokacije pristupačne za invalidska kolica
+      accessibility_aria: Prikaži samo lokacije pristupačne za invalidska kolica
       food: Hrana
       meat_lover: Ljubitelj mesa
       vegetarian: Vegetarijanska opcija
@@ -1303,6 +1307,7 @@ bs:
       apply_now: Prijavi se sada
   accessibility:
     section_title: Pristupačnost
+    wheelchair_accessible: Pristupačno za kolica
     wheelchair_access: Pristup kolicima
     features_label: Dostupne pogodnosti
     notes_label: Napomene o pristupačnosti

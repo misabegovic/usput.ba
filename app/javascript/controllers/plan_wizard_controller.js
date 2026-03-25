@@ -25,7 +25,8 @@ export default class extends Controller {
     "interestsContainer",
     "loadMoreContainer",
     "loadMoreButton",
-    "toast"
+    "toast",
+    "accessibilityOption"
   ]
 
   static values = {
@@ -65,6 +66,7 @@ export default class extends Controller {
     meatLover: null,
     budget: null,
     dailyHours: 6,  // Default to 6 hours (balanced)
+    accessibilityRequired: false,
     interests: []
   }
 
@@ -491,6 +493,10 @@ export default class extends Controller {
     })
   }
 
+  toggleAccessibility(event) {
+    this.formData.accessibilityRequired = event.currentTarget.checked
+  }
+
   selectDailyHours(event) {
     const value = parseInt(event.currentTarget.dataset.value)
     this.formData.dailyHours = value
@@ -618,6 +624,7 @@ export default class extends Controller {
           meat_lover: this.formData.meatLover,
           budget: this.formData.budget,
           daily_hours: this.formData.dailyHours,
+          accessibility_required: this.formData.accessibilityRequired,
           interests: this.formData.interests
         })
       })

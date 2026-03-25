@@ -83,7 +83,10 @@
       <%# Badges %>
       <div class="flex items-center gap-2 flex-shrink-0">
         <% if location.wheelchair_accessible? %>
-          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" title="<%= t("accessibility.levels.#{location.wheelchair_access}", default: location.wheelchair_access.humanize) %>">
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                title="<%= t("accessibility.wheelchair_accessible", default: "Wheelchair accessible") %>"
+                aria-label="<%= t("accessibility.wheelchair_accessible", default: "Wheelchair accessible") %>"
+                role="img">
             ♿
           </span>
         <% end %>
