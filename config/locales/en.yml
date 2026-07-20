@@ -1529,3 +1529,10 @@ en:
       pending_application: Your curator application is pending.
       view_application: View application
       apply_now: Apply now
+  # Mine Checker (docs/mine_checker/SPEC.md §7) — mandatory text package.
+  # Messages NEVER reveal geometry or distances.
+  mine_check:
+    disclaimer: "The check runs against the most recently available data on mine-suspected areas (%{data_as_of}). The absence of known intersections is NOT a guarantee that an area is mine-free. For up-to-date information contact BHMAC: +387 33 253 800."
+    blocked: "This location cannot be accepted for safety reasons (proximity to a mine-suspected area according to data from %{data_as_of})."
+    data_stale: "The mine-safety check is currently unavailable (the data is stale), so this location cannot be accepted. For information on the mine situation contact BHMAC: +387 33 253 800."
+    emergency: "Police 122 · Civil protection 121 · BHMAC +387 33 253 800"

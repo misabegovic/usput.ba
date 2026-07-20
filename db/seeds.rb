@@ -1,3 +1,19 @@
+# Mine Checker (docs/mine_checker/SPEC.md): geo content is fail-closed —
+# creating BiH locations is blocked until the mine layers are imported, so
+# the import must run before any location seeds. DATA_AS_OF comes from the
+# marker file that ships next to the vendored snapshot.
+if defined?(MineArea) && MineArea.suspected.none?
+  marker = Rails.root.join("db/data/mine_checker/DATA_AS_OF")
+  if marker.exist?
+    ENV["DATA_AS_OF"] ||= marker.read.strip
+    puts "Seeding mine layers (data_as_of=#{ENV['DATA_AS_OF']})..."
+    Rails.application.load_tasks unless Rake::Task.task_defined?("mine_data:import")
+    Rake::Task["mine_data:import"].invoke
+  else
+    puts "WARNING: mine data files missing — BiH location seeds will be blocked (fail-closed)."
+  end
+end
+
 # This file should ensure the existence of records required to run the application in every environment (production,
 # development, test). The code here should be idempotent so that it can be executed at any point in every environment.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
@@ -530,7 +546,9 @@ locations_data = [
   }
 ]
 
+mine_skipped = []
 locations_data.each do |loc_data|
+  begin
   location = Location.find_or_create_by!(name: loc_data[:name]) do |loc|
     loc.description = loc_data[:description]
     loc.historical_context = loc_data[:historical_context]
@@ -557,8 +575,18 @@ locations_data.each do |loc_data|
       location.add_experience_type(exp_type) if exp_type
     end
   end
+  rescue ActiveRecord::RecordInvalid => e
+    # Mine Checker fail-closed: never bypass the check — skip the location
+    # and report loudly (docs/mine_checker/SPEC.md §6).
+    raise unless e.message.match?(/mine|minski|BHMAC/i)
+    mine_skipped << loc_data[:name]
+  end
 end
 
+if mine_skipped.any?
+  warn "WARNING: #{mine_skipped.size} seed location(s) skipped by the mine check " \
+       "(stale data or proximity): #{mine_skipped.join(', ')}"
+end
 puts "Created #{Location.count} locations"
 
 # Seed Experiences
