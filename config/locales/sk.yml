@@ -992,3 +992,20 @@ sk:
       submitted_at: Podané
       reviewed_at: Posúdené
       feedback: Spätná väzba
+
+  minolovac:
+    title: Míny
+    subtitle: Klasická hra na odkrývanie políčok na mapách Bosny a Hercegoviny.
+    disclaimer_title: Toto je len hra
+    disclaimer: Rozmiestnenie mín v hre je vymyslené a úplne náhodné — každá hra sa generuje nanovo a nemá žiadnu súvislosť so skutočnými oblasťami podozrivými z výskytu mín ani so skutočnými údajmi.
+    awareness: V skutočnom svete sú míny vážne nebezpečenstvo. Informácie o skutočných oblastiach podozrivých z výskytu mín hľadajte výhradne v oficiálnych zdrojoch BHMAC (bhmac.org).
+    region: Oblasť
+    difficulty: Obtiažnosť
+    level_easy: Ľahká
+    level_medium: Stredná
+    level_hard: Ťažká
+    restart: Nová hra
+    win: Výborne! Pole vyčistené.
+    lose: Bum! Skús to znova.
+    hint: Kliknutie odkryje políčko, pravé tlačidlo alebo dlhšie podržanie umiestni vlajku. Prvé kliknutie je vždy bezpečné.
+    back_home: Domov

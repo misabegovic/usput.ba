@@ -1027,3 +1027,20 @@ hr:
       submitted_at: Poslano
       reviewed_at: Pregledano
       feedback: Povratna Informacija
+
+  minolovac:
+    title: Minolovac
+    subtitle: Klasična igra otkrivanja polja na kartama bosanskohercegovačkih krajolika.
+    disclaimer_title: Ovo je samo igra
+    disclaimer: Raspored mina u igri je izmišljen i potpuno nasumičan — svaka partija se generira iznova i nema nikakve veze sa stvarnim minski sumnjivim područjima niti bilo kakvim stvarnim podacima.
+    awareness: Mine su u stvarnom svijetu ozbiljna opasnost. Za informacije o stvarnim minski sumnjivim područjima koristi isključivo službene izvore BHMAC-a (bhmac.org).
+    region: Područje
+    difficulty: Težina
+    level_easy: Lako
+    level_medium: Srednje
+    level_hard: Teško
+    restart: Nova igra
+    win: Bravo! Ploča je očišćena.
+    lose: Bum! Pokušaj ponovno.
+    hint: Klik otkriva polje, desni klik ili dulji pritisak postavlja zastavicu. Prvi klik je uvijek siguran.
+    back_home: Početna

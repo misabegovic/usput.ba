@@ -1156,3 +1156,20 @@ es:
       submitted_at: Enviado
       reviewed_at: Revisado
       feedback: Comentarios
+
+  minolovac:
+    title: Buscaminas
+    subtitle: El clásico juego de despejar casillas sobre mapas de Bosnia y Herzegovina.
+    disclaimer_title: Esto es solo un juego
+    disclaimer: La colocación de minas en el juego es ficticia y completamente aleatoria — cada partida se genera desde cero y no tiene ninguna relación con zonas reales sospechosas de minas ni con datos reales.
+    awareness: En el mundo real, las minas terrestres son un peligro serio. Para información sobre zonas reales sospechosas de minas, confía exclusivamente en las fuentes oficiales de BHMAC (bhmac.org).
+    region: Región
+    difficulty: Dificultad
+    level_easy: Fácil
+    level_medium: Medio
+    level_hard: Difícil
+    restart: Nueva partida
+    win: ¡Bien hecho! Tablero despejado.
+    lose: ¡Bum! Inténtalo de nuevo.
+    hint: Un clic revela una casilla, clic derecho o pulsación larga coloca una bandera. El primer clic siempre es seguro.
+    back_home: Inicio

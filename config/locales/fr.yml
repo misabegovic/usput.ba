@@ -1177,3 +1177,20 @@ fr:
       submitted_at: Soumis
       reviewed_at: Examiné
       feedback: Commentaires
+
+  minolovac:
+    title: Démineur
+    subtitle: Le jeu classique de déminage de cases sur des cartes de Bosnie-Herzégovine.
+    disclaimer_title: Ceci n'est qu'un jeu
+    disclaimer: Le placement des mines dans le jeu est fictif et entièrement aléatoire — chaque partie est générée de zéro et n'a aucun lien avec de réelles zones suspectées de mines ni avec des données réelles.
+    awareness: Dans le monde réel, les mines terrestres sont un danger sérieux. Pour toute information sur les zones réelles suspectées de mines, fiez-vous exclusivement aux sources officielles du BHMAC (bhmac.org).
+    region: Région
+    difficulty: Difficulté
+    level_easy: Facile
+    level_medium: Moyen
+    level_hard: Difficile
+    restart: Nouvelle partie
+    win: Bravo ! Grille dégagée.
+    lose: Boum ! Réessayez.
+    hint: Un clic révèle une case, un clic droit ou un appui long place un drapeau. Le premier clic est toujours sûr.
+    back_home: Accueil

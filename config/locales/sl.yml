@@ -993,3 +993,20 @@ sl:
       submitted_at: Oddano
       reviewed_at: Pregledano
       feedback: Povratne Informacije
+
+  minolovac:
+    title: Minolovec
+    subtitle: Klasična igra odkrivanja polj na zemljevidih Bosne in Hercegovine.
+    disclaimer_title: To je samo igra
+    disclaimer: Postavitev min v igri je izmišljena in popolnoma naključna — vsaka igra se generira na novo in nima nobene povezave z resničnimi območji, sumljivimi zaradi min, niti z resničnimi podatki.
+    awareness: V resničnem svetu so mine resna nevarnost. Za informacije o resničnih območjih, sumljivih zaradi min, se zanašaj izključno na uradne vire BHMAC (bhmac.org).
+    region: Območje
+    difficulty: Težavnost
+    level_easy: Lahko
+    level_medium: Srednje
+    level_hard: Težko
+    restart: Nova igra
+    win: Bravo! Polje očiščeno.
+    lose: Bum! Poskusi znova.
+    hint: Klik odkrije polje, desni klik ali daljši pritisk postavi zastavico. Prvi klik je vedno varen.
+    back_home: Domov
