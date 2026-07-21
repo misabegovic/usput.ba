@@ -32,6 +32,7 @@ es:
     view_all: Ver todo
     error: Error
   nav:
+    mine_check: "Comprobación de minas"
     home: Inicio
     plans: Planes
     experiences: Experiencias
@@ -698,6 +699,7 @@ es:
       empty: No tienes ningún plan guardado
       create: Crea tu primer plan
   footer:
+    safety: "Seguridad ante minas"
     tagline: Descubre joyas ocultas y experiencias auténticas en tu viaje.
     legal: Legal
     privacy: Política de Privacidad

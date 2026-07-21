@@ -31,6 +31,7 @@ pl:
     view_all: Zobacz wszystko
     error: Błąd
   nav:
+    mine_check: "Sprawdzanie min"
     home: Strona główna
     plans: Plany
     experiences: Doświadczenia
@@ -633,6 +634,7 @@ pl:
     desktop_title: Dostępne na telefonie
     desktop_subtitle: Otwórz tę stronę na telefonie, aby zainstalować aplikację
   footer:
+    safety: "Bezpieczeństwo minowe"
     tagline: Odkrywaj ukryte perły i autentyczne doświadczenia podczas swojej podróży.
     legal: Prawne
     privacy: Polityka Prywatności

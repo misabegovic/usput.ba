@@ -31,6 +31,7 @@ pt:
     view_all: Ver tudo
     error: Erro
   nav:
+    mine_check: "Verificação de minas"
     home: Início
     plans: Planos
     experiences: Experiências
@@ -678,6 +679,7 @@ pt:
     desktop_title: Disponível no celular
     desktop_subtitle: Abra este site no seu celular para instalar o app
   footer:
+    safety: "Segurança de minas"
     tagline: Descubra joias escondidas e experiências autênticas ao longo de sua jornada.
     legal: Legal
     privacy: Política de Privacidade

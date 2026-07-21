@@ -31,6 +31,7 @@ tr:
     link_copied: Bağlantı kopyalandı!
     error: Hata
   nav:
+    mine_check: "Mayın kontrolü"
     home: Ana Sayfa
     plans: Planlar
     experiences: Deneyimler
@@ -634,6 +635,7 @@ tr:
     desktop_title: Mobilde mevcut
     desktop_subtitle: Uygulamayı yüklemek için bu siteyi telefonunuzda açın
   footer:
+    safety: "Mayın güvenliği"
     tagline: Yolculuğunuz boyunca gizli hazineleri ve otantik deneyimleri keşfedin.
     legal: Yasal
     privacy: Gizlilik Politikası

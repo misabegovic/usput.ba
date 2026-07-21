@@ -34,6 +34,7 @@ bs:
     filter: Filtriraj
     actions: Akcije
   nav:
+    mine_check: "Provjera mina"
     home: Početna
     plans: Planovi
     experiences: Iskustva
@@ -552,6 +553,7 @@ bs:
     desktop_title: Dostupno na mobitelu
     desktop_subtitle: Otvori ovu stranicu na telefonu da instaliras aplikaciju
   footer:
+    safety: "Minska sigurnost"
     tagline: Otkrivaj skrivene dragulje i autentična iskustva na svom putu.
     legal: Pravne informacije
     privacy: Politika privatnosti

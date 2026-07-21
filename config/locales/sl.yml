@@ -31,6 +31,7 @@ sl:
     view_all: Prikaži vse
     error: Napaka
   nav:
+    mine_check: "Preverjanje min"
     home: Domov
     plans: Načrti
     experiences: Doživetja
@@ -628,6 +629,7 @@ sl:
     desktop_title: Na voljo na mobilnem telefonu
     desktop_subtitle: Odprite to stran na telefonu za namestitev aplikacije
   footer:
+    safety: "Minska varnost"
     tagline: Odkrijte skrite dragulje in pristna doživetja na svoji poti.
     legal: Pravno
     privacy: Pravilnik o Zasebnosti

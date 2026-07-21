@@ -31,6 +31,7 @@ sk:
     view_all: Zobraziť všetko
     error: Chyba
   nav:
+    mine_check: "Kontrola mín"
     home: Domov
     plans: Plány
     experiences: Zážitky
@@ -627,6 +628,7 @@ sk:
     desktop_title: K dispozícii na mobile
     desktop_subtitle: Otvorte túto stránku na telefóne a nainštalujte aplikáciu
   footer:
+    safety: "Mínová bezpečnosť"
     tagline: Objavujte skryté klenoty a autentické zážitky na vašej ceste.
     legal: Právne
     privacy: Zásady Ochrany Osobných Údajov

@@ -32,6 +32,7 @@ hr:
     link_copied: Link kopiran!
     error: Greška
   nav:
+    mine_check: "Provjera mina"
     home: Početna
     plans: Planovi
     experiences: Iskustva
@@ -534,6 +535,7 @@ hr:
     clear_all: Očisti sve
     active: 'Aktivni filteri:'
   footer:
+    safety: "Minska sigurnost"
     tagline: Otkrivaj skrivene dragulje i autentična iskustva na svom putu.
     about_us: O nama
     contact: Kontakt

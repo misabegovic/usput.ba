@@ -31,6 +31,7 @@ nl:
     view_all: Alles bekijken
     error: Fout
   nav:
+    mine_check: "Mijnencheck"
     home: Home
     plans: Plannen
     experiences: Ervaringen
@@ -631,6 +632,7 @@ nl:
     desktop_title: Beschikbaar op mobiel
     desktop_subtitle: Open deze site op je telefoon om de app te installeren
   footer:
+    safety: "Mijnenveiligheid"
     tagline: Ontdek verborgen parels en authentieke ervaringen tijdens je reis.
     legal: Juridisch
     privacy: Privacybeleid

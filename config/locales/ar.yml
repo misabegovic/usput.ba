@@ -31,6 +31,7 @@ ar:
     link_copied: تم نسخ الرابط!
     error: خطأ
   nav:
+    mine_check: "فحص الألغام"
     home: الرئيسية
     plans: الخطط
     experiences: التجارب
@@ -626,6 +627,7 @@ ar:
     desktop_title: متاح على الهاتف
     desktop_subtitle: افتح هذا الموقع على هاتفك لتثبيت التطبيق
   footer:
+    safety: "السلامة من الألغام"
     tagline: اكتشف الجواهر الخفية والتجارب الأصيلة خلال رحلتك.
     legal: قانوني
     privacy: سياسة الخصوصية

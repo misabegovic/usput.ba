@@ -32,6 +32,7 @@ de:
     view_all: Alle anzeigen
     error: Fehler
   nav:
+    mine_check: "Minen-Check"
     home: Startseite
     plans: Pläne
     experiences: Erlebnisse
@@ -731,6 +732,7 @@ de:
     desktop_title: Auf dem Handy verfügbar
     desktop_subtitle: Öffnen Sie diese Seite auf Ihrem Telefon, um die App zu installieren
   footer:
+    safety: "Minensicherheit"
     tagline: Entdecken Sie versteckte Juwelen und authentische Erlebnisse auf Ihrer
       Reise.
     legal: Rechtliches

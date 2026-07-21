@@ -35,6 +35,7 @@ en:
     filter: Filter
     actions: Actions
   nav:
+    mine_check: "Mine check"
     home: Home
     plans: Plans
     experiences: Experiences
@@ -725,6 +726,7 @@ en:
     desktop_title: Available on mobile
     desktop_subtitle: Open this site on your phone to install the app
   footer:
+    safety: "Mine safety"
     tagline: Discover hidden gems and authentic experiences along your journey.
     legal: Legal
     privacy: Privacy Policy

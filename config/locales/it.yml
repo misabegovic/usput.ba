@@ -32,6 +32,7 @@ it:
     view_all: Vedi tutto
     error: Errore
   nav:
+    mine_check: "Controllo mine"
     home: Home
     plans: Piani
     experiences: Esperienze
@@ -700,6 +701,7 @@ it:
       empty: Non hai piani salvati
       create: Crea il tuo primo piano
   footer:
+    safety: "Sicurezza mine"
     tagline: Scopri gemme nascoste ed esperienze autentiche lungo il tuo viaggio.
     legal: Legale
     privacy: Informativa sulla Privacy

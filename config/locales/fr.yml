@@ -32,6 +32,7 @@ fr:
     view_all: Voir tout
     error: Erreur
   nav:
+    mine_check: "Vérification des mines"
     home: Accueil
     plans: Plans
     experiences: Expériences
@@ -710,6 +711,7 @@ fr:
       empty: Vous n'avez aucun plan enregistré
       create: Créer votre premier plan
   footer:
+    safety: "Sécurité mines"
     tagline: Découvrez des joyaux cachés et des expériences authentiques tout au long
       de votre voyage.
     legal: Légal
