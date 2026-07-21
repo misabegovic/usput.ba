@@ -31,6 +31,7 @@ cs:
     view_all: Zobrazit vše
     error: Chyba
   nav:
+    mine_check: "Kontrola min"
     home: Domů
     plans: Plány
     experiences: Zážitky
@@ -627,6 +628,7 @@ cs:
     desktop_title: K dispozici na mobilu
     desktop_subtitle: Otevřete tento web na telefonu a nainstalujte aplikaci
   footer:
+    safety: "Minová bezpečnost"
     tagline: Objevujte skryté klenoty a autentické zážitky na vaší cestě.
     legal: Právní
     privacy: Zásady Ochrany Osobních Údajů
@@ -993,3 +995,54 @@ cs:
       submitted_at: Podáno
       reviewed_at: Posouzeno
       feedback: Zpětná vazba
+
+  minesweeper:
+    title: Miny
+    subtitle: "Vzdělávací hra na skutečných mapách — miny jsou tam, kde skutečná data zaznamenávají oblasti podezřelé z výskytu min."
+    disclaimer_title: "Vzdělávací hra se skutečnými daty"
+    disclaimer: "Miny ve hře leží na buňkách, které se překrývají se zaznamenanými oblastmi podezřelými z výskytu min (snímek 2024). Prázdná buňka znamená jen to, že pro ten kus terénu nejsou zaznamenány žádné oblasti — NIKDY, že je terén bezpečný; existují i neoznačená a nezaznamenaná pole."
+    awareness: "Ve skutečnosti není druhá šance — ověř před každým krokem. Tato stránka nijak neslouží k posouzení skutečné bezpečnosti terénu. Skutečné informace: BHMAC (bhmac.org, +387 33 253 800) a oficiální aplikace „BH Mine Suspected Areas“."
+    region: Oblast
+    difficulty: Obtížnost
+    level_easy: Lehká
+    level_medium: Střední
+    level_hard: Těžká
+    restart: Nová hra
+    win: Výborně! Pole vyčištěno.
+    lose: Bum! Zkus to znovu.
+    hint: "Kliknutí odkryje buňku, pravé tlačítko nebo delší podržení umístí vlajku. Přibližuj a posouvej mapu a studuj terén. Žádná ochrana prvního kliknutí — data jsou taková, jaká jsou."
+    back_home: Domů
+    density_note: Počet min na hracím poli odráží skutečné statistiky — ve snímku dat z roku 2024 má region %{name} zhruba %{km2} km² oblastí podezřelých z výskytu min v okruhu 30 km.
+    fact_country: "Realita: zhruba %{km2} km² Bosny a Hercegoviny je stále označeno jako podezřelé z výskytu min (BHMAC)."
+    fact_region: "Realita: region %{name} má zhruba %{km2} km² oblastí podezřelých z výskytu min v okruhu 30 km (snímek 2024)."
+    fact_areas: "Realita: snímek dat obsahuje %{count} zaznamenaných záznamů oblastí podezřelých z výskytu min v BiH."
+    fact_official: "Skutečné informace najdete v oficiální aplikaci „BH Mine Suspected Areas“ a u BHMAC: bhmac.org, +387 33 253 800."
+    custom_location: Zvolené místo
+    check_link: Zkontroluj skutečné místo na mapě →
+    density_note_custom: "Počet min na hracím poli odráží skutečné statistiky — ve snímku z roku 2024 je zhruba %{km2} km² oblastí podezřelých z výskytu min v okruhu 5 km od zvoleného místa."
+    not_suspicious: "Na tomto poli nejsou zaznamenány žádné oblasti podezřelé z výskytu min — vzdělávací miny se hrají jen tam, kde skutečná data něco zaznamenávají. Vyber bod na červených oblastech na kontrolní mapě."
+
+  mine_check_public:
+    title: Kontrola blízkosti minových oblastí
+    subtitle: Zkontroluj, zda je bod v Bosně a Hercegovině blízko zaznamenané oblasti podezřelé z výskytu min.
+    warning_title: Přečti si před použitím
+    warning_snapshot: "Data jsou snímek stavu k %{data_as_of} a mohou být zastaralá — situace v terénu se mění."
+    warning_no_guarantee: Absence známých průniků NENÍ zárukou, že je oblast bez min — existují i neoznačená a nezaznamenaná pole.
+    warning_reverse: "Platí to i naopak: některé zobrazené oblasti mohly být mezitím odminovány, nebo dokonce zastavěny — zobrazení je snímek zdroje, NE aktuální stav terénu."
+    warning_navigation: Tento nástroj NENÍ určen k navigaci a nesmí se používat k pohybu v blízkosti minových oblastí.
+    warning_official: "Jedinými směrodatnými zdroji jsou BHMAC (bhmac.org) a oficiální aplikace „BH Mine Suspected Areas“."
+    use_gps: 📍 Zkontrolovat moji polohu
+    check_button: Zkontrolovat souřadnice
+    map_hint: Nebo klepni na libovolný bod na mapě.
+    checking: Kontroluji…
+    band_danger: "⚠ NEBEZPEČÍ: bod leží uvnitř nebo v bezprostřední blízkosti (do 500 m) zaznamenané oblasti podezřelé z výskytu min. Nepřibližuj se! BHMAC: +387 33 253 800."
+    band_caution: "POZOR: v širším okolí (500 m – 2 km) se nachází zaznamenaná oblast podezřelá z výskytu min. Drž se vyšlapaných cest a ověř u BHMAC."
+    band_no_known: "Žádné známé průniky v okruhu 2 km (data k %{data_as_of}). TOTO NENÍ ZÁRUKA, že je oblast bez min."
+    band_out_of_coverage: Bod leží mimo oblast pokrytí (BiH).
+    band_unavailable: "Kontrola momentálně není možná (žádná data). Kontaktuj BHMAC: +387 33 253 800."
+    invalid_coordinates: Neplatné souřadnice.
+    no_gps: Poloha není dostupná — povol přístup k poloze nebo zadej souřadnice ručně.
+    error: Kontrola se nezdařila. Zkus to znovu.
+    play_here: "🎮 Zahraj si vzdělávací miny na tomto místě"
+    areas_legend: "Přibližné hranice zaznamenaných oblastí podezřelých z výskytu min (snímek 2024). Nebezpečí může sahat I ZA zobrazené tvary."
+    zoom_hint: "Přibliž mapu pro zobrazení hranic oblastí."

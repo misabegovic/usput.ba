@@ -34,6 +34,7 @@ bs:
     filter: Filtriraj
     actions: Akcije
   nav:
+    mine_check: "Provjera mina"
     home: Početna
     plans: Planovi
     experiences: Iskustva
@@ -552,6 +553,7 @@ bs:
     desktop_title: Dostupno na mobitelu
     desktop_subtitle: Otvori ovu stranicu na telefonu da instaliras aplikaciju
   footer:
+    safety: "Minska sigurnost"
     tagline: Otkrivaj skrivene dragulje i autentična iskustva na svom putu.
     legal: Pravne informacije
     privacy: Politika privatnosti
@@ -1300,3 +1302,61 @@ bs:
       pending_application: Tvoja prijava za kuratora je na čekanju.
       view_application: Pogledaj prijavu
       apply_now: Prijavi se sada
+  # Mine Checker (docs/mine_checker/SPEC.md §7) — obavezni tekstualni paket.
+  # Poruke NIKAD ne otkrivaju geometriju ni udaljenosti.
+  mine_check:
+    disclaimer: "Provjera se vrši prema posljednje dostupnim podacima o minski sumnjivim područjima (%{data_as_of}). Odsustvo poznatih presjeka NIJE garancija da je područje bez mina. Za ažurne informacije obratite se BHMAC-u: 033/253-800."
+    blocked: "Lokacija ne može biti prihvaćena iz sigurnosnih razloga (blizina minski sumnjivog područja prema podacima od %{data_as_of})."
+    data_stale: "Provjera minske sigurnosti trenutno nije moguća (nema podataka), pa lokacija ne može biti prihvaćena. Za informacije o minskoj situaciji obratite se BHMAC-u: 033/253-800."
+    emergency: "Policija 122 · Civilna zaštita 121 · BHMAC 033/253-800"
+
+  minesweeper:
+    title: Minolovac
+    subtitle: "Edukativna igra na stvarnim kartama — mine su tamo gdje stvarni podaci bilježe minski sumnjiva područja."
+    disclaimer_title: "Edukativna igra sa stvarnim podacima"
+    disclaimer: "Mine u igri se nalaze na ćelijama koje se preklapaju sa evidentiranim minski sumnjivim područjima (snimak 2024). Prazna ćelija znači samo da za taj komad terena nema evidentiranih područja — NIKAKO da je teren siguran; postoje i neobilježena i neevidentirana polja."
+    awareness: "U stvarnosti nema druge šanse — provjeri prije svakog koraka. Ova stranica ni na koji način ne služi procjeni stvarne sigurnosti terena. Za stvarne informacije: BHMAC (bhmac.org, 033/253-800) i službena aplikacija „BH Mine Suspected Areas“."
+    region: Predio
+    difficulty: Težina
+    level_easy: Lako
+    level_medium: Srednje
+    level_hard: Teško
+    restart: Nova igra
+    win: Bravo! Tabla je očišćena.
+    lose: Bum! Pokušaj ponovo.
+    hint: "Klik otkriva ćeliju, desni klik ili duži pritisak postavlja zastavicu. Zumiraj i pomjeraj kartu da proučiš teren. Nema zaštite prvog klika — podaci su ono što jesu."
+    back_home: Početna
+    density_note: Broj mina na tabli odražava stvarnu statistiku — u snimku podataka (2024) regija %{name} ima oko %{km2} km² minski sumnjivih područja u krugu od 30 km.
+    fact_country: "Stvarnost: u BiH je i dalje oko %{km2} km² označeno kao minski sumnjivo područje (BHMAC)."
+    fact_region: "Stvarnost: regija %{name} ima oko %{km2} km² minski sumnjivih područja u krugu od 30 km (snimak 2024)."
+    fact_areas: "Stvarnost: snimak podataka sadrži %{count} evidentiranih minski sumnjivih zapisa u BiH."
+    fact_official: "Za stvarne informacije koristi službenu aplikaciju „BH Mine Suspected Areas“ i BHMAC: bhmac.org, 033 253-800."
+    custom_location: Odabrana lokacija
+    check_link: Provjeri stvarnu lokaciju na karti →
+    density_note_custom: "Broj mina na tabli odražava stvarnu statistiku — u snimku podataka (2024) oko %{km2} km² minski sumnjivih područja je u krugu od 5 km od odabrane tačke."
+    not_suspicious: "Na ovoj tabli nema evidentiranih minski sumnjivih područja — edukativni minolovac se igra samo tamo gdje stvarni podaci nešto bilježe. Odaberi tačku na crvenim područjima na karti provjere."
+
+  mine_check_public:
+    title: Provjera blizine minskih područja
+    subtitle: Provjeri da li je neka tačka u BiH blizu evidentiranog minski sumnjivog područja.
+    warning_title: Pročitaj prije upotrebe
+    warning_snapshot: "Podaci su snimak stanja od %{data_as_of} i mogu biti zastarjeli — stanje na terenu se mijenja."
+    warning_no_guarantee: Odsustvo poznatih presjeka NIJE garancija da je područje bez mina — postoje i neobilježena i neevidentirana polja.
+    warning_reverse: "Vrijedi i obrnuto: neka prikazana područja su u međuvremenu možda očišćena ili čak izgrađena — prikaz je snimak iz izvora, NE stvarno stanje na terenu."
+    warning_navigation: Ovaj alat NIJE za navigaciju i ne smije se koristiti za kretanje u blizini minskih područja.
+    warning_official: "Jedini mjerodavni izvori su BHMAC (bhmac.org) i službena aplikacija „BH Mine Suspected Areas“."
+    use_gps: 📍 Provjeri moju lokaciju
+    check_button: Provjeri koordinate
+    map_hint: Ili dodirni bilo koju tačku na karti.
+    checking: Provjeravam…
+    band_danger: "⚠ OPASNOST: tačka je unutar ili u neposrednoj blizini (do 500 m) evidentiranog minski sumnjivog područja. Ne prilazi! BHMAC: 033/253-800."
+    band_caution: "OPREZ: u široj okolini (500 m – 2 km) postoji evidentirano minski sumnjivo područje. Kreći se samo utvrđenim putevima i provjeri kod BHMAC-a."
+    band_no_known: "Nema poznatih presjeka u krugu od 2 km (podaci od %{data_as_of}). OVO NIJE GARANCIJA da je područje bez mina."
+    band_out_of_coverage: Tačka je izvan područja pokrivenosti (BiH).
+    band_unavailable: "Provjera trenutno nije moguća (nema podataka). Kontaktiraj BHMAC: 033/253-800."
+    invalid_coordinates: Neispravne koordinate.
+    no_gps: Lokacija nije dostupna — dozvoli pristup lokaciji ili unesi koordinate ručno.
+    error: Provjera nije uspjela. Pokušaj ponovo.
+    play_here: "🎮 Igraj edukativni minolovac na ovoj lokaciji"
+    areas_legend: "Približne granice evidentiranih minski sumnjivih područja (snimak 2024). Opasnost se može protezati i IZVAN prikazanih oblika."
+    zoom_hint: "Približi kartu da vidiš granice područja."

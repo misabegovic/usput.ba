@@ -47,9 +47,18 @@
             </ul>
           </div>
         </div>
-        <%# Pravno %>
+        <%# Minska sigurnost + Pravno %>
         <div>
-          <h3 class="text-sm/6 font-semibold text-gray-900 dark:text-white"><%= t("footer.legal", default: "Pravno") %></h3>
+          <h3 class="text-sm/6 font-semibold text-gray-900 dark:text-white"><%= t("footer.safety", default: "Minska sigurnost") %></h3>
+          <ul role="list" class="mt-6 space-y-4">
+            <li>
+              <%= link_to t("nav.mine_check"), mine_check_path, class: "text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white" %>
+            </li>
+            <li>
+              <%= link_to t("minesweeper.title"), minesweeper_path, class: "text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white" %>
+            </li>
+          </ul>
+          <h3 class="mt-10 text-sm/6 font-semibold text-gray-900 dark:text-white"><%= t("footer.legal", default: "Pravno") %></h3>
           <ul role="list" class="mt-6 space-y-4">
             <li>
               <%= link_to t("footer.privacy", default: "Privatnost"), privacy_path, class: "text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white" %>

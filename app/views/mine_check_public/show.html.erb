@@ -1,0 +1,84 @@
+<% content_for :title, "#{t('mine_check_public.title')} — Usput.ba" %>
+<% content_for :head do %>
+  <%= stylesheet_link_tag "leaflet" %>
+<% end %>
+
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+  <nav class="bg-white dark:bg-gray-800 shadow sticky top-0 z-[1001] transition-colors duration-300">
+    <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+      <a href="/" class="flex items-center space-x-2">
+        <img src="/usput-logo.png" alt="Usput" class="h-8 w-auto">
+        <span class="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Usput.ba</span>
+      </a>
+      <div class="flex items-center gap-4">
+        <%= link_to "\u{1F3AE} #{t('minesweeper.title')}", minesweeper_path, class: "text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:underline" %>
+        <%= link_to t("minesweeper.back_home"), root_path, class: "text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" %>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-2xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><%= t("mine_check_public.title") %></h1>
+    <p class="mt-1 text-gray-600 dark:text-gray-400"><%= t("mine_check_public.subtitle") %></p>
+
+    <div class="mt-4 rounded-xl border-2 border-red-500 bg-red-50 dark:bg-red-900/30 p-4">
+      <p class="font-bold text-red-900 dark:text-red-200"><%= t("mine_check_public.warning_title") %></p>
+      <ul class="mt-2 space-y-1 text-sm text-red-900 dark:text-red-100 list-disc list-inside">
+        <li><%= t("mine_check_public.warning_snapshot", data_as_of: @data_as_of || "—") %></li>
+        <li><%= t("mine_check_public.warning_no_guarantee") %></li>
+        <li><%= t("mine_check_public.warning_reverse") %></li>
+        <li><%= t("mine_check_public.warning_navigation") %></li>
+        <li><%= t("mine_check_public.warning_official") %></li>
+      </ul>
+      <p class="mt-2 text-sm font-bold text-red-900 dark:text-red-200"><%= t("mine_check.emergency") %></p>
+    </div>
+
+    <div class="mt-6"
+         data-controller="mine-check"
+         data-mine-check-url-value="<%= mine_check_query_path %>"
+         data-mine-check-play-url-value="<%= minesweeper_path %>"
+         data-mine-check-areas-url-value="<%= mine_check_areas_path %>"
+         data-mine-check-labels-value="<%= {
+               checking: t("mine_check_public.checking"),
+               danger: t("mine_check_public.band_danger"),
+               caution: t("mine_check_public.band_caution"),
+               no_known: t("mine_check_public.band_no_known", data_as_of: @data_as_of || "—"),
+               out_of_coverage: t("mine_check_public.band_out_of_coverage"),
+               unavailable: t("mine_check_public.band_unavailable"),
+               invalid: t("mine_check_public.invalid_coordinates"),
+               no_gps: t("mine_check_public.no_gps"),
+               error: t("mine_check_public.error")
+             }.to_json %>">
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" data-action="mine-check#locate"
+                class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors">
+          <%= t("mine_check_public.use_gps") %>
+        </button>
+        <input data-mine-check-target="lat" type="text" inputmode="decimal" placeholder="44.2000"
+               class="w-28 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100" aria-label="Lat">
+        <input data-mine-check-target="lon" type="text" inputmode="decimal" placeholder="17.8000"
+               class="w-28 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100" aria-label="Lon">
+        <button type="button" data-action="mine-check#checkManual"
+                class="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-gray-700 transition-colors">
+          <%= t("mine_check_public.check_button") %>
+        </button>
+      </div>
+      <p class="mt-2 text-xs text-gray-500 dark:text-gray-400"><%= t("mine_check_public.map_hint") %></p>
+
+      <div data-mine-check-target="map" class="mt-3 h-96 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 z-0"></div>
+      <p class="mt-2 text-xs text-gray-600 dark:text-gray-400">
+        <span class="inline-block w-3 h-3 rounded-sm bg-red-600/60 border border-red-700 align-middle"></span>
+        <%= t("mine_check_public.areas_legend") %>
+        <span data-mine-check-target="zoomHint" class="hidden font-medium"><%= t("mine_check_public.zoom_hint") %></span>
+      </p>
+
+      <div data-mine-check-target="result" class="hidden" aria-live="polite"></div>
+
+      <a data-mine-check-target="playLink" href="#"
+         class="hidden mt-3 text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:underline">
+        <%= t("mine_check_public.play_here") %>
+      </a>
+    </div>
+  </main>
+</div>

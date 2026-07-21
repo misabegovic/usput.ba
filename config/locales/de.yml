@@ -32,6 +32,7 @@ de:
     view_all: Alle anzeigen
     error: Fehler
   nav:
+    mine_check: "Minen-Check"
     home: Startseite
     plans: Pläne
     experiences: Erlebnisse
@@ -731,6 +732,7 @@ de:
     desktop_title: Auf dem Handy verfügbar
     desktop_subtitle: Öffnen Sie diese Seite auf Ihrem Telefon, um die App zu installieren
   footer:
+    safety: "Minensicherheit"
     tagline: Entdecken Sie versteckte Juwelen und authentische Erlebnisse auf Ihrer
       Reise.
     legal: Rechtliches
@@ -1102,3 +1104,54 @@ de:
       submitted_at: Eingereicht
       reviewed_at: Geprüft
       feedback: Feedback
+
+  minesweeper:
+    title: Minesweeper
+    subtitle: "Ein Lernspiel auf echten Karten — Minen liegen dort, wo echte Daten minenverdächtige Gebiete verzeichnen."
+    disclaimer_title: "Lernspiel mit echten Daten"
+    disclaimer: "Minen im Spiel liegen auf Zellen, die sich mit erfassten minenverdächtigen Gebieten überschneiden (Stand 2024). Eine leere Zelle bedeutet nur, dass für dieses Stück Gelände keine Gebiete erfasst sind — NIEMALS, dass der Boden sicher ist; es gibt auch unmarkierte und nicht erfasste Felder."
+    awareness: "In der Realität gibt es keine zweite Chance — prüfen Sie vor jedem Schritt. Diese Seite dient in keiner Weise der Beurteilung der realen Geländesicherheit. Echte Informationen: BHMAC (bhmac.org, +387 33 253 800) und die offizielle App „BH Mine Suspected Areas“."
+    region: Region
+    difficulty: Schwierigkeit
+    level_easy: Leicht
+    level_medium: Mittel
+    level_hard: Schwer
+    restart: Neues Spiel
+    win: Gut gemacht! Feld geräumt.
+    lose: Bumm! Versuch es noch einmal.
+    hint: "Klick deckt eine Zelle auf, Rechtsklick oder langes Drücken setzt eine Flagge. Zoomen und verschieben Sie die Karte, um das Gelände zu studieren. Kein Erstklick-Schutz — die Daten sind, was sie sind."
+    back_home: Startseite
+    density_note: Die Minenanzahl auf dem Feld spiegelt echte Statistik wider — im Datenstand von 2024 hat die Region %{name} etwa %{km2} km² minenverdächtige Gebiete im Umkreis von 30 km.
+    fact_country: "Realität: Rund %{km2} km² von Bosnien und Herzegowina gelten weiterhin als minenverdächtig (BHMAC)."
+    fact_region: "Realität: Die Region %{name} hat etwa %{km2} km² minenverdächtige Gebiete im Umkreis von 30 km (Datenstand 2024)."
+    fact_areas: "Realität: Der Datenstand enthält %{count} erfasste minenverdächtige Einträge in BiH."
+    fact_official: "Für echte Informationen nutzen Sie die offizielle App „BH Mine Suspected Areas“ und BHMAC: bhmac.org, +387 33 253 800."
+    custom_location: Gewählter Standort
+    check_link: Echten Standort auf der Karte prüfen →
+    density_note_custom: "Die Minenanzahl auf dem Feld spiegelt echte Statistik wider — im Datenstand von 2024 liegen etwa %{km2} km² minenverdächtige Gebiete im Umkreis von 5 km um den gewählten Punkt."
+    not_suspicious: "Auf diesem Feld sind keine minenverdächtigen Gebiete erfasst — das Lern-Minesweeper wird nur dort gespielt, wo echte Daten etwas verzeichnen. Wählen Sie einen Punkt auf den roten Gebieten der Prüfkarte."
+
+  mine_check_public:
+    title: Prüfung der Nähe zu Minengebieten
+    subtitle: Prüfen Sie, ob ein Punkt in Bosnien und Herzegowina in der Nähe eines erfassten minenverdächtigen Gebiets liegt.
+    warning_title: Vor der Nutzung lesen
+    warning_snapshot: "Die Daten sind ein Stand vom %{data_as_of} und können veraltet sein — die Lage vor Ort ändert sich."
+    warning_no_guarantee: Das Fehlen bekannter Überschneidungen ist KEINE Garantie für Minenfreiheit — es gibt auch unmarkierte und nicht erfasste Felder.
+    warning_reverse: "Auch das Umgekehrte gilt: Manche angezeigten Gebiete wurden inzwischen möglicherweise geräumt oder sogar bebaut — die Darstellung ist ein Quellen-Snapshot, NICHT der aktuelle Zustand des Geländes."
+    warning_navigation: Dieses Tool ist NICHT zur Navigation gedacht und darf nicht für Bewegungen in der Nähe von Minengebieten verwendet werden.
+    warning_official: "Die einzigen maßgeblichen Quellen sind BHMAC (bhmac.org) und die offizielle App „BH Mine Suspected Areas“."
+    use_gps: 📍 Meinen Standort prüfen
+    check_button: Koordinaten prüfen
+    map_hint: Oder tippen Sie auf einen beliebigen Punkt der Karte.
+    checking: Prüfe…
+    band_danger: "⚠ GEFAHR: Der Punkt liegt innerhalb oder in unmittelbarer Nähe (bis 500 m) eines erfassten minenverdächtigen Gebiets. Nicht nähern! BHMAC: +387 33 253 800."
+    band_caution: "VORSICHT: In der weiteren Umgebung (500 m – 2 km) liegt ein erfasstes minenverdächtiges Gebiet. Nur befestigte Wege nutzen und bei BHMAC nachfragen."
+    band_no_known: "Keine bekannten Überschneidungen im Umkreis von 2 km (Daten vom %{data_as_of}). Dies ist KEINE GARANTIE für Minenfreiheit."
+    band_out_of_coverage: Der Punkt liegt außerhalb des Abdeckungsgebiets (BiH).
+    band_unavailable: "Die Prüfung ist derzeit nicht möglich (keine Daten). Kontaktieren Sie BHMAC: +387 33 253 800."
+    invalid_coordinates: Ungültige Koordinaten.
+    no_gps: Standort nicht verfügbar — Standortzugriff erlauben oder Koordinaten manuell eingeben.
+    error: Die Prüfung ist fehlgeschlagen. Versuchen Sie es erneut.
+    play_here: "🎮 Lern-Minesweeper an diesem Ort spielen"
+    areas_legend: "Ungefähre Grenzen der erfassten minenverdächtigen Gebiete (Stand 2024). Die Gefahr kann ÜBER die gezeigten Formen hinausreichen."
+    zoom_hint: "Zoomen Sie hinein, um die Gebietsgrenzen zu sehen."

@@ -9,6 +9,15 @@ Rails.application.routes.draw do
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
+  # Minesweeper mini-game (fictional random boards — no connection to real mine data)
+  get "minesweeper", to: "minesweeper#show", as: :minesweeper
+
+  # Public mine-proximity check (owner-authorized Phase 2, bands only —
+  # see docs/mine_checker/README.md)
+  get "mine-check", to: "mine_check_public#show", as: :mine_check
+  post "mine-check/check", to: "mine_check_public#check", as: :mine_check_query
+  get "mine-check/areas", to: "mine_check_public#areas", as: :mine_check_areas
+
   # Static pages
   get "imprint", to: "pages#imprint", as: :imprint
   get "privacy", to: "pages#privacy", as: :privacy

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_03_150742) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_20_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -379,6 +379,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_03_150742) do
     t.index ["reviews_count"], name: "index_locations_on_reviews_count"
     t.index ["seasons"], name: "index_locations_on_seasons", using: :gin
     t.index ["uuid"], name: "index_locations_on_uuid", unique: true
+  end
+
+  create_table "mine_check_audits", force: :cascade do |t|
+    t.bigint "content_id"
+    t.string "content_type"
+    t.datetime "created_at", null: false
+    t.date "data_as_of"
+    t.jsonb "matches", default: [], null: false
+    t.string "verdict", null: false
+    t.index ["content_type", "content_id"], name: "index_mine_check_audits_on_content_type_and_content_id"
+    t.index ["verdict"], name: "index_mine_check_audits_on_verdict"
   end
 
   create_table "photo_suggestions", force: :cascade do |t|

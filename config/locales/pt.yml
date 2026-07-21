@@ -31,6 +31,7 @@ pt:
     view_all: Ver tudo
     error: Erro
   nav:
+    mine_check: "Verificação de minas"
     home: Início
     plans: Planos
     experiences: Experiências
@@ -678,6 +679,7 @@ pt:
     desktop_title: Disponível no celular
     desktop_subtitle: Abra este site no seu celular para instalar o app
   footer:
+    safety: "Segurança de minas"
     tagline: Descubra joias escondidas e experiências autênticas ao longo de sua jornada.
     legal: Legal
     privacy: Política de Privacidade
@@ -1048,3 +1050,54 @@ pt:
       submitted_at: Enviado
       reviewed_at: Revisado
       feedback: Feedback
+
+  minesweeper:
+    title: Campo minado
+    subtitle: "Um jogo educativo sobre mapas reais — as minas estão onde os dados reais registam áreas suspeitas."
+    disclaimer_title: "Jogo educativo com dados reais"
+    disclaimer: "As minas do jogo ficam nas células que se sobrepõem a áreas registadas suspeitas de minas (captura 2024). Uma célula vazia significa apenas que não há áreas registadas para esse pedaço de terreno — NUNCA que o solo é seguro; também existem campos não marcados e não registados."
+    awareness: "Na realidade não há segunda oportunidade — verifica antes de cada passo. Esta página não serve de forma alguma para avaliar a segurança real do terreno. Informação real: BHMAC (bhmac.org, +387 33 253 800) e a aplicação oficial 'BH Mine Suspected Areas'."
+    region: Região
+    difficulty: Dificuldade
+    level_easy: Fácil
+    level_medium: Médio
+    level_hard: Difícil
+    restart: Novo jogo
+    win: Muito bem! Campo limpo.
+    lose: Bum! Tenta novamente.
+    hint: "Um clique revela uma célula, clique direito ou pressão longa coloca uma bandeira. Aproxima e move o mapa para estudar o terreno. Sem proteção do primeiro clique — os dados são o que são."
+    back_home: Início
+    density_note: O número de minas no tabuleiro reflete estatísticas reais — na captura de dados de 2024, a região de %{name} tem cerca de %{km2} km² de áreas suspeitas de minas num raio de 30 km.
+    fact_country: "Realidade: cerca de %{km2} km² da Bósnia e Herzegovina continuam marcados como suspeitos de minas (BHMAC)."
+    fact_region: "Realidade: a região de %{name} tem cerca de %{km2} km² de áreas suspeitas de minas num raio de 30 km (captura de 2024)."
+    fact_areas: "Realidade: a captura de dados contém %{count} registos de áreas suspeitas de minas na BiH."
+    fact_official: "Para informação real usa a aplicação oficial 'BH Mine Suspected Areas' e o BHMAC: bhmac.org, +387 33 253 800."
+    custom_location: Localização escolhida
+    check_link: Verifica uma localização real no mapa →
+    density_note_custom: "O número de minas no tabuleiro reflete estatísticas reais — na captura de 2024 há cerca de %{km2} km² de áreas suspeitas de minas num raio de 5 km do ponto escolhido."
+    not_suspicious: "Não há áreas suspeitas de minas registadas neste tabuleiro — o campo minado educativo só se joga onde os dados reais registam algo. Escolhe um ponto sobre as áreas vermelhas no mapa de verificação."
+
+  mine_check_public:
+    title: Verificação de proximidade de áreas minadas
+    subtitle: Verifica se um ponto na Bósnia e Herzegovina está perto de uma área registada suspeita de minas.
+    warning_title: Lê antes de usar
+    warning_snapshot: "Os dados são uma captura de %{data_as_of} e podem estar desatualizados — a situação no terreno muda."
+    warning_no_guarantee: A ausência de interseções conhecidas NÃO é garantia de que uma área esteja livre de minas — também existem campos não marcados e não registados.
+    warning_reverse: "O inverso também vale: algumas áreas mostradas podem entretanto ter sido desminadas ou até construídas — a visualização é uma captura da fonte, NÃO o estado atual do terreno."
+    warning_navigation: Esta ferramenta NÃO serve para navegação e não deve ser usada para deslocações perto de áreas minadas.
+    warning_official: "As únicas fontes oficiais são o BHMAC (bhmac.org) e a aplicação oficial 'BH Mine Suspected Areas'."
+    use_gps: 📍 Verificar a minha localização
+    check_button: Verificar coordenadas
+    map_hint: Ou toca em qualquer ponto do mapa.
+    checking: A verificar…
+    band_danger: "⚠ PERIGO: o ponto está dentro ou na vizinhança imediata (até 500 m) de uma área registada suspeita de minas. Não te aproximes! BHMAC: +387 33 253 800."
+    band_caution: "CUIDADO: na vizinhança alargada (500 m – 2 km) existe uma área registada suspeita de minas. Mantém-te nos caminhos estabelecidos e confirma com o BHMAC."
+    band_no_known: "Sem interseções conhecidas num raio de 2 km (dados de %{data_as_of}). ISTO NÃO É GARANTIA de que a área esteja livre de minas."
+    band_out_of_coverage: O ponto está fora da área de cobertura (BiH).
+    band_unavailable: "A verificação não está disponível (sem dados). Contacta o BHMAC: +387 33 253 800."
+    invalid_coordinates: Coordenadas inválidas.
+    no_gps: Localização indisponível — permite o acesso à localização ou introduz as coordenadas manualmente.
+    error: A verificação falhou. Tenta novamente.
+    play_here: "🎮 Joga ao campo minado educativo nesta localização"
+    areas_legend: "Limites aproximados das áreas registadas suspeitas de minas (captura 2024). O perigo pode estender-se PARA LÁ das formas mostradas."
+    zoom_hint: "Aproxima o mapa para veres os limites das áreas."

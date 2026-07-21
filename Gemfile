@@ -6,6 +6,7 @@ gem "rails", "8.1.1"
 gem "propshaft"
 # Use PostgreSQL as the database for Active Record
 gem "pg", "~> 1.5"
+# Mine Checker (docs/mine_checker/SPEC.md): PostGIS geography + GeoJSON import
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]

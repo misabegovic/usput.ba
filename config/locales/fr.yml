@@ -32,6 +32,7 @@ fr:
     view_all: Voir tout
     error: Erreur
   nav:
+    mine_check: "Vérification des mines"
     home: Accueil
     plans: Plans
     experiences: Expériences
@@ -710,6 +711,7 @@ fr:
       empty: Vous n'avez aucun plan enregistré
       create: Créer votre premier plan
   footer:
+    safety: "Sécurité mines"
     tagline: Découvrez des joyaux cachés et des expériences authentiques tout au long
       de votre voyage.
     legal: Légal
@@ -1177,3 +1179,54 @@ fr:
       submitted_at: Soumis
       reviewed_at: Examiné
       feedback: Commentaires
+
+  minesweeper:
+    title: Démineur
+    subtitle: "Un jeu éducatif sur de vraies cartes — les mines sont là où les données réelles enregistrent des zones suspectées."
+    disclaimer_title: "Jeu éducatif avec des données réelles"
+    disclaimer: "Les mines du jeu occupent les cases qui chevauchent des zones suspectées de mines enregistrées (instantané 2024). Une case vide signifie seulement qu'aucune zone n'est enregistrée pour ce bout de terrain — JAMAIS que le sol est sûr ; il existe aussi des champs non balisés et non recensés."
+    awareness: "Dans la réalité, il n'y a pas de seconde chance — vérifiez avant chaque pas. Cette page ne sert en aucun cas à évaluer la sécurité réelle du terrain. Informations réelles : BHMAC (bhmac.org, +387 33 253 800) et l'application officielle « BH Mine Suspected Areas »."
+    region: Région
+    difficulty: Difficulté
+    level_easy: Facile
+    level_medium: Moyen
+    level_hard: Difficile
+    restart: Nouvelle partie
+    win: Bravo ! Grille dégagée.
+    lose: Boum ! Réessayez.
+    hint: "Un clic révèle une case, un clic droit ou un appui long place un drapeau. Zoomez et déplacez la carte pour étudier le terrain. Pas de protection du premier clic — les données sont ce qu'elles sont."
+    back_home: Accueil
+    density_note: Le nombre de mines sur la grille reflète des statistiques réelles — dans l'instantané de données de 2024, la région de %{name} compte environ %{km2} km² de zones suspectées de mines dans un rayon de 30 km.
+    fact_country: "Réalité : environ %{km2} km² de la Bosnie-Herzégovine sont toujours classés comme suspectés de mines (BHMAC)."
+    fact_region: "Réalité : la région de %{name} compte environ %{km2} km² de zones suspectées de mines dans un rayon de 30 km (instantané 2024)."
+    fact_areas: "Réalité : l'instantané de données contient %{count} entrées de zones suspectées de mines en BiH."
+    fact_official: "Pour de vraies informations, utilisez l'application officielle « BH Mine Suspected Areas » et le BHMAC : bhmac.org, +387 33 253 800."
+    custom_location: Emplacement choisi
+    check_link: Vérifier un lieu réel sur la carte →
+    density_note_custom: "Le nombre de mines sur la grille reflète des statistiques réelles — dans l'instantané de 2024, il y a environ %{km2} km² de zones suspectées de mines dans un rayon de 5 km du point choisi."
+    not_suspicious: "Aucune zone suspectée de mines n'est enregistrée sur cette grille — le démineur éducatif ne se joue que là où les données réelles enregistrent quelque chose. Choisissez un point sur les zones rouges de la carte de vérification."
+
+  mine_check_public:
+    title: Vérification de proximité des zones minées
+    subtitle: Vérifiez si un point de Bosnie-Herzégovine se trouve près d'une zone suspectée de mines enregistrée.
+    warning_title: À lire avant utilisation
+    warning_snapshot: "Les données sont un instantané du %{data_as_of} et peuvent être obsolètes — la situation sur le terrain évolue."
+    warning_no_guarantee: L'absence d'intersections connues n'est PAS une garantie qu'une zone est sans mines — il existe aussi des champs non balisés et non recensés.
+    warning_reverse: "L'inverse vaut aussi : certaines zones affichées ont pu être déminées, voire construites depuis — l'affichage est un instantané de la source, PAS l'état actuel du terrain."
+    warning_navigation: Cet outil n'est PAS destiné à la navigation et ne doit pas être utilisé pour se déplacer près des zones minées.
+    warning_official: "Les seules sources faisant autorité sont le BHMAC (bhmac.org) et l'application officielle « BH Mine Suspected Areas »."
+    use_gps: 📍 Vérifier ma position
+    check_button: Vérifier les coordonnées
+    map_hint: Ou touchez n'importe quel point de la carte.
+    checking: Vérification…
+    band_danger: "⚠ DANGER : le point est à l'intérieur ou à proximité immédiate (moins de 500 m) d'une zone suspectée de mines enregistrée. Ne vous approchez pas ! BHMAC : +387 33 253 800."
+    band_caution: "PRUDENCE : une zone suspectée de mines enregistrée se trouve dans les environs (500 m – 2 km). Restez sur les chemins établis et vérifiez auprès du BHMAC."
+    band_no_known: "Aucune intersection connue dans un rayon de 2 km (données du %{data_as_of}). CECI N'EST PAS UNE GARANTIE que la zone est sans mines."
+    band_out_of_coverage: Le point est hors de la zone de couverture (BiH).
+    band_unavailable: "La vérification est indisponible (pas de données). Contactez le BHMAC : +387 33 253 800."
+    invalid_coordinates: Coordonnées invalides.
+    no_gps: Position indisponible — autorisez l'accès à la position ou saisissez les coordonnées manuellement.
+    error: La vérification a échoué. Réessayez.
+    play_here: "🎮 Jouer au démineur éducatif à cet endroit"
+    areas_legend: "Limites approximatives des zones suspectées de mines enregistrées (instantané 2024). Le danger peut s'étendre AU-DELÀ des formes affichées."
+    zoom_hint: "Zoomez pour voir les limites des zones."

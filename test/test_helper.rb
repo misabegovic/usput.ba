@@ -74,6 +74,15 @@ module ActiveSupport
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
 
+    # Mine Checker is fail-closed: without fresh mine data every BiH location
+    # create/update is blocked. Point the static engine at synthetic
+    # fresh-dated artifacts so ordinary tests keep working; mine-checker
+    # tests install their own artifact sets. (docs/mine_checker/SPEC.md)
+    setup do
+      require_relative "support/static_artifacts"
+      StaticArtifacts.use_default!
+    end
+
     # Add more helper methods to be used by all tests here...
   end
 end

@@ -31,6 +31,7 @@ pl:
     view_all: Zobacz wszystko
     error: Błąd
   nav:
+    mine_check: "Sprawdzanie min"
     home: Strona główna
     plans: Plany
     experiences: Doświadczenia
@@ -633,6 +634,7 @@ pl:
     desktop_title: Dostępne na telefonie
     desktop_subtitle: Otwórz tę stronę na telefonie, aby zainstalować aplikację
   footer:
+    safety: "Bezpieczeństwo minowe"
     tagline: Odkrywaj ukryte perły i autentyczne doświadczenia podczas swojej podróży.
     legal: Prawne
     privacy: Polityka Prywatności
@@ -1002,3 +1004,54 @@ pl:
       submitted_at: Wysłano
       reviewed_at: Sprawdzono
       feedback: Opinia
+
+  minesweeper:
+    title: Saper
+    subtitle: "Gra edukacyjna na prawdziwych mapach — miny są tam, gdzie prawdziwe dane rejestrują obszary podejrzane o miny."
+    disclaimer_title: "Gra edukacyjna z prawdziwymi danymi"
+    disclaimer: "Miny w grze leżą na komórkach pokrywających się z zarejestrowanymi obszarami podejrzanymi o miny (migawka 2024). Pusta komórka oznacza tylko, że dla tego kawałka terenu nie zarejestrowano obszarów — NIGDY, że grunt jest bezpieczny; istnieją też pola nieoznakowane i niezarejestrowane."
+    awareness: "W rzeczywistości nie ma drugiej szansy — sprawdzaj przed każdym krokiem. Ta strona w żaden sposób nie służy ocenie rzeczywistego bezpieczeństwa terenu. Prawdziwe informacje: BHMAC (bhmac.org, +387 33 253 800) i oficjalna aplikacja „BH Mine Suspected Areas”."
+    region: Region
+    difficulty: Poziom trudności
+    level_easy: Łatwy
+    level_medium: Średni
+    level_hard: Trudny
+    restart: Nowa gra
+    win: Brawo! Plansza oczyszczona.
+    lose: Bum! Spróbuj ponownie.
+    hint: "Kliknięcie odkrywa komórkę, prawy przycisk lub dłuższe przytrzymanie stawia flagę. Przybliżaj i przesuwaj mapę, aby studiować teren. Brak ochrony pierwszego kliknięcia — dane są, jakie są."
+    back_home: Strona główna
+    density_note: Liczba min na planszy odzwierciedla prawdziwe statystyki — w migawce danych z 2024 r. region %{name} ma około %{km2} km² obszarów podejrzanych o miny w promieniu 30 km.
+    fact_country: "Rzeczywistość: około %{km2} km² Bośni i Hercegowiny wciąż jest oznaczone jako podejrzane o miny (BHMAC)."
+    fact_region: "Rzeczywistość: region %{name} ma około %{km2} km² obszarów podejrzanych o miny w promieniu 30 km (migawka 2024)."
+    fact_areas: "Rzeczywistość: migawka danych zawiera %{count} zarejestrowanych wpisów obszarów podejrzanych o miny w BiH."
+    fact_official: "Po prawdziwe informacje sięgnij po oficjalną aplikację „BH Mine Suspected Areas” i BHMAC: bhmac.org, +387 33 253 800."
+    custom_location: Wybrana lokalizacja
+    check_link: Sprawdź prawdziwą lokalizację na mapie →
+    density_note_custom: "Liczba min na planszy odzwierciedla prawdziwe statystyki — w migawce z 2024 r. około %{km2} km² obszarów podejrzanych o miny leży w promieniu 5 km od wybranego punktu."
+    not_suspicious: "Na tej planszy nie zarejestrowano obszarów podejrzanych o miny — w edukacyjnego sapera gra się tylko tam, gdzie prawdziwe dane coś rejestrują. Wybierz punkt na czerwonych obszarach na mapie sprawdzania."
+
+  mine_check_public:
+    title: Sprawdzanie bliskości obszarów zaminowanych
+    subtitle: Sprawdź, czy punkt w Bośni i Hercegowinie leży blisko zarejestrowanego obszaru podejrzanego o miny.
+    warning_title: Przeczytaj przed użyciem
+    warning_snapshot: "Dane to migawka z %{data_as_of} i mogą być nieaktualne — sytuacja w terenie się zmienia."
+    warning_no_guarantee: Brak znanych przecięć NIE gwarantuje, że obszar jest wolny od min — istnieją też pola nieoznakowane i niezarejestrowane.
+    warning_reverse: "Działa to też w drugą stronę: niektóre pokazane obszary mogły od tego czasu zostać rozminowane, a nawet zabudowane — wyświetlana mapa to migawka źródła, NIE aktualny stan terenu."
+    warning_navigation: To narzędzie NIE służy do nawigacji i nie wolno go używać do poruszania się w pobliżu obszarów zaminowanych.
+    warning_official: "Jedynymi miarodajnymi źródłami są BHMAC (bhmac.org) i oficjalna aplikacja „BH Mine Suspected Areas”."
+    use_gps: 📍 Sprawdź moją lokalizację
+    check_button: Sprawdź współrzędne
+    map_hint: Albo dotknij dowolnego punktu na mapie.
+    checking: Sprawdzam…
+    band_danger: "⚠ NIEBEZPIECZEŃSTWO: punkt leży wewnątrz lub w bezpośrednim sąsiedztwie (do 500 m) zarejestrowanego obszaru podejrzanego o miny. Nie zbliżaj się! BHMAC: +387 33 253 800."
+    band_caution: "OSTROŻNIE: w szerszej okolicy (500 m – 2 km) znajduje się zarejestrowany obszar podejrzany o miny. Trzymaj się utartych ścieżek i zweryfikuj w BHMAC."
+    band_no_known: "Brak znanych przecięć w promieniu 2 km (dane z %{data_as_of}). TO NIE JEST GWARANCJA, że obszar jest wolny od min."
+    band_out_of_coverage: Punkt leży poza obszarem pokrycia (BiH).
+    band_unavailable: "Sprawdzenie jest obecnie niemożliwe (brak danych). Skontaktuj się z BHMAC: +387 33 253 800."
+    invalid_coordinates: Nieprawidłowe współrzędne.
+    no_gps: Lokalizacja niedostępna — zezwól na dostęp do lokalizacji lub wpisz współrzędne ręcznie.
+    error: Sprawdzenie nie powiodło się. Spróbuj ponownie.
+    play_here: "🎮 Zagraj w edukacyjnego sapera w tej lokalizacji"
+    areas_legend: "Przybliżone granice zarejestrowanych obszarów podejrzanych o miny (migawka 2024). Niebezpieczeństwo może sięgać POZA pokazane kształty."
+    zoom_hint: "Przybliż mapę, aby zobaczyć granice obszarów."
