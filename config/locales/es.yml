@@ -1189,6 +1189,7 @@ es:
     warning_title: Lee antes de usar
     warning_snapshot: "Los datos son una instantánea del %{data_as_of} y pueden estar desactualizados — la situación sobre el terreno cambia."
     warning_no_guarantee: La ausencia de intersecciones conocidas NO garantiza que una zona esté libre de minas — también existen campos sin marcar y sin registrar.
+    warning_reverse: "También vale lo contrario: algunas zonas mostradas pueden haber sido desminadas o incluso urbanizadas desde entonces — la visualización es una instantánea de la fuente, NO el estado actual del terreno."
     warning_navigation: Esta herramienta NO es para navegación y no debe usarse para moverse cerca de zonas minadas.
     warning_official: "Las únicas fuentes autorizadas son BHMAC (bhmac.org) y la aplicación oficial 'BH Mine Suspected Areas'."
     use_gps: 📍 Comprobar mi ubicación

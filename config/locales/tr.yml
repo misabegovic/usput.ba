@@ -1302,6 +1302,7 @@ tr:
     warning_title: Kullanmadan önce oku
     warning_snapshot: "Veriler %{data_as_of} tarihli bir görüntüdür ve güncel olmayabilir — sahadaki durum değişir."
     warning_no_guarantee: Bilinen kesişimlerin olmaması bölgenin mayınsız olduğunun garantisi DEĞİLDİR — işaretlenmemiş ve kayıtsız alanlar da vardır.
+    warning_reverse: "Tersi de geçerli: gösterilen bazı bölgeler o zamandan beri temizlenmiş, hatta üzerine inşaat yapılmış olabilir — görüntü kaynağın anlık görüntüsüdür, arazinin güncel durumu DEĞİLDİR."
     warning_navigation: Bu araç navigasyon için DEĞİLDİR ve mayın bölgeleri yakınında hareket için kullanılmamalıdır.
     warning_official: "Tek yetkili kaynaklar BHMAC (bhmac.org) ve resmi 'BH Mine Suspected Areas' uygulamasıdır."
     use_gps: 📍 Konumumu kontrol et

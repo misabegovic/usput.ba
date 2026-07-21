@@ -1026,6 +1026,7 @@ sl:
     warning_title: Preberi pred uporabo
     warning_snapshot: "Podatki so posnetek stanja z dne %{data_as_of} in so lahko zastareli — razmere na terenu se spreminjajo."
     warning_no_guarantee: Odsotnost znanih presekov NI jamstvo, da je območje brez min — obstajajo tudi neoznačena in nezabeležena polja.
+    warning_reverse: "Velja tudi obratno: nekatera prikazana območja so bila morda medtem razminirana ali celo pozidana — prikaz je posnetek vira, NE trenutno stanje terena."
     warning_navigation: To orodje NI namenjeno navigaciji in se ne sme uporabljati za gibanje v bližini minskih območij.
     warning_official: "Edina merodajna vira sta BHMAC (bhmac.org) in uradna aplikacija „BH Mine Suspected Areas“."
     use_gps: 📍 Preveri mojo lokacijo

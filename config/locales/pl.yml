@@ -1035,6 +1035,7 @@ pl:
     warning_title: Przeczytaj przed użyciem
     warning_snapshot: "Dane to migawka z %{data_as_of} i mogą być nieaktualne — sytuacja w terenie się zmienia."
     warning_no_guarantee: Brak znanych przecięć NIE gwarantuje, że obszar jest wolny od min — istnieją też pola nieoznakowane i niezarejestrowane.
+    warning_reverse: "Działa to też w drugą stronę: niektóre pokazane obszary mogły od tego czasu zostać rozminowane, a nawet zabudowane — wyświetlana mapa to migawka źródła, NIE aktualny stan terenu."
     warning_navigation: To narzędzie NIE służy do nawigacji i nie wolno go używać do poruszania się w pobliżu obszarów zaminowanych.
     warning_official: "Jedynymi miarodajnymi źródłami są BHMAC (bhmac.org) i oficjalna aplikacja „BH Mine Suspected Areas”."
     use_gps: 📍 Sprawdź moją lokalizację

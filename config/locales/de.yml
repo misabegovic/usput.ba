@@ -1135,6 +1135,7 @@ de:
     warning_title: Vor der Nutzung lesen
     warning_snapshot: "Die Daten sind ein Stand vom %{data_as_of} und können veraltet sein — die Lage vor Ort ändert sich."
     warning_no_guarantee: Das Fehlen bekannter Überschneidungen ist KEINE Garantie für Minenfreiheit — es gibt auch unmarkierte und nicht erfasste Felder.
+    warning_reverse: "Auch das Umgekehrte gilt: Manche angezeigten Gebiete wurden inzwischen möglicherweise geräumt oder sogar bebaut — die Darstellung ist ein Quellen-Snapshot, NICHT der aktuelle Zustand des Geländes."
     warning_navigation: Dieses Tool ist NICHT zur Navigation gedacht und darf nicht für Bewegungen in der Nähe von Minengebieten verwendet werden.
     warning_official: "Die einzigen maßgeblichen Quellen sind BHMAC (bhmac.org) und die offizielle App „BH Mine Suspected Areas“."
     use_gps: 📍 Meinen Standort prüfen
