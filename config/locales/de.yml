@@ -1124,3 +1124,27 @@ de:
     fact_region: "Realität: Die Region %{name} hat etwa %{km2} km² minenverdächtige Gebiete im Umkreis von 30 km (Datenstand 2024)."
     fact_areas: "Realität: Der Datenstand enthält %{count} erfasste minenverdächtige Einträge in BiH."
     fact_official: "Für echte Informationen nutzen Sie die offizielle App „BH Mine Suspected Areas“ und BHMAC: bhmac.org, +387 33 253 800."
+    custom_location: Gewählter Standort
+    check_link: Echten Standort auf der Karte prüfen →
+
+  mine_check_public:
+    title: Prüfung der Nähe zu Minengebieten
+    subtitle: Prüfen Sie, ob ein Punkt in Bosnien und Herzegowina in der Nähe eines erfassten minenverdächtigen Gebiets liegt.
+    warning_title: Vor der Nutzung lesen
+    warning_snapshot: "Die Daten sind ein Stand vom %{data_as_of} und können veraltet sein — die Lage vor Ort ändert sich."
+    warning_no_guarantee: Das Fehlen bekannter Überschneidungen ist KEINE Garantie für Minenfreiheit — es gibt auch unmarkierte und nicht erfasste Felder.
+    warning_navigation: Dieses Tool ist NICHT zur Navigation gedacht und darf nicht für Bewegungen in der Nähe von Minengebieten verwendet werden.
+    warning_official: "Die einzigen maßgeblichen Quellen sind BHMAC (bhmac.org) und die offizielle App „BH Mine Suspected Areas“."
+    use_gps: 📍 Meinen Standort prüfen
+    check_button: Koordinaten prüfen
+    map_hint: Oder tippen Sie auf einen beliebigen Punkt der Karte.
+    checking: Prüfe…
+    band_danger: "⚠ GEFAHR: Der Punkt liegt innerhalb oder in unmittelbarer Nähe (bis 500 m) eines erfassten minenverdächtigen Gebiets. Nicht nähern! BHMAC: +387 33 253 800."
+    band_caution: "VORSICHT: In der weiteren Umgebung (500 m – 2 km) liegt ein erfasstes minenverdächtiges Gebiet. Nur befestigte Wege nutzen und bei BHMAC nachfragen."
+    band_no_known: "Keine bekannten Überschneidungen im Umkreis von 2 km (Daten vom %{data_as_of}). Dies ist KEINE GARANTIE für Minenfreiheit."
+    band_out_of_coverage: Der Punkt liegt außerhalb des Abdeckungsgebiets (BiH).
+    band_unavailable: "Die Prüfung ist derzeit nicht möglich (keine Daten). Kontaktieren Sie BHMAC: +387 33 253 800."
+    invalid_coordinates: Ungültige Koordinaten.
+    no_gps: Standort nicht verfügbar — Standortzugriff erlauben oder Koordinaten manuell eingeben.
+    error: Die Prüfung ist fehlgeschlagen. Versuchen Sie es erneut.
+    play_here: 🎮 Minesweeper an diesem Ort spielen (fiktive Minen)

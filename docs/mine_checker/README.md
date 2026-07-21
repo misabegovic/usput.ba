@@ -1,4 +1,4 @@
-# Mine Checker — Faza 1 (interni sloj)
+# Mine Checker — Faza 1 (interni sloj) + Faza 2 (javna provjera)
 
 Interni sigurnosni sloj: svaki geo-sadržaj (Location lat/lng) pri
 kreiranju/izmjeni prolazi mine-check protiv minski sumnjivih područja (MSP)
@@ -6,10 +6,37 @@ u BiH. Unutar buffera → hard block. Vidi `SPEC.md` (izvor istine) i
 `ADR-001-mine-data-source.md`.
 
 ## Tvrda pravila
-- Nema javnih ruta/endpointa za minske podatke (Faza 2, tek uz BHMAC/UNDP).
 - Nikad "sigurno/safe" — jedini pozitivan ishod je `no_known_intersections`.
-- Fail-closed: bez podataka ili sa zastarjelim podacima sve u BiH je blokirano.
+- Fail-closed: bez podataka ili sa zastarjelim podacima interni check blokira
+  sav BiH geo-sadržaj.
 - Cleared/lifted slojevi nikad ne ublažavaju verdict.
+- Geometrija i udaljenosti NIKAD ne izlaze prema korisnicima — samo grubi
+  pojasevi (bands); detalji ostaju u internom audit logu.
+
+## Faza 2 — javna provjera (odluka vlasnika, 2026-07-21)
+
+Vlasnik je 2026-07-21 odobrio javnu provjeru blizine (`/provjera-mina`),
+čime je zamijenjeno prvobitno pravilo "nema javnih ruta u Fazi 1".
+Fail-safe svojstva javne provjere:
+
+- Odgovori su isključivo pojasevi: `danger` (≤500 m ili unutra), `caution`
+  (500 m – 2 km), `no_known` (uz datum podataka i "nije garancija"),
+  `out_of_coverage`, `unavailable`. Bez udaljenosti, bez geometrije.
+- Upozorenja (`danger`/`caution`) se prikazuju bez obzira na starost
+  podataka — staleness samo dodaje upozorenja, nikad ih ne potiskuje.
+- Bez podataka → `unavailable` (fail-closed) + upućivanje na BHMAC.
+- Stranica nosi trajni blok upozorenja (datum snimka, "nije garancija",
+  "nije za navigaciju", BHMAC/122/121, službena aplikacija).
+- Rate limit: 30 provjera/min po IP (rack-attack) — otežava i pokušaje
+  rekonstrukcije granica područja skeniranjem.
+- Svaka provjera se auditira (`content_type: PublicMineCheck`).
+- **Preporuka ostaje**: prije javnog lansiranja koordinirati s BHMAC-om
+  (vidi ADR-001); ovaj zapis dokumentira svjesnu odluku vlasnika.
+
+Minolovac (`/minolovac`) i dalje koristi ISKLJUČIVO izmišljene mine;
+stvarni podaci ulaze samo kao grubi agregati (km² po regiji, odnosno
+jedan 5 km agregat za "custom" tačku) za skaliranje težine i edukativne
+činjenice.
 
 ## Komande
 

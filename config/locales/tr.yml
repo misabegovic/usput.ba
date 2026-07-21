@@ -1291,3 +1291,27 @@ tr:
     fact_region: "Gerçek: %{name} bölgesinin 30 km çevresinde yaklaşık %{km2} km² mayın şüpheli alan var (2024 görüntüsü)."
     fact_areas: "Gerçek: veri görüntüsü BiH'te kayıtlı %{count} mayın şüpheli girdi içeriyor."
     fact_official: "Gerçek bilgi için resmi 'BH Mine Suspected Areas' uygulamasını ve BHMAC'ı kullanın: bhmac.org, +387 33 253 800."
+    custom_location: Seçilen konum
+    check_link: Haritada gerçek bir konumu kontrol et →
+
+  mine_check_public:
+    title: Mayın bölgesi yakınlık kontrolü
+    subtitle: Bosna-Hersek'teki bir noktanın kayıtlı mayın şüpheli bölgeye yakın olup olmadığını kontrol et.
+    warning_title: Kullanmadan önce oku
+    warning_snapshot: "Veriler %{data_as_of} tarihli bir görüntüdür ve güncel olmayabilir — sahadaki durum değişir."
+    warning_no_guarantee: Bilinen kesişimlerin olmaması bölgenin mayınsız olduğunun garantisi DEĞİLDİR — işaretlenmemiş ve kayıtsız alanlar da vardır.
+    warning_navigation: Bu araç navigasyon için DEĞİLDİR ve mayın bölgeleri yakınında hareket için kullanılmamalıdır.
+    warning_official: "Tek yetkili kaynaklar BHMAC (bhmac.org) ve resmi 'BH Mine Suspected Areas' uygulamasıdır."
+    use_gps: 📍 Konumumu kontrol et
+    check_button: Koordinatları kontrol et
+    map_hint: Ya da haritada herhangi bir noktaya dokun.
+    checking: Kontrol ediliyor…
+    band_danger: "⚠ TEHLİKE: nokta, kayıtlı bir mayın şüpheli bölgenin içinde veya hemen yakınında (500 m'ye kadar). Yaklaşma! BHMAC: +387 33 253 800."
+    band_caution: "DİKKAT: geniş çevrede (500 m – 2 km) kayıtlı bir mayın şüpheli bölge var. Yalnızca belirlenmiş yolları kullan ve BHMAC'a danış."
+    band_no_known: "2 km yarıçapında bilinen kesişim yok (%{data_as_of} tarihli veriler). BU, bölgenin mayınsız olduğunun GARANTİSİ DEĞİLDİR."
+    band_out_of_coverage: Nokta kapsama alanının (BiH) dışında.
+    band_unavailable: "Kontrol şu anda yapılamıyor (veri yok). BHMAC ile iletişime geç: +387 33 253 800."
+    invalid_coordinates: Geçersiz koordinatlar.
+    no_gps: Konum kullanılamıyor — konum erişimine izin ver veya koordinatları elle gir.
+    error: Kontrol başarısız oldu. Tekrar dene.
+    play_here: 🎮 Bu konumda mayın tarlası oyna (kurgusal mayınlar)

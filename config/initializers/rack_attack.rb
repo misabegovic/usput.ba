@@ -112,6 +112,17 @@ class Rack::Attack
   end
 
   # ----------------------------------------------------------------------------
+  # Throttle: Public mine-proximity check
+  # ----------------------------------------------------------------------------
+  # Limit mine checks to 30 per minute per IP — also hampers anyone trying to
+  # reconstruct area boundaries by sweeping coordinates
+  throttle("mine-check/ip", limit: 30, period: 1.minute) do |req|
+    if req.path == "/provjera-mina/check" && req.post?
+      req.ip
+    end
+  end
+
+  # ----------------------------------------------------------------------------
   # Blocklist: Exploit probes and malicious requests
   # ----------------------------------------------------------------------------
 

@@ -2,12 +2,12 @@ require "net/http"
 
 # Minolovac — classic minesweeper played over scenic static-map backdrops of
 # Bosnia and Herzegovina. Mine placement is random and fictional, generated
-# client-side per game; this feature has no connection to any real mine data.
+# client-side per game — it never reflects real mine locations. Real data
+# appears only as coarse aggregates: baked-in regional statistics, or a
+# single 5 km aggregate query for custom-point boards (no geometry).
 class MinolovacController < ApplicationController
   # suspected_km2: aggregate area of mine-suspected polygons within 30 km of
   # the region center, computed OFFLINE from the vendored 2024-07-31 snapshot.
-  # Static by design — the public game must never query mine tables at
-  # runtime, and only these coarse aggregates (no geometry) reach users.
   REGIONS = {
     "sarajevo" => { name: "Sarajevo", lat: 43.8563, lon: 18.4131, zoom: 12, suspected_km2: 102.3 },
     "mostar" => { name: "Mostar", lat: 43.3438, lon: 17.8078, zoom: 12, suspected_km2: 41.8 },
@@ -28,23 +28,40 @@ class MinolovacController < ApplicationController
   COUNTRY_SUSPECTED_KM2 = 823
   SNAPSHOT_AREA_COUNT = 11_068
 
-  # Mine density mirrors the region's real contamination statistics:
-  # 0.75x the base count for the least-affected regions up to 1.25x for the
-  # most-affected, capped at 30% of the board.
+  CUSTOM_RADIUS_M = 5_000
+
+  # Mine density mirrors the location's real contamination statistics:
+  # 0.75x the base count for the least-affected up to 1.25x for the
+  # most-affected, capped at 30% of the board. `scale` is the km² that counts
+  # as maximum density (100 for the 30 km regional aggregates, 15 for the
+  # 5 km custom-point aggregates).
   def self.mines_for(difficulty, region)
-    factor = 0.75 + 0.5 * [ [ region[:suspected_km2] / 100.0, 1.0 ].min, 0.05 ].max
+    scale = region[:scale] || 100.0
+    factor = 0.75 + 0.5 * [ [ region[:suspected_km2] / scale, 1.0 ].min, 0.05 ].max
     [ (difficulty[:mines] * factor).round, difficulty[:rows] * difficulty[:cols] * 3 / 10 ].min
   end
 
   MAP_CACHE_TTL = 30.days
 
   def show
-    if params[:region].present? && !REGIONS.key?(params[:region])
+    if params[:lat].present? && params[:lon].present?
+      lat = params[:lat].to_f
+      lon = params[:lon].to_f
+      return redirect_to minolovac_path unless bbox_contains?(lat, lon)
+
+      @region_slug = "custom"
+      @region = {
+        name: "#{lat.round(4)}, #{lon.round(4)}",
+        lat: lat, lon: lon, zoom: 14,
+        suspected_km2: local_suspected_km2(lat, lon), scale: 15.0
+      }
+    elsif params[:region].present? && !REGIONS.key?(params[:region])
       return redirect_to minolovac_path
+    else
+      @region_slug = params[:region] || "sarajevo"
+      @region = REGIONS[@region_slug]
     end
 
-    @region_slug = params[:region] || "sarajevo"
-    @region = REGIONS[@region_slug]
     @level = DIFFICULTIES.key?(params[:level]) ? params[:level] : "easy"
     @difficulty = DIFFICULTIES[@level]
     @mines = self.class.mines_for(@difficulty, @region)
@@ -54,13 +71,24 @@ class MinolovacController < ApplicationController
   # the client. Missing key or upstream failure returns 404 and the game
   # falls back to a plain backdrop.
   def map
-    region = REGIONS[params[:region]]
-    return head :not_found unless region
+    if params[:region] == "custom"
+      lat = params[:lat].to_f
+      lon = params[:lon].to_f
+      return head :not_found unless bbox_contains?(lat, lon)
+
+      region = { lat: lat, lon: lon, zoom: 14 }
+      cache_key = "minolovac/map/custom/#{lat.round(3)}/#{lon.round(3)}"
+    else
+      region = REGIONS[params[:region]]
+      return head :not_found unless region
+
+      cache_key = "minolovac/map/#{params[:region]}"
+    end
 
     api_key = Rails.application.config.geoapify.api_key
     return head :not_found if api_key.blank?
 
-    png = Rails.cache.fetch("minolovac/map/#{params[:region]}", expires_in: MAP_CACHE_TTL, skip_nil: true) do
+    png = Rails.cache.fetch(cache_key, expires_in: MAP_CACHE_TTL, skip_nil: true) do
       fetch_static_map(region, api_key)
     end
     return head :not_found if png.blank?
@@ -70,6 +98,20 @@ class MinolovacController < ApplicationController
   end
 
   private
+
+  # The one runtime touch of mine data on this page: a single aggregate
+  # (km² within 5 km) to scale the fictional board's density. No geometry.
+  def local_suspected_km2(lat, lon)
+    (MineArea.suspected
+      .where("ST_DWithin(geom, ST_GeogFromText(:pt), :r)",
+             pt: "SRID=4326;POINT(#{lon} #{lat})", r: CUSTOM_RADIUS_M)
+      .sum(Arel.sql("ST_Area(geom)")) / 1_000_000.0).round(1)
+  end
+
+  def bbox_contains?(lat, lon)
+    west, south, east, north = MineChecker::Config.bih_bbox
+    lon.between?(west, east) && lat.between?(south, north)
+  end
 
   def fetch_static_map(region, api_key)
     uri = URI("https://maps.geoapify.com/v1/staticmap")

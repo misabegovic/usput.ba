@@ -27,6 +27,11 @@
         <%= link_to region[:name], minolovac_path(region: slug, level: @level),
               class: "px-3 py-1 rounded-full text-sm font-medium transition-colors #{slug == @region_slug ? 'bg-emerald-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'}" %>
       <% end %>
+      <% if @region_slug == "custom" %>
+        <span class="px-3 py-1 rounded-full text-sm font-medium bg-emerald-600 text-white">
+          &#x1F4CD; <%= t("minolovac.custom_location") %> (<%= @region[:name] %>)
+        </span>
+      <% end %>
     </div>
 
     <div class="mt-3 flex flex-wrap items-center gap-2">
@@ -72,7 +77,7 @@
       </div>
 
       <div class="relative rounded-b-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-emerald-100 to-teal-200 dark:from-gray-800 dark:to-gray-700">
-        <img src="<%= minolovac_map_path(region: @region_slug) %>"
+        <img src="<%= @region_slug == "custom" ? minolovac_map_path(region: "custom", lat: @region[:lat], lon: @region[:lon]) : minolovac_map_path(region: @region_slug) %>"
              alt="<%= @region[:name] %>"
              class="absolute inset-0 w-full h-full object-cover"
              data-minolovac-target="map"
@@ -84,6 +89,11 @@
          class="hidden mt-3 rounded-lg border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/30 px-4 py-3 text-sm text-emerald-900 dark:text-emerald-100"></p>
 
       <p class="mt-2 text-xs text-gray-500 dark:text-gray-400"><%= t("minolovac.hint") %></p>
+
+      <p class="mt-2 text-sm">
+        <%= link_to t("minolovac.check_link"), mine_check_path,
+              class: "font-medium text-emerald-700 dark:text-emerald-400 hover:underline" %>
+      </p>
     </div>
   </main>
 </div>

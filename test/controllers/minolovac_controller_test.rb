@@ -48,6 +48,20 @@ class MinolovacControllerTest < ActionDispatch::IntegrationTest
     assert_match "BH Mine Suspected Areas", response.body
   end
 
+  test "custom point inside BiH renders a scaled board with local statistics" do
+    get minolovac_path(lat: 43.8563, lon: 18.4131)
+    assert_response :success
+    assert_match I18n.t("minolovac.custom_location"), response.body
+    assert_match "data-minolovac-mines-value=", response.body
+  end
+
+  test "custom point outside BiH redirects to the default board" do
+    get minolovac_path(lat: 48.2, lon: 16.4)
+    assert_redirected_to minolovac_path
+  end
+
+  # Region boards use baked-in aggregates; only custom-point boards run the
+  # single documented 5 km aggregate query.
   test "show never queries mine tables" do
     queries = []
     subscriber = ActiveSupport::Notifications.subscribe("sql.active_record") do |*, payload|

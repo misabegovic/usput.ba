@@ -1329,3 +1329,27 @@ bs:
     fact_region: "Stvarnost: regija %{name} ima oko %{km2} km² minski sumnjivih područja u krugu od 30 km (snimak 2024)."
     fact_areas: "Stvarnost: snimak podataka sadrži %{count} evidentiranih minski sumnjivih zapisa u BiH."
     fact_official: "Za stvarne informacije koristi službenu aplikaciju „BH Mine Suspected Areas“ i BHMAC: bhmac.org, 033 253-800."
+    custom_location: Odabrana lokacija
+    check_link: Provjeri stvarnu lokaciju na karti →
+
+  mine_check_public:
+    title: Provjera blizine minskih područja
+    subtitle: Provjeri da li je neka tačka u BiH blizu evidentiranog minski sumnjivog područja.
+    warning_title: Pročitaj prije upotrebe
+    warning_snapshot: "Podaci su snimak stanja od %{data_as_of} i mogu biti zastarjeli — stanje na terenu se mijenja."
+    warning_no_guarantee: Odsustvo poznatih presjeka NIJE garancija da je područje bez mina — postoje i neobilježena i neevidentirana polja.
+    warning_navigation: Ovaj alat NIJE za navigaciju i ne smije se koristiti za kretanje u blizini minskih područja.
+    warning_official: "Jedini mjerodavni izvori su BHMAC (bhmac.org) i službena aplikacija „BH Mine Suspected Areas“."
+    use_gps: 📍 Provjeri moju lokaciju
+    check_button: Provjeri koordinate
+    map_hint: Ili dodirni bilo koju tačku na karti.
+    checking: Provjeravam…
+    band_danger: "⚠ OPASNOST: tačka je unutar ili u neposrednoj blizini (do 500 m) evidentiranog minski sumnjivog područja. Ne prilazi! BHMAC: 033/253-800."
+    band_caution: "OPREZ: u široj okolini (500 m – 2 km) postoji evidentirano minski sumnjivo područje. Kreći se samo utvrđenim putevima i provjeri kod BHMAC-a."
+    band_no_known: "Nema poznatih presjeka u krugu od 2 km (podaci od %{data_as_of}). OVO NIJE GARANCIJA da je područje bez mina."
+    band_out_of_coverage: Tačka je izvan područja pokrivenosti (BiH).
+    band_unavailable: "Provjera trenutno nije moguća (nema podataka). Kontaktiraj BHMAC: 033/253-800."
+    invalid_coordinates: Neispravne koordinate.
+    no_gps: Lokacija nije dostupna — dozvoli pristup lokaciji ili unesi koordinate ručno.
+    error: Provjera nije uspjela. Pokušaj ponovo.
+    play_here: 🎮 Igraj minolovac na ovoj lokaciji (izmišljene mine)

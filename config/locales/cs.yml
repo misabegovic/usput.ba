@@ -1015,3 +1015,27 @@ cs:
     fact_region: "Realita: region %{name} má zhruba %{km2} km² oblastí podezřelých z výskytu min v okruhu 30 km (snímek 2024)."
     fact_areas: "Realita: snímek dat obsahuje %{count} zaznamenaných záznamů oblastí podezřelých z výskytu min v BiH."
     fact_official: "Skutečné informace najdete v oficiální aplikaci „BH Mine Suspected Areas“ a u BHMAC: bhmac.org, +387 33 253 800."
+    custom_location: Zvolené místo
+    check_link: Zkontroluj skutečné místo na mapě →
+
+  mine_check_public:
+    title: Kontrola blízkosti minových oblastí
+    subtitle: Zkontroluj, zda je bod v Bosně a Hercegovině blízko zaznamenané oblasti podezřelé z výskytu min.
+    warning_title: Přečti si před použitím
+    warning_snapshot: "Data jsou snímek stavu k %{data_as_of} a mohou být zastaralá — situace v terénu se mění."
+    warning_no_guarantee: Absence známých průniků NENÍ zárukou, že je oblast bez min — existují i neoznačená a nezaznamenaná pole.
+    warning_navigation: Tento nástroj NENÍ určen k navigaci a nesmí se používat k pohybu v blízkosti minových oblastí.
+    warning_official: "Jedinými směrodatnými zdroji jsou BHMAC (bhmac.org) a oficiální aplikace „BH Mine Suspected Areas“."
+    use_gps: 📍 Zkontrolovat moji polohu
+    check_button: Zkontrolovat souřadnice
+    map_hint: Nebo klepni na libovolný bod na mapě.
+    checking: Kontroluji…
+    band_danger: "⚠ NEBEZPEČÍ: bod leží uvnitř nebo v bezprostřední blízkosti (do 500 m) zaznamenané oblasti podezřelé z výskytu min. Nepřibližuj se! BHMAC: +387 33 253 800."
+    band_caution: "POZOR: v širším okolí (500 m – 2 km) se nachází zaznamenaná oblast podezřelá z výskytu min. Drž se vyšlapaných cest a ověř u BHMAC."
+    band_no_known: "Žádné známé průniky v okruhu 2 km (data k %{data_as_of}). TOTO NENÍ ZÁRUKA, že je oblast bez min."
+    band_out_of_coverage: Bod leží mimo oblast pokrytí (BiH).
+    band_unavailable: "Kontrola momentálně není možná (žádná data). Kontaktuj BHMAC: +387 33 253 800."
+    invalid_coordinates: Neplatné souřadnice.
+    no_gps: Poloha není dostupná — povol přístup k poloze nebo zadej souřadnice ručně.
+    error: Kontrola se nezdařila. Zkus to znovu.
+    play_here: 🎮 Zahraj si miny na tomto místě (smyšlené miny)

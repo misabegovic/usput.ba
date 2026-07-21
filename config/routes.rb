@@ -13,6 +13,11 @@ Rails.application.routes.draw do
   get "minolovac", to: "minolovac#show", as: :minolovac
   get "minolovac/mapa/:region", to: "minolovac#map", as: :minolovac_map
 
+  # Public mine-proximity check (owner-authorized Phase 2, bands only —
+  # see docs/mine_checker/README.md)
+  get "provjera-mina", to: "mine_check_public#show", as: :mine_check
+  post "provjera-mina/check", to: "mine_check_public#check", as: :mine_check_query
+
   # Static pages
   get "imprint", to: "pages#imprint", as: :imprint
   get "privacy", to: "pages#privacy", as: :privacy

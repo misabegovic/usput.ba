@@ -1199,3 +1199,27 @@ fr:
     fact_region: "Réalité : la région de %{name} compte environ %{km2} km² de zones suspectées de mines dans un rayon de 30 km (instantané 2024)."
     fact_areas: "Réalité : l'instantané de données contient %{count} entrées de zones suspectées de mines en BiH."
     fact_official: "Pour de vraies informations, utilisez l'application officielle « BH Mine Suspected Areas » et le BHMAC : bhmac.org, +387 33 253 800."
+    custom_location: Emplacement choisi
+    check_link: Vérifier un lieu réel sur la carte →
+
+  mine_check_public:
+    title: Vérification de proximité des zones minées
+    subtitle: Vérifiez si un point de Bosnie-Herzégovine se trouve près d'une zone suspectée de mines enregistrée.
+    warning_title: À lire avant utilisation
+    warning_snapshot: "Les données sont un instantané du %{data_as_of} et peuvent être obsolètes — la situation sur le terrain évolue."
+    warning_no_guarantee: L'absence d'intersections connues n'est PAS une garantie qu'une zone est sans mines — il existe aussi des champs non balisés et non recensés.
+    warning_navigation: Cet outil n'est PAS destiné à la navigation et ne doit pas être utilisé pour se déplacer près des zones minées.
+    warning_official: "Les seules sources faisant autorité sont le BHMAC (bhmac.org) et l'application officielle « BH Mine Suspected Areas »."
+    use_gps: 📍 Vérifier ma position
+    check_button: Vérifier les coordonnées
+    map_hint: Ou touchez n'importe quel point de la carte.
+    checking: Vérification…
+    band_danger: "⚠ DANGER : le point est à l'intérieur ou à proximité immédiate (moins de 500 m) d'une zone suspectée de mines enregistrée. Ne vous approchez pas ! BHMAC : +387 33 253 800."
+    band_caution: "PRUDENCE : une zone suspectée de mines enregistrée se trouve dans les environs (500 m – 2 km). Restez sur les chemins établis et vérifiez auprès du BHMAC."
+    band_no_known: "Aucune intersection connue dans un rayon de 2 km (données du %{data_as_of}). CECI N'EST PAS UNE GARANTIE que la zone est sans mines."
+    band_out_of_coverage: Le point est hors de la zone de couverture (BiH).
+    band_unavailable: "La vérification est indisponible (pas de données). Contactez le BHMAC : +387 33 253 800."
+    invalid_coordinates: Coordonnées invalides.
+    no_gps: Position indisponible — autorisez l'accès à la position ou saisissez les coordonnées manuellement.
+    error: La vérification a échoué. Réessayez.
+    play_here: 🎮 Jouer au démineur à cet endroit (mines fictives)

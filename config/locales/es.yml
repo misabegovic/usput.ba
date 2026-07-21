@@ -1178,3 +1178,27 @@ es:
     fact_region: "Realidad: la región de %{name} tiene unos %{km2} km² de zonas sospechosas de minas en un radio de 30 km (instantánea de 2024)."
     fact_areas: "Realidad: la instantánea de datos contiene %{count} registros de zonas sospechosas de minas en BiH."
     fact_official: "Para información real usa la aplicación oficial 'BH Mine Suspected Areas' y BHMAC: bhmac.org, +387 33 253 800."
+    custom_location: Ubicación elegida
+    check_link: Comprueba una ubicación real en el mapa →
+
+  mine_check_public:
+    title: Comprobación de proximidad a zonas minadas
+    subtitle: Comprueba si un punto de Bosnia y Herzegovina está cerca de una zona registrada sospechosa de minas.
+    warning_title: Lee antes de usar
+    warning_snapshot: "Los datos son una instantánea del %{data_as_of} y pueden estar desactualizados — la situación sobre el terreno cambia."
+    warning_no_guarantee: La ausencia de intersecciones conocidas NO garantiza que una zona esté libre de minas — también existen campos sin marcar y sin registrar.
+    warning_navigation: Esta herramienta NO es para navegación y no debe usarse para moverse cerca de zonas minadas.
+    warning_official: "Las únicas fuentes autorizadas son BHMAC (bhmac.org) y la aplicación oficial 'BH Mine Suspected Areas'."
+    use_gps: 📍 Comprobar mi ubicación
+    check_button: Comprobar coordenadas
+    map_hint: O toca cualquier punto del mapa.
+    checking: Comprobando…
+    band_danger: "⚠ PELIGRO: el punto está dentro o en las inmediaciones (hasta 500 m) de una zona registrada sospechosa de minas. ¡No te acerques! BHMAC: +387 33 253 800."
+    band_caution: "PRECAUCIÓN: en el entorno más amplio (500 m – 2 km) hay una zona registrada sospechosa de minas. Sigue solo caminos establecidos y verifica con BHMAC."
+    band_no_known: "Sin intersecciones conocidas en un radio de 2 km (datos del %{data_as_of}). ESTO NO GARANTIZA que la zona esté libre de minas."
+    band_out_of_coverage: El punto está fuera del área de cobertura (BiH).
+    band_unavailable: "La comprobación no está disponible (sin datos). Contacta con BHMAC: +387 33 253 800."
+    invalid_coordinates: Coordenadas no válidas.
+    no_gps: Ubicación no disponible — permite el acceso a la ubicación o introduce las coordenadas manualmente.
+    error: La comprobación falló. Inténtalo de nuevo.
+    play_here: 🎮 Juega al buscaminas en esta ubicación (minas ficticias)

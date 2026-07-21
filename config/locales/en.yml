@@ -1558,3 +1558,27 @@ en:
     fact_region: "Reality: the %{name} region has about %{km2} km² of mine-suspected areas within 30 km (2024 snapshot)."
     fact_areas: "Reality: the data snapshot contains %{count} recorded mine-suspected entries in BiH."
     fact_official: "For real information use the official 'BH Mine Suspected Areas' app and BHMAC: bhmac.org, +387 33 253 800."
+    custom_location: Chosen location
+    check_link: Check a real location on the map →
+
+  mine_check_public:
+    title: Mine-area proximity check
+    subtitle: Check whether a point in Bosnia and Herzegovina is near a recorded mine-suspected area.
+    warning_title: Read before use
+    warning_snapshot: "The data is a snapshot from %{data_as_of} and may be outdated — conditions on the ground change."
+    warning_no_guarantee: The absence of known intersections is NOT a guarantee that an area is mine-free — unmarked and unrecorded fields also exist.
+    warning_navigation: This tool is NOT for navigation and must not be used for moving near mine areas.
+    warning_official: "The only authoritative sources are BHMAC (bhmac.org) and the official 'BH Mine Suspected Areas' app."
+    use_gps: 📍 Check my location
+    check_button: Check coordinates
+    map_hint: Or tap any point on the map.
+    checking: Checking…
+    band_danger: "⚠ DANGER: the point is inside or in the immediate vicinity (within 500 m) of a recorded mine-suspected area. Do not approach! BHMAC: +387 33 253 800."
+    band_caution: "CAUTION: there is a recorded mine-suspected area in the wider vicinity (500 m – 2 km). Keep to established paths and verify with BHMAC."
+    band_no_known: "No known intersections within 2 km (data from %{data_as_of}). THIS IS NOT A GUARANTEE that the area is mine-free."
+    band_out_of_coverage: The point is outside the coverage area (BiH).
+    band_unavailable: "The check is currently unavailable (no data). Contact BHMAC: +387 33 253 800."
+    invalid_coordinates: Invalid coordinates.
+    no_gps: Location unavailable — allow location access or enter coordinates manually.
+    error: The check failed. Try again.
+    play_here: 🎮 Play minesweeper at this location (fictional mines)

@@ -1024,3 +1024,27 @@ nl:
     fact_region: "Realiteit: de regio %{name} heeft ongeveer %{km2} km² mijnverdacht gebied binnen 30 km (momentopname 2024)."
     fact_areas: "Realiteit: de momentopname bevat %{count} geregistreerde mijnverdachte vermeldingen in BiH."
     fact_official: "Gebruik voor echte informatie de officiële app 'BH Mine Suspected Areas' en BHMAC: bhmac.org, +387 33 253 800."
+    custom_location: Gekozen locatie
+    check_link: Controleer een echte locatie op de kaart →
+
+  mine_check_public:
+    title: Controle nabijheid mijnengebieden
+    subtitle: Controleer of een punt in Bosnië en Herzegovina dicht bij een geregistreerd mijnverdacht gebied ligt.
+    warning_title: Lees dit vóór gebruik
+    warning_snapshot: "De gegevens zijn een momentopname van %{data_as_of} en kunnen verouderd zijn — de situatie ter plaatse verandert."
+    warning_no_guarantee: De afwezigheid van bekende overlappingen is GEEN garantie dat een gebied mijnenvrij is — er bestaan ook ongemarkeerde en ongeregistreerde velden.
+    warning_navigation: Dit hulpmiddel is NIET bedoeld voor navigatie en mag niet worden gebruikt om je in de buurt van mijnengebieden te verplaatsen.
+    warning_official: "De enige gezaghebbende bronnen zijn BHMAC (bhmac.org) en de officiële app 'BH Mine Suspected Areas'."
+    use_gps: 📍 Controleer mijn locatie
+    check_button: Coördinaten controleren
+    map_hint: Of tik op een willekeurig punt op de kaart.
+    checking: Controleren…
+    band_danger: "⚠ GEVAAR: het punt ligt binnen of in de directe nabijheid (tot 500 m) van een geregistreerd mijnverdacht gebied. Niet naderen! BHMAC: +387 33 253 800."
+    band_caution: "VOORZICHTIG: in de ruimere omgeving (500 m – 2 km) ligt een geregistreerd mijnverdacht gebied. Blijf op gebaande paden en verifieer bij BHMAC."
+    band_no_known: "Geen bekende overlappingen binnen 2 km (gegevens van %{data_as_of}). DIT IS GEEN GARANTIE dat het gebied mijnenvrij is."
+    band_out_of_coverage: Het punt ligt buiten het dekkingsgebied (BiH).
+    band_unavailable: "De controle is momenteel niet beschikbaar (geen gegevens). Neem contact op met BHMAC: +387 33 253 800."
+    invalid_coordinates: Ongeldige coördinaten.
+    no_gps: Locatie niet beschikbaar — sta locatietoegang toe of voer de coördinaten handmatig in.
+    error: De controle is mislukt. Probeer opnieuw.
+    play_here: 🎮 Speel mijnenveger op deze locatie (fictieve mijnen)
