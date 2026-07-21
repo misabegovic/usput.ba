@@ -16,12 +16,48 @@ class MinolovacControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "every difficulty renders with matching board values" do
+  test "every difficulty renders with region-scaled board values" do
+    region = MinolovacController::REGIONS["sarajevo"]
     MinolovacController::DIFFICULTIES.each do |level, config|
       get minolovac_path(level: level)
       assert_response :success, "level #{level} failed"
-      assert_match "data-minolovac-mines-value=\"#{config[:mines]}\"", response.body
+      expected = MinolovacController.mines_for(config, region)
+      assert_match "data-minolovac-mines-value=\"#{expected}\"", response.body
     end
+  end
+
+  test "mine density mirrors real regional statistics" do
+    easy = MinolovacController::DIFFICULTIES["easy"]
+    sarajevo = MinolovacController.mines_for(easy, MinolovacController::REGIONS["sarajevo"])
+    sutjeska = MinolovacController.mines_for(easy, MinolovacController::REGIONS["sutjeska"])
+    assert_operator sarajevo, :>, sutjeska,
+                    "the most-contaminated region must have more mines than the least-contaminated"
+    MinolovacController::REGIONS.each_value do |region|
+      MinolovacController::DIFFICULTIES.each_value do |config|
+        mines = MinolovacController.mines_for(config, region)
+        assert_operator mines, :>=, 5
+        assert_operator mines, :<=, config[:rows] * config[:cols] * 3 / 10
+      end
+    end
+  end
+
+  test "show renders the density note and real aggregate facts" do
+    get minolovac_path(region: "jajce")
+    assert_response :success
+    assert_match I18n.t("minolovac.density_note", name: "Jajce", km2: 62), response.body
+    assert_match "BH Mine Suspected Areas", response.body
+  end
+
+  test "show never queries mine tables" do
+    queries = []
+    subscriber = ActiveSupport::Notifications.subscribe("sql.active_record") do |*, payload|
+      queries << payload[:sql] if payload[:sql] =~ /mine_areas|mine_check_audits/i
+    end
+    get minolovac_path
+    assert_response :success
+    assert_empty queries, "the public game page must not touch mine data at runtime"
+  ensure
+    ActiveSupport::Notifications.unsubscribe(subscriber)
   end
 
   test "unknown region redirects to the default board" do
@@ -32,7 +68,10 @@ class MinolovacControllerTest < ActionDispatch::IntegrationTest
   test "unknown level falls back to easy" do
     get minolovac_path(level: "nightmare")
     assert_response :success
-    assert_match "data-minolovac-mines-value=\"#{MinolovacController::DIFFICULTIES['easy'][:mines]}\"", response.body
+    expected = MinolovacController.mines_for(
+      MinolovacController::DIFFICULTIES["easy"], MinolovacController::REGIONS["sarajevo"]
+    )
+    assert_match "data-minolovac-mines-value=\"#{expected}\"", response.body
   end
 
   test "map is not found without an api key" do

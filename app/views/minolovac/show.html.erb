@@ -37,12 +37,25 @@
       <% end %>
     </div>
 
-    <div class="mt-6"
+    <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+      <%= t("minolovac.density_note", name: @region[:name], km2: @region[:suspected_km2].round) %>
+    </p>
+
+    <div class="mt-4"
          data-controller="minolovac"
          data-minolovac-rows-value="<%= @difficulty[:rows] %>"
          data-minolovac-cols-value="<%= @difficulty[:cols] %>"
-         data-minolovac-mines-value="<%= @difficulty[:mines] %>"
-         data-minolovac-labels-value="<%= { win: t('minolovac.win'), lose: t('minolovac.lose') }.to_json %>">
+         data-minolovac-mines-value="<%= @mines %>"
+         data-minolovac-labels-value="<%= {
+               win: t("minolovac.win"),
+               lose: t("minolovac.lose"),
+               facts: [
+                 t("minolovac.fact_country", km2: MinolovacController::COUNTRY_SUSPECTED_KM2),
+                 t("minolovac.fact_region", name: @region[:name], km2: @region[:suspected_km2].round),
+                 t("minolovac.fact_areas", count: number_with_delimiter(MinolovacController::SNAPSHOT_AREA_COUNT)),
+                 t("minolovac.fact_official")
+               ]
+             }.to_json %>">
 
       <div class="flex items-center justify-between rounded-t-xl bg-white dark:bg-gray-800 border border-b-0 border-gray-200 dark:border-gray-700 px-4 py-2">
         <div class="text-sm text-gray-700 dark:text-gray-300">
@@ -66,6 +79,9 @@
              data-action="error->minolovac#hideMap">
         <div class="relative z-10 grid gap-px p-1" data-minolovac-target="board"></div>
       </div>
+
+      <p data-minolovac-target="fact"
+         class="hidden mt-3 rounded-lg border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/30 px-4 py-3 text-sm text-emerald-900 dark:text-emerald-100"></p>
 
       <p class="mt-2 text-xs text-gray-500 dark:text-gray-400"><%= t("minolovac.hint") %></p>
     </div>

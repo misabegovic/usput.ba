@@ -12,7 +12,7 @@ const NUMBER_COLORS = [
 ]
 
 export default class extends Controller {
-  static targets = ["board", "mines", "timer", "status", "map"]
+  static targets = ["board", "mines", "timer", "status", "map", "fact"]
   static values = { rows: Number, cols: Number, mines: Number, labels: Object }
 
   connect() {
@@ -33,6 +33,10 @@ export default class extends Controller {
     this.grid = []
     this.timerTarget.textContent = "0"
     this.statusTarget.textContent = ""
+    if (this.hasFactTarget) {
+      this.factTarget.textContent = ""
+      this.factTarget.classList.add("hidden")
+    }
     this.updateMinesLeft()
     this.buildBoard()
   }
@@ -166,6 +170,7 @@ export default class extends Controller {
       cell.el.textContent = cell === hitCell ? "\u{1F4A5}" : "\u{1F4A3}"
     })
     this.statusTarget.textContent = this.labelsValue.lose
+    this.showFact()
   }
 
   win() {
@@ -177,6 +182,16 @@ export default class extends Controller {
     this.flagCount = this.minesValue
     this.updateMinesLeft()
     this.statusTarget.textContent = this.labelsValue.win
+    this.showFact()
+  }
+
+  // One real aggregate fact per finished game — numbers only, no geometry.
+  showFact() {
+    const facts = this.labelsValue.facts
+    if (!this.hasFactTarget || !facts || facts.length === 0) return
+    this.factIndex = ((this.factIndex ?? Math.floor(Math.random() * facts.length)) + 1) % facts.length
+    this.factTarget.textContent = facts[this.factIndex]
+    this.factTarget.classList.remove("hidden")
   }
 
   startTimer() {

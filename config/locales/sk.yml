@@ -1009,3 +1009,8 @@ sk:
     lose: Bum! Skús to znova.
     hint: Kliknutie odkryje políčko, pravé tlačidlo alebo dlhšie podržanie umiestni vlajku. Prvé kliknutie je vždy bezpečné.
     back_home: Domov
+    density_note: Počet mín na hracom poli odráža skutočné štatistiky — v snímke údajov z roku 2024 má región %{name} zhruba %{km2} km² oblastí podozrivých z výskytu mín v okruhu 30 km.
+    fact_country: "Realita: zhruba %{km2} km² Bosny a Hercegoviny je stále označených ako podozrivých z výskytu mín (BHMAC)."
+    fact_region: "Realita: región %{name} má zhruba %{km2} km² oblastí podozrivých z výskytu mín v okruhu 30 km (snímka 2024)."
+    fact_areas: "Realita: snímka údajov obsahuje %{count} zaznamenaných záznamov oblastí podozrivých z výskytu mín v BiH."
+    fact_official: "Skutočné informácie nájdete v oficiálnej aplikácii „BH Mine Suspected Areas“ a u BHMAC: bhmac.org, +387 33 253 800."

@@ -1019,3 +1019,8 @@ nl:
     lose: Boem! Probeer opnieuw.
     hint: Klikken onthult een vakje, rechtsklikken of lang indrukken plaatst een vlag. De eerste klik is altijd veilig.
     back_home: Home
+    density_note: Het aantal mijnen op het bord weerspiegelt echte statistieken — in de datamomentopname van 2024 heeft de regio %{name} ongeveer %{km2} km² mijnverdacht gebied binnen 30 km.
+    fact_country: "Realiteit: ongeveer %{km2} km² van Bosnië en Herzegovina is nog steeds gemarkeerd als mijnverdacht (BHMAC)."
+    fact_region: "Realiteit: de regio %{name} heeft ongeveer %{km2} km² mijnverdacht gebied binnen 30 km (momentopname 2024)."
+    fact_areas: "Realiteit: de momentopname bevat %{count} geregistreerde mijnverdachte vermeldingen in BiH."
+    fact_official: "Gebruik voor echte informatie de officiële app 'BH Mine Suspected Areas' en BHMAC: bhmac.org, +387 33 253 800."

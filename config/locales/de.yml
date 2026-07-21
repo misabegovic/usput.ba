@@ -1119,3 +1119,8 @@ de:
     lose: Bumm! Versuch es noch einmal.
     hint: Klick deckt ein Feld auf, Rechtsklick oder langes Drücken setzt eine Flagge. Der erste Klick ist immer sicher.
     back_home: Startseite
+    density_note: Die Minenanzahl auf dem Feld spiegelt echte Statistik wider — im Datenstand von 2024 hat die Region %{name} etwa %{km2} km² minenverdächtige Gebiete im Umkreis von 30 km.
+    fact_country: "Realität: Rund %{km2} km² von Bosnien und Herzegowina gelten weiterhin als minenverdächtig (BHMAC)."
+    fact_region: "Realität: Die Region %{name} hat etwa %{km2} km² minenverdächtige Gebiete im Umkreis von 30 km (Datenstand 2024)."
+    fact_areas: "Realität: Der Datenstand enthält %{count} erfasste minenverdächtige Einträge in BiH."
+    fact_official: "Für echte Informationen nutzen Sie die offizielle App „BH Mine Suspected Areas“ und BHMAC: bhmac.org, +387 33 253 800."

@@ -4,13 +4,17 @@ require "net/http"
 # Bosnia and Herzegovina. Mine placement is random and fictional, generated
 # client-side per game; this feature has no connection to any real mine data.
 class MinolovacController < ApplicationController
+  # suspected_km2: aggregate area of mine-suspected polygons within 30 km of
+  # the region center, computed OFFLINE from the vendored 2024-07-31 snapshot.
+  # Static by design — the public game must never query mine tables at
+  # runtime, and only these coarse aggregates (no geometry) reach users.
   REGIONS = {
-    "sarajevo" => { name: "Sarajevo", lat: 43.8563, lon: 18.4131, zoom: 12 },
-    "mostar" => { name: "Mostar", lat: 43.3438, lon: 17.8078, zoom: 12 },
-    "banja-luka" => { name: "Banja Luka", lat: 44.7722, lon: 17.1910, zoom: 12 },
-    "jajce" => { name: "Jajce", lat: 44.3420, lon: 17.2703, zoom: 13 },
-    "una" => { name: "NP Una", lat: 44.8169, lon: 15.8708, zoom: 11 },
-    "sutjeska" => { name: "NP Sutjeska", lat: 43.3350, lon: 18.6900, zoom: 11 }
+    "sarajevo" => { name: "Sarajevo", lat: 43.8563, lon: 18.4131, zoom: 12, suspected_km2: 102.3 },
+    "mostar" => { name: "Mostar", lat: 43.3438, lon: 17.8078, zoom: 12, suspected_km2: 41.8 },
+    "banja-luka" => { name: "Banja Luka", lat: 44.7722, lon: 17.1910, zoom: 12, suspected_km2: 5.2 },
+    "jajce" => { name: "Jajce", lat: 44.3420, lon: 17.2703, zoom: 13, suspected_km2: 62.4 },
+    "una" => { name: "NP Una", lat: 44.8169, lon: 15.8708, zoom: 11, suspected_km2: 51.9 },
+    "sutjeska" => { name: "NP Sutjeska", lat: 43.3350, lon: 18.6900, zoom: 11, suspected_km2: 3.7 }
   }.freeze
 
   DIFFICULTIES = {
@@ -18,6 +22,19 @@ class MinolovacController < ApplicationController
     "medium" => { rows: 12, cols: 12, mines: 24 },
     "hard" => { rows: 14, cols: 14, mines: 40 }
   }.freeze
+
+  # Official BHMAC country-wide figure (822.87 km², rounded) — the one number
+  # not derived from our snapshot.
+  COUNTRY_SUSPECTED_KM2 = 823
+  SNAPSHOT_AREA_COUNT = 11_068
+
+  # Mine density mirrors the region's real contamination statistics:
+  # 0.75x the base count for the least-affected regions up to 1.25x for the
+  # most-affected, capped at 30% of the board.
+  def self.mines_for(difficulty, region)
+    factor = 0.75 + 0.5 * [ [ region[:suspected_km2] / 100.0, 1.0 ].min, 0.05 ].max
+    [ (difficulty[:mines] * factor).round, difficulty[:rows] * difficulty[:cols] * 3 / 10 ].min
+  end
 
   MAP_CACHE_TTL = 30.days
 
@@ -30,6 +47,7 @@ class MinolovacController < ApplicationController
     @region = REGIONS[@region_slug]
     @level = DIFFICULTIES.key?(params[:level]) ? params[:level] : "easy"
     @difficulty = DIFFICULTIES[@level]
+    @mines = self.class.mines_for(@difficulty, @region)
   end
 
   # Proxies the Geoapify static map server-side so the API key never reaches

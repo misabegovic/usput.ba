@@ -1194,3 +1194,8 @@ fr:
     lose: Boum ! Réessayez.
     hint: Un clic révèle une case, un clic droit ou un appui long place un drapeau. Le premier clic est toujours sûr.
     back_home: Accueil
+    density_note: Le nombre de mines sur la grille reflète des statistiques réelles — dans l'instantané de données de 2024, la région de %{name} compte environ %{km2} km² de zones suspectées de mines dans un rayon de 30 km.
+    fact_country: "Réalité : environ %{km2} km² de la Bosnie-Herzégovine sont toujours classés comme suspectés de mines (BHMAC)."
+    fact_region: "Réalité : la région de %{name} compte environ %{km2} km² de zones suspectées de mines dans un rayon de 30 km (instantané 2024)."
+    fact_areas: "Réalité : l'instantané de données contient %{count} entrées de zones suspectées de mines en BiH."
+    fact_official: "Pour de vraies informations, utilisez l'application officielle « BH Mine Suspected Areas » et le BHMAC : bhmac.org, +387 33 253 800."

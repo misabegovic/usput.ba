@@ -1044,3 +1044,8 @@ hr:
     lose: Bum! Pokušaj ponovno.
     hint: Klik otkriva polje, desni klik ili dulji pritisak postavlja zastavicu. Prvi klik je uvijek siguran.
     back_home: Početna
+    density_note: Broj mina na ploči odražava stvarnu statistiku — u snimci podataka (2024) regija %{name} ima oko %{km2} km² minski sumnjivih područja u krugu od 30 km.
+    fact_country: "Stvarnost: u BiH je i dalje oko %{km2} km² označeno kao minski sumnjivo područje (BHMAC)."
+    fact_region: "Stvarnost: regija %{name} ima oko %{km2} km² minski sumnjivih područja u krugu od 30 km (snimka 2024)."
+    fact_areas: "Stvarnost: snimka podataka sadrži %{count} evidentiranih minski sumnjivih zapisa u BiH."
+    fact_official: "Za stvarne informacije koristi službenu aplikaciju „BH Mine Suspected Areas“ i BHMAC: bhmac.org, 033 253-800."

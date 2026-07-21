@@ -1065,3 +1065,8 @@ pt:
     lose: Bum! Tenta novamente.
     hint: Um clique revela uma casa, clique direito ou pressão longa coloca uma bandeira. O primeiro clique é sempre seguro.
     back_home: Início
+    density_note: O número de minas no tabuleiro reflete estatísticas reais — na captura de dados de 2024, a região de %{name} tem cerca de %{km2} km² de áreas suspeitas de minas num raio de 30 km.
+    fact_country: "Realidade: cerca de %{km2} km² da Bósnia e Herzegovina continuam marcados como suspeitos de minas (BHMAC)."
+    fact_region: "Realidade: a região de %{name} tem cerca de %{km2} km² de áreas suspeitas de minas num raio de 30 km (captura de 2024)."
+    fact_areas: "Realidade: a captura de dados contém %{count} registos de áreas suspeitas de minas na BiH."
+    fact_official: "Para informação real usa a aplicação oficial 'BH Mine Suspected Areas' e o BHMAC: bhmac.org, +387 33 253 800."

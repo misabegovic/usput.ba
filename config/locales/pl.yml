@@ -1019,3 +1019,8 @@ pl:
     lose: Bum! Spróbuj ponownie.
     hint: Kliknięcie odkrywa pole, prawy przycisk lub dłuższe przytrzymanie stawia flagę. Pierwsze kliknięcie jest zawsze bezpieczne.
     back_home: Strona główna
+    density_note: Liczba min na planszy odzwierciedla prawdziwe statystyki — w migawce danych z 2024 r. region %{name} ma około %{km2} km² obszarów podejrzanych o miny w promieniu 30 km.
+    fact_country: "Rzeczywistość: około %{km2} km² Bośni i Hercegowiny wciąż jest oznaczone jako podejrzane o miny (BHMAC)."
+    fact_region: "Rzeczywistość: region %{name} ma około %{km2} km² obszarów podejrzanych o miny w promieniu 30 km (migawka 2024)."
+    fact_areas: "Rzeczywistość: migawka danych zawiera %{count} zarejestrowanych wpisów obszarów podejrzanych o miny w BiH."
+    fact_official: "Po prawdziwe informacje sięgnij po oficjalną aplikację „BH Mine Suspected Areas” i BHMAC: bhmac.org, +387 33 253 800."

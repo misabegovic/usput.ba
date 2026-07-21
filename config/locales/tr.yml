@@ -1286,3 +1286,8 @@ tr:
     lose: Bum! Tekrar dene.
     hint: Tıklama bir kareyi açar, sağ tık veya uzun basma bayrak koyar. İlk tıklama her zaman güvenlidir.
     back_home: Ana sayfa
+    density_note: Tahtadaki mayın sayısı gerçek istatistikleri yansıtır — 2024 veri görüntüsünde %{name} bölgesinin 30 km çevresinde yaklaşık %{km2} km² mayın şüpheli alan bulunuyor.
+    fact_country: "Gerçek: Bosna-Hersek'in yaklaşık %{km2} km²'si hâlâ mayın şüpheli olarak işaretli (BHMAC)."
+    fact_region: "Gerçek: %{name} bölgesinin 30 km çevresinde yaklaşık %{km2} km² mayın şüpheli alan var (2024 görüntüsü)."
+    fact_areas: "Gerçek: veri görüntüsü BiH'te kayıtlı %{count} mayın şüpheli girdi içeriyor."
+    fact_official: "Gerçek bilgi için resmi 'BH Mine Suspected Areas' uygulamasını ve BHMAC'ı kullanın: bhmac.org, +387 33 253 800."

@@ -1553,4 +1553,8 @@ en:
     lose: Boom! Try again.
     hint: Click reveals a tile, right-click or long-press places a flag. The first click is always safe.
     back_home: Home
-
+    density_note: The number of mines on the board mirrors real statistics — in the 2024 data snapshot, the %{name} region has about %{km2} km² of mine-suspected areas within 30 km.
+    fact_country: "Reality: about %{km2} km² of Bosnia and Herzegovina is still marked as mine-suspected (BHMAC)."
+    fact_region: "Reality: the %{name} region has about %{km2} km² of mine-suspected areas within 30 km (2024 snapshot)."
+    fact_areas: "Reality: the data snapshot contains %{count} recorded mine-suspected entries in BiH."
+    fact_official: "For real information use the official 'BH Mine Suspected Areas' app and BHMAC: bhmac.org, +387 33 253 800."
