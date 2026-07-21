@@ -42,6 +42,12 @@ class Location < ApplicationRecord
   validates :lat, uniqueness: { scope: :lng, message: "i longitude kombinacija već postoji" }, allow_nil: true
   validates :video_url, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), message: "must be a valid URL" }, allow_blank: true
 
+  # Mine Checker hard-block (docs/mine_checker/SPEC.md §6): any coordinate
+  # change must pass the mine check. Fail-closed — stale data also blocks.
+  # The error message never reveals geometry or distances; match details go
+  # only to the internal MineCheckAudit log.
+  validate :must_pass_mine_check, if: :mine_check_required?
+
   # Callbacks
   # Sync relational data from JSON cache after creation (for backwards compatibility)
   after_create :sync_experience_types_from_pending, if: -> { @pending_experience_types.present? }
@@ -615,6 +621,21 @@ class Location < ApplicationRecord
   def coordinates_must_be_complete
     if lat.present? != lng.present?
       errors.add(:base, "Both latitude and longitude must be provided, or neither")
+    end
+  end
+  private
+
+  def mine_check_required?
+    lat.present? && lng.present? && (lat_changed? || lng_changed?)
+  end
+
+  def must_pass_mine_check
+    result = MineChecker::PointCheck.call(lat:, lon: lng, content: self)
+    case result.verdict
+    when :blocked
+      errors.add(:base, I18n.t("mine_check.blocked", data_as_of: result.data_as_of))
+    when :data_stale
+      errors.add(:base, I18n.t("mine_check.data_stale"))
     end
   end
 end

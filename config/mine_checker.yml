@@ -1,0 +1,24 @@
+# Mine Checker configuration (docs/mine_checker/SPEC.md §4).
+#
+# NEVER tune these values in code — only here (or via Rails credentials
+# override under `mine_checker:`). Lowering buffer_m below 300 requires
+# BHMAC-grade data (Phase 2) per the SPEC.
+default: &default
+  # Distance in meters from a suspected area that blocks content creation.
+  # 500 m = 1:50.000 map positional error + device GPS error + margin.
+  buffer_m: 500
+  # After this many days past data_as_of the checker fails CLOSED:
+  # every in-coverage check returns :data_stale and content is blocked.
+  staleness_days: 365
+  # Checks run only inside this bbox (lon_min, lat_min, lon_max, lat_max).
+  # Content outside BiH returns :out_of_coverage and skips the check.
+  bih_bbox: [15.5, 42.4, 19.7, 45.4]
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default
