@@ -1,11 +1,16 @@
 require "test_helper"
-require_relative "../support/mine_checker_fixtures"
+require_relative "../support/static_artifacts"
 
 # SPEC §6/§8 — the hard-block validation on Location. The user-facing error
-# must never reveal geometry or distances.
+# must never reveal geometry or internal details.
 class LocationMineCheckTest < ActiveSupport::TestCase
   setup do
-    @points = MineCheckerFixtures.install!
+    @dir = Rails.root.join("tmp/location_mine_test").to_s
+    @points = StaticArtifacts.install!(dir: @dir)
+  end
+
+  teardown do
+    FileUtils.rm_rf(@dir)
   end
 
   test "creating a location inside a suspected area is invalid" do
@@ -13,9 +18,8 @@ class LocationMineCheckTest < ActiveSupport::TestCase
     assert_not location.valid?
     message = location.errors[:base].join(" ")
     assert_match(/sigurnosnih|safety/i, message)
-    # No geometry/distance leakage:
     refute_match(/\d+(\.\d+)?\s*m\b/, message)
-    refute_match(/2585/, message)
+    refute_match(/band|danger/i, message)
   end
 
   test "creating a clear location passes and is audited" do
@@ -26,12 +30,19 @@ class LocationMineCheckTest < ActiveSupport::TestCase
     assert_equal "no_known_intersections", MineCheckAudit.order(:id).last.verdict
   end
 
-  test "stale data blocks creation (fail-closed)" do
+  test "old data does not block a clear location" do
     travel_to Date.current + MineChecker::Config.staleness_days.days + 1.day do
-      location = Location.new(name: "Zastarjeli podaci", lat: @points[:clear][:lat], lng: @points[:clear][:lon])
-      assert_not location.valid?
-      assert_match(/BHMAC/, location.errors[:base].join(" "))
+      location = Location.new(name: "Stariji podaci", lat: @points[:clear][:lat], lng: @points[:clear][:lon])
+      assert location.valid?, location.errors.full_messages.join("; ")
     end
+  end
+
+  test "missing artifacts block creation (fail-closed)" do
+    ENV["MINE_STATIC_DIR"] = Rails.root.join("tmp/missing_for_location").to_s
+    MineChecker::StaticIndex.reset!
+    location = Location.new(name: "Bez podataka", lat: @points[:clear][:lat], lng: @points[:clear][:lon])
+    assert_not location.valid?
+    assert_match(/BHMAC/, location.errors[:base].join(" "))
   end
 
   test "locations without coordinates skip the check" do

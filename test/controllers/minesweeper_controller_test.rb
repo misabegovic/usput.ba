@@ -1,12 +1,20 @@
 require "test_helper"
-require_relative "../support/mine_checker_fixtures"
+require_relative "../support/static_artifacts"
 
-# Educational minesweeper: geographic board, mine cells derived from the
-# recorded suspected areas, playable only where the data records something.
+# Educational minesweeper on the static engine: geographic board, mine cells
+# from the recorded areas, playable only where the data records something.
 class MinesweeperControllerTest < ActionDispatch::IntegrationTest
-  test "board at an affected location derives mine cells from real data" do
-    points = MineCheckerFixtures.install!
-    get minesweeper_path(lat: points[:inside][:lat], lon: points[:inside][:lon])
+  setup do
+    @dir = Rails.root.join("tmp/minesweeper_test").to_s
+    @points = StaticArtifacts.install!(dir: @dir)
+  end
+
+  teardown do
+    FileUtils.rm_rf(@dir)
+  end
+
+  test "board at an affected location derives mine cells from the data" do
+    get minesweeper_path(lat: @points[:inside][:lat], lon: @points[:inside][:lon])
     assert_response :success
     mines_attr = response.body[/data-minesweeper-mines-value="([^"]*)"/, 1]
     assert mines_attr.present?, "board must embed its mine cells"
@@ -17,8 +25,7 @@ class MinesweeperControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "board with no recorded areas is not playable" do
-    points = MineCheckerFixtures.install!
-    get minesweeper_path(lat: points[:clear][:lat], lon: points[:clear][:lon])
+    get minesweeper_path(lat: @points[:clear][:lat], lon: @points[:clear][:lon])
     assert_response :success
     assert_match I18n.t("minesweeper.not_suspicious"), response.body
     refute_match "data-minesweeper-mines-value", response.body
@@ -32,9 +39,8 @@ class MinesweeperControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "every difficulty renders" do
-    points = MineCheckerFixtures.install!
     MinesweeperController::DIFFICULTIES.each_key do |level|
-      get minesweeper_path(lat: points[:inside][:lat], lon: points[:inside][:lon], level: level)
+      get minesweeper_path(lat: @points[:inside][:lat], lon: @points[:inside][:lon], level: level)
       assert_response :success, "level #{level} failed"
     end
   end

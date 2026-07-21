@@ -1,29 +1,9 @@
-# Mine Checker Phase 1 (docs/mine_checker/SPEC.md §4, §6).
-#
-# mine_areas holds the EUFOR MICC / BHMAC-derived layers. `geography` (not
-# geometry) so ST_DWithin works in meters without reprojection. All four
-# layers are imported, but ONLY kind='suspected' participates in verdicts —
-# cleared/lifted/incident are informational (Phase 2 / admin insight) and
-# must never soften a verdict.
-#
-# mine_check_audits records every check (blocked and passed alike); `matches`
-# details never surface to end users — internal audit only.
+# Mine Checker audit log (docs/mine_checker/SPEC.md §6). Plain PostgreSQL —
+# all spatial work happens in the static engine (precomputed artifacts);
+# this table records every check for internal accountability. Match details
+# never surface to end users.
 class CreateMineCheckerTables < ActiveRecord::Migration[8.1]
   def change
-    enable_extension "postgis" unless extension_enabled?("postgis")
-
-    create_table :mine_areas do |t|
-      t.string :kind, null: false # suspected | cleared | lifted | incident
-      t.column :geom, "geography(Geometry,4326)", null: false
-      t.string :source, null: false
-      t.string :file_id # JOG sheet, e.g. "2585-III"
-      t.date :data_as_of, null: false
-      t.datetime :imported_at, null: false
-      t.timestamps
-    end
-    add_index :mine_areas, :geom, using: :gist
-    add_index :mine_areas, :kind
-
     create_table :mine_check_audits do |t|
       t.string :content_type
       t.bigint :content_id

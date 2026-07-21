@@ -56,9 +56,6 @@ GEM
       activemodel (= 8.1.1)
       activesupport (= 8.1.1)
       timeout (>= 0.4.0)
-    activerecord-postgis-adapter (11.1.1)
-      activerecord (~> 8.1.0)
-      rgeo-activerecord (~> 8.1.0)
     activestorage (8.1.1)
       actionpack (= 8.1.1)
       activejob (= 8.1.1)
@@ -254,7 +251,6 @@ GEM
     mini_mime (1.1.5)
     minitest (5.27.0)
     msgpack (1.8.0)
-    multi_json (1.21.1)
     multipart-post (2.4.1)
     neighbor (0.6.0)
       activerecord (>= 7.1)
@@ -370,13 +366,6 @@ GEM
     reline (0.6.3)
       io-console (~> 0.5)
     rexml (3.4.4)
-    rgeo (3.1.0)
-    rgeo-activerecord (8.1.0)
-      activerecord (>= 8.1, < 8.2)
-      rgeo (>= 3.0)
-    rgeo-geojson (2.2.0)
-      multi_json (~> 1.15)
-      rgeo (>= 1.0.0)
     rollbar (3.7.0)
     rubocop (1.82.1)
       json (~> 2.3)
@@ -527,7 +516,6 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
-  activerecord-postgis-adapter (~> 11.0)
   aws-sdk-s3
   bcrypt (~> 3.1.7)
   better_html
@@ -556,8 +544,6 @@ DEPENDENCIES
   puma (>= 5.0)
   rack-attack
   rails (= 8.1.1)
-  rgeo
-  rgeo-geojson
   rollbar
   rubocop-rails-omakase
   ruby_llm

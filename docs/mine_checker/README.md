@@ -7,8 +7,10 @@ u BiH. Unutar buffera → hard block. Vidi `SPEC.md` (izvor istine) i
 
 ## Tvrda pravila
 - Nikad "sigurno/safe" — jedini pozitivan ishod je `no_known_intersections`.
-- Fail-closed: bez podataka ili sa zastarjelim podacima interni check blokira
-  sav BiH geo-sadržaj.
+- Fail-closed SAMO za nedostajuće podatke: bez artefakata interni check
+  blokira sav BiH geo-sadržaj. STAROST podataka ne blokira (odluka
+  vlasnika, 2026-07-21 — minska slika se sporo mijenja); svaki odgovor
+  nosi datum snimka kao ogradu.
 - Cleared/lifted slojevi nikad ne ublažavaju verdict.
 - Geometrija i udaljenosti NIKAD ne izlaze prema korisnicima — samo grubi
   pojasevi (bands); detalji ostaju u internom audit logu.
@@ -49,80 +51,85 @@ gdje podaci nešto bilježe (prazna tabla → edukativna poruka); stranica
 nosi puni blok upozorenja (prazna ćelija ≠ siguran teren, snimak 2024,
 "nema druge šanse", nije za navigaciju, BHMAC + službena aplikacija).
 
-## Statička (no-DB) varijanta — paralelni engine za poređenje
+## Arhitektura: statički engine (bez baze)
 
-Pored PostGIS engine-a postoji i statički engine (`?engine=static` na
-`/mine-check` i `/minesweeper`), koji odgovara iz prekompajliranih
-bitmask rastera u `db/data/mine_checker/static/`:
+Odluka vlasnika (2026-07-21): sva runtime logika radi iz prekompajliranih
+artefakata u `db/data/mine_checker/static/` — aplikacija NEMA prostornu
+zavisnost (nema PostGIS-a, nema mine_areas tabele). U bazi ostaje samo
+`mine_check_audits` (običan Postgres) kao interni zapisnik provjera.
 
+Artefakti:
 - `inside.bin.gz` (50 m) — ćelije koje sijeku sumnjivo područje (tabla igre)
-- `danger.bin.gz` (100 m) — pojas ≤500 m
+- `danger.bin.gz` (100 m) — pojas ≤500 m (interni checker + javni band)
 - `caution.bin.gz` (200 m) — pojas ≤2 km
+- `overview.json.gz` — tačkice za nacionalni zum
+- `tiles/{tx}_{ty}.json.gz` — pojednostavljene granice po 0.25° pločama
 - `meta.json` — data_as_of, bbox, dimenzije mreža
 
 Svaka maska se gradi iz geometrija proširenih za band radius PLUS pola
 dijagonale ćelije, pa kvantizacija može pojas samo PROŠIRITI, nikad
-suziti (konzervativno svojstvo — pokriveno testovima i
-`mine_static:compare` taskom). Bez artefakata engine vraća `unavailable`
-(fail-closed).
+suziti (konzervativno svojstvo, pokriveno testovima). Bez artefakata sve
+pada u fail-closed (`unavailable` / `data_stale`).
+
+Izgradnja artefakata (offline, JEDINO mjesto gdje se koristi PostGIS —
+bilo koja privremena instanca, npr. `docker run postgis/postgis`):
 
 ```bash
-# Izgradnja artefakata (zahtijeva PostGIS bazu s importovanim podacima —
-# dio offline data-refresh lanca, prod ovo nikad ne izvršava)
-bin/rails mine_static:build
-
-# Poređenje engine-a na N nasumičnih tačaka (agreement matrica + timings)
-bin/rails "mine_static:compare[3000]"
+MINE_BUILD_DATABASE_URL=postgres://user:pass@host:port/scratch \
+DATA_AS_OF=2024-07-31 \
+ruby scripts/mine_checker/build_static_artifacts.rb
 ```
 
-Preostala DB-zavisnost pri punom prelasku na statički engine: crtanje
-granica na karti provjere (`/mine-check/areas` bbox upiti) i interni
-Phase-1 checker (Location validacija) i dalje koriste PostGIS.
+Verifikacija naspram vektorske istine rađena je 2026-07-21 na 3000
+nasumičnih tačaka: 97.5% identičnih pojaseva, SVA neslaganja u smjeru
+proširenja pojasa, nula nekonzervativnih; static p50 0.008 ms vs
+PostGIS p50 3.3 ms po provjeri.
 
 ## Komande
 
 ```bash
-# Import (obavezan DATA_AS_OF; datum vendored snapshota je u
-# db/data/mine_checker/DATA_AS_OF)
-bin/rails mine_data:import DATA_AS_OF=2024-07-31
-
 # Jednokratni audit postojećeg sadržaja (ništa se ne briše)
 bin/rails mine_data:audit_existing
 ```
 
-`db:seed` sam pokreće import (čita DATA_AS_OF marker) prije lokacija;
-lokacije koje check blokira seed PRESKAČE uz upozorenje — nikad ne zaobilazi.
+Seeds validiraju lokacije kroz statički engine; blokirane lokacije se
+PRESKAČU uz upozorenje — nikad se ne forsiraju.
 
-## Operativna stvarnost (2026-07-20)
+## Operativna stvarnost (2026-07-21)
 
 - Vendored snapshot je od **2024-07-31** → stariji od staleness praga
-  (365 dana) → **checker trenutno FAIL-CLOSED blokira sav BiH geo-sadržaj**
-  dok se ne importuju svježiji podaci. To je namjerno ponašanje.
+  (365 dana). Provjere NORMALNO rade (starost ne blokira — odluka
+  vlasnika); javni checker i igra prikazuju datum snimka i staleness
+  ogradu. Blokira jedino potpuno nedostajanje artefakata.
 - Refresh: `scripts/mine_checker/scrape_eufor_pdfs.py` + ekstrakcioni
-  pipeline (`pdf_to_svg.sh`, `detect_elements.ipynb`), pa `mine_data:import`
-  s novim `DATA_AS_OF`.
+  pipeline (`pdf_to_svg.sh`, `detect_elements.ipynb`), pa
+  `build_static_artifacts.rb` s novim `DATA_AS_OF` i commit artefakata.
 
 ## Implementacione napomene (odstupanja/preciziranja SPEC-a)
 
 1. **Nezatvoreni ringovi**: dio poligona u izvorniku nema zatvoren ring
-   (prva ≠ zadnja tačka) — import ih zatvara prije `ST_GeomFromText`.
+   (prva ≠ zadnja tačka) — builder ih zatvara prije `ST_GeomFromText`.
 2. **Zero-area poligoni**: 18 poligona sa ≥4 tačke kolabira u liniju/tačku
    nakon `ST_MakeValid` — tretiraju se kao degenerisani (buffer 100 m),
-   nikad se ne importuju "ravni".
+   nikad se ne učitavaju "ravni".
 3. **SPEC §8 offshore fixture**: navedena tačka (lon 16.0, lat 42.9) pada
    UNUTAR §4 bbox-a — bbox je autoritet (check se tamo izvršava, što je
    konzervativnije); testovi koriste stvarno-vanjsku tačku (14.5, 42.0).
-4. **Testni baseline**: test_helper prije svakog testa instalira mini svježi
-   suspected poligon u SW uglu bbox-a da obični testovi mogu kreirati BiH
-   sadržaj pod fail-closed režimom; mine-checker testovi ga pregaze svojim
-   fixture-ima izvedenim iz stvarnog dataseta.
+4. **Testni baseline**: test_helper usmjeri statički engine na sintetičke
+   svježe artefakte (`test/support/static_artifacts.rb` — čisti Ruby, bez
+   PostGIS-a) da obični testovi mogu kreirati BiH sadržaj pod fail-closed
+   režimom; mine testovi instaliraju vlastite sintetičke setove s tačno
+   poznatom istinom.
 
 ## Struktura
 
-- `app/services/mine_checker/` — Config, Result, BaseCheck, PointCheck, RouteCheck
-- `app/models/mine_area.rb`, `app/models/mine_check_audit.rb`
-- `lib/tasks/mine_data.rake` — import + audit_existing
+- `app/services/mine_checker/` — Config, Result, StaticIndex, BaseCheck,
+  PointCheck, RouteCheck (sve nad statičkim artefaktima)
+- `app/models/mine_check_audit.rb` — interni zapisnik (običan Postgres)
+- `lib/tasks/mine_audit.rake` — audit_existing
+- `scripts/mine_checker/build_static_artifacts.rb` — offline builder
+  (jedino mjesto s PostGIS-om)
 - `config/mine_checker.yml` — buffer_m / staleness_days / bih_bbox (nikad u kodu)
-- `db/data/mine_checker/` — GeoJSON snapshot + DATA_AS_OF marker
+- `db/data/mine_checker/` — GeoJSON snapshot (izvor) + `static/` artefakti
 - Hook: `Location#must_pass_mine_check` (poruke bez geometrije; detalji u
   `mine_check_audits`)

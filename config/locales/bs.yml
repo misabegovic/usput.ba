@@ -1305,7 +1305,7 @@ bs:
   mine_check:
     disclaimer: "Provjera se vrši prema posljednje dostupnim podacima o minski sumnjivim područjima (%{data_as_of}). Odsustvo poznatih presjeka NIJE garancija da je područje bez mina. Za ažurne informacije obratite se BHMAC-u: 033/253-800."
     blocked: "Lokacija ne može biti prihvaćena iz sigurnosnih razloga (blizina minski sumnjivog područja prema podacima od %{data_as_of})."
-    data_stale: "Provjera minske sigurnosti trenutno nije moguća (podaci su zastarjeli), pa lokacija ne može biti prihvaćena. Za informacije o minskoj situaciji obratite se BHMAC-u: 033/253-800."
+    data_stale: "Provjera minske sigurnosti trenutno nije moguća (nema podataka), pa lokacija ne može biti prihvaćena. Za informacije o minskoj situaciji obratite se BHMAC-u: 033/253-800."
     emergency: "Policija 122 · Civilna zaštita 121 · BHMAC 033/253-800"
 
   minesweeper:

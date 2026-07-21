@@ -1,9 +1,9 @@
 require "zlib"
 
 module MineChecker
-  # No-database engine: answers point-band, board-cell and aggregate queries
-  # from precomputed bitmask rasters (built by `mine_static:build` from the
-  # PostGIS dataset — see docs/mine_checker/README.md). All masks are dilated
+  # No-database engine: answers point-band, board-cell, overlay and
+  # aggregate queries from precomputed artifacts (built offline by
+  # scripts/mine_checker/build_static_artifacts.rb). All masks are dilated
   # by their cell half-diagonal at build time, so raster quantization can only
   # err toward the MORE dangerous answer, never the less dangerous one.
   class StaticIndex
@@ -103,7 +103,72 @@ module MineChecker
       (count * cell_km2).round(1)
     end
 
+    # Raw gzipped-JSON artifacts for the overlay endpoints.
+    def overview_json
+      return nil unless available?
+
+      @overview_json ||= Zlib.gunzip(File.binread(File.join(@dir, "overview.json.gz")))
+    end
+
+    # Merged, deduplicated features for a viewport from pre-built tiles.
+    def tile_features(west, south, east, north)
+      return nil unless available?
+
+      tile_deg = @meta["tile_deg"]
+      bbox_west, bbox_south, = @meta["bbox"]
+      tx_range = (((west - bbox_west) / tile_deg).floor)..(((east - bbox_west) / tile_deg).floor)
+      ty_range = (((south - bbox_south) / tile_deg).floor)..(((north - bbox_south) / tile_deg).floor)
+      features = []
+      seen = Set.new
+      truncated = false
+      tx_range.each do |tx|
+        ty_range.each do |ty|
+          tile = load_tile(tx, ty)
+          next unless tile
+
+          truncated ||= tile["truncated"]
+          tile["features"].each do |f|
+            key = f["geometry"].hash
+            next if seen.include?(key)
+
+            seen << key
+            features << f
+          end
+        end
+      end
+      { "type" => "FeatureCollection", "truncated" => truncated, "features" => features }
+    end
+
+    # True if the segment passes through any danger-mask cell — exact
+    # supercover traversal of the grid, no sampling gaps.
+    def danger_on_segment?(lat1, lon1, lat2, lon2)
+      return false unless available?
+
+      grid = @meta["grids"]["danger"]
+      r1 = row_for(grid, lat1)
+      c1 = col_for(grid, lon1)
+      r2 = row_for(grid, lat2)
+      c2 = col_for(grid, lon2)
+      steps = [ (r2 - r1).abs, (c2 - c1).abs, 1 ].max * 2
+      0.upto(steps) do |i|
+        t = i.to_f / steps
+        r = (r1 + (r2 - r1) * t).round
+        c = (c1 + (c2 - c1) * t).round
+        next if r.negative? || c.negative? || r >= grid["rows"] || c >= grid["cols"]
+        return true if bit_set_in?("danger", grid, r, c)
+      end
+      false
+    end
+
     private
+
+    def load_tile(tx, ty)
+      @tiles ||= {}
+      return @tiles[[ tx, ty ]] if @tiles.key?([ tx, ty ])
+
+      path = File.join(@dir, "tiles", "#{tx}_#{ty}.json.gz")
+      @tiles[[ tx, ty ]] = File.exist?(path) ? JSON.parse(Zlib.gunzip(File.binread(path))) : nil
+    end
 
     def bbox_contains?(lat, lon)
       west, south, east, north = @meta["bbox"]

@@ -1,24 +1,27 @@
 require "test_helper"
-require_relative "../../support/mine_checker_fixtures"
+require_relative "../../support/static_artifacts"
 
-# SPEC §8 — route checks. The crucial case: a segment that crosses a buffer
-# blocks even when both endpoints are individually clear.
+# SPEC §8 — route checks. The crucial case: a segment that crosses the
+# danger band blocks even when both endpoints are individually clear.
 class MineChecker::RouteCheckTest < ActiveSupport::TestCase
   setup do
-    @points = MineCheckerFixtures.install!
+    @dir = Rails.root.join("tmp/route_check_test").to_s
+    @points = StaticArtifacts.install!(dir: @dir)
+    @area = StaticArtifacts::TEST_AREA
   end
 
-  test "route whose segment crosses a suspected area blocks despite clear endpoints" do
-    inside = @points[:inside]
-    west = { lat: inside[:lat], lon: inside[:lon] - 0.15 }
-    east = { lat: inside[:lat], lon: inside[:lon] + 0.15 }
-    # Endpoints individually clear of the fixture polygon (>buffer away):
-    assert_operator MineCheckerFixtures.distance_to_rich(ActiveRecord::Base.connection, west),
-                    :>, MineChecker::Config.buffer_m
-    assert_operator MineCheckerFixtures.distance_to_rich(ActiveRecord::Base.connection, east),
-                    :>, MineChecker::Config.buffer_m
+  teardown do
+    FileUtils.rm_rf(@dir)
+  end
 
-    result = MineChecker::RouteCheck.call(points: [ [ west[:lat], west[:lon] ], [ east[:lat], east[:lon] ] ])
+  test "route whose segment crosses the danger band blocks despite clear endpoints" do
+    lat = (@area[:south] + @area[:north]) / 2.0
+    west_pt = [ lat, @area[:west] - 0.05 ]
+    east_pt = [ lat, @area[:east] + 0.05 ]
+    assert_equal :no_known_intersections, MineChecker::PointCheck.call(lat: west_pt[0], lon: west_pt[1]).verdict
+    assert_equal :no_known_intersections, MineChecker::PointCheck.call(lat: east_pt[0], lon: east_pt[1]).verdict
+
+    result = MineChecker::RouteCheck.call(points: [ west_pt, east_pt ])
     assert_equal :blocked, result.verdict
   end
 
@@ -34,11 +37,8 @@ class MineChecker::RouteCheckTest < ActiveSupport::TestCase
   end
 
   test "route transiting BiH between two out-of-bbox endpoints is still checked" do
-    inside = @points[:inside]
-    # Endpoints far west/east outside the bbox, line passes through the polygon.
-    result = MineChecker::RouteCheck.call(points: [
-      [ inside[:lat], 15.0 ], [ inside[:lat], inside[:lon] ], [ inside[:lat], 20.0 ]
-    ])
+    lat = (@area[:south] + @area[:north]) / 2.0
+    result = MineChecker::RouteCheck.call(points: [ [ lat, 15.0 ], [ lat, 20.0 ] ])
     assert_equal :blocked, result.verdict
   end
 
@@ -46,11 +46,11 @@ class MineChecker::RouteCheckTest < ActiveSupport::TestCase
     assert_raises(ArgumentError) { MineChecker::RouteCheck.call(points: [ [ 44.0, 17.0 ] ]) }
   end
 
-  test "stale data fails closed for routes too" do
+  test "old data keeps answering for routes — staleness does not block" do
     c = @points[:clear]
     travel_to Date.current + MineChecker::Config.staleness_days.days + 1.day do
       result = MineChecker::RouteCheck.call(points: [ [ c[:lat], c[:lon] ], [ c[:lat] + 0.01, c[:lon] ] ])
-      assert_equal :data_stale, result.verdict
+      assert_equal :no_known_intersections, result.verdict
     end
   end
 end

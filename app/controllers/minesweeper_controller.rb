@@ -44,7 +44,7 @@ class MinesweeperController < ApplicationController
       @region = {
         name: "#{lat.round(4)}, #{lon.round(4)}",
         lat: lat, lon: lon,
-        suspected_km2: params[:engine] == "static" ? MineChecker::StaticIndex.instance.suspected_km2_within(lat, lon, CUSTOM_RADIUS_M) : local_suspected_km2(lat, lon),
+        suspected_km2: MineChecker::StaticIndex.instance.suspected_km2_within(lat, lon, CUSTOM_RADIUS_M),
         scale: 15.0
       }
     elsif params[:region].present? && !REGIONS.key?(params[:region])
@@ -62,34 +62,13 @@ class MinesweeperController < ApplicationController
     @south = @region[:lat] - @difficulty[:rows] * @dlat / 2
     @west = @region[:lon] - @difficulty[:cols] * @dlon / 2
 
-    @engine = params[:engine] == "static" ? "static" : "db"
-    @mine_cells = @engine == "static" ? static_mine_cells : mine_cells
+    @mine_cells = static_mine_cells
     # Educational contract: no recorded areas on the board => nothing to
     # learn here => not playable. Pick a point on/near the red areas.
     @unplayable = @mine_cells.empty?
   end
 
   private
-
-  # One cell is a mine iff its geographic rectangle intersects a recorded
-  # suspected area — the board is a downsampling of the public overlay layer.
-  def mine_cells
-    cache_key = "minesweeper/board/#{@region[:lat].round(4)}/#{@region[:lon].round(4)}/#{@level}"
-    Rails.cache.fetch(cache_key, expires_in: 1.day) do
-      sql = ActiveRecord::Base.sanitize_sql([ <<~SQL, { rmax: @difficulty[:rows] - 1, cmax: @difficulty[:cols] - 1, south: @south, west: @west, dlat: @dlat, dlon: @dlon } ])
-        SELECT r, c
-        FROM generate_series(0, :rmax) AS r, generate_series(0, :cmax) AS c
-        WHERE EXISTS (
-          SELECT 1 FROM mine_areas
-          WHERE kind = 'suspected'
-            AND ST_Intersects(geom, ST_MakeEnvelope(
-              :west + c * :dlon, :south + r * :dlat,
-              :west + (c + 1) * :dlon, :south + (r + 1) * :dlat, 4326)::geography)
-        )
-      SQL
-      ActiveRecord::Base.connection.select_rows(sql).map { |r, c| [ r.to_i, c.to_i ] }
-    end
-  end
 
   def static_mine_cells
     MineChecker::StaticIndex.instance.mine_cells(
@@ -98,13 +77,6 @@ class MinesweeperController < ApplicationController
     )
   end
 
-  # Aggregate (km² within 5 km) for the educational facts. No geometry.
-  def local_suspected_km2(lat, lon)
-    (MineArea.suspected
-      .where("ST_DWithin(geom, ST_GeogFromText(:pt), :r)",
-             pt: "SRID=4326;POINT(#{lon} #{lat})", r: CUSTOM_RADIUS_M)
-      .sum(Arel.sql("ST_Area(geom)")) / 1_000_000.0).round(1)
-  end
 
   def bbox_contains?(lat, lon)
     west, south, east, north = MineChecker::Config.bih_bbox

@@ -13,7 +13,6 @@
 ActiveRecord::Schema[8.1].define(version: 2026_07_20_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
-  enable_extension "postgis"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
@@ -380,19 +379,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_20_120000) do
     t.index ["reviews_count"], name: "index_locations_on_reviews_count"
     t.index ["seasons"], name: "index_locations_on_seasons", using: :gin
     t.index ["uuid"], name: "index_locations_on_uuid", unique: true
-  end
-
-  create_table "mine_areas", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.date "data_as_of", null: false
-    t.string "file_id"
-    t.geography "geom", limit: {:srid=>4326, :type=>"geometry", :geographic=>true}, null: false
-    t.datetime "imported_at", null: false
-    t.string "kind", null: false
-    t.string "source", null: false
-    t.datetime "updated_at", null: false
-    t.index ["geom"], name: "index_mine_areas_on_geom", using: :gist
-    t.index ["kind"], name: "index_mine_areas_on_kind"
   end
 
   create_table "mine_check_audits", force: :cascade do |t|

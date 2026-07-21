@@ -1,9 +1,12 @@
-# Shared core for point/route mine checks (docs/mine_checker/SPEC.md §5).
-#
-# Design constraints encoded here, not just documented:
-# - Fail-closed: missing or stale data yields :data_stale, never a pass.
-# - Only kind='suspected' drives the verdict. Cleared/lifted layers must
-#   never soften it.
+# Shared core for point/route mine checks (docs/mine_checker/SPEC.md §5),
+# running against the static engine (MineChecker::StaticIndex) — no database
+# geometry involved. Design constraints encoded here, not just documented:
+# - Fail-closed on MISSING data: without artifacts the verdict is
+#   :data_stale (a block), never a pass. Old data does NOT block (owner
+#   decision 2026-07-21: the mine picture changes slowly) — checks run
+#   normally and every result carries the snapshot date as the caveat.
+# - The danger mask is built exclusively from the suspected layer, dilated
+#   conservatively; cleared/lifted layers never soften a verdict.
 # - Every check writes a MineCheckAudit row, passed and blocked alike.
 # - The only positive verdict is :no_known_intersections — never "safe".
 module MineChecker
@@ -22,48 +25,30 @@ module MineChecker
 
     private
 
-    # WKT of the geometry under test (subclass responsibility).
-    def wkt
-      raise NotImplementedError
-    end
-
     # True when the geometry lies entirely outside the BiH bbox.
     def out_of_coverage?
       raise NotImplementedError
     end
 
+    # True when the geometry touches the danger band (subclass responsibility).
+    def dangerous?
+      raise NotImplementedError
+    end
+
+    def index
+      StaticIndex.instance
+    end
+
     def perform
       return result(:out_of_coverage) if out_of_coverage?
 
-      as_of = MineArea.suspected.maximum(:data_as_of)
-      return result(:data_stale, data_as_of: as_of) if stale?(as_of)
+      as_of = index.available? ? index.data_as_of : nil
+      return result(:data_stale, data_as_of: as_of) if as_of.nil?
 
-      matches = suspected_matches
-      if matches.any?
-        result(:blocked, matches:, data_as_of: as_of)
+      if dangerous?
+        result(:blocked, matches: [ { band: "danger" } ], data_as_of: as_of)
       else
         result(:no_known_intersections, data_as_of: as_of)
-      end
-    end
-
-    # Fail-closed: no data at all counts as stale.
-    def stale?(as_of)
-      as_of.nil? || Date.current - as_of > Config.staleness_days
-    end
-
-    def suspected_matches
-      sql = <<~SQL
-        SELECT kind, file_id,
-               ST_Distance(geom, ST_GeogFromText(:wkt)) AS distance_m
-        FROM mine_areas
-        WHERE kind = 'suspected'
-          AND ST_DWithin(geom, ST_GeogFromText(:wkt), :buffer_m)
-        ORDER BY distance_m ASC
-      SQL
-      MineArea.connection.select_all(
-        ActiveRecord::Base.sanitize_sql([ sql, { wkt:, buffer_m: Config.buffer_m } ])
-      ).map do |row|
-        { kind: row["kind"], file_id: row["file_id"], distance_m: row["distance_m"].to_f.round(1) }
       end
     end
 
@@ -76,7 +61,7 @@ module MineChecker
       Result.new(
         verdict:,
         matches:,
-        data_as_of: data_as_of || MineArea.maximum(:data_as_of),
+        data_as_of: data_as_of || (index.available? ? index.data_as_of : nil),
         checked_at: Time.current
       )
     end

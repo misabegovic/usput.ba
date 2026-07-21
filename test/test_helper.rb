@@ -75,14 +75,12 @@ module ActiveSupport
     fixtures :all
 
     # Mine Checker is fail-closed: without fresh mine data every BiH location
-    # create/update is blocked. Install a minimal fresh baseline before each
-    # test so ordinary tests keep working; mine-checker tests overwrite it
-    # with their own derived fixtures. (docs/mine_checker/SPEC.md)
+    # create/update is blocked. Point the static engine at synthetic
+    # fresh-dated artifacts so ordinary tests keep working; mine-checker
+    # tests install their own artifact sets. (docs/mine_checker/SPEC.md)
     setup do
-      if defined?(MineArea) && MineArea.table_exists?
-        require_relative "support/mine_checker_fixtures"
-        MineCheckerFixtures.baseline!
-      end
+      require_relative "support/static_artifacts"
+      StaticArtifacts.use_default!
     end
 
     # Add more helper methods to be used by all tests here...

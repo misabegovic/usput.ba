@@ -5,7 +5,7 @@
 # - queue: Solid Queue for background jobs
 #
 default: &default
-  adapter: postgis
+  adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 

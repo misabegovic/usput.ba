@@ -1,19 +1,7 @@
 # Mine Checker (docs/mine_checker/SPEC.md): geo content is fail-closed —
-# creating BiH locations is blocked until the mine layers are imported, so
-# the import must run before any location seeds. DATA_AS_OF comes from the
-# marker file that ships next to the vendored snapshot.
-if defined?(MineArea) && MineArea.suspected.none?
-  marker = Rails.root.join("db/data/mine_checker/DATA_AS_OF")
-  if marker.exist?
-    ENV["DATA_AS_OF"] ||= marker.read.strip
-    puts "Seeding mine layers (data_as_of=#{ENV['DATA_AS_OF']})..."
-    Rails.application.load_tasks unless Rake::Task.task_defined?("mine_data:import")
-    Rake::Task["mine_data:import"].invoke
-  else
-    puts "WARNING: mine data files missing — BiH location seeds will be blocked (fail-closed)."
-  end
-end
-
+# BiH location seeds are validated against the static mine engine
+# (precomputed artifacts in db/data/mine_checker/static). Seeds that the
+# check blocks are SKIPPED with a warning, never forced through.
 # This file should ensure the existence of records required to run the application in every environment (production,
 # development, test). The code here should be idempotent so that it can be executed at any point in every environment.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
