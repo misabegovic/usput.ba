@@ -1307,3 +1307,21 @@ bs:
     blocked: "Lokacija ne može biti prihvaćena iz sigurnosnih razloga (blizina minski sumnjivog područja prema podacima od %{data_as_of})."
     data_stale: "Provjera minske sigurnosti trenutno nije moguća (podaci su zastarjeli), pa lokacija ne može biti prihvaćena. Za informacije o minskoj situaciji obratite se BHMAC-u: 033/253-800."
     emergency: "Policija 122 · Civilna zaštita 121 · BHMAC 033/253-800"
+
+  minolovac:
+    title: Minolovac
+    subtitle: Klasična igra otkrivanja polja na kartama bosanskohercegovačkih predjela.
+    disclaimer_title: Ovo je samo igra
+    disclaimer: Raspored mina u igri je izmišljen i potpuno nasumičan — svaka partija se generiše iznova i nema nikakve veze sa stvarnim minski sumnjivim područjima niti bilo kakvim stvarnim podacima.
+    awareness: Mine su u stvarnom svijetu ozbiljna opasnost. Za informacije o stvarnim minski sumnjivim područjima koristi isključivo službene izvore BHMAC-a (bhmac.org).
+    region: Predio
+    difficulty: Težina
+    level_easy: Lako
+    level_medium: Srednje
+    level_hard: Teško
+    restart: Nova igra
+    win: Bravo! Tabla je očišćena.
+    lose: Bum! Pokušaj ponovo.
+    hint: Klik otkriva polje, desni klik ili duži pritisak postavlja zastavicu. Prvi klik je uvijek siguran.
+    back_home: Početna
+

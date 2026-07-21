@@ -1269,3 +1269,20 @@ tr:
       pending_application: Küratör başvurunuz beklemede.
       view_application: Başvuruyu görüntüle
       apply_now: Şimdi başvur
+
+  minolovac:
+    title: Mayın Tarlası
+    subtitle: Bosna-Hersek haritaları üzerinde oynanan klasik kare açma oyunu.
+    disclaimer_title: Bu sadece bir oyun
+    disclaimer: Oyundaki mayın yerleşimi kurgusaldır ve tamamen rastgeledir — her oyun sıfırdan oluşturulur ve gerçek mayın şüpheli bölgelerle veya gerçek verilerle hiçbir bağlantısı yoktur.
+    awareness: Gerçek dünyada kara mayınları ciddi bir tehlikedir. Gerçek mayın şüpheli bölgeler hakkında bilgi için yalnızca resmi BHMAC kaynaklarına (bhmac.org) güvenin.
+    region: Bölge
+    difficulty: Zorluk
+    level_easy: Kolay
+    level_medium: Orta
+    level_hard: Zor
+    restart: Yeni oyun
+    win: Aferin! Alan temizlendi.
+    lose: Bum! Tekrar dene.
+    hint: Tıklama bir kareyi açar, sağ tık veya uzun basma bayrak koyar. İlk tıklama her zaman güvenlidir.
+    back_home: Ana sayfa

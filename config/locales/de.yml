@@ -1102,3 +1102,20 @@ de:
       submitted_at: Eingereicht
       reviewed_at: Geprüft
       feedback: Feedback
+
+  minolovac:
+    title: Minesweeper
+    subtitle: Das klassische Felder-Aufdecken-Spiel auf Kartenausschnitten von Bosnien und Herzegowina.
+    disclaimer_title: Dies ist nur ein Spiel
+    disclaimer: Die Minenplatzierung im Spiel ist fiktiv und völlig zufällig — jede Runde wird neu generiert und hat keinerlei Verbindung zu echten minenverdächtigen Gebieten oder echten Daten.
+    awareness: In der realen Welt sind Landminen eine ernste Gefahr. Informationen zu echten minenverdächtigen Gebieten erhalten Sie ausschließlich aus offiziellen BHMAC-Quellen (bhmac.org).
+    region: Region
+    difficulty: Schwierigkeit
+    level_easy: Leicht
+    level_medium: Mittel
+    level_hard: Schwer
+    restart: Neues Spiel
+    win: Gut gemacht! Feld geräumt.
+    lose: Bumm! Versuch es noch einmal.
+    hint: Klick deckt ein Feld auf, Rechtsklick oder langes Drücken setzt eine Flagge. Der erste Klick ist immer sicher.
+    back_home: Startseite

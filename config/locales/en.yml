@@ -1536,3 +1536,21 @@ en:
     blocked: "This location cannot be accepted for safety reasons (proximity to a mine-suspected area according to data from %{data_as_of})."
     data_stale: "The mine-safety check is currently unavailable (the data is stale), so this location cannot be accepted. For information on the mine situation contact BHMAC: +387 33 253 800."
     emergency: "Police 122 · Civil protection 121 · BHMAC +387 33 253 800"
+
+  minolovac:
+    title: Minesweeper
+    subtitle: The classic tile-clearing game played over map views of Bosnia and Herzegovina.
+    disclaimer_title: This is only a game
+    disclaimer: Mine placement in the game is fictional and completely random — every round is generated from scratch and has no connection whatsoever to real mine suspected areas or any real data.
+    awareness: In the real world, landmines are a serious danger. For information about real mine suspected areas, rely exclusively on official BHMAC sources (bhmac.org).
+    region: Region
+    difficulty: Difficulty
+    level_easy: Easy
+    level_medium: Medium
+    level_hard: Hard
+    restart: New game
+    win: Well done! Board cleared.
+    lose: Boom! Try again.
+    hint: Click reveals a tile, right-click or long-press places a flag. The first click is always safe.
+    back_home: Home
+

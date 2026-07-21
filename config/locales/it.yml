@@ -1093,3 +1093,20 @@ it:
       submitted_at: Inviato
       reviewed_at: Revisionato
       feedback: Feedback
+
+  minolovac:
+    title: Campo minato
+    subtitle: Il classico gioco di scoperta delle caselle su mappe della Bosnia ed Erzegovina.
+    disclaimer_title: Questo è solo un gioco
+    disclaimer: La disposizione delle mine nel gioco è fittizia e completamente casuale — ogni partita viene generata da zero e non ha alcun legame con reali aree sospette di mine né con dati reali.
+    awareness: Nel mondo reale le mine sono un pericolo serio. Per informazioni sulle reali aree sospette di mine affidati esclusivamente alle fonti ufficiali del BHMAC (bhmac.org).
+    region: Regione
+    difficulty: Difficoltà
+    level_easy: Facile
+    level_medium: Medio
+    level_hard: Difficile
+    restart: Nuova partita
+    win: Ben fatto! Campo ripulito.
+    lose: Bum! Riprova.
+    hint: Un clic rivela una casella, il clic destro o la pressione prolungata piazza una bandierina. Il primo clic è sempre sicuro.
+    back_home: Home

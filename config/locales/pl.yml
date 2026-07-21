@@ -1002,3 +1002,20 @@ pl:
       submitted_at: Wysłano
       reviewed_at: Sprawdzono
       feedback: Opinia
+
+  minolovac:
+    title: Saper
+    subtitle: Klasyczna gra w odkrywanie pól na mapach Bośni i Hercegowiny.
+    disclaimer_title: To tylko gra
+    disclaimer: Rozmieszczenie min w grze jest fikcyjne i całkowicie losowe — każda rozgrywka jest generowana od nowa i nie ma żadnego związku z prawdziwymi obszarami podejrzanymi o miny ani z prawdziwymi danymi.
+    awareness: W prawdziwym świecie miny lądowe to poważne zagrożenie. Informacji o prawdziwych obszarach podejrzanych o miny szukaj wyłącznie w oficjalnych źródłach BHMAC (bhmac.org).
+    region: Region
+    difficulty: Poziom trudności
+    level_easy: Łatwy
+    level_medium: Średni
+    level_hard: Trudny
+    restart: Nowa gra
+    win: Brawo! Plansza oczyszczona.
+    lose: Bum! Spróbuj ponownie.
+    hint: Kliknięcie odkrywa pole, prawy przycisk lub dłuższe przytrzymanie stawia flagę. Pierwsze kliknięcie jest zawsze bezpieczne.
+    back_home: Strona główna

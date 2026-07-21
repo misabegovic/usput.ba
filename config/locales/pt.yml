@@ -1048,3 +1048,20 @@ pt:
       submitted_at: Enviado
       reviewed_at: Revisado
       feedback: Feedback
+
+  minolovac:
+    title: Campo minado
+    subtitle: O clássico jogo de revelar casas sobre mapas da Bósnia e Herzegovina.
+    disclaimer_title: Isto é apenas um jogo
+    disclaimer: A colocação das minas no jogo é fictícia e completamente aleatória — cada partida é gerada do zero e não tem qualquer ligação com áreas reais suspeitas de minas nem com dados reais.
+    awareness: No mundo real, as minas terrestres são um perigo sério. Para informações sobre áreas reais suspeitas de minas, confie exclusivamente nas fontes oficiais do BHMAC (bhmac.org).
+    region: Região
+    difficulty: Dificuldade
+    level_easy: Fácil
+    level_medium: Médio
+    level_hard: Difícil
+    restart: Novo jogo
+    win: Muito bem! Campo limpo.
+    lose: Bum! Tenta novamente.
+    hint: Um clique revela uma casa, clique direito ou pressão longa coloca uma bandeira. O primeiro clique é sempre seguro.
+    back_home: Início

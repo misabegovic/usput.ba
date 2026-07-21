@@ -1002,3 +1002,20 @@ nl:
       submitted_at: Ingediend
       reviewed_at: Beoordeeld
       feedback: Feedback
+
+  minolovac:
+    title: Mijnenveger
+    subtitle: Het klassieke vakjes-vegen-spel op kaarten van Bosnië en Herzegovina.
+    disclaimer_title: Dit is slechts een spel
+    disclaimer: De plaatsing van mijnen in het spel is fictief en volledig willekeurig — elke ronde wordt opnieuw gegenereerd en heeft geen enkele connectie met echte mijnverdachte gebieden of echte gegevens.
+    awareness: In de echte wereld zijn landmijnen een serieus gevaar. Vertrouw voor informatie over echte mijnverdachte gebieden uitsluitend op officiële BHMAC-bronnen (bhmac.org).
+    region: Regio
+    difficulty: Moeilijkheid
+    level_easy: Makkelijk
+    level_medium: Gemiddeld
+    level_hard: Moeilijk
+    restart: Nieuw spel
+    win: Goed gedaan! Veld geveegd.
+    lose: Boem! Probeer opnieuw.
+    hint: Klikken onthult een vakje, rechtsklikken of lang indrukken plaatst een vlag. De eerste klik is altijd veilig.
+    back_home: Home

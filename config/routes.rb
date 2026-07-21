@@ -9,6 +9,10 @@ Rails.application.routes.draw do
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
+  # Minolovac mini-game (fictional random boards — no connection to real mine data)
+  get "minolovac", to: "minolovac#show", as: :minolovac
+  get "minolovac/mapa/:region", to: "minolovac#map", as: :minolovac_map
+
   # Static pages
   get "imprint", to: "pages#imprint", as: :imprint
   get "privacy", to: "pages#privacy", as: :privacy
