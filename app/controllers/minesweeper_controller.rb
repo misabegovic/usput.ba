@@ -44,7 +44,8 @@ class MinesweeperController < ApplicationController
       @region = {
         name: "#{lat.round(4)}, #{lon.round(4)}",
         lat: lat, lon: lon,
-        suspected_km2: local_suspected_km2(lat, lon), scale: 15.0
+        suspected_km2: params[:engine] == "static" ? MineChecker::StaticIndex.instance.suspected_km2_within(lat, lon, CUSTOM_RADIUS_M) : local_suspected_km2(lat, lon),
+        scale: 15.0
       }
     elsif params[:region].present? && !REGIONS.key?(params[:region])
       return redirect_to minesweeper_path
@@ -61,7 +62,8 @@ class MinesweeperController < ApplicationController
     @south = @region[:lat] - @difficulty[:rows] * @dlat / 2
     @west = @region[:lon] - @difficulty[:cols] * @dlon / 2
 
-    @mine_cells = mine_cells
+    @engine = params[:engine] == "static" ? "static" : "db"
+    @mine_cells = @engine == "static" ? static_mine_cells : mine_cells
     # Educational contract: no recorded areas on the board => nothing to
     # learn here => not playable. Pick a point on/near the red areas.
     @unplayable = @mine_cells.empty?
@@ -87,6 +89,13 @@ class MinesweeperController < ApplicationController
       SQL
       ActiveRecord::Base.connection.select_rows(sql).map { |r, c| [ r.to_i, c.to_i ] }
     end
+  end
+
+  def static_mine_cells
+    MineChecker::StaticIndex.instance.mine_cells(
+      south: @south, west: @west, dlat: @dlat, dlon: @dlon,
+      rows: @difficulty[:rows], cols: @difficulty[:cols]
+    )
   end
 
   # Aggregate (km² within 5 km) for the educational facts. No geometry.

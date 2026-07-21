@@ -49,6 +49,36 @@ gdje podaci nešto bilježe (prazna tabla → edukativna poruka); stranica
 nosi puni blok upozorenja (prazna ćelija ≠ siguran teren, snimak 2024,
 "nema druge šanse", nije za navigaciju, BHMAC + službena aplikacija).
 
+## Statička (no-DB) varijanta — paralelni engine za poređenje
+
+Pored PostGIS engine-a postoji i statički engine (`?engine=static` na
+`/mine-check` i `/minesweeper`), koji odgovara iz prekompajliranih
+bitmask rastera u `db/data/mine_checker/static/`:
+
+- `inside.bin.gz` (50 m) — ćelije koje sijeku sumnjivo područje (tabla igre)
+- `danger.bin.gz` (100 m) — pojas ≤500 m
+- `caution.bin.gz` (200 m) — pojas ≤2 km
+- `meta.json` — data_as_of, bbox, dimenzije mreža
+
+Svaka maska se gradi iz geometrija proširenih za band radius PLUS pola
+dijagonale ćelije, pa kvantizacija može pojas samo PROŠIRITI, nikad
+suziti (konzervativno svojstvo — pokriveno testovima i
+`mine_static:compare` taskom). Bez artefakata engine vraća `unavailable`
+(fail-closed).
+
+```bash
+# Izgradnja artefakata (zahtijeva PostGIS bazu s importovanim podacima —
+# dio offline data-refresh lanca, prod ovo nikad ne izvršava)
+bin/rails mine_static:build
+
+# Poređenje engine-a na N nasumičnih tačaka (agreement matrica + timings)
+bin/rails "mine_static:compare[3000]"
+```
+
+Preostala DB-zavisnost pri punom prelasku na statički engine: crtanje
+granica na karti provjere (`/mine-check/areas` bbox upiti) i interni
+Phase-1 checker (Location validacija) i dalje koriste PostGIS.
+
 ## Komande
 
 ```bash

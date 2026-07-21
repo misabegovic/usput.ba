@@ -15,7 +15,7 @@ const RESULT_BASE = "mt-4 rounded-xl border-2 px-4 py-3 text-sm font-medium"
 
 export default class extends Controller {
   static targets = ["map", "result", "lat", "lon", "playLink", "zoomHint"]
-  static values = { url: String, labels: Object, playUrl: String, areasUrl: String }
+  static values = { url: String, labels: Object, playUrl: String, areasUrl: String, engine: String }
 
   connect() {
     const L = window.L
@@ -102,7 +102,7 @@ export default class extends Controller {
       const response = await fetch(this.urlValue, {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-CSRF-Token": token },
-        body: JSON.stringify({ lat: lat, lon: lon })
+        body: JSON.stringify({ lat: lat, lon: lon, engine: this.engineValue })
       })
       if (!response.ok) throw new Error("bad response")
       const data = await response.json()
@@ -112,7 +112,7 @@ export default class extends Controller {
         this.playLinkTarget.classList.toggle("hidden", !playable)
         this.playLinkTarget.classList.toggle("inline-block", playable)
         if (playable) {
-          this.playLinkTarget.href = `${this.playUrlValue}?lat=${lat.toFixed(5)}&lon=${lon.toFixed(5)}`
+          this.playLinkTarget.href = `${this.playUrlValue}?lat=${lat.toFixed(5)}&lon=${lon.toFixed(5)}&engine=${this.engineValue}`
         }
       }
     } catch {

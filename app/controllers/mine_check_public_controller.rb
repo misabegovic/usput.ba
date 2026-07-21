@@ -8,8 +8,8 @@
 #   only ever adds caveats, it never suppresses a warning.
 # - Missing data fails closed: band "unavailable", pointing to BHMAC.
 class MineCheckPublicController < ApplicationController
-  DANGER_M = 500
-  CAUTION_M = 2000
+  DANGER_M = MineChecker::Bands::DANGER_M
+  CAUTION_M = MineChecker::Bands::CAUTION_M
 
   # Visual overlay (owner decision 2026-07-21): boundaries are generalized
   # (simplified ~40 m) and explicitly labeled approximate; no metadata
@@ -63,19 +63,27 @@ class MineCheckPublicController < ApplicationController
       return render json: { error: "invalid_coordinates" }, status: :unprocessable_entity
     end
 
-    data_as_of = MineArea.suspected.maximum(:data_as_of)
-    band =
-      if data_as_of.nil?
-        "unavailable"
-      elsif !bbox_contains?(lat, lon)
-        "out_of_coverage"
-      else
-        band_for(lat, lon)
-      end
+    engine = params[:engine] == "static" ? "static" : "db"
+    if engine == "static"
+      index = MineChecker::StaticIndex.instance
+      band = index.band_at(lat, lon)
+      data_as_of = index.data_as_of
+    else
+      data_as_of = MineArea.suspected.maximum(:data_as_of)
+      band =
+        if data_as_of.nil?
+          "unavailable"
+        elsif !bbox_contains?(lat, lon)
+          "out_of_coverage"
+        else
+          MineChecker::Bands.db_band_at(lat, lon)
+        end
+    end
 
-    audit(band, lat, lon, data_as_of)
+    audit(band, lat, lon, data_as_of, engine)
     render json: {
       band: band,
+      engine: engine,
       data_as_of: data_as_of&.iso8601,
       stale: data_as_of.nil? || data_as_of < MineChecker::Config.staleness_days.days.ago.to_date
     }
@@ -105,35 +113,17 @@ class MineCheckPublicController < ApplicationController
     end
   end
 
-  def band_for(lat, lon)
-    min_distance = MineArea.suspected
-      .where("ST_DWithin(geom, ST_GeogFromText(:pt), :radius)", pt: wkt(lat, lon), radius: CAUTION_M)
-      .pick(Arel.sql(ActiveRecord::Base.sanitize_sql([ "MIN(ST_Distance(geom, ST_GeogFromText(?)))", wkt(lat, lon) ])))
-
-    if min_distance.nil?
-      "no_known"
-    elsif min_distance <= DANGER_M
-      "danger"
-    else
-      "caution"
-    end
-  end
-
-  def wkt(lat, lon)
-    "SRID=4326;POINT(#{lon} #{lat})"
-  end
-
   def bbox_contains?(lat, lon)
     west, south, east, north = MineChecker::Config.bih_bbox
     lon.between?(west, east) && lat.between?(south, north)
   end
 
   # Exact coordinates go to the internal audit log only — never echoed back.
-  def audit(band, lat, lon, data_as_of)
+  def audit(band, lat, lon, data_as_of, engine)
     MineCheckAudit.create!(
       content_type: "PublicMineCheck",
       verdict: band,
-      matches: [ { lat: lat.round(5), lon: lon.round(5) } ],
+      matches: [ { lat: lat.round(5), lon: lon.round(5), engine: engine } ],
       data_as_of: data_as_of
     )
   rescue StandardError => e
