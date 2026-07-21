@@ -1315,3 +1315,5 @@ tr:
     no_gps: Konum kullanılamıyor — konum erişimine izin ver veya koordinatları elle gir.
     error: Kontrol başarısız oldu. Tekrar dene.
     play_here: 🎮 Bu konumda mayın tarlası oyna (kurgusal mayınlar)
+    areas_legend: "Kayıtlı mayın şüpheli bölgelerin yaklaşık sınırları (2024 görüntüsü). Tehlike, gösterilen şekillerin ÖTESİNE uzanabilir."
+    zoom_hint: "Bölgeleri görüntülemek için haritayı yakınlaştır."

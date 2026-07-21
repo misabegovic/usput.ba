@@ -30,6 +30,12 @@ Fail-safe svojstva javne provjere:
 - Rate limit: 30 provjera/min po IP (rack-attack) — otežava i pokušaje
   rekonstrukcije granica područja skeniranjem.
 - Svaka provjera se auditira (`content_type: PublicMineCheck`).
+- Vizuelni prikaz (odluka vlasnika, 2026-07-21): karta provjere prikazuje
+  POJEDNOSTAVLJENE (generalizovane ~40 m) granice sumnjivih područja za
+  trenutni viewport, uz legendu koja naglašava da su granice PRIBLIŽNE i
+  da se opasnost može protezati izvan prikazanih oblika. Metapodaci
+  (fileId itd.) se ne šalju; viewport je ograničen (max ~4°×3°), broj
+  oblika ograničen (800), endpoint keširan i rate-limitovan (60/min/IP).
 - **Preporuka ostaje**: prije javnog lansiranja koordinirati s BHMAC-om
   (vidi ADR-001); ovaj zapis dokumentira svjesnu odluku vlasnika.
 

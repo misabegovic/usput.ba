@@ -1048,3 +1048,5 @@ nl:
     no_gps: Locatie niet beschikbaar — sta locatietoegang toe of voer de coördinaten handmatig in.
     error: De controle is mislukt. Probeer opnieuw.
     play_here: 🎮 Speel mijnenveger op deze locatie (fictieve mijnen)
+    areas_legend: "Geschatte grenzen van geregistreerde mijnverdachte gebieden (momentopname 2024). Het gevaar kan zich TOT BUITEN de getoonde vormen uitstrekken."
+    zoom_hint: "Zoom in om de gebieden te tonen."

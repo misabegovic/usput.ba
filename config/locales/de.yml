@@ -1148,3 +1148,5 @@ de:
     no_gps: Standort nicht verfügbar — Standortzugriff erlauben oder Koordinaten manuell eingeben.
     error: Die Prüfung ist fehlgeschlagen. Versuchen Sie es erneut.
     play_here: 🎮 Minesweeper an diesem Ort spielen (fiktive Minen)
+    areas_legend: "Ungefähre Grenzen der erfassten minenverdächtigen Gebiete (Stand 2024). Die Gefahr kann ÜBER die gezeigten Formen hinausreichen."
+    zoom_hint: "Zoomen Sie hinein, um die Gebiete anzuzeigen."

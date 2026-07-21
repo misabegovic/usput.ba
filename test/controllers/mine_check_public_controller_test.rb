@@ -79,6 +79,22 @@ class MineCheckPublicControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+  test "areas returns generalized features for the viewport without metadata" do
+    inside = @points[:inside]
+    get mine_check_areas_path(west: inside[:lon] - 0.3, south: inside[:lat] - 0.3,
+                              east: inside[:lon] + 0.3, north: inside[:lat] + 0.3)
+    assert_response :success
+    body = response.parsed_body
+    assert body["features"].any?, "the fixture polygon must appear in its own viewport"
+    assert_equal({}, body["features"].first["properties"], "no metadata (fileId etc.) may leak")
+    refute_match(/2585/, response.body)
+  end
+
+  test "areas rejects an oversized viewport" do
+    get mine_check_areas_path(west: 15.0, south: 42.0, east: 20.0, north: 46.0)
+    assert_response :unprocessable_entity
+  end
+
   test "every check is audited with the band as verdict" do
     assert_difference -> { MineCheckAudit.count }, 1 do
       post mine_check_query_path, params: { lat: @points[:inside][:lat], lon: @points[:inside][:lon] }, as: :json

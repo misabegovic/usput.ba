@@ -1039,3 +1039,5 @@ sl:
     no_gps: Lokacija ni na voljo — dovoli dostop do lokacije ali ročno vnesi koordinate.
     error: Preverjanje ni uspelo. Poskusi znova.
     play_here: 🎮 Igraj minolovca na tej lokaciji (izmišljene mine)
+    areas_legend: "Približne meje zabeleženih območij, sumljivih zaradi min (posnetek 2024). Nevarnost lahko sega TUDI ONKRAJ prikazanih oblik."
+    zoom_hint: "Približaj zemljevid za prikaz območij."

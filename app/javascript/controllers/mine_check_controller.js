@@ -14,8 +14,8 @@ const BAND_STYLES = {
 const RESULT_BASE = "mt-4 rounded-xl border-2 px-4 py-3 text-sm font-medium"
 
 export default class extends Controller {
-  static targets = ["map", "result", "lat", "lon", "playLink"]
-  static values = { url: String, labels: Object, playUrl: String }
+  static targets = ["map", "result", "lat", "lon", "playLink", "zoomHint"]
+  static values = { url: String, labels: Object, playUrl: String, areasUrl: String }
 
   connect() {
     const L = window.L
@@ -25,6 +25,38 @@ export default class extends Controller {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(this.map)
     this.map.on("click", (e) => this.checkPoint(e.latlng.lat, e.latlng.lng))
+
+    // Overlay of recorded suspected areas — generalized boundaries, loaded
+    // per viewport once zoomed in far enough for an honest rendering.
+    this.areasLayer = L.geoJSON(null, {
+      style: { color: "#b91c1c", weight: 1, fillColor: "#dc2626", fillOpacity: 0.35 }
+    }).addTo(this.map)
+    this.map.on("moveend", () => this.loadAreas())
+    this.loadAreas()
+  }
+
+  async loadAreas() {
+    if (!this.hasAreasUrlValue) return
+    if (this.map.getZoom() < 9) {
+      this.areasLayer.clearLayers()
+      if (this.hasZoomHintTarget) this.zoomHintTarget.classList.remove("hidden")
+      return
+    }
+    if (this.hasZoomHintTarget) this.zoomHintTarget.classList.add("hidden")
+    const b = this.map.getBounds()
+    const params = new URLSearchParams({
+      west: b.getWest().toFixed(3), south: b.getSouth().toFixed(3),
+      east: b.getEast().toFixed(3), north: b.getNorth().toFixed(3)
+    })
+    try {
+      const response = await fetch(`${this.areasUrlValue}?${params}`)
+      if (!response.ok) return
+      const data = await response.json()
+      this.areasLayer.clearLayers()
+      this.areasLayer.addData(data)
+    } catch {
+      // overlay is best-effort; the check endpoint remains authoritative
+    }
   }
 
   disconnect() {

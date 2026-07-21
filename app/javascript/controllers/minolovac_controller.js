@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import "leaflet"
 
 // Classic minesweeper over a map backdrop. Mine placement is random and
 // fictional, generated in the browser per game — first click is always safe.
@@ -13,14 +14,32 @@ const NUMBER_COLORS = [
 
 export default class extends Controller {
   static targets = ["board", "mines", "timer", "status", "map", "fact"]
-  static values = { rows: Number, cols: Number, mines: Number, labels: Object }
+  static values = { rows: Number, cols: Number, mines: Number, labels: Object, lat: Number, lon: Number, zoom: Number }
 
   connect() {
+    this.initBackdrop()
     this.newGame()
   }
 
   disconnect() {
     this.stopTimer()
+    if (this.backdrop) this.backdrop.remove()
+  }
+
+  // Non-interactive OSM backdrop — purely scenery behind the fictional board.
+  initBackdrop() {
+    if (!this.hasMapTarget || !window.L) return
+    this.backdrop = window.L.map(this.mapTarget, {
+      center: [this.latValue, this.lonValue],
+      zoom: this.zoomValue,
+      zoomControl: false, dragging: false, scrollWheelZoom: false,
+      doubleClickZoom: false, boxZoom: false, keyboard: false,
+      touchZoom: false, attributionControl: true
+    })
+    window.L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 17,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(this.backdrop)
   }
 
   newGame() {
@@ -39,10 +58,6 @@ export default class extends Controller {
     }
     this.updateMinesLeft()
     this.buildBoard()
-  }
-
-  hideMap() {
-    this.mapTarget.classList.add("hidden")
   }
 
   buildBoard() {

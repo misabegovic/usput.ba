@@ -1094,3 +1094,5 @@ pt:
     no_gps: Localização indisponível — permite o acesso à localização ou introduz as coordenadas manualmente.
     error: A verificação falhou. Tenta novamente.
     play_here: 🎮 Joga ao campo minado nesta localização (minas fictícias)
+    areas_legend: "Limites aproximados das áreas registadas suspeitas de minas (captura 2024). O perigo pode estender-se PARA LÁ das formas mostradas."
+    zoom_hint: "Aproxima o mapa para mostrar as áreas."

@@ -1039,3 +1039,5 @@ cs:
     no_gps: Poloha není dostupná — povol přístup k poloze nebo zadej souřadnice ručně.
     error: Kontrola se nezdařila. Zkus to znovu.
     play_here: 🎮 Zahraj si miny na tomto místě (smyšlené miny)
+    areas_legend: "Přibližné hranice zaznamenaných oblastí podezřelých z výskytu min (snímek 2024). Nebezpečí může sahat I ZA zobrazené tvary."
+    zoom_hint: "Přibliž mapu pro zobrazení oblastí."

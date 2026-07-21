@@ -33,6 +33,7 @@
          data-controller="mine-check"
          data-mine-check-url-value="<%= mine_check_query_path %>"
          data-mine-check-play-url-value="<%= minolovac_path %>"
+         data-mine-check-areas-url-value="<%= mine_check_areas_path %>"
          data-mine-check-labels-value="<%= {
                checking: t("mine_check_public.checking"),
                danger: t("mine_check_public.band_danger"),
@@ -62,6 +63,11 @@
       <p class="mt-2 text-xs text-gray-500 dark:text-gray-400"><%= t("mine_check_public.map_hint") %></p>
 
       <div data-mine-check-target="map" class="mt-3 h-96 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 z-0"></div>
+      <p class="mt-2 text-xs text-gray-600 dark:text-gray-400">
+        <span class="inline-block w-3 h-3 rounded-sm bg-red-600/60 border border-red-700 align-middle"></span>
+        <%= t("mine_check_public.areas_legend") %>
+        <span data-mine-check-target="zoomHint" class="hidden font-medium"><%= t("mine_check_public.zoom_hint") %></span>
+      </p>
 
       <div data-mine-check-target="result" class="hidden" aria-live="polite"></div>
 

@@ -87,18 +87,4 @@ class MinolovacControllerTest < ActionDispatch::IntegrationTest
     )
     assert_match "data-minolovac-mines-value=\"#{expected}\"", response.body
   end
-
-  test "map is not found without an api key" do
-    original = Rails.application.config.geoapify.api_key
-    Rails.application.config.geoapify.api_key = nil
-    get minolovac_map_path(region: "sarajevo")
-    assert_response :not_found
-  ensure
-    Rails.application.config.geoapify.api_key = original
-  end
-
-  test "map with unknown region is not found" do
-    get minolovac_map_path(region: "atlantida")
-    assert_response :not_found
-  end
 end

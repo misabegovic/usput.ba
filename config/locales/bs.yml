@@ -1353,3 +1353,5 @@ bs:
     no_gps: Lokacija nije dostupna — dozvoli pristup lokaciji ili unesi koordinate ručno.
     error: Provjera nije uspjela. Pokušaj ponovo.
     play_here: 🎮 Igraj minolovac na ovoj lokaciji (izmišljene mine)
+    areas_legend: "Približne granice evidentiranih minski sumnjivih područja (snimak 2024). Opasnost se može protezati i IZVAN prikazanih oblika."
+    zoom_hint: "Približi kartu da se prikažu područja."

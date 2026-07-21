@@ -1048,3 +1048,5 @@ pl:
     no_gps: Lokalizacja niedostępna — zezwól na dostęp do lokalizacji lub wpisz współrzędne ręcznie.
     error: Sprawdzenie nie powiodło się. Spróbuj ponownie.
     play_here: 🎮 Zagraj w sapera w tej lokalizacji (fikcyjne miny)
+    areas_legend: "Przybliżone granice zarejestrowanych obszarów podejrzanych o miny (migawka 2024). Niebezpieczeństwo może sięgać POZA pokazane kształty."
+    zoom_hint: "Przybliż mapę, aby wyświetlić obszary."

@@ -122,6 +122,14 @@ class Rack::Attack
     end
   end
 
+  # Overlay tiles of generalized area boundaries — map panning is chatty,
+  # but sustained sweeping (bulk boundary scraping) gets cut off
+  throttle("mine-areas/ip", limit: 60, period: 1.minute) do |req|
+    if req.path == "/provjera-mina/areas"
+      req.ip
+    end
+  end
+
   # ----------------------------------------------------------------------------
   # Blocklist: Exploit probes and malicious requests
   # ----------------------------------------------------------------------------

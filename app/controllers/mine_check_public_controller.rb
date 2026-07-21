@@ -11,8 +11,47 @@ class MineCheckPublicController < ApplicationController
   DANGER_M = 500
   CAUTION_M = 2000
 
+  # Visual overlay (owner decision 2026-07-21): boundaries are generalized
+  # (simplified ~40 m) and explicitly labeled approximate; no metadata
+  # (fileId etc.) is included. Viewport span is capped and rate-limited.
+  AREAS_LIMIT = 800
+  AREAS_SIMPLIFY_TOLERANCE = 0.0004
+  AREAS_MAX_SPAN = { lon: 4.0, lat: 3.0 }.freeze
+
   def show
     @data_as_of = MineArea.suspected.maximum(:data_as_of)
+  end
+
+  def areas
+    west = params[:west].to_f
+    south = params[:south].to_f
+    east = params[:east].to_f
+    north = params[:north].to_f
+    unless west < east && south < north &&
+           (east - west) <= AREAS_MAX_SPAN[:lon] && (north - south) <= AREAS_MAX_SPAN[:lat]
+      return render json: { error: "invalid_bbox" }, status: :unprocessable_entity
+    end
+
+    key = "mine_check/areas/#{west.round(2)}/#{south.round(2)}/#{east.round(2)}/#{north.round(2)}"
+    payload = Rails.cache.fetch(key, expires_in: 1.day) do
+      sql = ActiveRecord::Base.sanitize_sql([ <<~SQL, { w: west, s: south, e: east, n: north, tol: AREAS_SIMPLIFY_TOLERANCE, lim: AREAS_LIMIT + 1 } ])
+        SELECT ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom::geometry, (:tol)::float8), 5)
+        FROM mine_areas
+        WHERE kind = 'suspected'
+          AND ST_Intersects(geom, ST_MakeEnvelope(:w, :s, :e, :n, 4326)::geography)
+        ORDER BY ST_Area(geom) DESC
+        LIMIT :lim
+      SQL
+      rows = ActiveRecord::Base.connection.select_values(sql)
+      {
+        type: "FeatureCollection",
+        truncated: rows.size > AREAS_LIMIT,
+        features: rows.first(AREAS_LIMIT).map do |gj|
+          { type: "Feature", geometry: JSON.parse(gj), properties: {} }
+        end
+      }
+    end
+    render json: payload
   end
 
   def check

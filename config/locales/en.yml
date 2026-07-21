@@ -1582,3 +1582,5 @@ en:
     no_gps: Location unavailable — allow location access or enter coordinates manually.
     error: The check failed. Try again.
     play_here: 🎮 Play minesweeper at this location (fictional mines)
+    areas_legend: "Approximate boundaries of recorded mine-suspected areas (2024 snapshot). Danger can extend BEYOND the shapes shown."
+    zoom_hint: "Zoom in to display the areas."

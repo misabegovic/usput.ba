@@ -1,4 +1,7 @@
 <% content_for :title, "#{t('minolovac.title')} — Usput.ba" %>
+<% content_for :head do %>
+  <%= stylesheet_link_tag "leaflet" %>
+<% end %>
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
   <nav class="bg-white dark:bg-gray-800 shadow sticky top-0 z-50 transition-colors duration-300">
@@ -51,6 +54,9 @@
          data-minolovac-rows-value="<%= @difficulty[:rows] %>"
          data-minolovac-cols-value="<%= @difficulty[:cols] %>"
          data-minolovac-mines-value="<%= @mines %>"
+         data-minolovac-lat-value="<%= @region[:lat] %>"
+         data-minolovac-lon-value="<%= @region[:lon] %>"
+         data-minolovac-zoom-value="<%= @region[:zoom] %>"
          data-minolovac-labels-value="<%= {
                win: t("minolovac.win"),
                lose: t("minolovac.lose"),
@@ -77,11 +83,7 @@
       </div>
 
       <div class="relative rounded-b-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-emerald-100 to-teal-200 dark:from-gray-800 dark:to-gray-700">
-        <img src="<%= @region_slug == "custom" ? minolovac_map_path(region: "custom", lat: @region[:lat], lon: @region[:lon]) : minolovac_map_path(region: @region_slug) %>"
-             alt="<%= @region[:name] %>"
-             class="absolute inset-0 w-full h-full object-cover"
-             data-minolovac-target="map"
-             data-action="error->minolovac#hideMap">
+        <div data-minolovac-target="map" class="absolute inset-0 z-0"></div>
         <div class="relative z-10 grid gap-px p-1" data-minolovac-target="board"></div>
       </div>
 

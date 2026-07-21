@@ -1,5 +1,3 @@
-require "net/http"
-
 # Minolovac — classic minesweeper played over scenic static-map backdrops of
 # Bosnia and Herzegovina. Mine placement is random and fictional, generated
 # client-side per game — it never reflects real mine locations. Real data
@@ -41,8 +39,6 @@ class MinolovacController < ApplicationController
     [ (difficulty[:mines] * factor).round, difficulty[:rows] * difficulty[:cols] * 3 / 10 ].min
   end
 
-  MAP_CACHE_TTL = 30.days
-
   def show
     if params[:lat].present? && params[:lon].present?
       lat = params[:lat].to_f
@@ -67,36 +63,6 @@ class MinolovacController < ApplicationController
     @mines = self.class.mines_for(@difficulty, @region)
   end
 
-  # Proxies the Geoapify static map server-side so the API key never reaches
-  # the client. Missing key or upstream failure returns 404 and the game
-  # falls back to a plain backdrop.
-  def map
-    if params[:region] == "custom"
-      lat = params[:lat].to_f
-      lon = params[:lon].to_f
-      return head :not_found unless bbox_contains?(lat, lon)
-
-      region = { lat: lat, lon: lon, zoom: 14 }
-      cache_key = "minolovac/map/custom/#{lat.round(3)}/#{lon.round(3)}"
-    else
-      region = REGIONS[params[:region]]
-      return head :not_found unless region
-
-      cache_key = "minolovac/map/#{params[:region]}"
-    end
-
-    api_key = Rails.application.config.geoapify.api_key
-    return head :not_found if api_key.blank?
-
-    png = Rails.cache.fetch(cache_key, expires_in: MAP_CACHE_TTL, skip_nil: true) do
-      fetch_static_map(region, api_key)
-    end
-    return head :not_found if png.blank?
-
-    expires_in MAP_CACHE_TTL, public: true
-    send_data png, type: "image/png", disposition: "inline"
-  end
-
   private
 
   # The one runtime touch of mine data on this page: a single aggregate
@@ -111,22 +77,5 @@ class MinolovacController < ApplicationController
   def bbox_contains?(lat, lon)
     west, south, east, north = MineChecker::Config.bih_bbox
     lon.between?(west, east) && lat.between?(south, north)
-  end
-
-  def fetch_static_map(region, api_key)
-    uri = URI("https://maps.geoapify.com/v1/staticmap")
-    uri.query = URI.encode_www_form(
-      style: "osm-carto",
-      width: 600,
-      height: 600,
-      center: "lonlat:#{region[:lon]},#{region[:lat]}",
-      zoom: region[:zoom],
-      apiKey: api_key
-    )
-    response = Net::HTTP.get_response(uri)
-    response.is_a?(Net::HTTPSuccess) ? response.body : nil
-  rescue StandardError => e
-    Rails.logger.warn("Minolovac map fetch failed: #{e.class}: #{e.message}")
-    nil
   end
 end

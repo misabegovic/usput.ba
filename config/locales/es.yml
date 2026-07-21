@@ -1202,3 +1202,5 @@ es:
     no_gps: Ubicación no disponible — permite el acceso a la ubicación o introduce las coordenadas manualmente.
     error: La comprobación falló. Inténtalo de nuevo.
     play_here: 🎮 Juega al buscaminas en esta ubicación (minas ficticias)
+    areas_legend: "Límites aproximados de las zonas registradas sospechosas de minas (instantánea 2024). El peligro puede extenderse MÁS ALLÁ de las formas mostradas."
+    zoom_hint: "Acerca el mapa para mostrar las zonas."
