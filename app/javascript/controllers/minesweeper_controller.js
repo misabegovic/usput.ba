@@ -1,191 +1,119 @@
 import { Controller } from "@hotwired/stimulus"
 import "leaflet"
 
-// Classic minesweeper over a map backdrop. Mine placement is random and
-// fictional, generated in the browser per game — first click is always safe.
-const HIDDEN_CLASSES =
-  "aspect-square rounded-sm bg-emerald-700/90 hover:bg-emerald-600/90 border border-emerald-900/40 cursor-pointer select-none flex items-center justify-center text-xs sm:text-sm"
-const REVEALED_CLASSES =
-  "aspect-square rounded-sm bg-white/60 dark:bg-gray-900/50 border border-white/30 select-none flex items-center justify-center text-xs sm:text-sm font-bold"
+// Educational minesweeper: the board is a geographic grid drawn on real map
+// tiles, and the mine cells come from the server — cells that intersect
+// recorded mine-suspected areas. Zoom and pan are free so players can study
+// the terrain. There is no first-click protection: the data is what it is.
+const FOG_STYLE = { color: "#065f46", weight: 1, fillColor: "#059669", fillOpacity: 0.8 }
+const REVEALED_STYLE = { color: "#9ca3af", weight: 1, fillColor: "#ffffff", fillOpacity: 0.05 }
+const MINE_STYLE = { color: "#7f1d1d", weight: 1, fillColor: "#dc2626", fillOpacity: 0.65 }
 const NUMBER_COLORS = [
-  "", "text-blue-700", "text-green-800", "text-red-700", "text-indigo-800",
-  "text-amber-800", "text-teal-800", "text-gray-900", "text-gray-600"
+  "", "#1d4ed8", "#166534", "#b91c1c", "#3730a3", "#92400e", "#0f766e", "#111827", "#4b5563"
 ]
 
 export default class extends Controller {
-  static targets = ["board", "mines", "timer", "status", "map", "fact", "surroundings", "surroundingsMap"]
-  static values = { rows: Number, cols: Number, mines: Number, labels: Object, lat: Number, lon: Number, zoom: Number, areasUrl: String }
+  static targets = ["map", "mines", "timer", "status", "fact"]
+  static values = {
+    rows: Number, cols: Number, south: Number, west: Number,
+    dlat: Number, dlon: Number, mines: Array, labels: Object
+  }
 
   connect() {
-    this.initBackdrop()
+    this.initMap()
     this.newGame()
   }
 
   disconnect() {
     this.stopTimer()
-    if (this.backdrop) this.backdrop.remove()
-    if (this.surroundingsMapInstance) this.surroundingsMapInstance.remove()
+    if (this.leaflet) this.leaflet.remove()
   }
 
-  // Educational context: a fully interactive map around the board location
-  // with the REAL recorded-area overlay (boundaries zoomed in, dots zoomed
-  // out) — so the fictional game sits next to the real picture.
-  toggleSurroundings() {
-    const panel = this.surroundingsTarget
-    panel.classList.toggle("hidden")
-    if (panel.classList.contains("hidden") || this.surroundingsMapInstance) return
-
+  initMap() {
     const L = window.L
-    const map = L.map(this.surroundingsMapTarget).setView([this.latValue, this.lonValue], 12)
-    this.surroundingsMapInstance = map
+    this.leaflet = L.map(this.mapTarget, { attributionControl: true })
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 17,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map)
-    L.circleMarker([this.latValue, this.lonValue], { radius: 8, color: "#047857", weight: 3 }).addTo(map)
-    this.surroundingsAreas = L.geoJSON(null, {
-      style: { color: "#b91c1c", weight: 1, fillColor: "#dc2626", fillOpacity: 0.35 },
-      pointToLayer: (feature, latlng) => L.circleMarker(latlng, {
-        radius: 3, color: "#b91c1c", weight: 1, fillColor: "#dc2626", fillOpacity: 0.7
-      })
-    }).addTo(map)
-    map.on("moveend", () => this.loadSurroundingAreas())
-    this.loadSurroundingAreas()
-  }
-
-  async loadSurroundingAreas() {
-    if (!this.hasAreasUrlValue || !this.surroundingsMapInstance) return
-    const map = this.surroundingsMapInstance
-    try {
-      let url
-      if (map.getZoom() < 9) {
-        url = `${this.areasUrlValue}?overview=1`
-      } else {
-        const b = map.getBounds()
-        const params = new URLSearchParams({
-          west: b.getWest().toFixed(3), south: b.getSouth().toFixed(3),
-          east: b.getEast().toFixed(3), north: b.getNorth().toFixed(3)
-        })
-        url = `${this.areasUrlValue}?${params}`
-      }
-      const response = await fetch(url)
-      if (!response.ok) return
-      const data = await response.json()
-      this.surroundingsAreas.clearLayers()
-      this.surroundingsAreas.addData(data)
-    } catch {
-      // best-effort overlay
-    }
-  }
-
-  // Non-interactive OSM backdrop — purely scenery behind the fictional board.
-  initBackdrop() {
-    if (!this.hasMapTarget || !window.L) return
-    this.backdrop = window.L.map(this.mapTarget, {
-      center: [this.latValue, this.lonValue],
-      zoom: this.zoomValue,
-      zoomControl: false, dragging: false, scrollWheelZoom: false,
-      doubleClickZoom: false, boxZoom: false, keyboard: false,
-      touchZoom: false, attributionControl: true
-    })
-    window.L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 17,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(this.backdrop)
+    }).addTo(this.leaflet)
+    this.boardBounds = [
+      [this.southValue, this.westValue],
+      [this.southValue + this.rowsValue * this.dlatValue, this.westValue + this.colsValue * this.dlonValue]
+    ]
+    this.leaflet.fitBounds(this.boardBounds, { padding: [20, 20] })
+    this.cellLayer = L.layerGroup().addTo(this.leaflet)
+    this.markLayer = L.layerGroup().addTo(this.leaflet)
   }
 
   newGame() {
     this.stopTimer()
     this.seconds = 0
-    this.placed = false
-    this.over = false
-    this.flagCount = 0
-    this.revealedCount = 0
-    this.grid = []
     this.timerTarget.textContent = "0"
     this.statusTarget.textContent = ""
     if (this.hasFactTarget) {
       this.factTarget.textContent = ""
       this.factTarget.classList.add("hidden")
     }
+    this.over = false
+    this.started = false
+    this.flagCount = 0
+    this.revealedCount = 0
+    this.mineSet = new Set(this.minesValue.map(([r, c]) => `${r},${c}`))
     this.updateMinesLeft()
-    this.buildBoard()
-  }
 
-  buildBoard() {
-    const board = this.boardTarget
-    board.innerHTML = ""
-    board.style.gridTemplateColumns = `repeat(${this.colsValue}, minmax(0, 1fr))`
+    this.cellLayer.clearLayers()
+    this.markLayer.clearLayers()
+    this.grid = []
     for (let r = 0; r < this.rowsValue; r++) {
       const row = []
       for (let c = 0; c < this.colsValue; c++) {
-        const cell = { mine: false, revealed: false, flagged: false, count: 0 }
-        const btn = document.createElement("button")
-        btn.type = "button"
-        btn.className = HIDDEN_CLASSES
-        btn.addEventListener("click", () => this.onCellClick(r, c))
-        btn.addEventListener("contextmenu", (e) => {
-          e.preventDefault()
+        const rect = window.L.rectangle(this.cellBounds(r, c), FOG_STYLE)
+        rect.on("click", () => this.reveal(r, c))
+        rect.on("contextmenu", (e) => {
+          window.L.DomEvent.stop(e)
           this.toggleFlag(r, c)
         })
-        btn.addEventListener("touchstart", () => this.startLongPress(r, c), { passive: true })
-        btn.addEventListener("touchend", () => this.cancelLongPress())
-        btn.addEventListener("touchmove", () => this.cancelLongPress())
-        cell.el = btn
-        row.push(cell)
-        board.appendChild(btn)
+        rect.addTo(this.cellLayer)
+        row.push({ rect: rect, revealed: false, flagged: false, marker: null })
       }
       this.grid.push(row)
     }
   }
 
-  startLongPress(r, c) {
-    this.longPressed = false
-    this.pressTimer = setTimeout(() => {
-      this.longPressed = true
-      this.toggleFlag(r, c)
-    }, 400)
+  cellBounds(r, c) {
+    return [
+      [this.southValue + r * this.dlatValue, this.westValue + c * this.dlonValue],
+      [this.southValue + (r + 1) * this.dlatValue, this.westValue + (c + 1) * this.dlonValue]
+    ]
   }
 
-  cancelLongPress() {
-    clearTimeout(this.pressTimer)
+  cellCenter(r, c) {
+    return [
+      this.southValue + (r + 0.5) * this.dlatValue,
+      this.westValue + (c + 0.5) * this.dlonValue
+    ]
   }
 
-  onCellClick(r, c) {
-    if (this.longPressed) {
-      this.longPressed = false
-      return
-    }
-    this.reveal(r, c)
+  isMine(r, c) {
+    return this.mineSet.has(`${r},${c}`)
   }
 
-  placeMines(safeR, safeC) {
-    let placed = 0
-    while (placed < this.minesValue) {
-      const r = Math.floor(Math.random() * this.rowsValue)
-      const c = Math.floor(Math.random() * this.colsValue)
-      const cell = this.grid[r][c]
-      if (cell.mine) continue
-      if (Math.abs(r - safeR) <= 1 && Math.abs(c - safeC) <= 1) continue
-      cell.mine = true
-      placed++
-    }
-    this.eachCell((cell, r, c) => {
-      cell.count = this.neighbors(r, c).filter(([nr, nc]) => this.grid[nr][nc].mine).length
-    })
+  adjacentMines(r, c) {
+    let count = 0
+    this.neighbors(r, c).forEach(([nr, nc]) => { if (this.isMine(nr, nc)) count++ })
+    return count
   }
 
   reveal(r, c) {
     if (this.over) return
     const cell = this.grid[r][c]
     if (cell.revealed || cell.flagged) return
-    if (!this.placed) {
-      this.placeMines(r, c)
-      this.placed = true
+    if (!this.started) {
+      this.started = true
       this.startTimer()
     }
-    if (cell.mine) {
-      this.lose(cell)
+    if (this.isMine(r, c)) {
+      this.lose(r, c)
       return
     }
     const stack = [[r, c]]
@@ -195,14 +123,17 @@ export default class extends Controller {
       if (current.revealed || current.flagged) continue
       current.revealed = true
       this.revealedCount++
-      this.renderRevealed(current)
-      if (current.count === 0) {
+      current.rect.setStyle(REVEALED_STYLE)
+      const n = this.adjacentMines(cr, cc)
+      if (n > 0) {
+        this.placeMark(cr, cc, `<span style="color:${NUMBER_COLORS[n]};font-weight:800;font-size:14px;text-shadow:0 0 3px #fff,0 0 3px #fff">${n}</span>`)
+      } else {
         this.neighbors(cr, cc).forEach(([nr, nc]) => {
           if (!this.grid[nr][nc].revealed) stack.push([nr, nc])
         })
       }
     }
-    if (this.revealedCount === this.rowsValue * this.colsValue - this.minesValue) {
+    if (this.revealedCount === this.rowsValue * this.colsValue - this.mineSet.size) {
       this.win()
     }
   }
@@ -213,28 +144,32 @@ export default class extends Controller {
     if (cell.revealed) return
     cell.flagged = !cell.flagged
     this.flagCount += cell.flagged ? 1 : -1
-    cell.el.textContent = cell.flagged ? "\u{1F6A9}" : ""
+    if (cell.flagged) {
+      cell.marker = this.placeMark(r, c, '<span style="font-size:14px">\u{1F6A9}</span>')
+    } else if (cell.marker) {
+      this.markLayer.removeLayer(cell.marker)
+      cell.marker = null
+    }
     this.updateMinesLeft()
   }
 
-  renderRevealed(cell) {
-    cell.el.className = REVEALED_CLASSES
-    if (cell.count > 0) {
-      cell.el.textContent = cell.count
-      cell.el.classList.add(NUMBER_COLORS[cell.count])
-    } else {
-      cell.el.textContent = ""
-    }
+  placeMark(r, c, html) {
+    const marker = window.L.marker(this.cellCenter(r, c), {
+      interactive: false,
+      icon: window.L.divIcon({ className: "", html: html, iconSize: [20, 20], iconAnchor: [10, 10] })
+    })
+    marker.addTo(this.markLayer)
+    return marker
   }
 
-  lose(hitCell) {
+  lose(hitR, hitC) {
     this.over = true
     this.stopTimer()
-    this.eachCell((cell) => {
-      if (!cell.mine) return
-      cell.el.className = REVEALED_CLASSES
-      cell.el.classList.add("bg-red-200/80", "dark:bg-red-900/60")
-      cell.el.textContent = cell === hitCell ? "\u{1F4A5}" : "\u{1F4A3}"
+    this.mineSet.forEach((key) => {
+      const [r, c] = key.split(",").map(Number)
+      this.grid[r][c].rect.setStyle(MINE_STYLE)
+      const symbol = r === hitR && c === hitC ? "\u{1F4A5}" : "\u{1F4A3}"
+      this.placeMark(r, c, `<span style="font-size:14px">${symbol}</span>`)
     })
     this.statusTarget.textContent = this.labelsValue.lose
     this.showFact()
@@ -243,16 +178,19 @@ export default class extends Controller {
   win() {
     this.over = true
     this.stopTimer()
-    this.eachCell((cell) => {
-      if (cell.mine && !cell.flagged) cell.el.textContent = "\u{1F6A9}"
+    this.mineSet.forEach((key) => {
+      const [r, c] = key.split(",").map(Number)
+      const cell = this.grid[r][c]
+      cell.rect.setStyle(MINE_STYLE)
+      if (!cell.flagged) this.placeMark(r, c, '<span style="font-size:14px">\u{1F6A9}</span>')
     })
-    this.flagCount = this.minesValue
+    this.flagCount = this.mineSet.size
     this.updateMinesLeft()
     this.statusTarget.textContent = this.labelsValue.win
     this.showFact()
   }
 
-  // One real aggregate fact per finished game — numbers only, no geometry.
+  // One real aggregate fact per finished game — numbers only.
   showFact() {
     const facts = this.labelsValue.facts
     if (!this.hasFactTarget || !facts || facts.length === 0) return
@@ -274,7 +212,7 @@ export default class extends Controller {
   }
 
   updateMinesLeft() {
-    this.minesTarget.textContent = Math.max(0, this.minesValue - this.flagCount)
+    this.minesTarget.textContent = Math.max(0, this.mineSet.size - this.flagCount)
   }
 
   neighbors(r, c) {
@@ -290,13 +228,5 @@ export default class extends Controller {
       }
     }
     return result
-  }
-
-  eachCell(fn) {
-    for (let r = 0; r < this.rowsValue; r++) {
-      for (let c = 0; c < this.colsValue; c++) {
-        fn(this.grid[r][c], r, c)
-      }
-    }
   }
 }

@@ -1005,10 +1005,10 @@ pl:
 
   minesweeper:
     title: Saper
-    subtitle: Klasyczna gra w odkrywanie pól na mapach Bośni i Hercegowiny.
-    disclaimer_title: To tylko gra
-    disclaimer: Rozmieszczenie min w grze jest fikcyjne i całkowicie losowe — każda rozgrywka jest generowana od nowa i nie ma żadnego związku z prawdziwymi obszarami podejrzanymi o miny ani z prawdziwymi danymi.
-    awareness: W prawdziwym świecie miny lądowe to poważne zagrożenie. Informacji o prawdziwych obszarach podejrzanych o miny szukaj wyłącznie w oficjalnych źródłach BHMAC (bhmac.org).
+    subtitle: "Gra edukacyjna na prawdziwych mapach — miny są tam, gdzie prawdziwe dane rejestrują obszary podejrzane o miny."
+    disclaimer_title: "Gra edukacyjna z prawdziwymi danymi"
+    disclaimer: "Miny w grze leżą na komórkach pokrywających się z zarejestrowanymi obszarami podejrzanymi o miny (migawka 2024). Pusta komórka oznacza tylko, że dla tego kawałka terenu nie zarejestrowano obszarów — NIGDY, że grunt jest bezpieczny; istnieją też pola nieoznakowane i niezarejestrowane."
+    awareness: "W rzeczywistości nie ma drugiej szansy — sprawdzaj przed każdym krokiem. Ta strona w żaden sposób nie służy ocenie rzeczywistego bezpieczeństwa terenu. Prawdziwe informacje: BHMAC (bhmac.org, +387 33 253 800) i oficjalna aplikacja „BH Mine Suspected Areas”."
     region: Region
     difficulty: Poziom trudności
     level_easy: Łatwy
@@ -1017,7 +1017,7 @@ pl:
     restart: Nowa gra
     win: Brawo! Plansza oczyszczona.
     lose: Bum! Spróbuj ponownie.
-    hint: Kliknięcie odkrywa pole, prawy przycisk lub dłuższe przytrzymanie stawia flagę. Pierwsze kliknięcie jest zawsze bezpieczne.
+    hint: "Kliknięcie odkrywa komórkę, prawy przycisk lub dłuższe przytrzymanie stawia flagę. Przybliżaj i przesuwaj mapę, aby studiować teren. Brak ochrony pierwszego kliknięcia — dane są, jakie są."
     back_home: Strona główna
     density_note: Liczba min na planszy odzwierciedla prawdziwe statystyki — w migawce danych z 2024 r. region %{name} ma około %{km2} km² obszarów podejrzanych o miny w promieniu 30 km.
     fact_country: "Rzeczywistość: około %{km2} km² Bośni i Hercegowiny wciąż jest oznaczone jako podejrzane o miny (BHMAC)."
@@ -1027,8 +1027,7 @@ pl:
     custom_location: Wybrana lokalizacja
     check_link: Sprawdź prawdziwą lokalizację na mapie →
     density_note_custom: "Liczba min na planszy odzwierciedla prawdziwe statystyki — w migawce z 2024 r. około %{km2} km² obszarów podejrzanych o miny leży w promieniu 5 km od wybranego punktu."
-    surroundings: "Poznaj prawdziwą okolicę"
-    not_suspicious: "W promieniu 2 km od tej lokalizacji nie ma zarejestrowanych obszarów podejrzanych o miny — ze względów edukacyjnych w sapera gra się tylko w miejscach rzeczywiście dotkniętych. Wybierz punkt bliżej czerwonych obszarów na mapie sprawdzania."
+    not_suspicious: "Na tej planszy nie zarejestrowano obszarów podejrzanych o miny — w edukacyjnego sapera gra się tylko tam, gdzie prawdziwe dane coś rejestrują. Wybierz punkt na czerwonych obszarach na mapie sprawdzania."
 
   mine_check_public:
     title: Sprawdzanie bliskości obszarów zaminowanych
@@ -1050,6 +1049,6 @@ pl:
     invalid_coordinates: Nieprawidłowe współrzędne.
     no_gps: Lokalizacja niedostępna — zezwól na dostęp do lokalizacji lub wpisz współrzędne ręcznie.
     error: Sprawdzenie nie powiodło się. Spróbuj ponownie.
-    play_here: 🎮 Zagraj w sapera w tej lokalizacji (fikcyjne miny)
+    play_here: "🎮 Zagraj w edukacyjnego sapera w tej lokalizacji"
     areas_legend: "Przybliżone granice zarejestrowanych obszarów podejrzanych o miny (migawka 2024). Niebezpieczeństwo może sięgać POZA pokazane kształty."
     zoom_hint: "Przybliż mapę, aby zobaczyć granice obszarów."

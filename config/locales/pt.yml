@@ -1051,10 +1051,10 @@ pt:
 
   minesweeper:
     title: Campo minado
-    subtitle: O clássico jogo de revelar casas sobre mapas da Bósnia e Herzegovina.
-    disclaimer_title: Isto é apenas um jogo
-    disclaimer: A colocação das minas no jogo é fictícia e completamente aleatória — cada partida é gerada do zero e não tem qualquer ligação com áreas reais suspeitas de minas nem com dados reais.
-    awareness: No mundo real, as minas terrestres são um perigo sério. Para informações sobre áreas reais suspeitas de minas, confie exclusivamente nas fontes oficiais do BHMAC (bhmac.org).
+    subtitle: "Um jogo educativo sobre mapas reais — as minas estão onde os dados reais registam áreas suspeitas."
+    disclaimer_title: "Jogo educativo com dados reais"
+    disclaimer: "As minas do jogo ficam nas células que se sobrepõem a áreas registadas suspeitas de minas (captura 2024). Uma célula vazia significa apenas que não há áreas registadas para esse pedaço de terreno — NUNCA que o solo é seguro; também existem campos não marcados e não registados."
+    awareness: "Na realidade não há segunda oportunidade — verifica antes de cada passo. Esta página não serve de forma alguma para avaliar a segurança real do terreno. Informação real: BHMAC (bhmac.org, +387 33 253 800) e a aplicação oficial 'BH Mine Suspected Areas'."
     region: Região
     difficulty: Dificuldade
     level_easy: Fácil
@@ -1063,7 +1063,7 @@ pt:
     restart: Novo jogo
     win: Muito bem! Campo limpo.
     lose: Bum! Tenta novamente.
-    hint: Um clique revela uma casa, clique direito ou pressão longa coloca uma bandeira. O primeiro clique é sempre seguro.
+    hint: "Um clique revela uma célula, clique direito ou pressão longa coloca uma bandeira. Aproxima e move o mapa para estudar o terreno. Sem proteção do primeiro clique — os dados são o que são."
     back_home: Início
     density_note: O número de minas no tabuleiro reflete estatísticas reais — na captura de dados de 2024, a região de %{name} tem cerca de %{km2} km² de áreas suspeitas de minas num raio de 30 km.
     fact_country: "Realidade: cerca de %{km2} km² da Bósnia e Herzegovina continuam marcados como suspeitos de minas (BHMAC)."
@@ -1073,8 +1073,7 @@ pt:
     custom_location: Localização escolhida
     check_link: Verifica uma localização real no mapa →
     density_note_custom: "O número de minas no tabuleiro reflete estatísticas reais — na captura de 2024 há cerca de %{km2} km² de áreas suspeitas de minas num raio de 5 km do ponto escolhido."
-    surroundings: "Explora os arredores reais"
-    not_suspicious: "Não há áreas suspeitas de minas registadas num raio de 2 km desta localização — por valor educativo, o campo minado só se joga em locais realmente afetados. Escolhe um ponto mais perto das áreas vermelhas no mapa de verificação."
+    not_suspicious: "Não há áreas suspeitas de minas registadas neste tabuleiro — o campo minado educativo só se joga onde os dados reais registam algo. Escolhe um ponto sobre as áreas vermelhas no mapa de verificação."
 
   mine_check_public:
     title: Verificação de proximidade de áreas minadas
@@ -1096,6 +1095,6 @@ pt:
     invalid_coordinates: Coordenadas inválidas.
     no_gps: Localização indisponível — permite o acesso à localização ou introduz as coordenadas manualmente.
     error: A verificação falhou. Tenta novamente.
-    play_here: 🎮 Joga ao campo minado nesta localização (minas fictícias)
+    play_here: "🎮 Joga ao campo minado educativo nesta localização"
     areas_legend: "Limites aproximados das áreas registadas suspeitas de minas (captura 2024). O perigo pode estender-se PARA LÁ das formas mostradas."
     zoom_hint: "Aproxima o mapa para veres os limites das áreas."

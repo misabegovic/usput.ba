@@ -1272,10 +1272,10 @@ tr:
 
   minesweeper:
     title: Mayın Tarlası
-    subtitle: Bosna-Hersek haritaları üzerinde oynanan klasik kare açma oyunu.
-    disclaimer_title: Bu sadece bir oyun
-    disclaimer: Oyundaki mayın yerleşimi kurgusaldır ve tamamen rastgeledir — her oyun sıfırdan oluşturulur ve gerçek mayın şüpheli bölgelerle veya gerçek verilerle hiçbir bağlantısı yoktur.
-    awareness: Gerçek dünyada kara mayınları ciddi bir tehlikedir. Gerçek mayın şüpheli bölgeler hakkında bilgi için yalnızca resmi BHMAC kaynaklarına (bhmac.org) güvenin.
+    subtitle: "Gerçek haritalar üzerinde eğitici bir oyun — mayınlar, gerçek verilerin mayın şüpheli bölge kaydettiği yerlerdedir."
+    disclaimer_title: "Gerçek verilerle eğitici oyun"
+    disclaimer: "Oyundaki mayınlar, kayıtlı mayın şüpheli bölgelerle örtüşen hücrelerdedir (2024 görüntüsü). Boş bir hücre, o arazi parçası için kayıtlı bölge olmadığı anlamına gelir — ASLA zeminin güvenli olduğu anlamına gelmez; işaretlenmemiş ve kayıtsız alanlar da vardır."
+    awareness: "Gerçekte ikinci bir şans yok — her adımdan önce doğrula. Bu sayfa hiçbir şekilde gerçek arazi güvenliğini değerlendirmeye yaramaz. Gerçek bilgi: BHMAC (bhmac.org, +387 33 253 800) ve resmi 'BH Mine Suspected Areas' uygulaması."
     region: Bölge
     difficulty: Zorluk
     level_easy: Kolay
@@ -1284,7 +1284,7 @@ tr:
     restart: Yeni oyun
     win: Aferin! Alan temizlendi.
     lose: Bum! Tekrar dene.
-    hint: Tıklama bir kareyi açar, sağ tık veya uzun basma bayrak koyar. İlk tıklama her zaman güvenlidir.
+    hint: "Tıklama bir hücreyi açar, sağ tık veya uzun basma bayrak koyar. Araziyi incelemek için haritayı yakınlaştır ve kaydır. İlk tıklama koruması yok — veriler neyse odur."
     back_home: Ana sayfa
     density_note: Tahtadaki mayın sayısı gerçek istatistikleri yansıtır — 2024 veri görüntüsünde %{name} bölgesinin 30 km çevresinde yaklaşık %{km2} km² mayın şüpheli alan bulunuyor.
     fact_country: "Gerçek: Bosna-Hersek'in yaklaşık %{km2} km²'si hâlâ mayın şüpheli olarak işaretli (BHMAC)."
@@ -1294,8 +1294,7 @@ tr:
     custom_location: Seçilen konum
     check_link: Haritada gerçek bir konumu kontrol et →
     density_note_custom: "Tahtadaki mayın sayısı gerçek istatistikleri yansıtır — 2024 görüntüsünde seçilen noktanın 5 km çevresinde yaklaşık %{km2} km² mayın şüpheli alan var."
-    surroundings: "Gerçek çevreyi keşfet"
-    not_suspicious: "Bu konumun 2 km çevresinde kayıtlı mayın şüpheli bölge yok — eğitim değeri açısından mayın tarlası yalnızca gerçekten etkilenen konumlarda oynanır. Kontrol haritasındaki kırmızı bölgelere daha yakın bir nokta seç."
+    not_suspicious: "Bu tahtada kayıtlı mayın şüpheli bölge yok — eğitici mayın tarlası yalnızca gerçek verilerin bir şey kaydettiği yerlerde oynanır. Kontrol haritasındaki kırmızı bölgeler üzerinde bir nokta seç."
 
   mine_check_public:
     title: Mayın bölgesi yakınlık kontrolü
@@ -1317,6 +1316,6 @@ tr:
     invalid_coordinates: Geçersiz koordinatlar.
     no_gps: Konum kullanılamıyor — konum erişimine izin ver veya koordinatları elle gir.
     error: Kontrol başarısız oldu. Tekrar dene.
-    play_here: 🎮 Bu konumda mayın tarlası oyna (kurgusal mayınlar)
+    play_here: "🎮 Bu konumda eğitici mayın tarlası oyna"
     areas_legend: "Kayıtlı mayın şüpheli bölgelerin yaklaşık sınırları (2024 görüntüsü). Tehlike, gösterilen şekillerin ÖTESİNE uzanabilir."
     zoom_hint: "Bölge sınırlarını görmek için haritayı yakınlaştır."

@@ -1159,10 +1159,10 @@ es:
 
   minesweeper:
     title: Buscaminas
-    subtitle: El clásico juego de despejar casillas sobre mapas de Bosnia y Herzegovina.
-    disclaimer_title: Esto es solo un juego
-    disclaimer: La colocación de minas en el juego es ficticia y completamente aleatoria — cada partida se genera desde cero y no tiene ninguna relación con zonas reales sospechosas de minas ni con datos reales.
-    awareness: En el mundo real, las minas terrestres son un peligro serio. Para información sobre zonas reales sospechosas de minas, confía exclusivamente en las fuentes oficiales de BHMAC (bhmac.org).
+    subtitle: "Un juego educativo sobre mapas reales — las minas están donde los datos reales registran zonas sospechosas de minas."
+    disclaimer_title: "Juego educativo con datos reales"
+    disclaimer: "Las minas del juego están en celdas que se solapan con zonas registradas sospechosas de minas (instantánea 2024). Una celda vacía solo significa que no hay zonas registradas para ese trozo de terreno — NUNCA que el suelo sea seguro; también existen campos sin marcar y sin registrar."
+    awareness: "En la realidad no hay segunda oportunidad — verifica antes de cada paso. Esta página no sirve en modo alguno para evaluar la seguridad real del terreno. Información real: BHMAC (bhmac.org, +387 33 253 800) y la aplicación oficial 'BH Mine Suspected Areas'."
     region: Región
     difficulty: Dificultad
     level_easy: Fácil
@@ -1171,7 +1171,7 @@ es:
     restart: Nueva partida
     win: ¡Bien hecho! Tablero despejado.
     lose: ¡Bum! Inténtalo de nuevo.
-    hint: Un clic revela una casilla, clic derecho o pulsación larga coloca una bandera. El primer clic siempre es seguro.
+    hint: "Un clic revela una celda, clic derecho o pulsación larga coloca una bandera. Acerca y mueve el mapa para estudiar el terreno. Sin protección del primer clic — los datos son los que son."
     back_home: Inicio
     density_note: El número de minas en el tablero refleja estadísticas reales — en la instantánea de datos de 2024, la región de %{name} tiene unos %{km2} km² de zonas sospechosas de minas en un radio de 30 km.
     fact_country: "Realidad: unos %{km2} km² de Bosnia y Herzegovina siguen marcados como sospechosos de minas (BHMAC)."
@@ -1181,8 +1181,7 @@ es:
     custom_location: Ubicación elegida
     check_link: Comprueba una ubicación real en el mapa →
     density_note_custom: "El número de minas en el tablero refleja estadísticas reales — en la instantánea de 2024 hay unos %{km2} km² de zonas sospechosas de minas en un radio de 5 km del punto elegido."
-    surroundings: "Explora el entorno real"
-    not_suspicious: "No hay zonas sospechosas de minas registradas en un radio de 2 km de esta ubicación — por su valor educativo, el buscaminas solo se juega en lugares realmente afectados. Elige un punto más cercano a las zonas rojas del mapa de comprobación."
+    not_suspicious: "No hay zonas sospechosas de minas registradas en este tablero — el buscaminas educativo solo se juega donde los datos reales registran algo. Elige un punto sobre las zonas rojas del mapa de comprobación."
 
   mine_check_public:
     title: Comprobación de proximidad a zonas minadas
@@ -1204,6 +1203,6 @@ es:
     invalid_coordinates: Coordenadas no válidas.
     no_gps: Ubicación no disponible — permite el acceso a la ubicación o introduce las coordenadas manualmente.
     error: La comprobación falló. Inténtalo de nuevo.
-    play_here: 🎮 Juega al buscaminas en esta ubicación (minas ficticias)
+    play_here: "🎮 Juega al buscaminas educativo en esta ubicación"
     areas_legend: "Límites aproximados de las zonas registradas sospechosas de minas (instantánea 2024). El peligro puede extenderse MÁS ALLÁ de las formas mostradas."
     zoom_hint: "Acerca el mapa para ver los límites de las zonas."

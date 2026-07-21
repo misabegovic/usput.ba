@@ -66,11 +66,11 @@
          data-controller="minesweeper"
          data-minesweeper-rows-value="<%= @difficulty[:rows] %>"
          data-minesweeper-cols-value="<%= @difficulty[:cols] %>"
-         data-minesweeper-mines-value="<%= @mines %>"
-         data-minesweeper-lat-value="<%= @region[:lat] %>"
-         data-minesweeper-lon-value="<%= @region[:lon] %>"
-         data-minesweeper-zoom-value="<%= @region[:zoom] %>"
-         data-minesweeper-areas-url-value="<%= mine_check_areas_path %>"
+         data-minesweeper-south-value="<%= @south %>"
+         data-minesweeper-west-value="<%= @west %>"
+         data-minesweeper-dlat-value="<%= @dlat %>"
+         data-minesweeper-dlon-value="<%= @dlon %>"
+         data-minesweeper-mines-value="<%= @mine_cells.to_json %>"
          data-minesweeper-labels-value="<%= {
                win: t("minesweeper.win"),
                lose: t("minesweeper.lose"),
@@ -96,29 +96,14 @@
         </div>
       </div>
 
-      <div class="relative rounded-b-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-emerald-100 to-teal-200 dark:from-gray-800 dark:to-gray-700">
-        <div data-minesweeper-target="map" class="absolute inset-0 z-0"></div>
-        <div class="relative z-10 grid gap-px p-1" data-minesweeper-target="board"></div>
+      <div class="rounded-b-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div data-minesweeper-target="map" class="h-[30rem] z-0"></div>
       </div>
 
       <p data-minesweeper-target="fact"
          class="hidden mt-3 rounded-lg border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/30 px-4 py-3 text-sm text-emerald-900 dark:text-emerald-100"></p>
 
       <p class="mt-2 text-xs text-gray-500 dark:text-gray-400"><%= t("minesweeper.hint") %></p>
-
-      <div class="mt-4">
-        <button type="button" data-action="minesweeper#toggleSurroundings"
-                class="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-gray-700 transition-colors">
-          &#x1F5FA; <%= t("minesweeper.surroundings") %>
-        </button>
-        <div data-minesweeper-target="surroundings" class="hidden mt-3">
-          <div data-minesweeper-target="surroundingsMap" class="h-96 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 z-0"></div>
-          <p class="mt-2 text-xs text-gray-600 dark:text-gray-400">
-            <span class="inline-block w-3 h-3 rounded-sm bg-red-600/60 border border-red-700 align-middle"></span>
-            <%= t("mine_check_public.areas_legend") %>
-          </p>
-        </div>
-      </div>
 
       <p class="mt-2 text-sm">
         <%= link_to t("minesweeper.check_link"), mine_check_path,

@@ -1105,10 +1105,10 @@ de:
 
   minesweeper:
     title: Minesweeper
-    subtitle: Das klassische Felder-Aufdecken-Spiel auf Kartenausschnitten von Bosnien und Herzegowina.
-    disclaimer_title: Dies ist nur ein Spiel
-    disclaimer: Die Minenplatzierung im Spiel ist fiktiv und völlig zufällig — jede Runde wird neu generiert und hat keinerlei Verbindung zu echten minenverdächtigen Gebieten oder echten Daten.
-    awareness: In der realen Welt sind Landminen eine ernste Gefahr. Informationen zu echten minenverdächtigen Gebieten erhalten Sie ausschließlich aus offiziellen BHMAC-Quellen (bhmac.org).
+    subtitle: "Ein Lernspiel auf echten Karten — Minen liegen dort, wo echte Daten minenverdächtige Gebiete verzeichnen."
+    disclaimer_title: "Lernspiel mit echten Daten"
+    disclaimer: "Minen im Spiel liegen auf Zellen, die sich mit erfassten minenverdächtigen Gebieten überschneiden (Stand 2024). Eine leere Zelle bedeutet nur, dass für dieses Stück Gelände keine Gebiete erfasst sind — NIEMALS, dass der Boden sicher ist; es gibt auch unmarkierte und nicht erfasste Felder."
+    awareness: "In der Realität gibt es keine zweite Chance — prüfen Sie vor jedem Schritt. Diese Seite dient in keiner Weise der Beurteilung der realen Geländesicherheit. Echte Informationen: BHMAC (bhmac.org, +387 33 253 800) und die offizielle App „BH Mine Suspected Areas“."
     region: Region
     difficulty: Schwierigkeit
     level_easy: Leicht
@@ -1117,7 +1117,7 @@ de:
     restart: Neues Spiel
     win: Gut gemacht! Feld geräumt.
     lose: Bumm! Versuch es noch einmal.
-    hint: Klick deckt ein Feld auf, Rechtsklick oder langes Drücken setzt eine Flagge. Der erste Klick ist immer sicher.
+    hint: "Klick deckt eine Zelle auf, Rechtsklick oder langes Drücken setzt eine Flagge. Zoomen und verschieben Sie die Karte, um das Gelände zu studieren. Kein Erstklick-Schutz — die Daten sind, was sie sind."
     back_home: Startseite
     density_note: Die Minenanzahl auf dem Feld spiegelt echte Statistik wider — im Datenstand von 2024 hat die Region %{name} etwa %{km2} km² minenverdächtige Gebiete im Umkreis von 30 km.
     fact_country: "Realität: Rund %{km2} km² von Bosnien und Herzegowina gelten weiterhin als minenverdächtig (BHMAC)."
@@ -1127,8 +1127,7 @@ de:
     custom_location: Gewählter Standort
     check_link: Echten Standort auf der Karte prüfen →
     density_note_custom: "Die Minenanzahl auf dem Feld spiegelt echte Statistik wider — im Datenstand von 2024 liegen etwa %{km2} km² minenverdächtige Gebiete im Umkreis von 5 km um den gewählten Punkt."
-    surroundings: "Echte Umgebung erkunden"
-    not_suspicious: "Im Umkreis von 2 km um diesen Ort sind keine minenverdächtigen Gebiete erfasst — aus didaktischen Gründen wird Minesweeper nur an tatsächlich betroffenen Orten gespielt. Wählen Sie einen Punkt näher an den roten Gebieten auf der Prüfkarte."
+    not_suspicious: "Auf diesem Feld sind keine minenverdächtigen Gebiete erfasst — das Lern-Minesweeper wird nur dort gespielt, wo echte Daten etwas verzeichnen. Wählen Sie einen Punkt auf den roten Gebieten der Prüfkarte."
 
   mine_check_public:
     title: Prüfung der Nähe zu Minengebieten
@@ -1150,6 +1149,6 @@ de:
     invalid_coordinates: Ungültige Koordinaten.
     no_gps: Standort nicht verfügbar — Standortzugriff erlauben oder Koordinaten manuell eingeben.
     error: Die Prüfung ist fehlgeschlagen. Versuchen Sie es erneut.
-    play_here: 🎮 Minesweeper an diesem Ort spielen (fiktive Minen)
+    play_here: "🎮 Lern-Minesweeper an diesem Ort spielen"
     areas_legend: "Ungefähre Grenzen der erfassten minenverdächtigen Gebiete (Stand 2024). Die Gefahr kann ÜBER die gezeigten Formen hinausreichen."
     zoom_hint: "Zoomen Sie hinein, um die Gebietsgrenzen zu sehen."

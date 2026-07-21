@@ -1005,10 +1005,10 @@ nl:
 
   minesweeper:
     title: Mijnenveger
-    subtitle: Het klassieke vakjes-vegen-spel op kaarten van Bosnië en Herzegovina.
-    disclaimer_title: Dit is slechts een spel
-    disclaimer: De plaatsing van mijnen in het spel is fictief en volledig willekeurig — elke ronde wordt opnieuw gegenereerd en heeft geen enkele connectie met echte mijnverdachte gebieden of echte gegevens.
-    awareness: In de echte wereld zijn landmijnen een serieus gevaar. Vertrouw voor informatie over echte mijnverdachte gebieden uitsluitend op officiële BHMAC-bronnen (bhmac.org).
+    subtitle: "Een educatief spel op echte kaarten — mijnen liggen waar echte gegevens mijnverdachte gebieden registreren."
+    disclaimer_title: "Educatief spel met echte gegevens"
+    disclaimer: "Mijnen in het spel liggen op cellen die overlappen met geregistreerde mijnverdachte gebieden (momentopname 2024). Een lege cel betekent alleen dat er voor dat stuk terrein geen gebieden geregistreerd zijn — NOOIT dat de grond veilig is; er bestaan ook ongemarkeerde en ongeregistreerde velden."
+    awareness: "In werkelijkheid is er geen tweede kans — controleer vóór elke stap. Deze pagina dient op geen enkele wijze om echte terreinveiligheid te beoordelen. Echte informatie: BHMAC (bhmac.org, +387 33 253 800) en de officiële app 'BH Mine Suspected Areas'."
     region: Regio
     difficulty: Moeilijkheid
     level_easy: Makkelijk
@@ -1017,7 +1017,7 @@ nl:
     restart: Nieuw spel
     win: Goed gedaan! Veld geveegd.
     lose: Boem! Probeer opnieuw.
-    hint: Klikken onthult een vakje, rechtsklikken of lang indrukken plaatst een vlag. De eerste klik is altijd veilig.
+    hint: "Klikken onthult een cel, rechtsklikken of lang indrukken plaatst een vlag. Zoom en versleep de kaart om het terrein te bestuderen. Geen eerste-klik-bescherming — de gegevens zijn wat ze zijn."
     back_home: Home
     density_note: Het aantal mijnen op het bord weerspiegelt echte statistieken — in de datamomentopname van 2024 heeft de regio %{name} ongeveer %{km2} km² mijnverdacht gebied binnen 30 km.
     fact_country: "Realiteit: ongeveer %{km2} km² van Bosnië en Herzegovina is nog steeds gemarkeerd als mijnverdacht (BHMAC)."
@@ -1027,8 +1027,7 @@ nl:
     custom_location: Gekozen locatie
     check_link: Controleer een echte locatie op de kaart →
     density_note_custom: "Het aantal mijnen op het bord weerspiegelt echte statistieken — in de momentopname van 2024 ligt ongeveer %{km2} km² mijnverdacht gebied binnen 5 km van het gekozen punt."
-    surroundings: "Verken de echte omgeving"
-    not_suspicious: "Er zijn geen geregistreerde mijnverdachte gebieden binnen 2 km van deze locatie — vanwege de educatieve waarde wordt mijnenveger alleen gespeeld op werkelijk getroffen locaties. Kies een punt dichter bij de rode gebieden op de controlekaart."
+    not_suspicious: "Op dit bord zijn geen mijnverdachte gebieden geregistreerd — de educatieve mijnenveger wordt alleen gespeeld waar echte gegevens iets registreren. Kies een punt op de rode gebieden op de controlekaart."
 
   mine_check_public:
     title: Controle nabijheid mijnengebieden
@@ -1050,6 +1049,6 @@ nl:
     invalid_coordinates: Ongeldige coördinaten.
     no_gps: Locatie niet beschikbaar — sta locatietoegang toe of voer de coördinaten handmatig in.
     error: De controle is mislukt. Probeer opnieuw.
-    play_here: 🎮 Speel mijnenveger op deze locatie (fictieve mijnen)
+    play_here: "🎮 Speel de educatieve mijnenveger op deze locatie"
     areas_legend: "Geschatte grenzen van geregistreerde mijnverdachte gebieden (momentopname 2024). Het gevaar kan zich TOT BUITEN de getoonde vormen uitstrekken."
     zoom_hint: "Zoom in om de grenzen van de gebieden te zien."

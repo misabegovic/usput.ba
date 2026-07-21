@@ -1539,10 +1539,10 @@ en:
 
   minesweeper:
     title: Minesweeper
-    subtitle: The classic tile-clearing game played over map views of Bosnia and Herzegovina.
-    disclaimer_title: This is only a game
-    disclaimer: Mine placement in the game is fictional and completely random — every round is generated from scratch and has no connection whatsoever to real mine suspected areas or any real data.
-    awareness: In the real world, landmines are a serious danger. For information about real mine suspected areas, rely exclusively on official BHMAC sources (bhmac.org).
+    subtitle: "An educational game on real maps — mines are where real data records mine-suspected areas."
+    disclaimer_title: "Educational game with real data"
+    disclaimer: "Mines in the game sit on cells that overlap recorded mine-suspected areas (2024 snapshot). An empty cell means only that no areas are recorded for that piece of terrain — NEVER that the ground is safe; unmarked and unrecorded fields also exist."
+    awareness: "In reality there is no second chance — verify before every step. This page in no way serves to assess real terrain safety. For real information: BHMAC (bhmac.org, +387 33 253 800) and the official 'BH Mine Suspected Areas' app."
     region: Region
     difficulty: Difficulty
     level_easy: Easy
@@ -1551,7 +1551,7 @@ en:
     restart: New game
     win: Well done! Board cleared.
     lose: Boom! Try again.
-    hint: Click reveals a tile, right-click or long-press places a flag. The first click is always safe.
+    hint: "Click reveals a cell, right-click or long-press places a flag. Zoom and pan the map to study the terrain. No first-click protection — the data is what it is."
     back_home: Home
     density_note: The number of mines on the board mirrors real statistics — in the 2024 data snapshot, the %{name} region has about %{km2} km² of mine-suspected areas within 30 km.
     fact_country: "Reality: about %{km2} km² of Bosnia and Herzegovina is still marked as mine-suspected (BHMAC)."
@@ -1561,8 +1561,7 @@ en:
     custom_location: Chosen location
     check_link: Check a real location on the map →
     density_note_custom: "The number of mines on the board mirrors real statistics — in the 2024 data snapshot there are about %{km2} km² of mine-suspected areas within 5 km of the chosen point."
-    surroundings: "Explore the real surroundings"
-    not_suspicious: "There are no recorded mine-suspected areas within 2 km of this location — for educational value, minesweeper is only played at genuinely affected locations. Pick a point closer to the red areas on the checker map."
+    not_suspicious: "There are no recorded mine-suspected areas on this board — the educational minesweeper is only played where real data records something. Pick a point on the red areas on the checker map."
 
   mine_check_public:
     title: Mine-area proximity check
@@ -1584,6 +1583,6 @@ en:
     invalid_coordinates: Invalid coordinates.
     no_gps: Location unavailable — allow location access or enter coordinates manually.
     error: The check failed. Try again.
-    play_here: 🎮 Play minesweeper at this location (fictional mines)
+    play_here: "🎮 Play the educational minesweeper at this location"
     areas_legend: "Approximate boundaries of recorded mine-suspected areas (2024 snapshot). Danger can extend BEYOND the shapes shown."
     zoom_hint: "Zoom in to see area boundaries."

@@ -1096,10 +1096,10 @@ it:
 
   minesweeper:
     title: Campo minato
-    subtitle: Il classico gioco di scoperta delle caselle su mappe della Bosnia ed Erzegovina.
-    disclaimer_title: Questo è solo un gioco
-    disclaimer: La disposizione delle mine nel gioco è fittizia e completamente casuale — ogni partita viene generata da zero e non ha alcun legame con reali aree sospette di mine né con dati reali.
-    awareness: Nel mondo reale le mine sono un pericolo serio. Per informazioni sulle reali aree sospette di mine affidati esclusivamente alle fonti ufficiali del BHMAC (bhmac.org).
+    subtitle: "Un gioco educativo su mappe reali — le mine sono dove i dati reali registrano aree sospette."
+    disclaimer_title: "Gioco educativo con dati reali"
+    disclaimer: "Le mine del gioco occupano le celle che si sovrappongono ad aree registrate sospette di mine (snapshot 2024). Una cella vuota significa solo che per quel pezzo di terreno non risultano aree registrate — MAI che il terreno sia sicuro; esistono anche campi non segnalati e non registrati."
+    awareness: "Nella realtà non c'è una seconda possibilità — verifica prima di ogni passo. Questa pagina non serve in alcun modo a valutare la sicurezza reale del terreno. Informazioni reali: BHMAC (bhmac.org, +387 33 253 800) e l'app ufficiale 'BH Mine Suspected Areas'."
     region: Regione
     difficulty: Difficoltà
     level_easy: Facile
@@ -1108,7 +1108,7 @@ it:
     restart: Nuova partita
     win: Ben fatto! Campo ripulito.
     lose: Bum! Riprova.
-    hint: Un clic rivela una casella, il clic destro o la pressione prolungata piazza una bandierina. Il primo clic è sempre sicuro.
+    hint: "Un clic rivela una cella, il clic destro o la pressione prolungata piazza una bandierina. Ingrandisci e sposta la mappa per studiare il terreno. Nessuna protezione al primo clic — i dati sono quelli che sono."
     back_home: Home
     density_note: Il numero di mine sul campo rispecchia statistiche reali — nello snapshot dei dati del 2024, la regione di %{name} ha circa %{km2} km² di aree sospette di mine nel raggio di 30 km.
     fact_country: "Realtà: circa %{km2} km² della Bosnia ed Erzegovina sono ancora classificati come sospetti di mine (BHMAC)."
@@ -1118,8 +1118,7 @@ it:
     custom_location: Posizione scelta
     check_link: Verifica una posizione reale sulla mappa →
     density_note_custom: "Il numero di mine sul campo rispecchia statistiche reali — nello snapshot del 2024 ci sono circa %{km2} km² di aree sospette di mine nel raggio di 5 km dal punto scelto."
-    surroundings: "Esplora i dintorni reali"
-    not_suspicious: "Non ci sono aree sospette di mine registrate entro 2 km da questa posizione — a scopo educativo, il campo minato si gioca solo in luoghi realmente colpiti. Scegli un punto più vicino alle aree rosse sulla mappa di verifica."
+    not_suspicious: "Su questo campo non risultano aree sospette di mine registrate — il campo minato educativo si gioca solo dove i dati reali registrano qualcosa. Scegli un punto sulle aree rosse della mappa di verifica."
 
   mine_check_public:
     title: Verifica di prossimità alle aree minate
@@ -1141,6 +1140,6 @@ it:
     invalid_coordinates: Coordinate non valide.
     no_gps: Posizione non disponibile — consenti l'accesso alla posizione o inserisci le coordinate manualmente.
     error: La verifica non è riuscita. Riprova.
-    play_here: 🎮 Gioca a campo minato in questa posizione (mine fittizie)
+    play_here: "🎮 Gioca al campo minato educativo in questa posizione"
     areas_legend: "Confini approssimativi delle aree registrate sospette di mine (snapshot 2024). Il pericolo può estendersi OLTRE le forme mostrate."
     zoom_hint: "Ingrandisci per vedere i confini delle aree."

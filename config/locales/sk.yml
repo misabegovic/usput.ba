@@ -995,10 +995,10 @@ sk:
 
   minesweeper:
     title: Míny
-    subtitle: Klasická hra na odkrývanie políčok na mapách Bosny a Hercegoviny.
-    disclaimer_title: Toto je len hra
-    disclaimer: Rozmiestnenie mín v hre je vymyslené a úplne náhodné — každá hra sa generuje nanovo a nemá žiadnu súvislosť so skutočnými oblasťami podozrivými z výskytu mín ani so skutočnými údajmi.
-    awareness: V skutočnom svete sú míny vážne nebezpečenstvo. Informácie o skutočných oblastiach podozrivých z výskytu mín hľadajte výhradne v oficiálnych zdrojoch BHMAC (bhmac.org).
+    subtitle: "Vzdelávacia hra na skutočných mapách — míny sú tam, kde skutočné údaje zaznamenávajú oblasti podozrivé z výskytu mín."
+    disclaimer_title: "Vzdelávacia hra so skutočnými údajmi"
+    disclaimer: "Míny v hre ležia na bunkách, ktoré sa prekrývajú so zaznamenanými oblasťami podozrivými z výskytu mín (snímka 2024). Prázdna bunka znamená len to, že pre ten kus terénu nie sú zaznamenané žiadne oblasti — NIKDY, že je terén bezpečný; existujú aj neoznačené a nezaznamenané polia."
+    awareness: "V skutočnosti niet druhej šance — over pred každým krokom. Táto stránka nijako neslúži na posúdenie skutočnej bezpečnosti terénu. Skutočné informácie: BHMAC (bhmac.org, +387 33 253 800) a oficiálna aplikácia „BH Mine Suspected Areas“."
     region: Oblasť
     difficulty: Obtiažnosť
     level_easy: Ľahká
@@ -1007,7 +1007,7 @@ sk:
     restart: Nová hra
     win: Výborne! Pole vyčistené.
     lose: Bum! Skús to znova.
-    hint: Kliknutie odkryje políčko, pravé tlačidlo alebo dlhšie podržanie umiestni vlajku. Prvé kliknutie je vždy bezpečné.
+    hint: "Kliknutie odkryje bunku, pravé tlačidlo alebo dlhšie podržanie umiestni vlajku. Približuj a posúvaj mapu a študuj terén. Žiadna ochrana prvého kliknutia — údaje sú také, aké sú."
     back_home: Domov
     density_note: Počet mín na hracom poli odráža skutočné štatistiky — v snímke údajov z roku 2024 má región %{name} zhruba %{km2} km² oblastí podozrivých z výskytu mín v okruhu 30 km.
     fact_country: "Realita: zhruba %{km2} km² Bosny a Hercegoviny je stále označených ako podozrivých z výskytu mín (BHMAC)."
@@ -1017,8 +1017,7 @@ sk:
     custom_location: Zvolené miesto
     check_link: Skontroluj skutočné miesto na mape →
     density_note_custom: "Počet mín na hracom poli odráža skutočné štatistiky — v snímke z roku 2024 je zhruba %{km2} km² oblastí podozrivých z výskytu mín v okruhu 5 km od zvoleného miesta."
-    surroundings: "Preskúmaj skutočné okolie"
-    not_suspicious: "V okruhu 2 km od tohto miesta nie sú zaznamenané žiadne oblasti podozrivé z výskytu mín — z edukačných dôvodov sa míny hrajú len na skutočne zasiahnutých miestach. Vyber bod bližšie k červeným oblastiam na kontrolnej mape."
+    not_suspicious: "Na tomto poli nie sú zaznamenané žiadne oblasti podozrivé z výskytu mín — vzdelávacie míny sa hrajú len tam, kde skutočné údaje niečo zaznamenávajú. Vyber bod na červených oblastiach na kontrolnej mape."
 
   mine_check_public:
     title: Kontrola blízkosti mínových oblastí
@@ -1040,6 +1039,6 @@ sk:
     invalid_coordinates: Neplatné súradnice.
     no_gps: Poloha nie je dostupná — povoľ prístup k polohe alebo zadaj súradnice ručne.
     error: Kontrola zlyhala. Skús to znova.
-    play_here: 🎮 Zahraj si míny na tomto mieste (vymyslené míny)
+    play_here: "🎮 Zahraj si vzdelávacie míny na tomto mieste"
     areas_legend: "Približné hranice zaznamenaných oblastí podozrivých z výskytu mín (snímka 2024). Nebezpečenstvo môže siahať AJ ZA zobrazené tvary."
     zoom_hint: "Priblíž mapu pre zobrazenie hraníc oblastí."

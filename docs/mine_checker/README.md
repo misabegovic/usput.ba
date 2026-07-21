@@ -39,10 +39,15 @@ Fail-safe svojstva javne provjere:
 - **Preporuka ostaje**: prije javnog lansiranja koordinirati s BHMAC-om
   (vidi ADR-001); ovaj zapis dokumentira svjesnu odluku vlasnika.
 
-Minesweeper igra (`/minesweeper`) i dalje koristi ISKLJUČIVO izmišljene mine;
-stvarni podaci ulaze samo kao grubi agregati (km² po regiji, odnosno
-jedan 5 km agregat za "custom" tačku) za skaliranje težine i edukativne
-činjenice.
+Minesweeper igra (`/minesweeper`) — edukativna, sa STVARNIM podacima
+(odluka vlasnika, 2026-07-21): tabla je geografska mreža na stvarnim
+kartama (zum/pomjeranje slobodni), a mina je svaka ćelija koja se
+preklapa sa evidentiranim sumnjivim područjem — isti generalizovani
+javni sloj kao overlay na karti provjere, samo downsampliran na ćelije
+(dakle bez ijedne nove informacije prema korisniku). Igra se SAMO tamo
+gdje podaci nešto bilježe (prazna tabla → edukativna poruka); stranica
+nosi puni blok upozorenja (prazna ćelija ≠ siguran teren, snimak 2024,
+"nema druge šanse", nije za navigaciju, BHMAC + službena aplikacija).
 
 ## Komande
 

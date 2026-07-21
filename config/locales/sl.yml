@@ -996,10 +996,10 @@ sl:
 
   minesweeper:
     title: Minolovec
-    subtitle: Klasična igra odkrivanja polj na zemljevidih Bosne in Hercegovine.
-    disclaimer_title: To je samo igra
-    disclaimer: Postavitev min v igri je izmišljena in popolnoma naključna — vsaka igra se generira na novo in nima nobene povezave z resničnimi območji, sumljivimi zaradi min, niti z resničnimi podatki.
-    awareness: V resničnem svetu so mine resna nevarnost. Za informacije o resničnih območjih, sumljivih zaradi min, se zanašaj izključno na uradne vire BHMAC (bhmac.org).
+    subtitle: "Izobraževalna igra na resničnih zemljevidih — mine so tam, kjer resnični podatki beležijo območja, sumljiva zaradi min."
+    disclaimer_title: "Izobraževalna igra z resničnimi podatki"
+    disclaimer: "Mine v igri ležijo na celicah, ki se prekrivajo z zabeleženimi območji, sumljivimi zaradi min (posnetek 2024). Prazna celica pomeni le, da za ta kos terena ni zabeleženih območij — NIKOLI, da je teren varen; obstajajo tudi neoznačena in nezabeležena polja."
+    awareness: "V resnici ni druge priložnosti — preveri pred vsakim korakom. Ta stran nikakor ne služi oceni resnične varnosti terena. Resnične informacije: BHMAC (bhmac.org, +387 33 253 800) in uradna aplikacija „BH Mine Suspected Areas“."
     region: Območje
     difficulty: Težavnost
     level_easy: Lahko
@@ -1008,7 +1008,7 @@ sl:
     restart: Nova igra
     win: Bravo! Polje očiščeno.
     lose: Bum! Poskusi znova.
-    hint: Klik odkrije polje, desni klik ali daljši pritisk postavi zastavico. Prvi klik je vedno varen.
+    hint: "Klik odkrije celico, desni klik ali daljši pritisk postavi zastavico. Približuj in premikaj zemljevid ter preučuj teren. Brez zaščite prvega klika — podatki so takšni, kot so."
     back_home: Domov
     density_note: Število min na polju odraža resnične statistike — v posnetku podatkov iz leta 2024 ima regija %{name} približno %{km2} km² območij, sumljivih zaradi min, v krogu 30 km.
     fact_country: "Resničnost: približno %{km2} km² Bosne in Hercegovine je še vedno označenih kot sumljivih zaradi min (BHMAC)."
@@ -1018,8 +1018,7 @@ sl:
     custom_location: Izbrana lokacija
     check_link: Preveri resnično lokacijo na zemljevidu →
     density_note_custom: "Število min na polju odraža resnične statistike — v posnetku iz leta 2024 je približno %{km2} km² območij, sumljivih zaradi min, v krogu 5 km od izbrane točke."
-    surroundings: "Razišči resnično okolico"
-    not_suspicious: "V krogu 2 km od te lokacije ni zabeleženih območij, sumljivih zaradi min — iz izobraževalnih razlogov se minolovec igra le na resnično prizadetih lokacijah. Izberi točko bližje rdečim območjem na zemljevidu preverjanja."
+    not_suspicious: "Na tem polju ni zabeleženih območij, sumljivih zaradi min — izobraževalni minolovec se igra le tam, kjer resnični podatki nekaj beležijo. Izberi točko na rdečih območjih na zemljevidu preverjanja."
 
   mine_check_public:
     title: Preverjanje bližine minskih območij
@@ -1041,6 +1040,6 @@ sl:
     invalid_coordinates: Neveljavne koordinate.
     no_gps: Lokacija ni na voljo — dovoli dostop do lokacije ali ročno vnesi koordinate.
     error: Preverjanje ni uspelo. Poskusi znova.
-    play_here: 🎮 Igraj minolovca na tej lokaciji (izmišljene mine)
+    play_here: "🎮 Igraj izobraževalnega minolovca na tej lokaciji"
     areas_legend: "Približne meje zabeleženih območij, sumljivih zaradi min (posnetek 2024). Nevarnost lahko sega TUDI ONKRAJ prikazanih oblik."
     zoom_hint: "Približaj zemljevid za prikaz mej območij."

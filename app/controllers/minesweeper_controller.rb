@@ -1,24 +1,30 @@
-# Minolovac — classic minesweeper played over scenic static-map backdrops of
-# Bosnia and Herzegovina. Mine placement is random and fictional, generated
-# client-side per game — it never reflects real mine locations. Real data
-# appears only as coarse aggregates: baked-in regional statistics, or a
-# single 5 km aggregate query for custom-point boards (no geometry).
+# Educational minesweeper over real map tiles (owner decision 2026-07-21,
+# documented in docs/mine_checker/README.md). The board is a geographic grid
+# and mines sit EXACTLY on cells that intersect recorded mine-suspected
+# areas from the vendored snapshot — the same generalized public layer the
+# checker map already displays, downsampled to grid cells. An empty cell
+# means only "no recorded area here" and the page says so loudly; it is
+# never a safety statement.
 class MinesweeperController < ApplicationController
-  # suspected_km2: aggregate area of mine-suspected polygons within 30 km of
-  # the region center, computed OFFLINE from the vendored 2024-07-31 snapshot.
+  # Region boards are anchored on the largest recorded suspected area within
+  # 30 km of each city (computed offline from the snapshot) so every preset
+  # board contains real mines. suspected_km2 = aggregate within 30 km of the
+  # original city center, for the educational facts.
   REGIONS = {
-    "sarajevo" => { name: "Sarajevo", lat: 43.8563, lon: 18.4131, zoom: 12, suspected_km2: 102.3 },
-    "mostar" => { name: "Mostar", lat: 43.3438, lon: 17.8078, zoom: 12, suspected_km2: 41.8 },
-    "banja-luka" => { name: "Banja Luka", lat: 44.7722, lon: 17.1910, zoom: 12, suspected_km2: 5.2 },
-    "jajce" => { name: "Jajce", lat: 44.3420, lon: 17.2703, zoom: 13, suspected_km2: 62.4 },
-    "una" => { name: "NP Una", lat: 44.8169, lon: 15.8708, zoom: 11, suspected_km2: 51.9 },
-    "sutjeska" => { name: "NP Sutjeska", lat: 43.3350, lon: 18.6900, zoom: 11, suspected_km2: 3.7 }
+    "sarajevo" => { name: "Sarajevo", lat: 44.0181, lon: 18.4106, suspected_km2: 102.3 },
+    "mostar" => { name: "Mostar", lat: 43.5322, lon: 17.9713, suspected_km2: 41.8 },
+    "banja-luka" => { name: "Banja Luka", lat: 44.5419, lon: 17.0952, suspected_km2: 5.2 },
+    "jajce" => { name: "Jajce", lat: 44.3937, lon: 17.2329, suspected_km2: 62.4 },
+    "una" => { name: "NP Una", lat: 44.8466, lon: 16.0245, suspected_km2: 51.9 },
+    "sutjeska" => { name: "NP Sutjeska", lat: 43.5190, lon: 18.6322, suspected_km2: 3.7 }
   }.freeze
 
+  # cell_m: real-world size of one grid cell. Bigger cells on easy = a wider
+  # piece of terrain per decision.
   DIFFICULTIES = {
-    "easy" => { rows: 9, cols: 9, mines: 10 },
-    "medium" => { rows: 12, cols: 12, mines: 24 },
-    "hard" => { rows: 14, cols: 14, mines: 40 }
+    "easy" => { rows: 9, cols: 9, cell_m: 150 },
+    "medium" => { rows: 12, cols: 12, cell_m: 125 },
+    "hard" => { rows: 14, cols: 14, cell_m: 100 }
   }.freeze
 
   # Official BHMAC country-wide figure (822.87 km², rounded) — the one number
@@ -28,21 +34,6 @@ class MinesweeperController < ApplicationController
 
   CUSTOM_RADIUS_M = 5_000
 
-  # Custom boards are educational: playable ONLY where real data records a
-  # suspected area nearby (matches the checker's caution radius).
-  PLAYABLE_RADIUS_M = 2_000
-
-  # Mine density mirrors the location's real contamination statistics:
-  # 0.75x the base count for the least-affected up to 1.25x for the
-  # most-affected, capped at 30% of the board. `scale` is the km² that counts
-  # as maximum density (100 for the 30 km regional aggregates, 15 for the
-  # 5 km custom-point aggregates).
-  def self.mines_for(difficulty, region)
-    scale = region[:scale] || 100.0
-    factor = 0.75 + 0.5 * [ [ region[:suspected_km2] / scale, 1.0 ].min, 0.05 ].max
-    [ (difficulty[:mines] * factor).round, difficulty[:rows] * difficulty[:cols] * 3 / 10 ].min
-  end
-
   def show
     if params[:lat].present? && params[:lon].present?
       lat = params[:lat].to_f
@@ -50,11 +41,10 @@ class MinesweeperController < ApplicationController
       return redirect_to minesweeper_path unless bbox_contains?(lat, lon)
 
       @region_slug = "custom"
-      @unplayable = !suspected_nearby?(lat, lon)
       @region = {
         name: "#{lat.round(4)}, #{lon.round(4)}",
-        lat: lat, lon: lon, zoom: 14,
-        suspected_km2: @unplayable ? 0.0 : local_suspected_km2(lat, lon), scale: 15.0
+        lat: lat, lon: lon,
+        suspected_km2: local_suspected_km2(lat, lon), scale: 15.0
       }
     elsif params[:region].present? && !REGIONS.key?(params[:region])
       return redirect_to minesweeper_path
@@ -65,20 +55,41 @@ class MinesweeperController < ApplicationController
 
     @level = DIFFICULTIES.key?(params[:level]) ? params[:level] : "easy"
     @difficulty = DIFFICULTIES[@level]
-    @mines = self.class.mines_for(@difficulty, @region)
+
+    @dlat = @difficulty[:cell_m] / 111_320.0
+    @dlon = @difficulty[:cell_m] / (111_320.0 * Math.cos(@region[:lat] * Math::PI / 180))
+    @south = @region[:lat] - @difficulty[:rows] * @dlat / 2
+    @west = @region[:lon] - @difficulty[:cols] * @dlon / 2
+
+    @mine_cells = mine_cells
+    # Educational contract: no recorded areas on the board => nothing to
+    # learn here => not playable. Pick a point on/near the red areas.
+    @unplayable = @mine_cells.empty?
   end
 
   private
 
-  def suspected_nearby?(lat, lon)
-    MineArea.suspected
-      .where("ST_DWithin(geom, ST_GeogFromText(:pt), :r)",
-             pt: "SRID=4326;POINT(#{lon} #{lat})", r: PLAYABLE_RADIUS_M)
-      .exists?
+  # One cell is a mine iff its geographic rectangle intersects a recorded
+  # suspected area — the board is a downsampling of the public overlay layer.
+  def mine_cells
+    cache_key = "minesweeper/board/#{@region[:lat].round(4)}/#{@region[:lon].round(4)}/#{@level}"
+    Rails.cache.fetch(cache_key, expires_in: 1.day) do
+      sql = ActiveRecord::Base.sanitize_sql([ <<~SQL, { rmax: @difficulty[:rows] - 1, cmax: @difficulty[:cols] - 1, south: @south, west: @west, dlat: @dlat, dlon: @dlon } ])
+        SELECT r, c
+        FROM generate_series(0, :rmax) AS r, generate_series(0, :cmax) AS c
+        WHERE EXISTS (
+          SELECT 1 FROM mine_areas
+          WHERE kind = 'suspected'
+            AND ST_Intersects(geom, ST_MakeEnvelope(
+              :west + c * :dlon, :south + r * :dlat,
+              :west + (c + 1) * :dlon, :south + (r + 1) * :dlat, 4326)::geography)
+        )
+      SQL
+      ActiveRecord::Base.connection.select_rows(sql).map { |r, c| [ r.to_i, c.to_i ] }
+    end
   end
 
-  # A single aggregate (km² within 5 km) to scale the fictional board's
-  # density. No geometry.
+  # Aggregate (km² within 5 km) for the educational facts. No geometry.
   def local_suspected_km2(lat, lon)
     (MineArea.suspected
       .where("ST_DWithin(geom, ST_GeogFromText(:pt), :r)",
