@@ -1270,7 +1270,7 @@ tr:
       view_application: Başvuruyu görüntüle
       apply_now: Şimdi başvur
 
-  minolovac:
+  minesweeper:
     title: Mayın Tarlası
     subtitle: Bosna-Hersek haritaları üzerinde oynanan klasik kare açma oyunu.
     disclaimer_title: Bu sadece bir oyun
@@ -1293,6 +1293,9 @@ tr:
     fact_official: "Gerçek bilgi için resmi 'BH Mine Suspected Areas' uygulamasını ve BHMAC'ı kullanın: bhmac.org, +387 33 253 800."
     custom_location: Seçilen konum
     check_link: Haritada gerçek bir konumu kontrol et →
+    density_note_custom: "Tahtadaki mayın sayısı gerçek istatistikleri yansıtır — 2024 görüntüsünde seçilen noktanın 5 km çevresinde yaklaşık %{km2} km² mayın şüpheli alan var."
+    surroundings: "Gerçek çevreyi keşfet"
+    not_suspicious: "Bu konumun 2 km çevresinde kayıtlı mayın şüpheli bölge yok — eğitim değeri açısından mayın tarlası yalnızca gerçekten etkilenen konumlarda oynanır. Kontrol haritasındaki kırmızı bölgelere daha yakın bir nokta seç."
 
   mine_check_public:
     title: Mayın bölgesi yakınlık kontrolü
@@ -1317,4 +1320,3 @@ tr:
     play_here: 🎮 Bu konumda mayın tarlası oyna (kurgusal mayınlar)
     areas_legend: "Kayıtlı mayın şüpheli bölgelerin yaklaşık sınırları (2024 görüntüsü). Tehlike, gösterilen şekillerin ÖTESİNE uzanabilir."
     zoom_hint: "Bölge sınırlarını görmek için haritayı yakınlaştır."
-    density_note_custom: "Tahtadaki mayın sayısı gerçek istatistikleri yansıtır — 2024 görüntüsünde seçilen noktanın 5 km çevresinde yaklaşık %{km2} km² mayın şüpheli alan var."

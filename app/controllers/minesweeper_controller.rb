@@ -3,7 +3,7 @@
 # client-side per game — it never reflects real mine locations. Real data
 # appears only as coarse aggregates: baked-in regional statistics, or a
 # single 5 km aggregate query for custom-point boards (no geometry).
-class MinolovacController < ApplicationController
+class MinesweeperController < ApplicationController
   # suspected_km2: aggregate area of mine-suspected polygons within 30 km of
   # the region center, computed OFFLINE from the vendored 2024-07-31 snapshot.
   REGIONS = {
@@ -28,6 +28,10 @@ class MinolovacController < ApplicationController
 
   CUSTOM_RADIUS_M = 5_000
 
+  # Custom boards are educational: playable ONLY where real data records a
+  # suspected area nearby (matches the checker's caution radius).
+  PLAYABLE_RADIUS_M = 2_000
+
   # Mine density mirrors the location's real contamination statistics:
   # 0.75x the base count for the least-affected up to 1.25x for the
   # most-affected, capped at 30% of the board. `scale` is the km² that counts
@@ -46,10 +50,11 @@ class MinolovacController < ApplicationController
       return redirect_to minesweeper_path unless bbox_contains?(lat, lon)
 
       @region_slug = "custom"
+      @unplayable = !suspected_nearby?(lat, lon)
       @region = {
         name: "#{lat.round(4)}, #{lon.round(4)}",
         lat: lat, lon: lon, zoom: 14,
-        suspected_km2: local_suspected_km2(lat, lon), scale: 15.0
+        suspected_km2: @unplayable ? 0.0 : local_suspected_km2(lat, lon), scale: 15.0
       }
     elsif params[:region].present? && !REGIONS.key?(params[:region])
       return redirect_to minesweeper_path
@@ -65,8 +70,15 @@ class MinolovacController < ApplicationController
 
   private
 
-  # The one runtime touch of mine data on this page: a single aggregate
-  # (km² within 5 km) to scale the fictional board's density. No geometry.
+  def suspected_nearby?(lat, lon)
+    MineArea.suspected
+      .where("ST_DWithin(geom, ST_GeogFromText(:pt), :r)",
+             pt: "SRID=4326;POINT(#{lon} #{lat})", r: PLAYABLE_RADIUS_M)
+      .exists?
+  end
+
+  # A single aggregate (km² within 5 km) to scale the fictional board's
+  # density. No geometry.
   def local_suspected_km2(lat, lon)
     (MineArea.suspected
       .where("ST_DWithin(geom, ST_GeogFromText(:pt), :r)",

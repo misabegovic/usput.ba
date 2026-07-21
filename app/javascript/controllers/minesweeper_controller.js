@@ -13,8 +13,8 @@ const NUMBER_COLORS = [
 ]
 
 export default class extends Controller {
-  static targets = ["board", "mines", "timer", "status", "map", "fact"]
-  static values = { rows: Number, cols: Number, mines: Number, labels: Object, lat: Number, lon: Number, zoom: Number }
+  static targets = ["board", "mines", "timer", "status", "map", "fact", "surroundings", "surroundingsMap"]
+  static values = { rows: Number, cols: Number, mines: Number, labels: Object, lat: Number, lon: Number, zoom: Number, areasUrl: String }
 
   connect() {
     this.initBackdrop()
@@ -24,6 +24,58 @@ export default class extends Controller {
   disconnect() {
     this.stopTimer()
     if (this.backdrop) this.backdrop.remove()
+    if (this.surroundingsMapInstance) this.surroundingsMapInstance.remove()
+  }
+
+  // Educational context: a fully interactive map around the board location
+  // with the REAL recorded-area overlay (boundaries zoomed in, dots zoomed
+  // out) — so the fictional game sits next to the real picture.
+  toggleSurroundings() {
+    const panel = this.surroundingsTarget
+    panel.classList.toggle("hidden")
+    if (panel.classList.contains("hidden") || this.surroundingsMapInstance) return
+
+    const L = window.L
+    const map = L.map(this.surroundingsMapTarget).setView([this.latValue, this.lonValue], 12)
+    this.surroundingsMapInstance = map
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 17,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map)
+    L.circleMarker([this.latValue, this.lonValue], { radius: 8, color: "#047857", weight: 3 }).addTo(map)
+    this.surroundingsAreas = L.geoJSON(null, {
+      style: { color: "#b91c1c", weight: 1, fillColor: "#dc2626", fillOpacity: 0.35 },
+      pointToLayer: (feature, latlng) => L.circleMarker(latlng, {
+        radius: 3, color: "#b91c1c", weight: 1, fillColor: "#dc2626", fillOpacity: 0.7
+      })
+    }).addTo(map)
+    map.on("moveend", () => this.loadSurroundingAreas())
+    this.loadSurroundingAreas()
+  }
+
+  async loadSurroundingAreas() {
+    if (!this.hasAreasUrlValue || !this.surroundingsMapInstance) return
+    const map = this.surroundingsMapInstance
+    try {
+      let url
+      if (map.getZoom() < 9) {
+        url = `${this.areasUrlValue}?overview=1`
+      } else {
+        const b = map.getBounds()
+        const params = new URLSearchParams({
+          west: b.getWest().toFixed(3), south: b.getSouth().toFixed(3),
+          east: b.getEast().toFixed(3), north: b.getNorth().toFixed(3)
+        })
+        url = `${this.areasUrlValue}?${params}`
+      }
+      const response = await fetch(url)
+      if (!response.ok) return
+      const data = await response.json()
+      this.surroundingsAreas.clearLayers()
+      this.surroundingsAreas.addData(data)
+    } catch {
+      // best-effort overlay
+    }
   }
 
   // Non-interactive OSM backdrop — purely scenery behind the fictional board.

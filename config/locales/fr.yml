@@ -1178,7 +1178,7 @@ fr:
       reviewed_at: Examiné
       feedback: Commentaires
 
-  minolovac:
+  minesweeper:
     title: Démineur
     subtitle: Le jeu classique de déminage de cases sur des cartes de Bosnie-Herzégovine.
     disclaimer_title: Ceci n'est qu'un jeu
@@ -1201,6 +1201,9 @@ fr:
     fact_official: "Pour de vraies informations, utilisez l'application officielle « BH Mine Suspected Areas » et le BHMAC : bhmac.org, +387 33 253 800."
     custom_location: Emplacement choisi
     check_link: Vérifier un lieu réel sur la carte →
+    density_note_custom: "Le nombre de mines sur la grille reflète des statistiques réelles — dans l'instantané de 2024, il y a environ %{km2} km² de zones suspectées de mines dans un rayon de 5 km du point choisi."
+    surroundings: "Explorer les environs réels"
+    not_suspicious: "Aucune zone suspectée de mines n'est enregistrée dans un rayon de 2 km de cet endroit — à des fins pédagogiques, le démineur ne se joue que sur des lieux réellement touchés. Choisissez un point plus proche des zones rouges sur la carte de vérification."
 
   mine_check_public:
     title: Vérification de proximité des zones minées
@@ -1225,4 +1228,3 @@ fr:
     play_here: 🎮 Jouer au démineur à cet endroit (mines fictives)
     areas_legend: "Limites approximatives des zones suspectées de mines enregistrées (instantané 2024). Le danger peut s'étendre AU-DELÀ des formes affichées."
     zoom_hint: "Zoomez pour voir les limites des zones."
-    density_note_custom: "Le nombre de mines sur la grille reflète des statistiques réelles — dans l'instantané de 2024, il y a environ %{km2} km² de zones suspectées de mines dans un rayon de 5 km du point choisi."

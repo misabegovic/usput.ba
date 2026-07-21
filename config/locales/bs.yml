@@ -1308,7 +1308,7 @@ bs:
     data_stale: "Provjera minske sigurnosti trenutno nije moguća (podaci su zastarjeli), pa lokacija ne može biti prihvaćena. Za informacije o minskoj situaciji obratite se BHMAC-u: 033/253-800."
     emergency: "Policija 122 · Civilna zaštita 121 · BHMAC 033/253-800"
 
-  minolovac:
+  minesweeper:
     title: Minolovac
     subtitle: Klasična igra otkrivanja polja na kartama bosanskohercegovačkih predjela.
     disclaimer_title: Ovo je samo igra
@@ -1331,6 +1331,9 @@ bs:
     fact_official: "Za stvarne informacije koristi službenu aplikaciju „BH Mine Suspected Areas“ i BHMAC: bhmac.org, 033 253-800."
     custom_location: Odabrana lokacija
     check_link: Provjeri stvarnu lokaciju na karti →
+    density_note_custom: "Broj mina na tabli odražava stvarnu statistiku — u snimku podataka (2024) oko %{km2} km² minski sumnjivih područja je u krugu od 5 km od odabrane tačke."
+    surroundings: "Istraži stvarnu okolinu"
+    not_suspicious: "Na ovoj lokaciji nema evidentiranih minski sumnjivih područja u krugu od 2 km — minolovac se, edukacije radi, igra samo na stvarno pogođenim lokacijama. Odaberi tačku bliže crvenim područjima na karti provjere."
 
   mine_check_public:
     title: Provjera blizine minskih područja
@@ -1355,4 +1358,3 @@ bs:
     play_here: 🎮 Igraj minolovac na ovoj lokaciji (izmišljene mine)
     areas_legend: "Približne granice evidentiranih minski sumnjivih područja (snimak 2024). Opasnost se može protezati i IZVAN prikazanih oblika."
     zoom_hint: "Približi kartu da vidiš granice područja."
-    density_note_custom: "Broj mina na tabli odražava stvarnu statistiku — u snimku podataka (2024) oko %{km2} km² minski sumnjivih područja je u krugu od 5 km od odabrane tačke."

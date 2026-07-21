@@ -1003,7 +1003,7 @@ pl:
       reviewed_at: Sprawdzono
       feedback: Opinia
 
-  minolovac:
+  minesweeper:
     title: Saper
     subtitle: Klasyczna gra w odkrywanie pól na mapach Bośni i Hercegowiny.
     disclaimer_title: To tylko gra
@@ -1026,6 +1026,9 @@ pl:
     fact_official: "Po prawdziwe informacje sięgnij po oficjalną aplikację „BH Mine Suspected Areas” i BHMAC: bhmac.org, +387 33 253 800."
     custom_location: Wybrana lokalizacja
     check_link: Sprawdź prawdziwą lokalizację na mapie →
+    density_note_custom: "Liczba min na planszy odzwierciedla prawdziwe statystyki — w migawce z 2024 r. około %{km2} km² obszarów podejrzanych o miny leży w promieniu 5 km od wybranego punktu."
+    surroundings: "Poznaj prawdziwą okolicę"
+    not_suspicious: "W promieniu 2 km od tej lokalizacji nie ma zarejestrowanych obszarów podejrzanych o miny — ze względów edukacyjnych w sapera gra się tylko w miejscach rzeczywiście dotkniętych. Wybierz punkt bliżej czerwonych obszarów na mapie sprawdzania."
 
   mine_check_public:
     title: Sprawdzanie bliskości obszarów zaminowanych
@@ -1050,4 +1053,3 @@ pl:
     play_here: 🎮 Zagraj w sapera w tej lokalizacji (fikcyjne miny)
     areas_legend: "Przybliżone granice zarejestrowanych obszarów podejrzanych o miny (migawka 2024). Niebezpieczeństwo może sięgać POZA pokazane kształty."
     zoom_hint: "Przybliż mapę, aby zobaczyć granice obszarów."
-    density_note_custom: "Liczba min na planszy odzwierciedla prawdziwe statystyki — w migawce z 2024 r. około %{km2} km² obszarów podejrzanych o miny leży w promieniu 5 km od wybranego punktu."

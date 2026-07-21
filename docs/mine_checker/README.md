@@ -39,7 +39,7 @@ Fail-safe svojstva javne provjere:
 - **Preporuka ostaje**: prije javnog lansiranja koordinirati s BHMAC-om
   (vidi ADR-001); ovaj zapis dokumentira svjesnu odluku vlasnika.
 
-Minolovac (`/minolovac`) i dalje koristi ISKLJUČIVO izmišljene mine;
+Minesweeper igra (`/minesweeper`) i dalje koristi ISKLJUČIVO izmišljene mine;
 stvarni podaci ulaze samo kao grubi agregati (km² po regiji, odnosno
 jedan 5 km agregat za "custom" tačku) za skaliranje težine i edukativne
 činjenice.

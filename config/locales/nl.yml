@@ -1003,7 +1003,7 @@ nl:
       reviewed_at: Beoordeeld
       feedback: Feedback
 
-  minolovac:
+  minesweeper:
     title: Mijnenveger
     subtitle: Het klassieke vakjes-vegen-spel op kaarten van Bosnië en Herzegovina.
     disclaimer_title: Dit is slechts een spel
@@ -1026,6 +1026,9 @@ nl:
     fact_official: "Gebruik voor echte informatie de officiële app 'BH Mine Suspected Areas' en BHMAC: bhmac.org, +387 33 253 800."
     custom_location: Gekozen locatie
     check_link: Controleer een echte locatie op de kaart →
+    density_note_custom: "Het aantal mijnen op het bord weerspiegelt echte statistieken — in de momentopname van 2024 ligt ongeveer %{km2} km² mijnverdacht gebied binnen 5 km van het gekozen punt."
+    surroundings: "Verken de echte omgeving"
+    not_suspicious: "Er zijn geen geregistreerde mijnverdachte gebieden binnen 2 km van deze locatie — vanwege de educatieve waarde wordt mijnenveger alleen gespeeld op werkelijk getroffen locaties. Kies een punt dichter bij de rode gebieden op de controlekaart."
 
   mine_check_public:
     title: Controle nabijheid mijnengebieden
@@ -1050,4 +1053,3 @@ nl:
     play_here: 🎮 Speel mijnenveger op deze locatie (fictieve mijnen)
     areas_legend: "Geschatte grenzen van geregistreerde mijnverdachte gebieden (momentopname 2024). Het gevaar kan zich TOT BUITEN de getoonde vormen uitstrekken."
     zoom_hint: "Zoom in om de grenzen van de gebieden te zien."
-    density_note_custom: "Het aantal mijnen op het bord weerspiegelt echte statistieken — in de momentopname van 2024 ligt ongeveer %{km2} km² mijnverdacht gebied binnen 5 km van het gekozen punt."

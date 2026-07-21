@@ -993,7 +993,7 @@ sk:
       reviewed_at: Posúdené
       feedback: Spätná väzba
 
-  minolovac:
+  minesweeper:
     title: Míny
     subtitle: Klasická hra na odkrývanie políčok na mapách Bosny a Hercegoviny.
     disclaimer_title: Toto je len hra
@@ -1016,6 +1016,9 @@ sk:
     fact_official: "Skutočné informácie nájdete v oficiálnej aplikácii „BH Mine Suspected Areas“ a u BHMAC: bhmac.org, +387 33 253 800."
     custom_location: Zvolené miesto
     check_link: Skontroluj skutočné miesto na mape →
+    density_note_custom: "Počet mín na hracom poli odráža skutočné štatistiky — v snímke z roku 2024 je zhruba %{km2} km² oblastí podozrivých z výskytu mín v okruhu 5 km od zvoleného miesta."
+    surroundings: "Preskúmaj skutočné okolie"
+    not_suspicious: "V okruhu 2 km od tohto miesta nie sú zaznamenané žiadne oblasti podozrivé z výskytu mín — z edukačných dôvodov sa míny hrajú len na skutočne zasiahnutých miestach. Vyber bod bližšie k červeným oblastiam na kontrolnej mape."
 
   mine_check_public:
     title: Kontrola blízkosti mínových oblastí
@@ -1040,4 +1043,3 @@ sk:
     play_here: 🎮 Zahraj si míny na tomto mieste (vymyslené míny)
     areas_legend: "Približné hranice zaznamenaných oblastí podozrivých z výskytu mín (snímka 2024). Nebezpečenstvo môže siahať AJ ZA zobrazené tvary."
     zoom_hint: "Priblíž mapu pre zobrazenie hraníc oblastí."
-    density_note_custom: "Počet mín na hracom poli odráža skutočné štatistiky — v snímke z roku 2024 je zhruba %{km2} km² oblastí podozrivých z výskytu mín v okruhu 5 km od zvoleného miesta."

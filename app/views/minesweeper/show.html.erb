@@ -1,0 +1,130 @@
+<% content_for :title, "#{t('minesweeper.title')} — Usput.ba" %>
+<% content_for :head do %>
+  <%= stylesheet_link_tag "leaflet" %>
+<% end %>
+
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+  <nav class="bg-white dark:bg-gray-800 shadow sticky top-0 z-50 transition-colors duration-300">
+    <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+      <a href="/" class="flex items-center space-x-2">
+        <img src="/usput-logo.png" alt="Usput" class="h-8 w-auto">
+        <span class="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Usput.ba</span>
+      </a>
+      <%= link_to t("minesweeper.back_home"), root_path, class: "text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" %>
+    </div>
+  </nav>
+
+  <main class="max-w-2xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><%= t("minesweeper.title") %></h1>
+    <p class="mt-1 text-gray-600 dark:text-gray-400"><%= t("minesweeper.subtitle") %></p>
+
+    <div class="mt-4 rounded-xl border-2 border-amber-400 dark:border-amber-500 bg-amber-50 dark:bg-amber-900/30 p-4">
+      <p class="font-bold text-amber-900 dark:text-amber-200"><%= t("minesweeper.disclaimer_title") %></p>
+      <p class="mt-1 text-sm text-amber-900 dark:text-amber-100"><%= t("minesweeper.disclaimer") %></p>
+      <p class="mt-2 text-xs text-amber-800 dark:text-amber-300"><%= t("minesweeper.awareness") %></p>
+    </div>
+
+    <div class="mt-6 flex flex-wrap items-center gap-2">
+      <span class="text-sm font-medium text-gray-700 dark:text-gray-300"><%= t("minesweeper.region") %>:</span>
+      <% MinesweeperController::REGIONS.each do |slug, region| %>
+        <%= link_to region[:name], minesweeper_path(region: slug, level: @level),
+              class: "px-3 py-1 rounded-full text-sm font-medium transition-colors #{slug == @region_slug ? 'bg-emerald-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'}" %>
+      <% end %>
+      <% if @region_slug == "custom" %>
+        <span class="px-3 py-1 rounded-full text-sm font-medium bg-emerald-600 text-white">
+          &#x1F4CD; <%= t("minesweeper.custom_location") %> (<%= @region[:name] %>)
+        </span>
+      <% end %>
+    </div>
+
+    <div class="mt-3 flex flex-wrap items-center gap-2">
+      <span class="text-sm font-medium text-gray-700 dark:text-gray-300"><%= t("minesweeper.difficulty") %>:</span>
+      <% MinesweeperController::DIFFICULTIES.each_key do |level| %>
+        <%= link_to t("minesweeper.level_#{level}"), minesweeper_path(region: @region_slug, level: level),
+              class: "px-3 py-1 rounded-full text-sm font-medium transition-colors #{level == @level ? 'bg-emerald-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'}" %>
+      <% end %>
+    </div>
+
+    <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+      <% if @region_slug == "custom" %>
+        <%= t("minesweeper.density_note_custom", km2: @region[:suspected_km2].round(1)) %>
+      <% else %>
+        <%= t("minesweeper.density_note", name: @region[:name], km2: @region[:suspected_km2].round) %>
+      <% end %>
+    </p>
+
+    <% if @unplayable %>
+      <div class="mt-4 rounded-xl border-2 border-amber-400 dark:border-amber-500 bg-amber-50 dark:bg-amber-900/30 p-4">
+        <p class="text-sm text-amber-900 dark:text-amber-100"><%= t("minesweeper.not_suspicious") %></p>
+        <p class="mt-2 text-sm">
+          <%= link_to t("minesweeper.check_link"), mine_check_path,
+                class: "font-medium text-emerald-700 dark:text-emerald-400 hover:underline" %>
+        </p>
+      </div>
+    <% else %>
+    <div class="mt-4"
+         data-controller="minesweeper"
+         data-minesweeper-rows-value="<%= @difficulty[:rows] %>"
+         data-minesweeper-cols-value="<%= @difficulty[:cols] %>"
+         data-minesweeper-mines-value="<%= @mines %>"
+         data-minesweeper-lat-value="<%= @region[:lat] %>"
+         data-minesweeper-lon-value="<%= @region[:lon] %>"
+         data-minesweeper-zoom-value="<%= @region[:zoom] %>"
+         data-minesweeper-areas-url-value="<%= mine_check_areas_path %>"
+         data-minesweeper-labels-value="<%= {
+               win: t("minesweeper.win"),
+               lose: t("minesweeper.lose"),
+               facts: [
+                 t("minesweeper.fact_country", km2: MinesweeperController::COUNTRY_SUSPECTED_KM2),
+                 t("minesweeper.fact_region", name: @region[:name], km2: @region[:suspected_km2].round),
+                 t("minesweeper.fact_areas", count: number_with_delimiter(MinesweeperController::SNAPSHOT_AREA_COUNT)),
+                 t("minesweeper.fact_official")
+               ]
+             }.to_json %>">
+
+      <div class="flex items-center justify-between rounded-t-xl bg-white dark:bg-gray-800 border border-b-0 border-gray-200 dark:border-gray-700 px-4 py-2">
+        <div class="text-sm text-gray-700 dark:text-gray-300">
+          &#x1F6A9; <span data-minesweeper-target="mines" class="font-bold tabular-nums"></span>
+        </div>
+        <div data-minesweeper-target="status" class="text-sm font-bold text-emerald-700 dark:text-emerald-400" aria-live="polite"></div>
+        <div class="flex items-center gap-3">
+          <span class="text-sm text-gray-700 dark:text-gray-300">&#x23F1; <span data-minesweeper-target="timer" class="font-bold tabular-nums">0</span></span>
+          <button type="button" data-action="minesweeper#newGame"
+                  class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors">
+            <%= t("minesweeper.restart") %>
+          </button>
+        </div>
+      </div>
+
+      <div class="relative rounded-b-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-emerald-100 to-teal-200 dark:from-gray-800 dark:to-gray-700">
+        <div data-minesweeper-target="map" class="absolute inset-0 z-0"></div>
+        <div class="relative z-10 grid gap-px p-1" data-minesweeper-target="board"></div>
+      </div>
+
+      <p data-minesweeper-target="fact"
+         class="hidden mt-3 rounded-lg border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/30 px-4 py-3 text-sm text-emerald-900 dark:text-emerald-100"></p>
+
+      <p class="mt-2 text-xs text-gray-500 dark:text-gray-400"><%= t("minesweeper.hint") %></p>
+
+      <div class="mt-4">
+        <button type="button" data-action="minesweeper#toggleSurroundings"
+                class="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-gray-700 transition-colors">
+          &#x1F5FA; <%= t("minesweeper.surroundings") %>
+        </button>
+        <div data-minesweeper-target="surroundings" class="hidden mt-3">
+          <div data-minesweeper-target="surroundingsMap" class="h-96 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 z-0"></div>
+          <p class="mt-2 text-xs text-gray-600 dark:text-gray-400">
+            <span class="inline-block w-3 h-3 rounded-sm bg-red-600/60 border border-red-700 align-middle"></span>
+            <%= t("mine_check_public.areas_legend") %>
+          </p>
+        </div>
+      </div>
+
+      <p class="mt-2 text-sm">
+        <%= link_to t("minesweeper.check_link"), mine_check_path,
+              class: "font-medium text-emerald-700 dark:text-emerald-400 hover:underline" %>
+      </p>
+    </div>
+    <% end %>
+  </main>
+</div>

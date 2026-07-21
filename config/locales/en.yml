@@ -1537,7 +1537,7 @@ en:
     data_stale: "The mine-safety check is currently unavailable (the data is stale), so this location cannot be accepted. For information on the mine situation contact BHMAC: +387 33 253 800."
     emergency: "Police 122 · Civil protection 121 · BHMAC +387 33 253 800"
 
-  minolovac:
+  minesweeper:
     title: Minesweeper
     subtitle: The classic tile-clearing game played over map views of Bosnia and Herzegovina.
     disclaimer_title: This is only a game
@@ -1560,6 +1560,9 @@ en:
     fact_official: "For real information use the official 'BH Mine Suspected Areas' app and BHMAC: bhmac.org, +387 33 253 800."
     custom_location: Chosen location
     check_link: Check a real location on the map →
+    density_note_custom: "The number of mines on the board mirrors real statistics — in the 2024 data snapshot there are about %{km2} km² of mine-suspected areas within 5 km of the chosen point."
+    surroundings: "Explore the real surroundings"
+    not_suspicious: "There are no recorded mine-suspected areas within 2 km of this location — for educational value, minesweeper is only played at genuinely affected locations. Pick a point closer to the red areas on the checker map."
 
   mine_check_public:
     title: Mine-area proximity check
@@ -1584,4 +1587,3 @@ en:
     play_here: 🎮 Play minesweeper at this location (fictional mines)
     areas_legend: "Approximate boundaries of recorded mine-suspected areas (2024 snapshot). Danger can extend BEYOND the shapes shown."
     zoom_hint: "Zoom in to see area boundaries."
-    density_note_custom: "The number of mines on the board mirrors real statistics — in the 2024 data snapshot there are about %{km2} km² of mine-suspected areas within 5 km of the chosen point."

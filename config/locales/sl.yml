@@ -994,7 +994,7 @@ sl:
       reviewed_at: Pregledano
       feedback: Povratne Informacije
 
-  minolovac:
+  minesweeper:
     title: Minolovec
     subtitle: Klasična igra odkrivanja polj na zemljevidih Bosne in Hercegovine.
     disclaimer_title: To je samo igra
@@ -1017,6 +1017,9 @@ sl:
     fact_official: "Za resnične informacije uporabi uradno aplikacijo „BH Mine Suspected Areas“ in BHMAC: bhmac.org, +387 33 253 800."
     custom_location: Izbrana lokacija
     check_link: Preveri resnično lokacijo na zemljevidu →
+    density_note_custom: "Število min na polju odraža resnične statistike — v posnetku iz leta 2024 je približno %{km2} km² območij, sumljivih zaradi min, v krogu 5 km od izbrane točke."
+    surroundings: "Razišči resnično okolico"
+    not_suspicious: "V krogu 2 km od te lokacije ni zabeleženih območij, sumljivih zaradi min — iz izobraževalnih razlogov se minolovec igra le na resnično prizadetih lokacijah. Izberi točko bližje rdečim območjem na zemljevidu preverjanja."
 
   mine_check_public:
     title: Preverjanje bližine minskih območij
@@ -1041,4 +1044,3 @@ sl:
     play_here: 🎮 Igraj minolovca na tej lokaciji (izmišljene mine)
     areas_legend: "Približne meje zabeleženih območij, sumljivih zaradi min (posnetek 2024). Nevarnost lahko sega TUDI ONKRAJ prikazanih oblik."
     zoom_hint: "Približaj zemljevid za prikaz mej območij."
-    density_note_custom: "Število min na polju odraža resnične statistike — v posnetku iz leta 2024 je približno %{km2} km² območij, sumljivih zaradi min, v krogu 5 km od izbrane točke."

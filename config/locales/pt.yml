@@ -1049,7 +1049,7 @@ pt:
       reviewed_at: Revisado
       feedback: Feedback
 
-  minolovac:
+  minesweeper:
     title: Campo minado
     subtitle: O clássico jogo de revelar casas sobre mapas da Bósnia e Herzegovina.
     disclaimer_title: Isto é apenas um jogo
@@ -1072,6 +1072,9 @@ pt:
     fact_official: "Para informação real usa a aplicação oficial 'BH Mine Suspected Areas' e o BHMAC: bhmac.org, +387 33 253 800."
     custom_location: Localização escolhida
     check_link: Verifica uma localização real no mapa →
+    density_note_custom: "O número de minas no tabuleiro reflete estatísticas reais — na captura de 2024 há cerca de %{km2} km² de áreas suspeitas de minas num raio de 5 km do ponto escolhido."
+    surroundings: "Explora os arredores reais"
+    not_suspicious: "Não há áreas suspeitas de minas registadas num raio de 2 km desta localização — por valor educativo, o campo minado só se joga em locais realmente afetados. Escolhe um ponto mais perto das áreas vermelhas no mapa de verificação."
 
   mine_check_public:
     title: Verificação de proximidade de áreas minadas
@@ -1096,4 +1099,3 @@ pt:
     play_here: 🎮 Joga ao campo minado nesta localização (minas fictícias)
     areas_legend: "Limites aproximados das áreas registadas suspeitas de minas (captura 2024). O perigo pode estender-se PARA LÁ das formas mostradas."
     zoom_hint: "Aproxima o mapa para veres os limites das áreas."
-    density_note_custom: "O número de minas no tabuleiro reflete estatísticas reais — na captura de 2024 há cerca de %{km2} km² de áreas suspeitas de minas num raio de 5 km do ponto escolhido."

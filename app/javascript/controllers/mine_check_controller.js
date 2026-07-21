@@ -108,9 +108,12 @@ export default class extends Controller {
       const data = await response.json()
       this.renderResult(data.band, this.labelsValue[data.band] || this.labelsValue.error)
       if (this.hasPlayLinkTarget) {
-        this.playLinkTarget.href = `${this.playUrlValue}?lat=${lat.toFixed(5)}&lon=${lon.toFixed(5)}`
-        this.playLinkTarget.classList.remove("hidden")
-        this.playLinkTarget.classList.add("inline-block")
+        const playable = data.band === "danger" || data.band === "caution"
+        this.playLinkTarget.classList.toggle("hidden", !playable)
+        this.playLinkTarget.classList.toggle("inline-block", playable)
+        if (playable) {
+          this.playLinkTarget.href = `${this.playUrlValue}?lat=${lat.toFixed(5)}&lon=${lon.toFixed(5)}`
+        }
       }
     } catch {
       this.renderResult("error", this.labelsValue.error)
