@@ -1584,3 +1584,4 @@ en:
     play_here: 🎮 Play minesweeper at this location (fictional mines)
     areas_legend: "Approximate boundaries of recorded mine-suspected areas (2024 snapshot). Danger can extend BEYOND the shapes shown."
     zoom_hint: "Zoom in to display the areas."
+    density_note_custom: "The number of mines on the board mirrors real statistics — in the 2024 data snapshot there are about %{km2} km² of mine-suspected areas within 5 km of the chosen point."

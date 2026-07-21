@@ -1150,3 +1150,4 @@ de:
     play_here: 🎮 Minesweeper an diesem Ort spielen (fiktive Minen)
     areas_legend: "Ungefähre Grenzen der erfassten minenverdächtigen Gebiete (Stand 2024). Die Gefahr kann ÜBER die gezeigten Formen hinausreichen."
     zoom_hint: "Zoomen Sie hinein, um die Gebiete anzuzeigen."
+    density_note_custom: "Die Minenanzahl auf dem Feld spiegelt echte Statistik wider — im Datenstand von 2024 liegen etwa %{km2} km² minenverdächtige Gebiete im Umkreis von 5 km um den gewählten Punkt."

@@ -46,7 +46,11 @@
     </div>
 
     <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
-      <%= t("minolovac.density_note", name: @region[:name], km2: @region[:suspected_km2].round) %>
+      <% if @region_slug == "custom" %>
+        <%= t("minolovac.density_note_custom", km2: @region[:suspected_km2].round(1)) %>
+      <% else %>
+        <%= t("minolovac.density_note", name: @region[:name], km2: @region[:suspected_km2].round) %>
+      <% end %>
     </p>
 
     <div class="mt-4"

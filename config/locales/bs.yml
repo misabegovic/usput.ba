@@ -1355,3 +1355,4 @@ bs:
     play_here: 🎮 Igraj minolovac na ovoj lokaciji (izmišljene mine)
     areas_legend: "Približne granice evidentiranih minski sumnjivih područja (snimak 2024). Opasnost se može protezati i IZVAN prikazanih oblika."
     zoom_hint: "Približi kartu da se prikažu područja."
+    density_note_custom: "Broj mina na tabli odražava stvarnu statistiku — u snimku podataka (2024) oko %{km2} km² minski sumnjivih područja je u krugu od 5 km od odabrane tačke."

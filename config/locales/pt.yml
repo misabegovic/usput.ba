@@ -1096,3 +1096,4 @@ pt:
     play_here: 🎮 Joga ao campo minado nesta localização (minas fictícias)
     areas_legend: "Limites aproximados das áreas registadas suspeitas de minas (captura 2024). O perigo pode estender-se PARA LÁ das formas mostradas."
     zoom_hint: "Aproxima o mapa para mostrar as áreas."
+    density_note_custom: "O número de minas no tabuleiro reflete estatísticas reais — na captura de 2024 há cerca de %{km2} km² de áreas suspeitas de minas num raio de 5 km do ponto escolhido."

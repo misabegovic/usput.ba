@@ -1040,3 +1040,4 @@ sk:
     play_here: 🎮 Zahraj si míny na tomto mieste (vymyslené míny)
     areas_legend: "Približné hranice zaznamenaných oblastí podozrivých z výskytu mín (snímka 2024). Nebezpečenstvo môže siahať AJ ZA zobrazené tvary."
     zoom_hint: "Priblíž mapu pre zobrazenie oblastí."
+    density_note_custom: "Počet mín na hracom poli odráža skutočné štatistiky — v snímke z roku 2024 je zhruba %{km2} km² oblastí podozrivých z výskytu mín v okruhu 5 km od zvoleného miesta."
