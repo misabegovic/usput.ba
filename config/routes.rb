@@ -10,13 +10,13 @@ Rails.application.routes.draw do
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Minolovac mini-game (fictional random boards — no connection to real mine data)
-  get "minolovac", to: "minolovac#show", as: :minolovac
+  get "minesweeper", to: "minolovac#show", as: :minesweeper
 
   # Public mine-proximity check (owner-authorized Phase 2, bands only —
   # see docs/mine_checker/README.md)
-  get "provjera-mina", to: "mine_check_public#show", as: :mine_check
-  post "provjera-mina/check", to: "mine_check_public#check", as: :mine_check_query
-  get "provjera-mina/areas", to: "mine_check_public#areas", as: :mine_check_areas
+  get "mine-check", to: "mine_check_public#show", as: :mine_check
+  post "mine-check/check", to: "mine_check_public#check", as: :mine_check_query
+  get "mine-check/areas", to: "mine_check_public#areas", as: :mine_check_areas
 
   # Static pages
   get "imprint", to: "pages#imprint", as: :imprint

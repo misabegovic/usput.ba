@@ -90,6 +90,19 @@ class MineCheckPublicControllerTest < ActionDispatch::IntegrationTest
     refute_match(/2585/, response.body)
   end
 
+  test "areas overview returns deduplicated coarse points only" do
+    get mine_check_areas_path(overview: 1)
+    assert_response :success
+    body = response.parsed_body
+    assert body["features"].any?
+    body["features"].each do |f|
+      assert_equal "Point", f["geometry"]["type"], "overview must never contain boundary geometry"
+      f["geometry"]["coordinates"].each do |c|
+        assert_equal c.round(2), c, "overview coordinates must be rounded to ~1 km"
+      end
+    end
+  end
+
   test "areas rejects an oversized viewport" do
     get mine_check_areas_path(west: 15.0, south: 42.0, east: 20.0, north: 46.0)
     assert_response :unprocessable_entity

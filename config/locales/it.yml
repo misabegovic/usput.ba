@@ -1140,5 +1140,5 @@ it:
     error: La verifica non è riuscita. Riprova.
     play_here: 🎮 Gioca a campo minato in questa posizione (mine fittizie)
     areas_legend: "Confini approssimativi delle aree registrate sospette di mine (snapshot 2024). Il pericolo può estendersi OLTRE le forme mostrate."
-    zoom_hint: "Ingrandisci la mappa per visualizzare le aree."
+    zoom_hint: "Ingrandisci per vedere i confini delle aree."
     density_note_custom: "Il numero di mine sul campo rispecchia statistiche reali — nello snapshot del 2024 ci sono circa %{km2} km² di aree sospette di mine nel raggio di 5 km dal punto scelto."

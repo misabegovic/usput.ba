@@ -40,9 +40,11 @@ export default class extends Controller {
     if (this.map.getZoom() < 9) {
       this.areasLayer.clearLayers()
       if (this.hasZoomHintTarget) this.zoomHintTarget.classList.remove("hidden")
+      this.showOverview()
       return
     }
     if (this.hasZoomHintTarget) this.zoomHintTarget.classList.add("hidden")
+    if (this.overviewLayer) this.overviewLayer.remove()
     const b = this.map.getBounds()
     const params = new URLSearchParams({
       west: b.getWest().toFixed(3), south: b.getSouth().toFixed(3),
@@ -112,6 +114,27 @@ export default class extends Controller {
       }
     } catch {
       this.renderResult("error", this.labelsValue.error)
+    }
+  }
+
+  // National-zoom dots: one per ~1 km grid cell with a recorded area —
+  // distribution without boundary geometry.
+  async showOverview() {
+    if (this.overviewLayer) {
+      this.overviewLayer.addTo(this.map)
+      return
+    }
+    try {
+      const response = await fetch(`${this.areasUrlValue}?overview=1`)
+      if (!response.ok) return
+      const data = await response.json()
+      this.overviewLayer = window.L.geoJSON(data, {
+        pointToLayer: (feature, latlng) => window.L.circleMarker(latlng, {
+          radius: 3, color: "#b91c1c", weight: 1, fillColor: "#dc2626", fillOpacity: 0.7
+        })
+      }).addTo(this.map)
+    } catch {
+      // best-effort overlay
     }
   }
 

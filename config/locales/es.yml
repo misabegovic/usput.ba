@@ -1203,5 +1203,5 @@ es:
     error: La comprobación falló. Inténtalo de nuevo.
     play_here: 🎮 Juega al buscaminas en esta ubicación (minas ficticias)
     areas_legend: "Límites aproximados de las zonas registradas sospechosas de minas (instantánea 2024). El peligro puede extenderse MÁS ALLÁ de las formas mostradas."
-    zoom_hint: "Acerca el mapa para mostrar las zonas."
+    zoom_hint: "Acerca el mapa para ver los límites de las zonas."
     density_note_custom: "El número de minas en el tablero refleja estadísticas reales — en la instantánea de 2024 hay unos %{km2} km² de zonas sospechosas de minas en un radio de 5 km del punto elegido."

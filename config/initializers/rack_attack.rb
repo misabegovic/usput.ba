@@ -117,7 +117,7 @@ class Rack::Attack
   # Limit mine checks to 30 per minute per IP — also hampers anyone trying to
   # reconstruct area boundaries by sweeping coordinates
   throttle("mine-check/ip", limit: 30, period: 1.minute) do |req|
-    if req.path == "/provjera-mina/check" && req.post?
+    if req.path == "/mine-check/check" && req.post?
       req.ip
     end
   end
@@ -125,7 +125,7 @@ class Rack::Attack
   # Overlay tiles of generalized area boundaries — map panning is chatty,
   # but sustained sweeping (bulk boundary scraping) gets cut off
   throttle("mine-areas/ip", limit: 60, period: 1.minute) do |req|
-    if req.path == "/provjera-mina/areas"
+    if req.path == "/mine-check/areas"
       req.ip
     end
   end

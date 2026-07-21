@@ -1040,5 +1040,5 @@ sl:
     error: Preverjanje ni uspelo. Poskusi znova.
     play_here: 🎮 Igraj minolovca na tej lokaciji (izmišljene mine)
     areas_legend: "Približne meje zabeleženih območij, sumljivih zaradi min (posnetek 2024). Nevarnost lahko sega TUDI ONKRAJ prikazanih oblik."
-    zoom_hint: "Približaj zemljevid za prikaz območij."
+    zoom_hint: "Približaj zemljevid za prikaz mej območij."
     density_note_custom: "Število min na polju odraža resnične statistike — v posnetku iz leta 2024 je približno %{km2} km² območij, sumljivih zaradi min, v krogu 5 km od izbrane točke."

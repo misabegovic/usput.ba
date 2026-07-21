@@ -1316,5 +1316,5 @@ tr:
     error: Kontrol başarısız oldu. Tekrar dene.
     play_here: 🎮 Bu konumda mayın tarlası oyna (kurgusal mayınlar)
     areas_legend: "Kayıtlı mayın şüpheli bölgelerin yaklaşık sınırları (2024 görüntüsü). Tehlike, gösterilen şekillerin ÖTESİNE uzanabilir."
-    zoom_hint: "Bölgeleri görüntülemek için haritayı yakınlaştır."
+    zoom_hint: "Bölge sınırlarını görmek için haritayı yakınlaştır."
     density_note_custom: "Tahtadaki mayın sayısı gerçek istatistikleri yansıtır — 2024 görüntüsünde seçilen noktanın 5 km çevresinde yaklaşık %{km2} km² mayın şüpheli alan var."

@@ -23,6 +23,8 @@ class MineCheckPublicController < ApplicationController
   end
 
   def areas
+    return render json: areas_overview if params[:overview].present?
+
     west = params[:west].to_f
     south = params[:south].to_f
     east = params[:east].to_f
@@ -80,6 +82,28 @@ class MineCheckPublicController < ApplicationController
   end
 
   private
+
+  # National-zoom overview: one dot per ~1 km grid cell (centroids rounded
+  # to 2 decimals, deduplicated) — shows where areas are without shipping
+  # boundary geometry at a zoom where boundaries would be dishonest anyway.
+  def areas_overview
+    Rails.cache.fetch("mine_check/areas_overview", expires_in: 1.day) do
+      rows = ActiveRecord::Base.connection.select_rows(<<~SQL)
+        SELECT DISTINCT round(ST_X(ST_Centroid(geom::geometry))::numeric, 2),
+                        round(ST_Y(ST_Centroid(geom::geometry))::numeric, 2)
+        FROM mine_areas
+        WHERE kind = 'suspected'
+      SQL
+      {
+        type: "FeatureCollection",
+        features: rows.map do |lon, lat|
+          { type: "Feature",
+            geometry: { type: "Point", coordinates: [ lon.to_f, lat.to_f ] },
+            properties: {} }
+        end
+      }
+    end
+  end
 
   def band_for(lat, lon)
     min_distance = MineArea.suspected

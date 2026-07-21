@@ -43,7 +43,7 @@ class MinolovacController < ApplicationController
     if params[:lat].present? && params[:lon].present?
       lat = params[:lat].to_f
       lon = params[:lon].to_f
-      return redirect_to minolovac_path unless bbox_contains?(lat, lon)
+      return redirect_to minesweeper_path unless bbox_contains?(lat, lon)
 
       @region_slug = "custom"
       @region = {
@@ -52,7 +52,7 @@ class MinolovacController < ApplicationController
         suspected_km2: local_suspected_km2(lat, lon), scale: 15.0
       }
     elsif params[:region].present? && !REGIONS.key?(params[:region])
-      return redirect_to minolovac_path
+      return redirect_to minesweeper_path
     else
       @region_slug = params[:region] || "sarajevo"
       @region = REGIONS[@region_slug]

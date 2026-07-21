@@ -15,7 +15,7 @@ u BiH. Unutar buffera → hard block. Vidi `SPEC.md` (izvor istine) i
 
 ## Faza 2 — javna provjera (odluka vlasnika, 2026-07-21)
 
-Vlasnik je 2026-07-21 odobrio javnu provjeru blizine (`/provjera-mina`),
+Vlasnik je 2026-07-21 odobrio javnu provjeru blizine (`/mine-check`),
 čime je zamijenjeno prvobitno pravilo "nema javnih ruta u Fazi 1".
 Fail-safe svojstva javne provjere:
 

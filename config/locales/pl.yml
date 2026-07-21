@@ -1049,5 +1049,5 @@ pl:
     error: Sprawdzenie nie powiodło się. Spróbuj ponownie.
     play_here: 🎮 Zagraj w sapera w tej lokalizacji (fikcyjne miny)
     areas_legend: "Przybliżone granice zarejestrowanych obszarów podejrzanych o miny (migawka 2024). Niebezpieczeństwo może sięgać POZA pokazane kształty."
-    zoom_hint: "Przybliż mapę, aby wyświetlić obszary."
+    zoom_hint: "Przybliż mapę, aby zobaczyć granice obszarów."
     density_note_custom: "Liczba min na planszy odzwierciedla prawdziwe statystyki — w migawce z 2024 r. około %{km2} km² obszarów podejrzanych o miny leży w promieniu 5 km od wybranego punktu."

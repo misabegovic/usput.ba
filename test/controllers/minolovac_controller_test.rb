@@ -2,7 +2,7 @@ require "test_helper"
 
 class MinolovacControllerTest < ActionDispatch::IntegrationTest
   test "show renders with the fictional-game disclaimer" do
-    get minolovac_path
+    get minesweeper_path
     assert_response :success
     assert_match I18n.t("minolovac.disclaimer_title"), response.body
     assert_match I18n.t("minolovac.disclaimer"), response.body
@@ -11,7 +11,7 @@ class MinolovacControllerTest < ActionDispatch::IntegrationTest
 
   test "every region renders" do
     MinolovacController::REGIONS.each_key do |slug|
-      get minolovac_path(region: slug)
+      get minesweeper_path(region: slug)
       assert_response :success, "region #{slug} failed"
     end
   end
@@ -19,7 +19,7 @@ class MinolovacControllerTest < ActionDispatch::IntegrationTest
   test "every difficulty renders with region-scaled board values" do
     region = MinolovacController::REGIONS["sarajevo"]
     MinolovacController::DIFFICULTIES.each do |level, config|
-      get minolovac_path(level: level)
+      get minesweeper_path(level: level)
       assert_response :success, "level #{level} failed"
       expected = MinolovacController.mines_for(config, region)
       assert_match "data-minolovac-mines-value=\"#{expected}\"", response.body
@@ -42,22 +42,22 @@ class MinolovacControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "show renders the density note and real aggregate facts" do
-    get minolovac_path(region: "jajce")
+    get minesweeper_path(region: "jajce")
     assert_response :success
     assert_match I18n.t("minolovac.density_note", name: "Jajce", km2: 62), response.body
     assert_match "BH Mine Suspected Areas", response.body
   end
 
   test "custom point inside BiH renders a scaled board with local statistics" do
-    get minolovac_path(lat: 43.8563, lon: 18.4131)
+    get minesweeper_path(lat: 43.8563, lon: 18.4131)
     assert_response :success
     assert_match I18n.t("minolovac.custom_location"), response.body
     assert_match "data-minolovac-mines-value=", response.body
   end
 
   test "custom point outside BiH redirects to the default board" do
-    get minolovac_path(lat: 48.2, lon: 16.4)
-    assert_redirected_to minolovac_path
+    get minesweeper_path(lat: 48.2, lon: 16.4)
+    assert_redirected_to minesweeper_path
   end
 
   # Region boards use baked-in aggregates; only custom-point boards run the
@@ -67,7 +67,7 @@ class MinolovacControllerTest < ActionDispatch::IntegrationTest
     subscriber = ActiveSupport::Notifications.subscribe("sql.active_record") do |*, payload|
       queries << payload[:sql] if payload[:sql] =~ /mine_areas|mine_check_audits/i
     end
-    get minolovac_path
+    get minesweeper_path
     assert_response :success
     assert_empty queries, "the public game page must not touch mine data at runtime"
   ensure
@@ -75,12 +75,12 @@ class MinolovacControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "unknown region redirects to the default board" do
-    get minolovac_path(region: "atlantida")
-    assert_redirected_to minolovac_path
+    get minesweeper_path(region: "atlantida")
+    assert_redirected_to minesweeper_path
   end
 
   test "unknown level falls back to easy" do
-    get minolovac_path(level: "nightmare")
+    get minesweeper_path(level: "nightmare")
     assert_response :success
     expected = MinolovacController.mines_for(
       MinolovacController::DIFFICULTIES["easy"], MinolovacController::REGIONS["sarajevo"]

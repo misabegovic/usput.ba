@@ -1049,5 +1049,5 @@ nl:
     error: De controle is mislukt. Probeer opnieuw.
     play_here: 🎮 Speel mijnenveger op deze locatie (fictieve mijnen)
     areas_legend: "Geschatte grenzen van geregistreerde mijnverdachte gebieden (momentopname 2024). Het gevaar kan zich TOT BUITEN de getoonde vormen uitstrekken."
-    zoom_hint: "Zoom in om de gebieden te tonen."
+    zoom_hint: "Zoom in om de grenzen van de gebieden te zien."
     density_note_custom: "Het aantal mijnen op het bord weerspiegelt echte statistieken — in de momentopname van 2024 ligt ongeveer %{km2} km² mijnverdacht gebied binnen 5 km van het gekozen punt."
