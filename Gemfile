@@ -126,3 +126,6 @@ group :ci do
 end
 
 gem "tailwindcss-rails", "~> 4.0"
+
+# Android/Termux has no system zoneinfo database
+gem "tzinfo-data"
