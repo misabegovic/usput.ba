@@ -957,11 +957,13 @@ pl:
       confirm_delete: Czy na pewno chcesz usunąć %{name}?
       filter:
         all_cities: Wszystkie miasta
+      best_seasons: Najlepsze pory roku
+      seasons_hint: Pozostaw niezaznaczone dla całorocznych atrakcji
       seasons:
         all_year: Cały rok
         spring: Wiosna
         summer: Lato
-        autumn: Jesień
+        fall: Jesień
         winter: Zima
       difficulties:
         easy: Łatwy

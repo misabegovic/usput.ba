@@ -1059,11 +1059,13 @@ fr:
       confirm_delete: Êtes-vous sûr de vouloir supprimer %{name} ?
       filter:
         all_cities: Toutes les villes
+      best_seasons: Meilleures saisons
+      seasons_hint: Laissez décoché pour les expériences toute l’année
       seasons:
         all_year: Toute l'année
         spring: Printemps
         summer: Été
-        autumn: Automne
+        fall: Automne
         winter: Hiver
       difficulties:
         easy: Facile

@@ -1041,11 +1041,13 @@ es:
       confirm_delete: "¿Estás seguro de que deseas eliminar %{name}?"
       filter:
         all_cities: Todas las ciudades
+      best_seasons: Mejores temporadas
+      seasons_hint: Déjalo sin marcar para experiencias durante todo el año
       seasons:
         all_year: Todo el año
         spring: Primavera
         summer: Verano
-        autumn: Otoño
+        fall: Otoño
         winter: Invierno
       difficulties:
         easy: Fácil

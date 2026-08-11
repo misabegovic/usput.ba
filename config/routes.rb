@@ -67,8 +67,12 @@ Rails.application.routes.draw do
   # Locations (index removed - use /explore instead)
   resources :locations, only: [ :show ] do
     resources :reviews, only: [ :index, :create ]
+    collection do
+      get :map_points
+    end
     member do
       get :audio_tour
+      get :map_panel
     end
   end
 

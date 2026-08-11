@@ -947,11 +947,13 @@ sk:
       confirm_delete: Ste si istí, že chcete vymazať %{name}?
       filter:
         all_cities: Všetky mestá
+      best_seasons: Najlepšie ročné obdobia
+      seasons_hint: Nechajte nezaškrtnuté pre celoročné zážitky
       seasons:
         all_year: Celý rok
         spring: Jar
         summer: Leto
-        autumn: Jeseň
+        fall: Jeseň
         winter: Zima
       difficulties:
         easy: Ľahké
