@@ -209,4 +209,11 @@ module ApplicationHelper
     # Return the asset path for use in image_tag or CSS
     "hero_backgrounds/#{selected_file}"
   end
+
+  # Stamps the catalogue so a browser holding an old copy can tell. Rails builds
+  # this from count plus max(updated_at) in one query — seconds alone collide
+  # when several places are written inside the same second.
+  def map_points_version
+    @map_points_version ||= Location.all.cache_key_with_version.parameterize
+  end
 end

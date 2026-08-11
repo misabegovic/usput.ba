@@ -1034,11 +1034,13 @@ tr:
         metadata: Meta Veriler
       filter:
         all_cities: Tüm şehirler
+      best_seasons: En iyi mevsimler
+      seasons_hint: Yıl boyu süren deneyimler için işaretlemeyin
       seasons:
         all_year: Tüm yıl
         spring: İlkbahar
         summer: Yaz
-        autumn: Sonbahar
+        fall: Sonbahar
         winter: Kış
       difficulties:
         easy: Kolay

@@ -30,6 +30,7 @@ Rails.application.routes.draw do
   # Authentication routes
   get "register", to: "users#new", as: :register
   post "register", to: "users#create"
+  get "route", to: "map_routes#show", as: :map_route
   get "login", to: "sessions#new", as: :login
   post "login", to: "sessions#create"
   delete "logout", to: "sessions#destroy", as: :logout
@@ -66,8 +67,12 @@ Rails.application.routes.draw do
   # Locations (index removed - use /explore instead)
   resources :locations, only: [ :show ] do
     resources :reviews, only: [ :index, :create ]
+    collection do
+      get :map_points
+    end
     member do
       get :audio_tour
+      get :map_panel
     end
   end
 
