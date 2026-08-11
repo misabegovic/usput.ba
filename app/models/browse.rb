@@ -4,13 +4,14 @@ class Browse < ApplicationRecord
 
   # Validations
   validates :title, presence: true
-  validates :browsable_type, inclusion: { in: %w[Location Experience Plan] }
+  validates :browsable_type, inclusion: { in: %w[Location Experience Plan Moment] }
   validates :browsable_id, uniqueness: { scope: :browsable_type }
 
   # Scopes for filtering by type
   scope :locations, -> { where(browsable_type: "Location") }
   scope :experiences, -> { where(browsable_type: "Experience") }
   scope :plans, -> { where(browsable_type: "Plan") }
+  scope :moments, -> { where(browsable_type: "Moment") }
 
   # Scope for full-text search using PostgreSQL
   scope :search, ->(query) {
@@ -218,9 +219,11 @@ class Browse < ApplicationRecord
 
   # Class methods for syncing data
   class << self
-    # Sync a single record to Browse
+    # Sync a single record to Browse. A record that is no longer syncable
+    # (e.g. a moment turned private, a plan turned private) is removed, so
+    # unpublishing takes it out of the public index rather than leaving it.
     def sync_record(record)
-      return unless syncable?(record)
+      return remove_record(record) unless syncable?(record)
 
       browse = find_or_initialize_by(browsable: record)
       attributes = BrowseAdapter.attributes_for(record)
@@ -246,6 +249,8 @@ class Browse < ApplicationRecord
         true # Always sync experiences
       when Plan
         record.visibility_public_plan? # Only sync public plans
+      when Moment
+        record.visibility_public_moment? && record.approved? # Only approved public moments
       else
         false
       end
