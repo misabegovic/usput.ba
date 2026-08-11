@@ -1,0 +1,55 @@
+<%# Locals: count. Optional: thumbnails (photos for the bottom strip),
+    label_scope (i18n scope for the thumbnail labels), accent (ring colour of
+    the active thumbnail). The fullscreen half of photo_gallery_controller.
+    A dialog, not a div: this gallery also renders inside the deck card, where a
+    fixed element is trapped by the card instead of covering the screen. The
+    browser's top layer escapes it. %>
+<%# accent is the whole class, not a colour fragment: Tailwind scans source for
+    literal class names, so an interpolated "ring-#{colour}-500" would only be
+    generated while some unrelated file happens to spell it out. %>
+<% thumbnails = local_assigns[:thumbnails]
+   accent = local_assigns[:accent] || "ring-emerald-500" %>
+<dialog data-photo-gallery-target="lightbox"
+        data-action="click->photo-gallery#closeLightboxOnBackground close->photo-gallery#onLightboxClosed"
+        class="m-0 h-full max-h-none w-full max-w-none items-center justify-center bg-black/90 p-4 backdrop:bg-black/90 open:flex">
+  <button type="button" data-action="photo-gallery#closeLightbox"
+          class="absolute right-4 top-4 z-10 flex size-10 items-center justify-center rounded-full bg-white/15 text-white"
+          aria-label="<%= t("common.close") %>">✕</button>
+
+  <div data-photo-gallery-target="lightboxCounter"
+       class="absolute left-1/2 top-4 z-10 -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white">
+    1 / <%= count %>
+  </div>
+
+  <% if count > 1 %>
+    <button type="button" data-action="photo-gallery#previous"
+            class="absolute left-3 top-1/2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white"
+            aria-label="<%= t("common.previous") %>">
+      <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+    </button>
+    <button type="button" data-action="photo-gallery#next"
+            class="absolute right-3 top-1/2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white"
+            aria-label="<%= t("common.next") %>">
+      <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+    </button>
+  <% end %>
+
+  <img data-photo-gallery-target="lightboxImage" src="" alt=""
+       class="max-h-[85vh] max-w-full rounded-lg object-contain shadow-2xl">
+
+  <% if thumbnails.present? %>
+    <div class="absolute inset-x-0 bottom-4 px-4">
+      <div class="mx-auto flex max-w-4xl justify-center gap-2 overflow-x-auto pb-2">
+        <% thumbnails.each_with_index do |photo, index| %>
+          <button type="button" data-action="photo-gallery#goTo"
+                  data-index="<%= index %>"
+                  data-photo-gallery-target="lightboxThumbnail"
+                  class="h-12 w-16 flex-shrink-0 overflow-hidden rounded-lg ring-2 transition-all hover:opacity-100 <%= index.zero? ? "#{accent} opacity-100" : "ring-transparent opacity-60" %>"
+                  aria-label="<%= t("#{label_scope}.go_to_photo", number: index + 1) %>">
+            <%= image_tag photo.variant(resize_to_fill: [ 128, 96 ]), class: "h-full w-full object-cover", alt: "Thumbnail #{index + 1}" %>
+          </button>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</dialog>

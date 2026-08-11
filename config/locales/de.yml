@@ -1057,11 +1057,13 @@ de:
       confirm_delete: Möchten Sie %{name} wirklich löschen?
       filter:
         all_cities: Alle Orte
+      best_seasons: Beste Jahreszeiten
+      seasons_hint: Für ganzjährige Erlebnisse nichts auswählen
       seasons:
         all_year: Ganzjährig
         spring: Frühling
         summer: Sommer
-        autumn: Herbst
+        fall: Herbst
         winter: Winter
       difficulties:
         easy: Einfach

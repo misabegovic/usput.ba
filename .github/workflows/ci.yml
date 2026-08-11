@@ -38,7 +38,7 @@ jobs:
           fetch-depth: 0  # Full history needed for undercover
 
       - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y cmake libgit2-dev
+        run: sudo apt-get update && sudo apt-get install -y cmake libgit2-dev libvips
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1

@@ -1,0 +1,66 @@
+<%# The map itself, wherever it appears. Locals: location (required),
+    height (optional css classes for the canvas), catalogue (optional).
+    One component so the location card, the plan walk and the explore reel all
+    behave the same — pins, position, fullscreen and the place panel. %>
+<% catalogue = local_assigns.fetch(:catalogue, true)
+   height = local_assigns.fetch(:height, "h-64")
+   wrapper = local_assigns.fetch(:wrapper, "")
+   map_points = [ { id: location.uuid, lat: location.lat.to_f, lng: location.lng.to_f,
+                    name: location.translate(:name, I18n.locale), main: true } ] %>
+
+<%# The deck renders this once per card, and content_for accumulates. %>
+<% unless content_for?(:leaflet_styles) %>
+  <% content_for :leaflet_styles, "linked" %>
+  <% content_for :head do %>
+    <%= stylesheet_link_tag "leaflet" %>
+    <%= stylesheet_link_tag "leaflet.markercluster" %>
+  <% end %>
+<% end %>
+
+<div class="<%= wrapper %>" data-controller="map"
+     data-map-lat-value="<%= location.lat %>"
+     data-map-lng-value="<%= location.lng %>"
+     data-map-points-value="<%= map_points.to_json %>"
+     data-map-catalogue-value="<%= catalogue %>"
+     data-map-catalogue-version-value="<%= catalogue ? map_points_version : 0 %>"
+     data-map-by-foot-label-value="<%= t("map.by_foot") %>"
+     data-map-by-car-label-value="<%= t("map.by_car") %>"
+     data-map-load-failed-label-value="<%= t("common.error") %>"
+     data-map-no-position-label-value="<%= t("map.no_position") %>"
+     data-map-no-route-label-value="<%= t("map.no_route") %>"
+     data-map-user-location-value="true">
+  <div class="relative <%= height %> overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-700 z-0" data-map-target="container">
+    <%# The place beside the map. Fullscreen only — the card has no room. %>
+    <aside data-map-target="panel"
+           class="absolute inset-x-0 bottom-0 z-[1001] hidden h-1/2 bg-white shadow-2xl dark:bg-gray-800 sm:inset-y-0 sm:left-auto sm:right-0 sm:h-full sm:w-[30%] sm:min-w-80">
+      <%# One id per card, like every other frame the deck repeats. %>
+      <turbo-frame id="<%= dom_id(location, :map_panel) %>" data-map-target="panelFrame" class="block h-full"></turbo-frame>
+    </aside>
+    <%# Navigation is Google's job; this is the door to it. Same emerald CTA as
+        the home page. `text-white!` is load-bearing: this anchor sits inside
+        .leaflet-container, whose stylesheet colours every link #0078A8 at a
+        higher specificity than a Tailwind class, so plain text-white loses and
+        the label renders blue on green. bottom-8 clears the attribution. %>
+    <a href="https://www.google.com/maps/dir/?api=1&destination=<%= location.lat %>,<%= location.lng %>&travelmode=walking"
+       target="_blank" rel="noopener noreferrer"
+       class="absolute bottom-8 right-2 z-[1000] inline-flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white! px-5 py-2.5 text-sm rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+      </svg>
+      <%= t("map.start_route") %>
+    </a>
+    <button type="button"
+            data-action="map#toggleFullscreen"
+            data-map-target="fullscreenButton"
+            class="absolute right-2 top-2 z-[1000] rounded-lg bg-white/90 p-2 text-gray-700 shadow transition-colors hover:bg-white dark:bg-gray-800/90 dark:text-gray-200 dark:hover:bg-gray-800"
+            aria-label="<%= t("locations.show.map_fullscreen") %>"
+            title="<%= t("locations.show.map_fullscreen") %>">
+      <svg data-map-target="expandIcon" class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+      </svg>
+      <svg data-map-target="collapseIcon" class="hidden size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9L4 4m0 4V4h4m7 5l5-5m-4 0h4v4M9 15l-5 5m4 0H4v-4m11 5l5-5m0 4v-4h-4" />
+      </svg>
+    </button>
+  </div>
+</div>

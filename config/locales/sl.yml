@@ -948,11 +948,13 @@ sl:
       confirm_delete: Ali ste prepričani, da želite izbrisati %{name}?
       filter:
         all_cities: Vsa mesta
+      best_seasons: Najboljši letni časi
+      seasons_hint: Pustite neoznačeno za doživetja skozi vse leto
       seasons:
         all_year: Vse leto
         spring: Pomlad
         summer: Poletje
-        autumn: Jesen
+        fall: Jesen
         winter: Zima
       difficulties:
         easy: Lahko

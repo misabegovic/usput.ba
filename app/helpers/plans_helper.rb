@@ -25,9 +25,8 @@ module PlansHelper
     I18n.t("locations.budget.#{budget}", default: budget.to_s.humanize)
   end
 
-  def location_type_label(location_type)
-    I18n.t("locations.types.#{location_type}", default: location_type.to_s.humanize)
-  end
+  # location_type_label lives in ApplicationHelper (shared across all views) and
+  # guards against a blank key rendering the whole locations.types hash.
 
   def formatted_duration(minutes)
     return nil unless minutes

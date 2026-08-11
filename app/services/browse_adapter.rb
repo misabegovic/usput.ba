@@ -11,6 +11,8 @@ class BrowseAdapter
         experience_attributes(record)
       when Plan
         plan_attributes(record)
+      when Moment
+        moment_attributes(record)
       else
         nil
       end
@@ -80,6 +82,38 @@ class BrowseAdapter
         seasons: plan_seasons,
         ai_generated: plan.ai_generated
       }
+    end
+
+    def moment_attributes(moment)
+      # Only index approved public moments
+      return nil unless moment.visibility_public_moment? && moment.approved?
+
+      location = moment.location
+      {
+        title: location.name,
+        description: build_moment_description(moment),
+        browsable_subtype: "moment",
+        city_name: location.city,
+        lat: location.lat,
+        lng: location.lng,
+        average_rating: nil,
+        reviews_count: 0,
+        budget: nil,
+        category_keys: location.category_keys,
+        seasons: [],
+        ai_generated: false
+      }
+    end
+
+    # Build searchable description for a moment
+    # Combines the note, the location name/city, and the publisher's username
+    def build_moment_description(moment)
+      parts = []
+      parts << moment.note if moment.note.present?
+      parts << moment.location.name if moment.location.name.present?
+      parts << moment.location.city if moment.location.city.present?
+      parts << moment.user.username if moment.user.username.present?
+      parts.join(" ")
     end
 
     # Build searchable description for location

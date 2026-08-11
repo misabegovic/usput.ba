@@ -1,0 +1,9 @@
+<%# Map card on the location page. Locals: location (required). %>
+<div class="overflow-hidden rounded-2xl bg-white p-4 shadow-lg dark:bg-gray-800 sm:p-6">
+  <h3 class="mb-4 text-lg font-bold text-gray-900 dark:text-white">
+    <%= t("locations.show.map", default: "Na karti") %>
+  </h3>
+  <%# Taller than the deck's canvas: on this page the map is the only place
+      surface, and it carries the directions hand-off. %>
+  <%= render "shared/map_canvas", location: location, height: "h-80 sm:h-96" %>
+</div>

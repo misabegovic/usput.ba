@@ -1,0 +1,47 @@
+<%# Everything showing one location's moments. The walk has the step; the plan
+    panel has the location block, the summary and the flash. Turbo skips the
+    targets the requesting page does not have. %>
+<% explore = params[:context] == "explore"
+   moments = current_user.moments.where(location_id: location.id).with_attached_photo.includes(:plan).recent_own
+   visited = if explore
+     current_user.plan_visits.exists?(location_id: location.id)
+   else
+     current_user.plan_visits.exists?(plan_id: @plan.id, location_id: location.id)
+   end %>
+
+<%= turbo_stream.replace dom_id(location, :step) do %>
+  <%= render "plans/plan_step",
+        plan: @plan,
+        location: location,
+        visited: visited,
+        show_photo: false,
+        show_name: false,
+        overlay: true,
+        context: params[:context],
+        alert: local_assigns[:alert] %>
+<% end %>
+
+<%= turbo_stream.replace dom_id(location, :stories), method: :morph do %>
+  <div id="<%= dom_id(location, :stories) %>">
+    <%= render "plans/moment_gallery",
+          plan: @plan,
+          location: location,
+          moments: moments,
+          public_moments: Moment.where(location_id: location.id).with_attached_photo.recent_public,
+          context: params[:context] %>
+  </div>
+<% end %>
+
+<% if local_assigns[:alert].present? %>
+  <%= turbo_stream.replace "moment-flash" do %>
+    <div id="moment-flash" class="absolute inset-x-0 top-12 z-30 px-4">
+      <div data-controller="flash" class="rounded-lg bg-red-50 dark:bg-red-900/30 px-4 py-3 text-sm text-red-800 dark:text-red-300 shadow">
+        <%= alert %>
+      </div>
+    </div>
+  <% end %>
+<% else %>
+  <%= turbo_stream.replace "moment-flash" do %>
+    <div id="moment-flash" class="absolute inset-x-0 top-12 z-30 px-4"></div>
+  <% end %>
+<% end %>
