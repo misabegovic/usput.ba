@@ -30,6 +30,7 @@ Rails.application.routes.draw do
   # Authentication routes
   get "register", to: "users#new", as: :register
   post "register", to: "users#create"
+  get "route", to: "map_routes#show", as: :map_route
   get "login", to: "sessions#new", as: :login
   post "login", to: "sessions#create"
   delete "logout", to: "sessions#destroy", as: :logout
