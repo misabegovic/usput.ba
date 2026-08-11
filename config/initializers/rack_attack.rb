@@ -217,4 +217,13 @@ class Rack::Attack
     req = payload[:request]
     Rails.logger.warn("[Rack::Attack] Blocked #{req.ip} for #{req.path} (#{payload[:match_type]})")
   end
+
+  # Limit route lookups to 30 per minute per IP — a cache miss is an outbound
+  # call to the routing engine on our API key, and the key rounds coordinates to
+  # ~110 m, so an unthrottled caller can force misses indefinitely
+  throttle("map-route/ip", limit: 30, period: 1.minute) do |req|
+    if req.path == "/route"
+      req.ip
+    end
+  end
 end
