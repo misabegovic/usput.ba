@@ -137,6 +137,7 @@ class User < ApplicationRecord
 
     update!(travel_profile_data: merged)
   end
+end
 
   private
 
@@ -192,4 +193,3 @@ class User < ApplicationRecord
       errors.add(:avatar, "must be less than 5MB")
     end
   end
-end

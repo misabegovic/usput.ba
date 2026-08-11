@@ -1,0 +1,57 @@
+<%# Locals: location, plan, button_class, wrapper_class.
+    Optional: context, icon, icon_class, label_class, hint_class. %>
+<% context = local_assigns.fetch(:context, nil)
+   icon = local_assigns.fetch(:icon, false)
+   icon_class = local_assigns.fetch(:icon_class, "w-5 h-5")
+   label_class = local_assigns.fetch(:label_class, nil)
+   # `flex` rather than `inline-block`: beside `hidden` the inline utilities win
+   # and the hint never hides. Callers centre it where the button is centred.
+   hint_class = local_assigns.fetch(:hint_class, "flex w-fit")
+   guest = !logged_in?
+   label = capture do %>
+  <% if icon %>
+    <svg class="<%= icon_class %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+    </svg>
+  <% end %>
+  <span class="<%= label_class %>"><%= t("plans.start.mark_visited") %></span>
+<% end %>
+
+<% if logged_in? && geofence_disabled? %>
+  <div class="<%= wrapper_class %>">
+    <%= button_to plan_visits_path(plan),
+          params: { location_id: location.uuid, user_lat: 0, user_lng: 0, context: context }.compact,
+          class: button_class do %><%= label %><% end %>
+  </div>
+<% else %>
+  <%# The geofence is defined once, on the server, and handed to the browser.
+      Written in both places they drift, and a browser that offers a check-in
+      the server refuses is two contradictory messages on one press. %>
+  <% attributes = { controller: "geo-visit", geo_visit_lat_value: location.lat, geo_visit_lng_value: location.lng,
+                    geo_visit_geofence_m_value: (RecordsVisits::MAX_VISIT_DISTANCE_KM * 1000).round }
+     attributes.merge!(geo_visit_guest_value: true,
+                       geo_visit_location_id_value: location.uuid,
+                       geo_visit_location_name_value: location.name,
+                       geo_visit_location_city_value: location.city,
+                       geo_visit_location_tags_value: location.tags.to_json) if guest %>
+  <%= tag.div class: wrapper_class, data: attributes do %>
+    <div data-geo-visit-target="control">
+      <% if guest %>
+        <button type="button" class="<%= button_class %>" data-action="geo-visit#capture"><%= label %></button>
+      <% else %>
+        <%= button_to plan_visits_path(plan),
+              params: { location_id: location.uuid, user_lat: "", user_lng: "", context: context }.compact,
+              class: button_class do %><%= label %><% end %>
+      <% end %>
+    </div>
+
+    <p class="hidden mt-2 <%= hint_class %> rounded-full bg-black/60 px-3 py-1 text-sm font-semibold text-white"
+       data-geo-visit-target="hint"
+       data-directions="<%= t('plans.start.compass', default: 'N,NE,E,SE,S,SW,W,NW') %>"
+       data-warmth="<%= t('plans.start.warmth', default: 'Freezing,Cold,Cool,Warm') %>"
+       data-enable-location="<%= t('plans.start.need_location') %>"
+       data-locating="<%= t('plans.start.locating') %>"
+       data-imprecise="<%= t('plans.start.imprecise') %>"
+       data-failed="<%= t('plans.start.visit_failed') %>"></p>
+  <% end %>
+<% end %>
