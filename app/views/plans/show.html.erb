@@ -105,6 +105,23 @@
         <div class="flex flex-wrap gap-3 lg:flex-col lg:w-auto">
           <%# Action buttons %>
           <div class="flex gap-2 flex-wrap">
+            <%# Start the plan — walk its locations as steps and capture moments %>
+            <%= link_to start_plan_path(@plan),
+                  class: "inline-flex items-center space-x-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors shadow-sm" do %>
+              <% if plan_progress(@plan) != :not_started %>
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-sm font-medium text-white"><%= t("plans.start.continue", default: "Nastavi putovanje") %></span>
+              <% else %>
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-sm font-medium text-white"><%= t("plans.start.cta") %></span>
+              <% end %>
+            <% end %>
+
             <%# Curator Edit Button %>
             <% if current_user_can_curate? %>
               <%= link_to curator_plan_path(@plan),
@@ -200,66 +217,7 @@
         </div>
       </div>
 
-      <%# Lightbox Modal %>
-      <div data-photo-gallery-target="lightbox"
-           data-action="click->photo-gallery#closeLightboxOnBackground"
-           class="hidden fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
-        <%# Close button %>
-        <button data-action="click->photo-gallery#closeLightbox"
-                class="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
-                aria-label="<%= t('common.close', default: 'Zatvori') %>">
-          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-
-        <%# Counter %>
-        <div data-photo-gallery-target="lightboxCounter"
-             class="absolute top-4 left-4 px-3 py-1.5 bg-black/60 rounded-full text-white text-sm font-medium">
-          1 / <%= cover_photos.count %>
-        </div>
-
-        <%# Navigation arrows %>
-        <% if cover_photos.count > 1 %>
-          <button data-action="click->photo-gallery#previous"
-                  class="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
-                  aria-label="<%= t('common.previous', default: 'Prethodna') %>">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-          </button>
-          <button data-action="click->photo-gallery#next"
-                  class="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
-                  aria-label="<%= t('common.next', default: 'Sljedeća') %>">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          </button>
-        <% end %>
-
-        <%# Main image %>
-        <div class="max-w-6xl max-h-[85vh] mx-4">
-          <img data-photo-gallery-target="lightboxImage"
-               src=""
-               alt=""
-               class="max-w-full max-h-[85vh] object-contain rounded-lg">
-        </div>
-
-        <%# Thumbnail strip at bottom %>
-        <div class="absolute bottom-4 left-0 right-0 px-4">
-          <div class="max-w-4xl mx-auto flex gap-2 justify-center overflow-x-auto pb-2">
-            <% cover_photos.each_with_index do |photo, index| %>
-              <button data-action="click->photo-gallery#goTo"
-                      data-index="<%= index %>"
-                      data-photo-gallery-target="lightboxThumbnail"
-                      class="flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden ring-2 transition-all hover:opacity-100 <%= index == 0 ? 'ring-amber-500 opacity-100' : 'ring-transparent opacity-60' %>"
-                      aria-label="<%= t('plans.show.go_to_photo', number: index + 1, default: 'Idi na fotografiju %{number}') %>">
-                <%= image_tag photo.variant(resize_to_fill: [128, 96]), class: "w-full h-full object-cover", alt: "Thumbnail #{index + 1}" %>
-              </button>
-            <% end %>
-          </div>
-        </div>
-      </div>
+      <%= render "shared/photo_lightbox", count: cover_photos.count, thumbnails: cover_photos, label_scope: "plans.show", accent: "ring-amber-500" %>
     </div>
   <% end %>
 
@@ -291,11 +249,12 @@
               <% end %>
             </div>
 
-            <% if day[:experiences].any? %>
+            <% if day[:experiences].any? || day[:locations].any? %>
               <div class="flow-root">
                 <ul role="list" class="-mb-8">
                   <% day[:experiences].each_with_index do |experience, idx| %>
-                    <% is_last = idx == day[:experiences].length - 1 %>
+                    <%# Last only if it's the final experience and no locations follow %>
+                    <% is_last = (idx == day[:experiences].length - 1) && day[:locations].empty? %>
                     <li>
                       <div class="relative pb-8">
                         <%# Connector line - hide for last item %>
@@ -364,6 +323,10 @@
                         </div>
                       </div>
                     </li>
+                  <% end %>
+                  <%# Standalone locations continue the same timeline %>
+                  <% day[:locations].each_with_index do |location, lidx| %>
+                    <%= render "plans/plan_location", location: location, is_last: (lidx == day[:locations].length - 1) %>
                   <% end %>
                 </ul>
               </div>

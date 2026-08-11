@@ -958,11 +958,13 @@ nl:
       confirm_delete: Weet je zeker dat je %{name} wilt verwijderen?
       filter:
         all_cities: Alle steden
+      best_seasons: Beste seizoenen
+      seasons_hint: Laat leeg voor ervaringen het hele jaar door
       seasons:
         all_year: Het hele jaar
         spring: Lente
         summer: Zomer
-        autumn: Herfst
+        fall: Herfst
         winter: Winter
       difficulties:
         easy: Makkelijk

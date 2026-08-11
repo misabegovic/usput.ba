@@ -1,0 +1,68 @@
+<% content_for :title, t("plans.start.title", plan: @plan.title) %>
+
+<% content_for :head do %>
+  <%= stylesheet_link_tag "leaflet" %>
+<% end %>
+
+<%# Navigation %>
+<%= render "new_design/header" %>
+
+<%# The deck owns everything below the fixed header: no page scroll, no
+    scrollbar, exactly one card in view. %>
+<div class="fixed inset-x-0 bottom-0 top-[calc(5rem+env(safe-area-inset-top))] flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)]" data-controller="moment-lightbox">
+  <div class="flex items-center gap-2 px-4 py-2">
+    <%= link_to plan_path(@plan),
+          class: "inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors" do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+      <%= t("plans.start.back") %>
+    <% end %>
+    <span class="text-sm font-semibold text-gray-900 dark:text-white"><%= @plan.title %></span>
+  </div>
+
+  <% if @locations.any? %>
+    <div id="moment-flash" class="absolute inset-x-0 top-12 z-30 px-4"></div>
+
+    <%# Same wrapper as explore: the hint centres on the deck column, not the screen. %>
+    <div class="relative flex min-h-0 flex-1 flex-col">
+      <div class="flex-1 snap-y snap-mandatory overflow-y-auto overscroll-y-contain scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+           data-controller="plan-deck" data-plan-deck-browse-value="true"
+           data-plan-deck-swipe-actions-value="true">
+        <% @locations.each do |location| %>
+          <div class="flex h-full snap-start items-center justify-center px-3 py-2">
+            <%# Width derived from the slot height at 2:3, clamped to the screen —
+                the card always fits and always centers, portrait or landscape. %>
+            <div class="w-[min(100%,calc((100dvh-10rem)*0.62))]">
+              <%= render "plans/walk_card",
+                    plan: @plan,
+                    location: location,
+                    visited: @visited_location_ids.include?(location.id),
+                    distance_km: (location.respond_to?(:distance) ? location.distance : nil),
+                    context: "walk" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <%= render "plans/deck_hints", scroll_hint: t("plans.start.deck_hint") %>
+    </div>
+  <% else %>
+    <p class="mx-4 rounded-2xl border border-dashed border-gray-300 dark:border-gray-600 px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+      <%= t("plans.start.empty") %>
+    </p>
+  <% end %>
+
+  <div data-moment-lightbox-target="overlay"
+       data-action="click->moment-lightbox#closeOnBackground"
+       class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/80 p-4">
+    <button type="button" data-action="moment-lightbox#close"
+            class="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+            aria-label="<%= t('common.close', default: 'Zatvori') %>">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+    <img data-moment-lightbox-target="image" src="" alt="" class="max-h-[85vh] max-w-full rounded-lg object-contain shadow-2xl">
+  </div>
+</div>

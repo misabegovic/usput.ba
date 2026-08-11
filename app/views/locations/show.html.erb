@@ -417,6 +417,14 @@
           <% end %>
         </div>
 
+        <%# Moments — your own plus everyone's public ones. Loads on scroll so
+            the page above it is not held up. %>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg mb-6">
+          <turbo-frame id="<%= dom_id(@location, :moments_frame) %>"
+                       src="<%= @moments_plan ? plan_moments_path(@moments_plan, location_id: @location.uuid, context: "location") : location_moments_path(@location.uuid, context: "location") %>"
+                       loading="lazy"></turbo-frame>
+        </div>
+
         <%# Reviews Section %>
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
           <%= render "reviews/reviews_section", reviewable: @location %>
@@ -487,27 +495,7 @@
                 </div>
               </div>
 
-              <%# Google Maps Button %>
-              <a href="https://www.google.com/maps/search/?api=1&query=<%= @location.lat %>,<%= @location.lng %>"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 class="flex items-center justify-center w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 rounded-xl text-white font-medium transition-all shadow-md hover:shadow-lg">
-                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                </svg>
-                <%= t("locations.show.view_in_google_maps", default: "Otvori u Google Maps") %>
-              </a>
-
-              <%# Get Directions Button %>
-              <a href="https://www.google.com/maps/dir/?api=1&destination=<%= @location.lat %>,<%= @location.lng %>"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 class="flex items-center justify-center w-full py-3 px-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl text-gray-700 dark:text-gray-300 font-medium transition-colors">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
-                </svg>
-                <%= t("locations.show.get_directions", default: "Dobij upute") %>
-              </a>
+          <%= render "map", location: @location %>
             </div>
           </div>
         <% end %>

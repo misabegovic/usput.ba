@@ -30,6 +30,10 @@ Rails.application.routes.draw do
   # Authentication routes
   get "register", to: "users#new", as: :register
   post "register", to: "users#create"
+  get "route", to: "map_routes#show", as: :map_route
+  get "explore-bosnia", to: "explore_bosnia#show", as: :explore_bosnia
+  # "all" is the unfiltered entry; several at once ride in the query string.
+  get "explore-bosnia/:category", to: "explore_bosnia#experience", as: :explore_bosnia_experience
   get "login", to: "sessions#new", as: :login
   post "login", to: "sessions#create"
   delete "logout", to: "sessions#destroy", as: :logout
@@ -66,8 +70,15 @@ Rails.application.routes.draw do
   # Locations (index removed - use /explore instead)
   resources :locations, only: [ :show ] do
     resources :reviews, only: [ :index, :create ]
+    collection do
+      get :map_points
+    end
+    # Reading a place's moments needs no plan — a guest walking explore mode has
+    # none. Writing one still does, and stays on the plan-nested route above.
+    resources :moments, only: [ :index ]
     member do
       get :audio_tour
+      get :map_panel
     end
   end
 
@@ -89,10 +100,34 @@ Rails.application.routes.draw do
   get "plans", to: redirect("/explore"), as: :plans
   resources :plans, only: [ :show ], constraints: { id: /(?!(wizard|find_city|search_cities|generate|view|recommendations)\b)[^\/]+/ } do
     resources :reviews, only: [ :index, :create ]
+    # Walk the plan as a trip: locations stacked as steps.
+    member do
+      get :start
+    end
+    # Per-user, server-owned "I was here" progress for the walk. Create only:
+    # a visit is permanent, so there is no route that takes one back.
+    resources :visits, only: [ :create ], module: :plans
+    # Private photos a logged-in traveller attaches to this plan's locations.
+    # The photo is served by our own action rather than Active Storage's route,
+    # which does not check the session — see MomentsController#photo.
+    resources :moments, only: [ :index, :create, :destroy ] do
+      member do
+        get :photo
+        patch :publish
+        patch :unpublish
+      end
+    end
   end
 
   # Curator dashboard - for curators and admins
   namespace :curator do
+    resources :moments, only: [ :index ] do
+      member do
+        get :photo
+        post :approve
+        post :reject
+      end
+    end
     resources :locations do
       resources :photo_suggestions, only: [ :new, :create ]
       collection do

@@ -9,22 +9,28 @@ class ReviewsController < ApplicationController
     @has_more = (@page * @per_page) < @total_reviews
 
     respond_to do |format|
-      format.html { redirect_to polymorphic_path(@reviewable) }
+      format.html do
+        if turbo_frame_request?
+          render :index, layout: false
+        else
+          redirect_to polymorphic_path(@reviewable)
+        end
+      end
       format.turbo_stream
     end
   end
 
   def create
     @review = @reviewable.reviews.build(review_params)
+    @saved = @review.save
 
     respond_to do |format|
-      if @review.save
+      if @saved
         format.html { redirect_back fallback_location: root_path, notice: t("flash.review.created") }
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("reviews-section", partial: "reviews/reviews_section", locals: { reviewable: @reviewable }) }
       else
         format.html { redirect_back fallback_location: root_path, alert: @review.errors.full_messages.join(", ") }
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("review-form", partial: "reviews/form", locals: { reviewable: @reviewable, review: @review }) }
       end
+      format.turbo_stream
     end
   end
 

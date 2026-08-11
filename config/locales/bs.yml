@@ -34,17 +34,64 @@ bs:
     filter: Filtriraj
     actions: Akcije
   nav:
-    mine_check: "Provjera mina"
+    mine_check: Provjera mina
     home: Početna
     plans: Planovi
     experiences: Iskustva
     locations: Lokacije
+    moments: Uspomene
     explore: Istražuj
     about: O nama
     contact: Kontakt
     language: Jezik
     back_to_site: Nazad na stranicu
     logout: Odjavi se
+  explore_bosnia:
+    title: Istraži Bosnu
+    eyebrow: Istražuj po želji
+    subtitle: Bez plana — izaberi kategoriju i dijelimo ti najbliže mjesto. Posjeti ga, zabilježi trenutak,
+      pa se vrati po još.
+    deck_subtitle: Prvo najbliže mjesto. Prijavi se kad stigneš, pa nastavi dalje.
+    deck_empty: Još nema mjesta u blizini.
+    empty_grid: Još nema kategorija s mjestima — navratite uskoro.
+    back: Kategorije
+    filters:
+      title: Filteri
+      category: Kategorija
+      season: Godišnje doba
+      budget: Budžet
+      min_rating: Najmanja ocjena
+      all_categories: Sve kategorije
+      clear: Poništi filtere
+      seasons:
+        spring: Proljeće
+        summer: Ljeto
+        fall: Jesen
+        winter: Zima
+      budgets:
+        low: $ Nisko
+        medium: $$ Srednje
+        high: $$$ Visoko
+    km_away: '%{km} km zračne linije'
+    deck_hint: Skrolaj dolje za sljedeće mjesto
+    deck_end: Nema više mjesta u blizini.
+    deck_all_visited: Posjetio si sva mjesta u blizini. Probaj drugi filter.
+    moved_prompt: Ovo su mjesta odakle si bio
+    update_location: Osvježi moju lokaciju
+    approximate_origin:
+      body: Nismo mogli očitati tvoju lokaciju, pa su ovo mjesta oko Sarajeva, a ne oko tebe.
+      retry: Koristi moju lokaciju
+    needs_location:
+      title: Trebamo tvoju lokaciju
+      body: Ovdje dijelimo najbliža mjesta, pa moramo znati gdje si. Dozvoli lokaciju i pokušaj ponovo.
+      retry: Pokušaj ponovo
+    tiles:
+      history: Historija
+      culture: Kultura
+      sport_nature: Sport i priroda
+      food_drinks: Hrana i piće
+      religious: Vjerski objekti
+      relax: Opuštanje
   explore:
     title: Istraži
     subtitle: Pronađi savršenu lokaciju, iskustvo ili plan za svoju sljedeću avanturu.
@@ -54,6 +101,9 @@ bs:
       location: Lokacije
       experience: Iskustva
       plan: Planovi
+      moment: Uspomene
+    moment_by: objavio/la %{user}
+    moments_home_subtitle: Fotografije koje su putnici podijelili sa svojih putovanja
     nearby: U blizini
     more_filters: Više filtera
     clear_filters: Očisti
@@ -98,6 +148,8 @@ bs:
       locations: Lokacije
       experiences: Iskustva
       plans: Planovi
+      moments: Uspomene
+      my_moments: Tvoje uspomene
     empty:
       title: Nema rezultata
       with_filters: Pokušajte promijeniti filtere ili pretražiti nešto drugo.
@@ -106,8 +158,14 @@ bs:
     hero:
       title_part1: Otkrij
       title_part2: Ljepote Bosne i Hercegovine
-      subtitle: Pronađi skrivene dragulje, autentična iskustva i nezaboravna mjesta.
-        Tvoja avantura počinje ovdje.
+      subtitle: Pronađi skrivene dragulje, autentična iskustva i nezaboravna mjesta. Tvoja avantura počinje
+        ovdje.
+    usput_bosnia:
+      title: Usput Bosnia
+      heading: Istraži Bosnu na svoju ruku, spontano
+      description: Bez plana i bez rasporeda. Izaberi raspoloženje, a mi ti dajemo najbliže mjesto uz
+        njega. Kreni, prijavi se kad stigneš, zabilježi trenutak — pa nastavi dalje.
+      cta: Počni istraživati
     cta:
       start: Započni Planiranje
       explore: Istraži Iskustva
@@ -130,35 +188,30 @@ bs:
       winter:
         title: Zimska Čarolija
         subtitle: Otkrijte magiju zimskih destinacija
-        description: Od zasnježenih planina do toplih kafana, zima u BiH nudi nezaboravna
-          iskustva. Skijanje na olimpijskim stazama, šetnje zimskim pejzažima i uživanje
-          u toplim napicima.
+        description: Od zasnježenih planina do toplih kafana, zima u BiH nudi nezaboravna iskustva. Skijanje
+          na olimpijskim stazama, šetnje zimskim pejzažima i uživanje u toplim napicima.
         cta: Istraži zimske lokacije
       spring:
         title: Proljetno Buđenje
         subtitle: Priroda se budi u punom sjaju
-        description: Proljeće donosi cvjetanje divljih cvjetova, bujne zelene pejzaže
-          i savršeno vrijeme za planinarenje. Otkrijte skrivene vodopade i uživajte
-          u svježem planinskom zraku.
+        description: Proljeće donosi cvjetanje divljih cvjetova, bujne zelene pejzaže i savršeno vrijeme
+          za planinarenje. Otkrijte skrivene vodopade i uživajte u svježem planinskom zraku.
         cta: Istraži proljetne lokacije
       summer:
         title: Ljetna Avantura
         subtitle: Vrijeme za nezaboravne pustolovine
-        description: Ljeto je idealno za istraživanje rijeka, jezera i kanona. Rafting
-          na Neretvi, kupanje u Uni ili šetnja kroz drevne gradove - mogućnosti su
-          beskrajne.
+        description: Ljeto je idealno za istraživanje rijeka, jezera i kanona. Rafting na Neretvi, kupanje
+          u Uni ili šetnja kroz drevne gradove - mogućnosti su beskrajne.
         cta: Istraži ljetne lokacije
       fall:
         title: Jesenske Boje
         subtitle: Zlatna sezona putovanja
-        description: Jesen oboji BiH u tople nijanse zlata i crvene. Savršeno vrijeme
-          za vinske ture, berbu voća i uživanje u gastronomskim specijalitetima bez
-          gužvi.
+        description: Jesen oboji BiH u tople nijanse zlata i crvene. Savršeno vrijeme za vinske ture,
+          berbu voća i uživanje u gastronomskim specijalitetima bez gužvi.
         cta: Istraži jesenske lokacije
     explore:
       title: Istraži na svoj način
-      subtitle: Odaberi kako želiš istraživati - prema lokacijama, iskustvima ili
-        gotovim planovima
+      subtitle: Odaberi kako želiš istraživati - prema lokacijama, iskustvima ili gotovim planovima
       locations:
         title: Sve lokacije
         description: Pregledaj sve dostupne lokacije i pronađi savršeno mjesto
@@ -170,9 +223,8 @@ bs:
         description: Pregledaj gotove planove ili pronađi inspiraciju za svoj
     cta_section:
       title: Spremni za Avanturu?
-      description: Kreirajte vlastiti personalizirani plan putovanja u samo nekoliko
-        koraka. Odaberite destinaciju, trajanje i interese - mi ćemo vam predložiti
-        savršena iskustva!
+      description: Kreirajte vlastiti personalizirani plan putovanja u samo nekoliko koraka. Odaberite
+        destinaciju, trajanje i interese - mi ćemo vam predložiti savršena iskustva!
       button: Započni Kreiranje Plana
       view_plans: Pregledaj Postojeće Planove
     reviews:
@@ -184,36 +236,35 @@ bs:
       title: Što kažu posjetitelji
     support:
       title: Podrži Ovaj Projekat
-      description: Ako ti se sviđa ovaj projekat i želiš pomoći da nastavi rasti,
-        možeš me podržati kupovinom kafe!
+      description: Ako ti se sviđa ovaj projekat i želiš pomoći da nastavi rasti, možeš me podržati kupovinom
+        kafe!
     bento:
       section_title: Zašto Usput.ba
       section_subtitle: Sve što vam treba za savršeno putovanje
       hidden_locations:
         title: Skrivene lokacije
-        description: Otkrijte čarobna mjesta koja nisu u turističkim vodičima. Od
-          skrivenih vodopada do autentičnih sela.
+        description: Otkrijte čarobna mjesta koja nisu u turističkim vodičima. Od skrivenih vodopada do
+          autentičnih sela.
         cta: Istraži sve lokacije
       experiences:
         title: Autentična iskustva
-        description: Lokalni vodiči, tradicionalna jela i kulturne aktivnosti koje
-          vas povezuju sa dušom BiH.
+        description: Lokalni vodiči, tradicionalna jela i kulturne aktivnosti koje vas povezuju sa dušom
+          BiH.
         cta: Istraži sva iskustva
         culture: Kultura
         food: Hrana
         adventure: Avantura
       audio_tours:
         title: Audio ture
-        description: Slušajte priče o mjestima dok ih posjećujete. Vaš lični vodič
-          u džepu.
+        description: Slušajte priče o mjestima dok ih posjećujete. Vaš lični vodič u džepu.
         cta: Istraži sve audio ture
         welcome: Dobrodošli na Usput
       travel_plans:
         title: Planovi putovanja
-        description: Kreirajte vlastiti plan putovanja kroz naš wizard ili istražite
-          gotove planove koje su kreirali drugi putnici.
+        description: Kreirajte vlastiti plan putovanja kroz naš wizard ili istražite gotove planove koje
+          su kreirali drugi putnici.
         cta: Kreiraj svoj plan
-        days: "%{count} dana"
+        days: '%{count} dana'
         day: Dan %{number}
     trending:
       section_title: Popularno sada
@@ -282,8 +333,7 @@ bs:
     errors:
       geolocation_not_supported: Vaš preglednik ne podržava geolokaciju
       location_failed: Nije moguće dobiti lokaciju. Molimo odaberite mjesto ručno.
-      permission_denied: Pristup lokaciji je odbijen. Molimo omogućite pristup ili
-        odaberite mjesto ručno.
+      permission_denied: Pristup lokaciji je odbijen. Molimo omogućite pristup ili odaberite mjesto ručno.
       location_unavailable: Informacije o lokaciji nisu dostupne
       location_timeout: Traženje lokacije traje predugo...
       no_city_found: Nismo pronašli mjesto u vašoj blizini. Molimo odaberite ručno.
@@ -326,20 +376,86 @@ bs:
       button: Generiši Plan
       generating: Generisanje plana u toku...
   plans:
+    started: Započet
+    finished: Završen
+    start:
+      reviews: Recenzije
+      tap_for_info: Dodirni za više informacija
+      deck_hint: Skrolaj dolje za sljedeće mjesto
+      story_add_private: Dodaj privatni trenutak
+      story_none: Još nema trenutaka ovdje — budi prvi!
+      story_private: Privatno
+      story_public: Javno
+      story_pending: Čeka odobrenje kustosa
+      story_publish: Objavi
+      story_delete: Izbriši
+      story_delete_confirm: Izbrisati ovaj trenutak zauvijek? Ne može se vratiti.
+      story_upload_note: Tvoj trenutak ostaje privatan dok ga ne odlučiš objaviti.
+      add_moment_note: Tvoji trenuci su privatni — tvoja lična kolekcija. Objavi kasnije da podijeliš.
+      publish_hint: Dodirni Objavi da ovo podijeliš s putnicima u blizini.
+      pending_note: Kustos pregleda javne trenutke prije nego ih drugi vide.
+      no_reviews: Još nema recenzija.
+      cta: Započni plan
+      continue: Nastavi putovanje
+      title: '%{plan} — na putovanju'
+      back: Nazad na plan
+      subtitle: Prevuci mjesto udesno kada ga posjetiš da sačuvaš uspomenu.
+      visited: Posjećeno
+      mark_visited: Provjeri jesam li tu
+      compass: S,SI,I,JI,J,JZ,Z,SZ
+      warmth: Ledeno,Hladno,Prohladno,Toplo
+      add_moment_prompt: Želiš li podijeliti svoj momenat s drugim putnicima iz ovog kraja?
+      login_to_capture: Prijavi se da sačuvaš uspomene na ovom putovanju.
+      too_far: Predaleko si (%{distance}). Priđi na manje od %{max} m da označiš posjetu.
+      need_location: Ne možemo potvrditi tvoju lokaciju. Uključi lokaciju i pokušaj ponovo.
+      locating: Tražimo te…
+      imprecise: Još te ne možemo dovoljno precizno locirati. Sačekaj trenutak i pokušaj ponovo.
+      visit_failed: Nije uspjelo. Pokušaj ponovo.
+      empty: Ovaj plan još nema lokacija.
+      info: Informacije o lokaciji
+      map: Karta
+      play_audio: Pusti audio
+      shared_moments: Momenti
+      shared_moments_here: Momenti putnika
+      no_shared_moments: Budi prvi koji će podijeliti trenutak ovdje!
+      deck_done: Obišli ste sve. Bravo!
+    moments:
+      title: Uspomene
+      privacy_note: Tvoje fotografije su privatne — vidiš ih samo ti, na ovom planu.
+      add: Dodaj
+      share: Podijeli ovu uspomenu
+      share_prompt: Želiš li podijeliti ovu uspomenu s drugim putnicima?
+      make_private: Vrati na privatno
+      public: Javno
+      pending: Čeka pregled
+      add_for_plan: Dodaj uspomene
+      hide_for_plan: Sakrij uspomene
+      empty: Još nema uspomena
+      cancel: Odustani
+      drop_title: Dodaj svoju uspomenu
+      drop_hint: Prevuci fotografiju ovdje ili klikni za odabir
+      delete: Obriši fotografiju
+      confirm_delete: Obrisati ovu uspomenu?
+      note_placeholder: Bilješka o ovom trenutku (opcionalno)
+      count:
+        one: '%{count} fotografija'
+        other: '%{count} fotografija'
+      stamp_visited: Posjećeno
     badge: Plan putovanja
-    auto_title: "%{city} - %{days} dana"
+    auto_title: '%{city} - %{days} dana'
     day_singular: dan
     day_plural: dana
     location_singular: lokacija
     location_plural: lokacija
     duration_days:
-      one: "%{count} dan"
-      other: "%{count} dana"
+      one: '%{count} dan'
+      other: '%{count} dana'
     errors:
       experience_not_found: Iskustvo sa ID %{id} nije pronađeno
-      experiences_skipped: "%{count} iskustava je preskočeno jer više ne postoje"
+      experiences_skipped: '%{count} iskustava je preskočeno jer više ne postoje'
       city_not_found: Mjesto nije pronađeno
       invalid_plan_data: Neispravni podaci plana
+      explore_plan_holds_records: Ovaj plan sadrži posjete i trenutke putnika i ne može se obrisati.
     index:
       title: Planovi Putovanja
       subtitle: Pronađi inspiraciju ili kreiraj vlastiti plan
@@ -348,8 +464,7 @@ bs:
       no_plans: Još nema javnih planova
       no_plans_description: Korisnici još nisu podijelili svoje planove sa zajednicom
       no_my_plans: Nemaš još nijedan plan
-      no_my_plans_description: Kreiraj personalizirani plan putovanja pomoću našeg
-        wizarda
+      no_my_plans_description: Kreiraj personalizirani plan putovanja pomoću našeg wizarda
       create_new: Kreiraj Novi Plan
       create_first: Kreiraj prvi plan
     show:
@@ -372,8 +487,8 @@ bs:
     view:
       share: Podijeli
       share_plan: Podijeli plan sa zajednicom
-      share_plan_description: Tvoj plan će biti vidljiv svim korisnicima i pomoći
-        će drugima da otkriju nova mjesta.
+      share_plan_description: Tvoj plan će biti vidljiv svim korisnicima i pomoći će drugima da otkriju
+        nova mjesta.
       share_button: Podijeli
       login_required_to_share: Moraš biti prijavljen da bi podijelio plan.
       statistics: Statistika
@@ -404,20 +519,18 @@ bs:
       browse_all_experiences: Pregledaj sva iskustva
       popular_plans: Popularni planovi
       not_satisfied: Nije ono što tražite?
-      try_again: Generirajte novi plan s istim preferencama ili kreirajte potpuno
-        novi
+      try_again: Generirajte novi plan s istim preferencama ili kreirajte potpuno novi
       regenerate: Generiraj ponovo
       create_new_plan: Kreiraj novi plan
       remove_experience: Ukloni iskustvo
       remove_experience_confirm: Želite li ukloniti
       from_plan: iz plana?
       make_public_title: Učini plan javnim
-      make_public_description: Tvoj plan će biti vidljiv svim korisnicima i pomoći
-        će drugima da otkriju nova mjesta.
+      make_public_description: Tvoj plan će biti vidljiv svim korisnicima i pomoći će drugima da otkriju
+        nova mjesta.
       make_private_title: Učini plan privatnim
       make_private_description: Tvoj plan više neće biti vidljiv drugim korisnicima.
-      login_required_to_change_visibility: Moraš biti prijavljen da bi promijenio
-        vidljivost plana.
+      login_required_to_change_visibility: Moraš biti prijavljen da bi promijenio vidljivost plana.
       confirm: Potvrdi
       edit_plan_title: Uredi naziv plana
       plan_title_label: Naziv plana
@@ -426,6 +539,9 @@ bs:
       day_label: Dan
       drag_hint: Povuci za promjenu redoslijeda
       add_to_plan: Dodaj u plan
+      add_location: Dodaj lokaciju
+      choose_location: Odaberi lokaciju…
+      no_locations_available: Nema lokacija za dodati
       experience_plural: iskustava
       budget_low: Nizak budžet
       budget_medium: Srednji budžet
@@ -453,8 +569,8 @@ bs:
       duration_long: Dugo (6+ dana)
       within_radius: Unutar %{radius} km
       results_count:
-        one: "%{count} plan pronađen"
-        other: "%{count} planova pronađeno"
+        one: '%{count} plan pronađen'
+        other: '%{count} planova pronađeno'
       no_results: Nema rezultata
       no_results_description: Pokušaj s drugim pojmom za pretragu ili promijeni filtere
       clear_filters: Očisti filtere
@@ -463,6 +579,12 @@ bs:
       title_label: Naslov
       notes_label: Bilješke
       city_label: Mjesto
+  flash:
+    moment:
+      created: Uspomena dodana
+      destroyed: Uspomena obrisana
+      published: Uspomena podijeljena — curator će je pregledati prije nego postane javna
+      unpublished: Uspomena je ponovo privatna
   auth:
     register_title: Registracija - Usput
     register_heading: Kreiraj nalog
@@ -483,19 +605,21 @@ bs:
     password_confirmation: Potvrdi lozinku
     have_account: Već imaš nalog?
     no_account: Nemaš nalog?
-    profile_sync_info: Tvoj trenutni travel profil (posjećena mjesta, favoriti, badges)
-      će biti sačuvan na tvom nalogu.
+    profile_sync_info: Tvoj trenutni travel profil (posjećena mjesta, favoriti, badges) će biti sačuvan
+      na tvom nalogu.
     profile_merge_info: Ako imaš lokalni profil, biće spojen sa tvojim sačuvanim profilom.
-    registration_success: Uspješno si kreirao nalog! Tvoj travel profil je sada trajno
-      sačuvan.
+    registration_success: Uspješno si kreirao nalog! Tvoj travel profil je sada trajno sačuvan.
     login_success: Uspješno si se prijavio!
     logout_success: Uspješno si se odjavio.
     login_required: Moraš biti prijavljen da pristupiš ovoj stranici.
     invalid_credentials: Pogrešno korisničko ime ili lozinka.
     curator_required: Potrebne su ti kuratorske privilegije da pristupiš ovoj stranici.
-    admin_required: Potrebne su ti administratorske privilegije da pristupiš ovoj
-      stranici.
+    admin_required: Potrebne su ti administratorske privilegije da pristupiš ovoj stranici.
   profile:
+    my_moments:
+      title: Tvoje uspomene
+      empty: Još nema uspomena
+      empty_hint: Otvori plan i prevuci fotografiju na bilo koju lokaciju.
     title: Moj Profil
     subtitle: Tvoja putovanja na jednom mjestu
     logged_in_subtitle: Profil je trajno sačuvan
@@ -525,8 +649,8 @@ bs:
       remove_confirm: Da li ste sigurni da želite ukloniti profilnu sliku?
     curator:
       title: Postani Curator
-      description: Curatori mogu dodavati nove lokacije, iskustva i sadržaj na platformu.
-        Pomozi nam da otkrijemo skrivene dragulje Bosne i Hercegovine!
+      description: Curatori mogu dodavati nove lokacije, iskustva i sadržaj na platformu. Pomozi nam da
+        otkrijemo skrivene dragulje Bosne i Hercegovine!
       apply: Prijavi se za Curatora
       you_are_curator: Ti si Curator
       manage_content: Upravljaj lokacijama i iskustvima
@@ -541,7 +665,7 @@ bs:
     install_button: Instaliraj
     ios_title: Dodaj na početni ekran
     ios_step1: Klikni na
-    ios_share_button: "(Share) dugme u browseru"
+    ios_share_button: (Share) dugme u browseru
     ios_step2: Skrolaj i odaberi
     ios_add_home: Add to Home Screen
     ios_step3: Klikni "Add" u gornjem desnom uglu
@@ -553,7 +677,7 @@ bs:
     desktop_title: Dostupno na mobitelu
     desktop_subtitle: Otvori ovu stranicu na telefonu da instaliras aplikaciju
   footer:
-    safety: "Minska sigurnost"
+    safety: Minska sigurnost
     tagline: Otkrivaj skrivene dragulje i autentična iskustva na svom putu.
     legal: Pravne informacije
     privacy: Politika privatnosti
@@ -567,8 +691,8 @@ bs:
     become_curator: Postani kurator
   cookie_consent:
     title: Kolačići i privatnost
-    message: Koristimo samo tehnički neophodne kolačiće za funkcionisanje stranice
-      (sesija, tema). Ne koristimo analitiku niti pratimo vaše aktivnosti.
+    message: Koristimo samo tehnički neophodne kolačiće za funkcionisanje stranice (sesija, tema). Ne
+      koristimo analitiku niti pratimo vaše aktivnosti.
     learn_more: Saznaj više
     accept: Prihvatam
     decline: Samo neophodni
@@ -581,27 +705,24 @@ bs:
     email: E-mail
     website: Web
     legal_notice: Pravna napomena
-    ecg_notice: Informacije prema austrijskom zakonu o e-trgovini (ECG) i zakonu o
-      medijima.
-    liability_content: Sadržaj ove web stranice je kreiran s najvećom pažnjom. Međutim,
-      ne možemo garantovati tačnost, potpunost i aktualnost sadržaja.
-    liability_links: Naša web stranica sadrži linkove ka eksternim web stranicama
-      trećih strana, na čiji sadržaj nemamo uticaj. Stoga ne možemo preuzeti odgovornost
-      za te eksterne sadržaje.
+    ecg_notice: Informacije prema austrijskom zakonu o e-trgovini (ECG) i zakonu o medijima.
+    liability_content: Sadržaj ove web stranice je kreiran s najvećom pažnjom. Međutim, ne možemo garantovati
+      tačnost, potpunost i aktualnost sadržaja.
+    liability_links: Naša web stranica sadrži linkove ka eksternim web stranicama trećih strana, na čiji
+      sadržaj nemamo uticaj. Stoga ne možemo preuzeti odgovornost za te eksterne sadržaje.
     made_by: Napravio
     inspired_by: Inspirisan od
     support: Podrška
-    support_description: Ako ti se sviđa ovaj projekat, možeš me podržati kupovinom
-      kafe!
+    support_description: Ako ti se sviđa ovaj projekat, možeš me podržati kupovinom kafe!
   privacy:
     title: Politika privatnosti
     last_updated: Posljednje ažuriranje
     intro:
       title: Uvod
-      text1: Zaštita vaših ličnih podataka nam je veoma važna. U ovom dokumentu objašnjavamo
-        koje podatke prikupljamo, kako ih koristimo i koja prava imate u vezi s njima.
-      text2: Ova politika privatnosti je usklađena s Općom uredbom o zaštiti podataka
-        (GDPR/DSGVO) Europske unije i austrijskim Zakonom o zaštiti podataka (DSG).
+      text1: Zaštita vaših ličnih podataka nam je veoma važna. U ovom dokumentu objašnjavamo koje podatke
+        prikupljamo, kako ih koristimo i koja prava imate u vezi s njima.
+      text2: Ova politika privatnosti je usklađena s Općom uredbom o zaštiti podataka (GDPR/DSGVO) Europske
+        unije i austrijskim Zakonom o zaštiti podataka (DSG).
     controller:
       title: Voditelj obrade podataka
       form: Einzelunternehmer (Samostalni poduzetnik)
@@ -648,8 +769,7 @@ bs:
       no_tracking: Ne koristimo kolačiće za praćenje ili analitiku trećih strana.
     retention:
       title: Čuvanje podataka
-      text: 'Vaše podatke čuvamo samo onoliko dugo koliko je potrebno za svrhu za
-        koju su prikupljeni:'
+      text: 'Vaše podatke čuvamo samo onoliko dugo koliko je potrebno za svrhu za koju su prikupljeni:'
       account: 'Podaci korisničkog računa: do brisanja računa'
       logs: 'Server logovi: 30 dana'
       local: 'Lokalno pohranjeni podaci: kontrolisano od strane korisnika'
@@ -678,26 +798,21 @@ bs:
     last_updated: Posljednje ažuriranje
     intro:
       title: Opće odredbe
-      text1: Dobrodošli na Usput. Korištenjem ove web stranice i usluga prihvaćate
-        ove uvjete korištenja u cijelosti.
-      text2: Operater ove web stranice je Muhamed Isabegović, samostalni poduzetnik
-        sa sjedištem u Austriji.
-      text3: Ako se ne slažete s ovim uvjetima, molimo vas da ne koristite našu web
-        stranicu.
+      text1: Dobrodošli na Usput. Korištenjem ove web stranice i usluga prihvaćate ove uvjete korištenja
+        u cijelosti.
+      text2: Operater ove web stranice je Muhamed Isabegović, samostalni poduzetnik sa sjedištem u Austriji.
+      text3: Ako se ne slažete s ovim uvjetima, molimo vas da ne koristite našu web stranicu.
     service:
       title: Opis usluge
-      text1: 'Usput je platforma za otkrivanje i planiranje putovanja koja omogućava
-        korisnicima da:'
+      text1: 'Usput je platforma za otkrivanje i planiranje putovanja koja omogućava korisnicima da:'
       feature1: Pregledaju iskustva i lokacije
       feature2: Kreiraju personalizirane planove putovanja
       feature3: Ostavljaju recenzije i ocjene
       feature4: Kreiraju korisnički račun za trajno čuvanje profila
-      text2: Usluga je besplatna za korištenje. Zadržavamo pravo da u budućnosti uvedemo
-        premium funkcije.
+      text2: Usluga je besplatna za korištenje. Zadržavamo pravo da u budućnosti uvedemo premium funkcije.
     registration:
       title: Registracija korisnika
-      text1: 'Za korištenje određenih funkcija potrebna je registracija. Registracijom
-        jamčite da:'
+      text1: 'Za korištenje određenih funkcija potrebna je registracija. Registracijom jamčite da:'
       req1: Imate najmanje 16 godina
       req2: Pružate tačne informacije
       req3: Čuvate povjerljivost svojih pristupnih podataka
@@ -705,8 +820,7 @@ bs:
     content:
       title: Korisnički sadržaj
       text1: 'Objavljivanjem sadržaja (recenzije, ocjene) na našoj platformi:'
-      grant1: Dajete nam neisključivu licencu za korištenje, prikazivanje i distribuciju
-        tog sadržaja
+      grant1: Dajete nam neisključivu licencu za korištenje, prikazivanje i distribuciju tog sadržaja
       grant2: Jamčite da imate pravo objaviti taj sadržaj
       grant3: Jamčite da sadržaj ne krši prava trećih strana
       prohibited: 'Zabranjeno je objavljivanje sadržaja koji je:'
@@ -716,11 +830,10 @@ bs:
       prohibited4: Sadržaj koji krši autorska prava
     ip:
       title: Intelektualno vlasništvo
-      text1: Sav sadržaj na ovoj web stranici (uključujući tekst, grafiku, logotipe,
-        ikone, slike i softver) je vlasništvo Usput ili naših davatelja licenci i
-        zaštićen je zakonima o autorskim pravima.
-      text2: Nije dozvoljeno kopiranje, distribucija, modifikacija ili kreiranje izvedenih
-        djela bez našeg izričitog pisanog odobrenja.
+      text1: Sav sadržaj na ovoj web stranici (uključujući tekst, grafiku, logotipe, ikone, slike i softver)
+        je vlasništvo Usput ili naših davatelja licenci i zaštićen je zakonima o autorskim pravima.
+      text2: Nije dozvoljeno kopiranje, distribucija, modifikacija ili kreiranje izvedenih djela bez našeg
+        izričitog pisanog odobrenja.
     disclaimer:
       title: Odricanje odgovornosti
       text1: Usluga se pruža "kakva jest" bez ikakvih garancija, izričitih ili impliciranih.
@@ -728,46 +841,44 @@ bs:
       item1: Neprekidnu ili sigurnu dostupnost usluge
       item2: Tačnost ili potpunost informacija o lokacijama i iskustvima
       item3: Da će usluga ispuniti vaše specifične potrebe
-      text3: Koristite informacije na vlastitu odgovornost. Uvijek provjerite informacije
-        kod službenih izvora prije putovanja.
+      text3: Koristite informacije na vlastitu odgovornost. Uvijek provjerite informacije kod službenih
+        izvora prije putovanja.
     liability:
       title: Ograničenje odgovornosti
       text1: 'U maksimalnom opsegu dozvoljenom zakonom, ne snosimo odgovornost za:'
       item1: Indirektne, slučajne ili posljedične štete
       item2: Gubitak podataka ili profita
       item3: Štete nastale korištenjem ili nemogućnošću korištenja usluge
-      text2: Ovo ograničenje odgovornosti ne utječe na vaša zakonska prava kao potrošača
-        prema austrijskom pravu.
+      text2: Ovo ograničenje odgovornosti ne utječe na vaša zakonska prava kao potrošača prema austrijskom
+        pravu.
     termination:
       title: Prekid usluge
-      text1: Možete prestati koristiti uslugu u bilo kojem trenutku brisanjem svog
-        računa.
+      text1: Možete prestati koristiti uslugu u bilo kojem trenutku brisanjem svog računa.
       text2: 'Zadržavamo pravo da:'
       item1: Suspendujemo ili ukinemo vaš račun zbog kršenja uvjeta
       item2: Modificiramo ili prekinemo pružanje usluge uz razumnu najavu
     changes:
       title: Izmjene uvjeta
-      text1: Zadržavamo pravo izmjene ovih uvjeta u bilo kojem trenutku. Značajne
-        izmjene ćemo objaviti na web stranici.
-      text2: Nastavkom korištenja usluge nakon izmjena smatrat će se da ste prihvatili
-        nove uvjete.
+      text1: Zadržavamo pravo izmjene ovih uvjeta u bilo kojem trenutku. Značajne izmjene ćemo objaviti
+        na web stranici.
+      text2: Nastavkom korištenja usluge nakon izmjena smatrat će se da ste prihvatili nove uvjete.
     law:
       title: Mjerodavno pravo
       text1: Ovi uvjeti korištenja podliježu zakonima Republike Austrije.
-      text2: Za rješavanje sporova nadležni su sudovi u Austriji, osim ako obavezujuće
-        odredbe potrošačkog prava ne odrede drugačije.
+      text2: Za rješavanje sporova nadležni su sudovi u Austriji, osim ako obavezujuće odredbe potrošačkog
+        prava ne odrede drugačije.
     contact:
       title: Kontakt
       text: 'Za pitanja o ovim uvjetima korištenja, kontaktirajte nas na:'
   experiences:
     duration:
-      hours: "%{count} sat"
-      hours_plural: "%{count} sata"
-      minutes: "%{count} minuta"
-      minutes_plural: "%{count} minuta"
+      hours: '%{count} sat'
+      hours_plural: '%{count} sata'
+      minutes: '%{count} minuta'
+      minutes_plural: '%{count} minuta'
     locations_count:
       one: 1 lokacija
-      other: "%{count} lokacija"
+      other: '%{count} lokacija'
     show:
       about: O iskustvu
       locations: Lokacije u iskustvu
@@ -786,7 +897,17 @@ bs:
       add_to_existing_desc: Imate aktivan plan. Dodajte ovo iskustvo.
       add_button: Dodaj u plan
       view_plan: Pogledaj plan
+  map:
+    by_foot: pješke
+    by_car: autom
+    start_route: Pokreni rutu
+    no_position: Lokacija nije dostupna
+    no_route: Ruta nije dostupna
   locations:
+    errors:
+      held_by_travellers:
+        one: Ovo mjesto se ne može obrisati — putnik ovdje ima zabilježenu posjetu ili trenutak.
+        other: Ovo mjesto se ne može obrisati — putnici ovdje imaju %{count} zabilježenih posjeta i trenutaka.
     types:
       place: Mjesto
       guide: Vodič
@@ -817,7 +938,7 @@ bs:
       audio_not_supported: Tvoj preglednik ne podržava audio player.
       languages_available:
         one: 1 jezik
-        other: "%{count} jezika"
+        other: '%{count} jezika'
       select_language: Odaberi jezik
       about: O lokaciji
       history: Povijesni kontekst
@@ -829,6 +950,8 @@ bs:
       video: Video
       video_subtitle: Pogledaj video o ovoj lokaciji
       watch_video: Pogledaj video
+      map: Na karti
+      map_fullscreen: Cijeli ekran
       nearby_locations: Lokacije u blizini
       see_all_locations: Pogledaj sve lokacije
       related_experiences: Iskustva s ovom lokacijom
@@ -840,9 +963,9 @@ bs:
       fullscreen: Puni ekran
   date:
     formats:
-      default: "%d.%m.%Y"
-      short: "%d. %b"
-      long: "%d. %B %Y."
+      default: '%d.%m.%Y'
+      short: '%d. %b'
+      long: '%d. %B %Y.'
     day_names:
     - nedjelja
     - ponedjeljak
@@ -860,7 +983,7 @@ bs:
     - pet
     - sub
     month_names:
-    -
+    - null
     - januar
     - februar
     - mart
@@ -874,7 +997,7 @@ bs:
     - novembar
     - decembar
     abbr_month_names:
-    -
+    - null
     - jan
     - feb
     - mar
@@ -889,9 +1012,9 @@ bs:
     - dec
   time:
     formats:
-      default: "%H:%M"
-      short: "%H:%M"
-      long: "%d. %B %Y. %H:%M"
+      default: '%H:%M'
+      short: '%H:%M'
+      long: '%d. %B %Y. %H:%M'
   filters:
     nearby: U blizini
     all_cities: Sva mjesta
@@ -931,6 +1054,21 @@ bs:
       photo_suggestions: Fotografije
       reviews: Recenzije
       proposals: Prijedlozi
+      moments: Uspomene
+    moments:
+      title: Podijeljene uspomene
+      subtitle: Fotografije putnika koje čekaju pregled prije nego postanu javne
+      empty: Nema uspomena za pregled.
+      by: objavio/la %{user}
+      approve: Odobri
+      reject: Odbij
+      status:
+        pending: Na čekanju
+        approved: Odobreno
+        rejected: Odbijeno
+      flash:
+        approved: Uspomena odobrena
+        rejected: Uspomena odbijena
     dashboard:
       welcome: Dobrodošao, %{username}!
       total_locations: Ukupno lokacija
@@ -1052,7 +1190,8 @@ bs:
         all_cities: Sva mjesta
       needs_photos:
         title: Lokacije kojima trebaju fotografije
-        description: Lokacije sortirane po broju fotografija (najmanje prvo). Pomozite poboljšati naš sadržaj dodavanjem fotografija!
+        description: Lokacije sortirane po broju fotografija (najmanje prvo). Pomozite poboljšati naš
+          sadržaj dodavanjem fotografija!
         photo_count: Fotografije
         photos: fotografija
         max_photos: Max fotografija
@@ -1091,8 +1230,7 @@ bs:
       confirm_delete: Jesi li siguran da želiš obrisati %{name}?
       current_cover: Trenutna naslovna fotografija
       upload_cover: Učitaj naslovnu fotografiju
-      cover_photo_hint: 'Preporučena veličina: 1200x800px. Podržani formati: JPG,
-        PNG, WebP'
+      cover_photo_hint: 'Preporučena veličina: 1200x800px. Podržani formati: JPG, PNG, WebP'
       remove_cover_hint: Klikni na ikonu kante za uklanjanje trenutne naslovne fotografije
       contact_hint: Kontakt podaci za rezervacije ili upite o ovom iskustvu
       contact_name: Ime kontakta
@@ -1100,8 +1238,7 @@ bs:
       contact_email: E-mail kontakta
       contact_phone: Telefon kontakta
       contact_website: Web stranica kontakta
-      locations_hint: Odaberi lokacije koje su dio ovog iskustva. Redoslijed je bitan
-        - povuci za reorganizaciju.
+      locations_hint: Odaberi lokacije koje su dio ovog iskustva. Redoslijed je bitan - povuci za reorganizaciju.
       selected_locations: Odabrane lokacije
       add_location: Dodaj lokaciju
       search_location: Pretraži i odaberi lokaciju...
@@ -1114,11 +1251,13 @@ bs:
         metadata: Metapodaci
       filter:
         all_cities: Sva mjesta
+      best_seasons: Najbolje sezone
+      seasons_hint: Ostavite neoznačeno za doživljaje tokom cijele godine
       seasons:
         all_year: Cijela godina
         spring: Proljeće
         summer: Ljeto
-        autumn: Jesen
+        fall: Jesen
         winter: Zima
       difficulties:
         easy: Lako
@@ -1169,7 +1308,7 @@ bs:
         not_blocked: Ovaj korisnik nije blokiran
       curator_applications:
         title: Prijave za kuratora
-        approved: "%{username} je odobren kao kurator"
+        approved: '%{username} je odobren kao kurator'
         rejected: Prijava korisnika %{username} je odbijena
         approval_failed: Nije uspjelo odobrenje prijave
         rejection_failed: Nije uspjelo odbijanje prijave
@@ -1184,15 +1323,12 @@ bs:
   travel_profile:
     checking_location: Provjeravamo vašu lokaciju...
     visit_recorded: Posjeta uspješno zabilježena!
-    removed_from_visited: Uklonjeno iz posjećenih
     removed_from_favorites: Uklonjeno iz omiljenih
     added_to_favorites: Dodano u omiljene!
-    too_far_from_location: Predaleko ste od lokacije (%{distance}). Morate biti unutar
-      %{max_distance}m.
+    too_far_from_location: Predaleko ste od lokacije (%{distance}). Morate biti unutar %{max_distance}m.
     location_no_coordinates: Lokacija nema koordinate za validaciju
     geolocation_not_supported: Vaš preglednik ne podržava geolokaciju
-    geolocation_permission_denied: Pristup lokaciji je odbijen. Dozvolite pristup
-      u postavkama preglednika.
+    geolocation_permission_denied: Pristup lokaciji je odbijen. Dozvolite pristup u postavkama preglednika.
     geolocation_unavailable: Lokacija nije dostupna. Provjerite da li je GPS uključen.
     geolocation_timeout: Vrijeme za dobijanje lokacije je isteklo. Pokušajte ponovo.
     geolocation_error: Greška pri dobijanju lokacije
@@ -1211,8 +1347,7 @@ bs:
     profile_imported: Profil uspješno importovan!
     profile_import_error: Greška pri importu profila
     profile_cleared: Profil obrisan
-    confirm_clear: Jesi li siguran da želiš obrisati sve podatke profila? Ova akcija
-      se ne može poništiti.
+    confirm_clear: Jesi li siguran da želiš obrisati sve podatke profila? Ova akcija se ne može poništiti.
     confirm_replace_or_merge: Želiš li zamijeniti trenutni profil ili spojiti podatke?
     show_more: Prikaži još (%{count})
     time_just_now: Upravo sada
@@ -1268,20 +1403,16 @@ bs:
       benefit_3: Pomoći putnicima da otkriju skrivene dragulje
     form:
       motivation: Zašto želiš postati kurator?
-      motivation_hint: Reci nam o svojoj strasti za putovanja i lokalnom znanju (min.
-        50 karaktera)
+      motivation_hint: Reci nam o svojoj strasti za putovanja i lokalnom znanju (min. 50 karaktera)
       motivation_placeholder: Želim postati kurator jer...
       experience: Relevantno iskustvo (opcionalno)
-      experience_hint: Imaš li iskustva u turizmu, kreiranju sadržaja ili lokalnom
-        znanju?
+      experience_hint: Imaš li iskustva u turizmu, kreiranju sadržaja ili lokalnom znanju?
       experience_placeholder: Imam iskustva u...
       submit: Podnesi prijavu
     show:
       title: Tvoja prijava za kuratora
-      pending_message: Tvoja prijava se pregleda. Obavijestit ćemo te kada se donese
-        odluka.
-      approved_message: Čestitamo! Tvoja prijava je odobrena. Sada imaš pristup Kurator
-        Panelu.
+      pending_message: Tvoja prijava se pregleda. Obavijestit ćemo te kada se donese odluka.
+      approved_message: Čestitamo! Tvoja prijava je odobrena. Sada imaš pristup Kurator Panelu.
       rejected_message: Nažalost, tvoja prijava nije odobrena ovog puta.
       go_to_dashboard: Idi na Kurator Panel
       submitted_at: Podneseno
@@ -1289,33 +1420,37 @@ bs:
       feedback: Povratna informacija
     info:
       title: Postani kurator
-      subtitle: Pridruži se našoj zajednici kuratora i pomozi drugima otkriti najbolja
-        mjesta
+      subtitle: Pridruži se našoj zajednici kuratora i pomozi drugima otkriti najbolja mjesta
       how_it_works: Kako funkcioniše?
       step_1: Kreiraj svoj profil na Usput.ba
       step_2: Pošalji prijavu sa kratkim opisom zašto želiš biti kurator
       step_3: Naš tim će pregledati tvoju prijavu i obavijestiti te o odluci
       create_profile_first: Potrebno je prvo kreirati profil
-      create_profile_hint: Da bi se prijavio/la za kuratora, moraš imati korisnički
-        račun
+      create_profile_hint: Da bi se prijavio/la za kuratora, moraš imati korisnički račun
       already_curator: Već si kurator! Imaš pristup Kurator Panelu.
       pending_application: Tvoja prijava za kuratora je na čekanju.
       view_application: Pogledaj prijavu
       apply_now: Prijavi se sada
-  # Mine Checker (docs/mine_checker/SPEC.md §7) — obavezni tekstualni paket.
-  # Poruke NIKAD ne otkrivaju geometriju ni udaljenosti.
   mine_check:
-    disclaimer: "Provjera se vrši prema posljednje dostupnim podacima o minski sumnjivim područjima (%{data_as_of}). Odsustvo poznatih presjeka NIJE garancija da je područje bez mina. Za ažurne informacije obratite se BHMAC-u: 033/253-800."
-    blocked: "Lokacija ne može biti prihvaćena iz sigurnosnih razloga (blizina minski sumnjivog područja prema podacima od %{data_as_of})."
-    data_stale: "Provjera minske sigurnosti trenutno nije moguća (nema podataka), pa lokacija ne može biti prihvaćena. Za informacije o minskoj situaciji obratite se BHMAC-u: 033/253-800."
-    emergency: "Policija 122 · Civilna zaštita 121 · BHMAC 033/253-800"
-
+    disclaimer: 'Provjera se vrši prema posljednje dostupnim podacima o minski sumnjivim područjima (%{data_as_of}).
+      Odsustvo poznatih presjeka NIJE garancija da je područje bez mina. Za ažurne informacije obratite
+      se BHMAC-u: 033/253-800.'
+    blocked: Lokacija ne može biti prihvaćena iz sigurnosnih razloga (blizina minski sumnjivog područja
+      prema podacima od %{data_as_of}).
+    data_stale: 'Provjera minske sigurnosti trenutno nije moguća (nema podataka), pa lokacija ne može
+      biti prihvaćena. Za informacije o minskoj situaciji obratite se BHMAC-u: 033/253-800.'
+    emergency: Policija 122 · Civilna zaštita 121 · BHMAC 033/253-800
   minesweeper:
     title: Minolovac
-    subtitle: "Edukativna igra na stvarnim kartama — mine su tamo gdje stvarni podaci bilježe minski sumnjiva područja."
-    disclaimer_title: "Edukativna igra sa stvarnim podacima"
-    disclaimer: "Mine u igri se nalaze na ćelijama koje se preklapaju sa evidentiranim minski sumnjivim područjima (snimak 2024). Prazna ćelija znači samo da za taj komad terena nema evidentiranih područja — NIKAKO da je teren siguran; postoje i neobilježena i neevidentirana polja."
-    awareness: "U stvarnosti nema druge šanse — provjeri prije svakog koraka. Ova stranica ni na koji način ne služi procjeni stvarne sigurnosti terena. Za stvarne informacije: BHMAC (bhmac.org, 033/253-800) i službena aplikacija „BH Mine Suspected Areas“."
+    subtitle: Edukativna igra na stvarnim kartama — mine su tamo gdje stvarni podaci bilježe minski sumnjiva
+      područja.
+    disclaimer_title: Edukativna igra sa stvarnim podacima
+    disclaimer: Mine u igri se nalaze na ćelijama koje se preklapaju sa evidentiranim minski sumnjivim
+      područjima (snimak 2024). Prazna ćelija znači samo da za taj komad terena nema evidentiranih područja
+      — NIKAKO da je teren siguran; postoje i neobilježena i neevidentirana polja.
+    awareness: 'U stvarnosti nema druge šanse — provjeri prije svakog koraka. Ova stranica ni na koji
+      način ne služi procjeni stvarne sigurnosti terena. Za stvarne informacije: BHMAC (bhmac.org, 033/253-800)
+      i službena aplikacija „BH Mine Suspected Areas“.'
     region: Predio
     difficulty: Težina
     level_easy: Lako
@@ -1324,39 +1459,54 @@ bs:
     restart: Nova igra
     win: Bravo! Tabla je očišćena.
     lose: Bum! Pokušaj ponovo.
-    hint: "Klik otkriva ćeliju, desni klik ili duži pritisak postavlja zastavicu. Zumiraj i pomjeraj kartu da proučiš teren. Nema zaštite prvog klika — podaci su ono što jesu."
+    hint: Klik otkriva ćeliju, desni klik ili duži pritisak postavlja zastavicu. Zumiraj i pomjeraj kartu
+      da proučiš teren. Nema zaštite prvog klika — podaci su ono što jesu.
     back_home: Početna
-    density_note: Broj mina na tabli odražava stvarnu statistiku — u snimku podataka (2024) regija %{name} ima oko %{km2} km² minski sumnjivih područja u krugu od 30 km.
-    fact_country: "Stvarnost: u BiH je i dalje oko %{km2} km² označeno kao minski sumnjivo područje (BHMAC)."
-    fact_region: "Stvarnost: regija %{name} ima oko %{km2} km² minski sumnjivih područja u krugu od 30 km (snimak 2024)."
-    fact_areas: "Stvarnost: snimak podataka sadrži %{count} evidentiranih minski sumnjivih zapisa u BiH."
-    fact_official: "Za stvarne informacije koristi službenu aplikaciju „BH Mine Suspected Areas“ i BHMAC: bhmac.org, 033 253-800."
+    density_note: Broj mina na tabli odražava stvarnu statistiku — u snimku podataka (2024) regija %{name}
+      ima oko %{km2} km² minski sumnjivih područja u krugu od 30 km.
+    fact_country: 'Stvarnost: u BiH je i dalje oko %{km2} km² označeno kao minski sumnjivo područje (BHMAC).'
+    fact_region: 'Stvarnost: regija %{name} ima oko %{km2} km² minski sumnjivih područja u krugu od 30
+      km (snimak 2024).'
+    fact_areas: 'Stvarnost: snimak podataka sadrži %{count} evidentiranih minski sumnjivih zapisa u BiH.'
+    fact_official: 'Za stvarne informacije koristi službenu aplikaciju „BH Mine Suspected Areas“ i BHMAC:
+      bhmac.org, 033 253-800.'
     custom_location: Odabrana lokacija
     check_link: Provjeri stvarnu lokaciju na karti →
-    density_note_custom: "Broj mina na tabli odražava stvarnu statistiku — u snimku podataka (2024) oko %{km2} km² minski sumnjivih područja je u krugu od 5 km od odabrane tačke."
-    not_suspicious: "Na ovoj tabli nema evidentiranih minski sumnjivih područja — edukativni minolovac se igra samo tamo gdje stvarni podaci nešto bilježe. Odaberi tačku na crvenim područjima na karti provjere."
-
+    density_note_custom: Broj mina na tabli odražava stvarnu statistiku — u snimku podataka (2024) oko
+      %{km2} km² minski sumnjivih područja je u krugu od 5 km od odabrane tačke.
+    not_suspicious: Na ovoj tabli nema evidentiranih minski sumnjivih područja — edukativni minolovac
+      se igra samo tamo gdje stvarni podaci nešto bilježe. Odaberi tačku na crvenim područjima na karti
+      provjere.
   mine_check_public:
     title: Provjera blizine minskih područja
     subtitle: Provjeri da li je neka tačka u BiH blizu evidentiranog minski sumnjivog područja.
     warning_title: Pročitaj prije upotrebe
-    warning_snapshot: "Podaci su snimak stanja od %{data_as_of} i mogu biti zastarjeli — stanje na terenu se mijenja."
-    warning_no_guarantee: Odsustvo poznatih presjeka NIJE garancija da je područje bez mina — postoje i neobilježena i neevidentirana polja.
-    warning_reverse: "Vrijedi i obrnuto: neka prikazana područja su u međuvremenu možda očišćena ili čak izgrađena — prikaz je snimak iz izvora, NE stvarno stanje na terenu."
-    warning_navigation: Ovaj alat NIJE za navigaciju i ne smije se koristiti za kretanje u blizini minskih područja.
-    warning_official: "Jedini mjerodavni izvori su BHMAC (bhmac.org) i službena aplikacija „BH Mine Suspected Areas“."
+    warning_snapshot: Podaci su snimak stanja od %{data_as_of} i mogu biti zastarjeli — stanje na terenu
+      se mijenja.
+    warning_no_guarantee: Odsustvo poznatih presjeka NIJE garancija da je područje bez mina — postoje
+      i neobilježena i neevidentirana polja.
+    warning_reverse: 'Vrijedi i obrnuto: neka prikazana područja su u međuvremenu možda očišćena ili čak
+      izgrađena — prikaz je snimak iz izvora, NE stvarno stanje na terenu.'
+    warning_navigation: Ovaj alat NIJE za navigaciju i ne smije se koristiti za kretanje u blizini minskih
+      područja.
+    warning_official: Jedini mjerodavni izvori su BHMAC (bhmac.org) i službena aplikacija „BH Mine Suspected
+      Areas“.
     use_gps: 📍 Provjeri moju lokaciju
     check_button: Provjeri koordinate
     map_hint: Ili dodirni bilo koju tačku na karti.
     checking: Provjeravam…
-    band_danger: "⚠ OPASNOST: tačka je unutar ili u neposrednoj blizini (do 500 m) evidentiranog minski sumnjivog područja. Ne prilazi! BHMAC: 033/253-800."
-    band_caution: "OPREZ: u široj okolini (500 m – 2 km) postoji evidentirano minski sumnjivo područje. Kreći se samo utvrđenim putevima i provjeri kod BHMAC-a."
-    band_no_known: "Nema poznatih presjeka u krugu od 2 km (podaci od %{data_as_of}). OVO NIJE GARANCIJA da je područje bez mina."
+    band_danger: '⚠ OPASNOST: tačka je unutar ili u neposrednoj blizini (do 500 m) evidentiranog minski
+      sumnjivog područja. Ne prilazi! BHMAC: 033/253-800.'
+    band_caution: 'OPREZ: u široj okolini (500 m – 2 km) postoji evidentirano minski sumnjivo područje.
+      Kreći se samo utvrđenim putevima i provjeri kod BHMAC-a.'
+    band_no_known: Nema poznatih presjeka u krugu od 2 km (podaci od %{data_as_of}). OVO NIJE GARANCIJA
+      da je područje bez mina.
     band_out_of_coverage: Tačka je izvan područja pokrivenosti (BiH).
-    band_unavailable: "Provjera trenutno nije moguća (nema podataka). Kontaktiraj BHMAC: 033/253-800."
+    band_unavailable: 'Provjera trenutno nije moguća (nema podataka). Kontaktiraj BHMAC: 033/253-800.'
     invalid_coordinates: Neispravne koordinate.
     no_gps: Lokacija nije dostupna — dozvoli pristup lokaciji ili unesi koordinate ručno.
     error: Provjera nije uspjela. Pokušaj ponovo.
-    play_here: "🎮 Igraj edukativni minolovac na ovoj lokaciji"
-    areas_legend: "Približne granice evidentiranih minski sumnjivih područja (snimak 2024). Opasnost se može protezati i IZVAN prikazanih oblika."
-    zoom_hint: "Približi kartu da vidiš granice područja."
+    play_here: 🎮 Igraj edukativni minolovac na ovoj lokaciji
+    areas_legend: Približne granice evidentiranih minski sumnjivih područja (snimak 2024). Opasnost se
+      može protezati i IZVAN prikazanih oblika.
+    zoom_hint: Približi kartu da vidiš granice područja.

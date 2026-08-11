@@ -55,6 +55,47 @@ class LocationsControllerTest < ActionDispatch::IntegrationTest
 
   # === Show action tests ===
 
+  test "map_points returns every mappable place as a coordinate" do
+    get map_points_locations_path, headers: { Accept: "application/json" }
+
+    assert_response :success
+    points = JSON.parse(response.body)
+    ids = points.map { |point| point["id"] }
+    assert_includes ids, @location.uuid
+    assert_includes ids, @nearby_location.uuid
+
+    point = points.find { |candidate| candidate["id"] == @location.uuid }
+    assert_equal @location.lat.to_f, point["lat"]
+    assert_equal @location.lng.to_f, point["lng"]
+  end
+
+  test "map_points carries no names or photos" do
+    get map_points_locations_path, headers: { Accept: "application/json" }
+
+    assert_equal %w[id lat lng], JSON.parse(response.body).first.keys.sort
+  end
+
+  # The category the payload used to carry was read by nothing, so the two joins
+  # that fetched it were paid on every catalogue build for no reader.
+  test "map_points survives a place with no category" do
+    uncategorised = Location.create!(name: "No Category", city: "Mostar", lat: 43.34, lng: 17.81)
+
+    get map_points_locations_path, headers: { Accept: "application/json" }
+
+    point = JSON.parse(response.body).find { |candidate| candidate["id"] == uncategorised.uuid }
+    assert point, "an uncategorised place must still reach the map"
+
+    uncategorised.destroy
+  end
+
+  test "map_panel renders the location beside the map" do
+    get map_panel_location_path(@location)
+
+    assert_response :success
+    assert_match "map_panel", response.body
+    assert_match @location.translate(:name, I18n.locale), response.body
+  end
+
   test "show displays location by UUID" do
     get location_path(@location)
 
@@ -199,6 +240,8 @@ class LocationsControllerTest < ActionDispatch::IntegrationTest
     special_location.destroy
   end
 
+  # The validation is one layer and the view is the other: a row written before
+  # the format was anchored, or around it, still must not become a live href.
   test "show handles concurrent access gracefully" do
     # Simulate concurrent access by making multiple requests
     threads = 3.times.map do

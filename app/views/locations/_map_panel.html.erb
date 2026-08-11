@@ -1,0 +1,83 @@
+<%# The location beside the map in fullscreen. Locals: location.
+    Same card shells and rhythm as locations/show, one column wide. %>
+<turbo-frame id="<%= local_assigns.fetch(:frame_id, "map_panel") %>">
+  <div class="h-full overflow-y-auto bg-gray-50 dark:bg-gray-900">
+    <div class="relative">
+      <% if location.photos.attached? %>
+        <%= image_tag location.photos.first.variant(:large),
+                      class: "h-48 w-full object-cover" %>
+      <% end %>
+      <button type="button" data-action="map#closePanel"
+              class="absolute right-3 top-3 flex size-9 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
+              aria-label="<%= t("common.close") %>">
+        <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="space-y-4 p-4">
+      <a href="https://www.google.com/maps/dir/?api=1&destination=<%= location.lat %>,<%= location.lng %>&travelmode=walking"
+         target="_blank" rel="noopener noreferrer"
+         class="inline-flex w-full items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white! px-6 py-3.5 text-base rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+        </svg>
+        <%= t("map.start_route") %>
+      </a>
+
+      <div class="rounded-2xl bg-white p-4 shadow-lg dark:bg-gray-800 sm:p-6">
+        <%= link_to location_path(location), data: { turbo_frame: "_top" } do %>
+          <h1 class="text-2xl font-bold text-gray-900 hover:text-emerald-600 dark:text-white">
+            <%= location.translate(:name, I18n.locale) %>
+          </h1>
+        <% end %>
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <%= [ location_type_label(location.category_key), location.city ].compact_blank.join(" · ") %>
+        </p>
+        <% if location.has_reviews? %>
+          <div class="mt-3 flex items-center space-x-2">
+            <%= render "shared/star_rating", rating: location.average_rating %>
+            <span class="font-semibold text-gray-900 dark:text-white">
+              <%= number_with_precision(location.average_rating, precision: 1) %>
+            </span>
+          </div>
+        <% end %>
+      </div>
+
+      <% if location.translate(:description, I18n.locale).present? %>
+        <div class="rounded-2xl bg-white p-4 shadow-lg dark:bg-gray-800 sm:p-6">
+          <p class="leading-relaxed text-gray-700 dark:text-gray-300">
+            <%= location.translate(:description, I18n.locale) %>
+          </p>
+        </div>
+      <% end %>
+
+      <%# Moments before reviews, and lazy so the panel paints first. %>
+      <div class="rounded-2xl bg-white p-4 shadow-lg dark:bg-gray-800 sm:p-6">
+        <turbo-frame id="<%= dom_id(location, :map_panel_moments) %>"
+                     src="<%= location_moments_path(location.uuid, context: "location", panel: true) %>"
+                     loading="lazy"></turbo-frame>
+      </div>
+
+      <%# Collapsed by default: open, the list is taller than everything above it. %>
+      <details class="group rounded-2xl bg-white shadow-lg dark:bg-gray-800">
+        <summary class="flex cursor-pointer list-none items-center justify-between p-4 sm:p-6">
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white sm:text-xl">
+            <%= t("reviews.title") %>
+            <span class="ml-1 text-sm font-normal text-gray-500 dark:text-gray-400 sm:ml-2 sm:text-base">
+              (<%= location.reviews_count %>)
+            </span>
+          </h3>
+          <svg class="size-5 shrink-0 text-gray-400 transition-transform group-open:rotate-180"
+               fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </summary>
+        <div class="px-4 pb-4 sm:px-6 sm:pb-6">
+          <%= render "reviews/reviews_section", reviewable: location, heading: false %>
+        </div>
+      </details>
+    </div>
+  </div>
+</turbo-frame>

@@ -1,0 +1,63 @@
+<div class="mx-auto max-w-6xl px-4 py-6">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white"><%= t("curator.moments.title") %></h1>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400"><%= t("curator.moments.subtitle") %></p>
+  </div>
+
+  <div class="mb-6 flex flex-wrap gap-2 text-sm">
+    <%= link_to curator_moments_path, class: "rounded-full px-3 py-1 #{params[:status].blank? ? "bg-emerald-600 text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"}" do %>
+      <%= t("curator.moments.status.pending") %> · <%= @stats[:pending] %>
+    <% end %>
+    <%= link_to curator_moments_path(status: "approved"), class: "rounded-full px-3 py-1 #{params[:status] == "approved" ? "bg-emerald-600 text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"}" do %>
+      <%= t("curator.moments.status.approved") %> · <%= @stats[:approved] %>
+    <% end %>
+    <%= link_to curator_moments_path(status: "rejected"), class: "rounded-full px-3 py-1 #{params[:status] == "rejected" ? "bg-emerald-600 text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"}" do %>
+      <%= t("curator.moments.status.rejected") %> · <%= @stats[:rejected] %>
+    <% end %>
+  </div>
+
+  <% if @moments.any? %>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <% @moments.each do |moment| %>
+        <div class="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+          <% if moment.displayable? %>
+            <%= image_tag photo_curator_moment_path(moment, size: "square"),
+                  class: "aspect-square w-full object-cover", loading: "lazy",
+                  alt: moment.location.name %>
+          <% end %>
+          <div class="p-4">
+            <p class="font-semibold text-gray-900 dark:text-white"><%= moment.location.name %></p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              <%= t("curator.moments.by", user: moment.user.username) %> · <%= moment.location.city %>
+            </p>
+            <% if moment.note.present? %>
+              <p class="mt-2 text-sm text-gray-700 dark:text-gray-300"><%= moment.note %></p>
+            <% end %>
+            <div class="mt-4 flex flex-wrap items-center gap-2">
+              <% unless moment.pending? %>
+                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium <%= moment.approved? ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300" : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300" %>">
+                  <%= t("curator.moments.status.#{moment.moderation_status}") %>
+                </span>
+              <% end %>
+              <%# A curator can change the decision either way — approve unless already approved, reject unless already rejected. %>
+              <% unless moment.approved? %>
+                <%= button_to t("curator.moments.approve"), approve_curator_moment_path(moment),
+                      method: :post,
+                      class: "rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700" %>
+              <% end %>
+              <% unless moment.rejected? %>
+                <%= button_to t("curator.moments.reject"), reject_curator_moment_path(moment),
+                      method: :post,
+                      class: "rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700" %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="rounded-xl bg-gray-50 dark:bg-gray-800 px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+      <%= t("curator.moments.empty") %>
+    </p>
+  <% end %>
+</div>

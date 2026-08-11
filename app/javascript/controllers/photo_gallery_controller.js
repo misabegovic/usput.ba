@@ -94,9 +94,7 @@ export default class extends Controller {
       if (thumb) {
         const img = thumb.querySelector("img")
         if (img) {
-          // Get full size URL (remove variants for ActiveStorage)
-          let fullUrl = img.src
-          this.lightboxImageTarget.src = fullUrl
+          this.lightboxImageTarget.src = this.sourceFor(thumb, img)
           this.lightboxImageTarget.alt = img.alt
         }
       }
@@ -122,8 +120,12 @@ export default class extends Controller {
   // Open lightbox mode
   openLightbox(event) {
     if (event) {
-      const index = parseInt(event.currentTarget.dataset.index, 10)
-      if (!isNaN(index)) {
+      // Cards appended by load-more can't carry a server-rendered index, so
+      // fall back to the thumbnail's live position.
+      const index = event.currentTarget.dataset.index
+        ? parseInt(event.currentTarget.dataset.index, 10)
+        : this.thumbnailTargets.indexOf(event.currentTarget)
+      if (!isNaN(index) && index >= 0) {
         this.indexValue = index
       }
     }
@@ -131,7 +133,7 @@ export default class extends Controller {
     if (!this.hasLightboxTarget) return
 
     this.lightboxOpenValue = true
-    this.lightboxTarget.classList.remove("hidden")
+    this.showLightbox()
     document.body.classList.add("overflow-hidden")
 
     // Set initial image
@@ -140,7 +142,7 @@ export default class extends Controller {
     if (thumb && this.hasLightboxImageTarget) {
       const img = thumb.querySelector("img")
       if (img) {
-        this.lightboxImageTarget.src = img.src
+        this.lightboxImageTarget.src = this.sourceFor(thumb, img)
         this.lightboxImageTarget.alt = img.alt
       }
     }
@@ -149,13 +151,56 @@ export default class extends Controller {
     }
   }
 
+  // Thumbnails may carry a larger source for the lightbox; galleries that
+  // don't keep showing the thumbnail, as before.
+  sourceFor(thumb, img) {
+    return thumb.dataset.photoGalleryFullUrl || img.src
+  }
+
   // Close lightbox mode
   closeLightbox() {
     if (!this.hasLightboxTarget) return
 
     this.lightboxOpenValue = false
-    this.lightboxTarget.classList.add("hidden")
+    this.hideLightbox()
+    this.clearThumbnailRings()
     document.body.classList.remove("overflow-hidden")
+  }
+
+  // Galleries that render inside a card use a <dialog> so the top layer lifts
+  // them out of it; the older ones are plain divs toggled by class.
+  showLightbox() {
+    const el = this.lightboxTarget
+    if (typeof el.showModal === "function") {
+      if (!el.open) el.showModal()
+    } else {
+      el.classList.remove("hidden")
+    }
+  }
+
+  hideLightbox() {
+    const el = this.lightboxTarget
+    if (typeof el.close === "function") {
+      if (el.open) el.close()
+    } else {
+      el.classList.add("hidden")
+    }
+  }
+
+  // Esc and the backdrop close a dialog without going through closeLightbox.
+  onLightboxClosed() {
+    this.lightboxOpenValue = false
+    this.clearThumbnailRings()
+    document.body.classList.remove("overflow-hidden")
+  }
+
+  // The ring means "this is the one you are looking at". Once the viewer is
+  // shut it means nothing, and a stray green circle reads as a state badge.
+  clearThumbnailRings() {
+    this.thumbnailTargets.forEach((thumb) => {
+      thumb.classList.remove("ring-emerald-500")
+      thumb.classList.add("ring-transparent", "hover:ring-gray-300", "dark:hover:ring-gray-600")
+    })
   }
 
   // Close lightbox on background click

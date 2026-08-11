@@ -1011,11 +1011,13 @@ ar:
         metadata: البيانات الوصفية
       filter:
         all_cities: جميع المدن
+      best_seasons: أفضل المواسم
+      seasons_hint: اتركه دون تحديد للتجارب المتاحة طوال السنة
       seasons:
         all_year: طوال السنة
         spring: الربيع
         summer: الصيف
-        autumn: الخريف
+        fall: الخريف
         winter: الشتاء
       difficulties:
         easy: سهل

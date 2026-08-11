@@ -1,0 +1,73 @@
+<%# Locals: plan, location, visited. Optional: alert, context.
+    Moments live in the story carousel, not on the step; the check-in button is
+    the desktop path (mobile checks in by swiping the card). %>
+<% location_name = location.translate(:name, I18n.locale) %>
+<% overlay = local_assigns.fetch(:overlay, false) %>
+<% step_context = local_assigns.fetch(:context, nil) %>
+<div id="<%= dom_id(location, :step) %>"
+     class="<%= overlay ? "text-white" : "rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm" %>"
+     data-walk-visited="<%= visited %>">
+    <div class="flex items-start gap-4">
+      <% unless overlay %>
+        <%# Both states are rendered so a guest's check-in can swap them from
+            localStorage, the way the label badge already does. %>
+        <span class="flex size-9 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 <%= "hidden" if visited %>" data-visited-hide>
+          <svg class="size-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+        </span>
+        <span class="flex size-9 flex-shrink-0 items-center justify-center rounded-full bg-emerald-600 <%= "hidden" unless visited %>" data-visited-badge>
+          <svg class="size-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </span>
+      <% end %>
+
+      <% if local_assigns.fetch(:show_photo, true) && location.display_photos.any? %>
+        <%= image_tag location.display_photos.first.variant(resize_to_fill: [ 64, 64 ]),
+              class: "size-16 flex-shrink-0 rounded-lg object-cover",
+              loading: "lazy", alt: location_name %>
+      <% end %>
+
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-2">
+          <% if local_assigns.fetch(:show_name, true) %>
+            <h2 class="truncate font-semibold text-gray-900 dark:text-white"><%= location_name %></h2>
+          <% end %>
+          <%# A guest's visit is marked by the same label, revealed on the press.
+              The wrapper carries `hidden` alone: beside a display utility it
+              loses, because both land at the same specificity. %>
+          <% if visited || !logged_in? %>
+            <span class="<%= "hidden" unless visited %>" data-visited-badge>
+              <span class="inline-flex items-center rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-medium text-white flex-shrink-0">
+                <%= t("plans.start.visited") %>
+              </span>
+            </span>
+          <% end %>
+        </div>
+        <% if local_assigns.fetch(:show_name, true) %>
+          <% meta = [ location.city, location_type_label(location.category_key) ].select(&:present?).join(" · ") %>
+          <% if meta.present? %>
+            <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-400"><%= meta %></p>
+          <% end %>
+        <% end %>
+
+      </div>
+    </div>
+
+    <% if local_assigns[:alert].present? %>
+      <p class="mt-4 rounded-lg bg-red-50 dark:bg-red-900/30 px-3 py-2 text-sm text-red-800 dark:text-red-300">
+        <%= alert %>
+      </p>
+    <% end %>
+
+    <% unless visited %>
+      <% check_class = overlay ? "mx-auto inline-flex items-center gap-1 rounded-full bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-lg cursor-pointer hover:bg-emerald-700" : "flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 cursor-pointer transition-colors hover:border-emerald-400 hover:bg-gray-50 dark:hover:bg-gray-700/40" %>
+      <%# One button on every screen: swiping used to stand in for it on mobile,
+          and there is no swipe left to stand in. %>
+      <%= render "shared/check_in", location: location, plan: plan, context: step_context,
+            button_class: check_class, wrapper_class: (overlay ? "text-center" : "mt-4"),
+            hint_class: (overlay ? "flex w-fit mx-auto" : "flex w-fit") %>
+    <% end %>
+  </div>

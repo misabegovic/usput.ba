@@ -7,6 +7,8 @@ class User < ApplicationRecord
     attachable.variant :medium, resize_to_limit: [ 256, 256 ]
   end
   has_many :curator_applications, dependent: :destroy
+  has_many :moments, dependent: :destroy
+  has_many :plan_visits, dependent: :destroy
   has_many :plans, dependent: :nullify
   has_many :content_changes, dependent: :destroy
   has_many :content_change_contributions, dependent: :destroy
@@ -135,6 +137,7 @@ class User < ApplicationRecord
 
     update!(travel_profile_data: merged)
   end
+end
 
   private
 
@@ -190,4 +193,3 @@ class User < ApplicationRecord
       errors.add(:avatar, "must be less than 5MB")
     end
   end
-end

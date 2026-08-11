@@ -913,11 +913,13 @@ hr:
       confirm_delete: Jesi li siguran da želiš obrisati %{name}?
       filter:
         all_cities: Sva mjesta
+      best_seasons: Najbolje sezone
+      seasons_hint: Ostavite neoznačeno za doživljaje tijekom cijele godine
       seasons:
         all_year: Cijela godina
         spring: Proljeće
         summer: Ljeto
-        autumn: Jesen
+        fall: Jesen
         winter: Zima
       difficulties:
         easy: Lako

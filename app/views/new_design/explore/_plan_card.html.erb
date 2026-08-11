@@ -1,7 +1,17 @@
 <%# Plan Card for Explore Results - matching location/experience card design %>
-<%= link_to plan_path(plan), class: "group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-lg transition-all overflow-hidden", data: { turbo_frame: "_top" } do %>
+<% progress = plan_progress(plan) %>
+<%= link_to plan_path(plan),
+      class: "group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-lg transition-all overflow-hidden #{{ started: "ring-2 ring-amber-400", finished: "ring-2 ring-emerald-500" }[progress]}",
+      data: { turbo_frame: "_top" } do %>
   <%# Gradient header with icon - mimics image area of other cards %>
   <div class="aspect-[4/3] overflow-hidden bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center relative">
+    <% if progress != :not_started %>
+      <div class="absolute top-2 right-2 z-10">
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium backdrop-blur-sm <%= progress == :finished ? "bg-emerald-500/90 text-white" : "bg-amber-400/90 text-gray-900" %>">
+          <%= progress == :finished ? t("plans.finished") : t("plans.started") %>
+        </span>
+      </div>
+    <% end %>
     <div class="text-center text-white">
       <svg class="w-16 h-16 mx-auto opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>

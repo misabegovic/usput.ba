@@ -9,7 +9,7 @@ class PlansController < ApplicationController
 
   # GET /plans/:id
   def show
-    @plan = Plan.includes(plan_experiences: { experience: :locations }).find_by_public_id!(params[:id])
+    @plan = Plan.includes(plan_experiences: { experience: :locations }, plan_locations: :location).find_by_public_id!(params[:id])
 
     # Only allow viewing public plans, or own plans if logged in
     unless @plan.visibility_public_plan? || (logged_in? && @plan.user_id == current_user.id)
@@ -18,6 +18,22 @@ class PlansController < ApplicationController
 
     @reviews = @plan.reviews.recent.limit(10)
     @review = Review.new
+  end
+
+  # GET /plans/:id/start
+  def start
+    @plan = Plan.find_by_public_id!(params[:id])
+
+    unless @plan.visibility_public_plan? || (logged_in? && @plan.user_id == current_user.id)
+      raise ActiveRecord::RecordNotFound
+    end
+
+    @locations = @plan.all_locations
+    @visited_location_ids = if logged_in?
+      current_user.plan_visits.where(plan: @plan).pluck(:location_id).to_set
+    else
+      Set.new
+    end
   end
 
   # GET /plans/wizard
@@ -115,6 +131,22 @@ class PlansController < ApplicationController
       }
     end
 
+    # Standalone locations in this city, for the per-day "Add location" picker.
+    # The client filters out ones already added to the plan.
+    locations = Location.where(city: city_name)
+                        .order(:name)
+                        .limit(50)
+                        .map do |loc|
+      {
+        id: loc.uuid,
+        name: loc.name,
+        city: loc.city,
+        category: loc.category_key,
+        lat: loc.lat,
+        lng: loc.lng
+      }
+    end
+
     # Get popular plans for the same city
     # Use includes to prevent N+1 queries when counting experiences
     plans = Plan.where(city_name: city_name)
@@ -135,6 +167,7 @@ class PlansController < ApplicationController
 
     render json: {
       experiences: experiences,
+      locations: locations,
       plans: plans,
       city_name: city_name
     }

@@ -1,0 +1,56 @@
+<%# Locals: plan, location. Optional: compact (small "+" tile), overlay (on a photo).
+    Signed out, the tile is a link to sign in that comes back to this page. %>
+<% tile = "flex aspect-square w-full items-center justify-center rounded-full border-2 border-dashed cursor-pointer transition-colors #{local_assigns[:overlay] ? "border-white/60 text-white hover:border-white" : "border-gray-300 dark:border-gray-600 text-gray-400 hover:border-emerald-400 hover:text-emerald-500"}" %>
+
+<% if !logged_in? %>
+  <%= link_to login_path(return_to: sign_in_return_path), class: tile,
+        "aria-label": t("plans.moments.add"), data: { turbo_frame: "_top" } do %>
+    <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+  <% end %>
+<% else %>
+<%= form_with url: plan_moments_path(plan),
+      method: :post,
+      scope: :moment,
+      data: { controller: "instant-moment", instant_moment_target: "form" } do |form| %>
+  <%= hidden_field_tag "moment[location_id]", location.uuid %>
+  <% if local_assigns[:context].present? %>
+    <%= hidden_field_tag "context", local_assigns[:context] %>
+  <% end %>
+
+  <% if local_assigns[:story] %>
+    <label class="flex aspect-[4/3] w-full cursor-pointer flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed border-white/40 px-6 text-center transition-colors hover:border-white hover:bg-white/5">
+      <%= form.file_field :photo,
+            accept: "image/jpeg,image/png,image/gif,image/webp",
+            required: true,
+            class: "sr-only",
+            data: { instant_moment_target: "input", action: "change->instant-moment#select" } %>
+      <span class="flex size-16 items-center justify-center rounded-full bg-white/15 text-white">
+        <svg class="size-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" /></svg>
+      </span>
+      <span class="text-lg font-semibold text-white"><%= t("plans.start.story_add_private") %></span>
+      <span class="text-sm text-white/70"><%= t("plans.moments.drop_title") %></span>
+    </label>
+  <% elsif local_assigns[:compact] %>
+    <label class="<%= tile %>" aria-label="<%= t("plans.moments.add") %>">
+      <%= form.file_field :photo,
+            accept: "image/jpeg,image/png,image/gif,image/webp",
+            required: true,
+            class: "sr-only",
+            data: { instant_moment_target: "input", action: "change->instant-moment#select" } %>
+      <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+    </label>
+  <% else %>
+    <label class="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed px-3 py-2 cursor-pointer transition-colors <%= local_assigns[:overlay] ? "border-white/60 text-white hover:border-white hover:bg-white/10" : "border-gray-300 dark:border-gray-600 hover:border-emerald-400 hover:bg-gray-50 dark:hover:bg-gray-700/40" %>">
+      <%= form.file_field :photo,
+            accept: "image/jpeg,image/png,image/gif,image/webp",
+            required: true,
+            class: "sr-only",
+            data: { instant_moment_target: "input", action: "change->instant-moment#select" } %>
+      <svg class="w-5 h-5 flex-shrink-0 <%= local_assigns[:overlay] ? "text-white" : "text-gray-400 dark:text-gray-500" %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 16.5V18a2 2 0 002 2h14a2 2 0 002-2v-1.5M12 3v13m0-13l-4 4m4-4l4 4"></path>
+      </svg>
+      <span class="text-sm font-medium <%= local_assigns[:overlay] ? "text-white" : "text-gray-700 dark:text-gray-200" %>"><%= t("plans.moments.drop_title") %></span>
+    </label>
+  <% end %>
+<% end %>
+<% end %>
