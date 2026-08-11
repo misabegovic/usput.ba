@@ -7,14 +7,19 @@ class User < ApplicationRecord
     attachable.variant :medium, resize_to_limit: [ 256, 256 ]
   end
   has_many :curator_applications, dependent: :destroy
-  has_many :moments, dependent: :destroy
-  has_many :plan_visits, dependent: :destroy
   has_many :plans, dependent: :nullify
   has_many :content_changes, dependent: :destroy
   has_many :content_change_contributions, dependent: :destroy
   has_many :curator_reviews, dependent: :destroy
   has_many :curator_activities, dependent: :destroy
   has_many :photo_suggestions, dependent: :destroy
+  has_many :moments, dependent: :destroy
+  has_many :plan_visits, dependent: :destroy
+
+  # The profile blob is written straight from whatever the device sends, so each
+  # list it holds is bounded rather than left to grow a row without limit.
+  MAX_PROFILE_ENTRIES = 200
+  MAX_RECENTLY_VIEWED = 20
 
   # Spam protection constants
   MAX_ACTIVITIES_PER_HOUR = 50
@@ -107,14 +112,47 @@ class User < ApplicationRecord
     update!(activity_count_today: 0)
   end
 
-  # Default travel profile structure
+  # Default travel profile structure. `visited` and `stats` are always projected
+  # from PlanVisit — the browser holds a copy, never the truth, because a native
+  # app and a second device have to see the same visits. Both come off one load
+  # of the rows, and neither is memoized: `reload` does not clear a custom ivar,
+  # so a cached projection would outlive the check-in that invalidated it.
   def travel_profile_data
-    super.presence || default_travel_profile
+    visits = visits_for_profile
+    (super.presence || default_travel_profile).merge(
+      "visited" => visited_profile_entries(visits),
+      "stats" => visit_stats(visits)
+    )
   end
 
-  # Merge incoming profile data with existing
-  # For favorites and visited, client is authoritative (to support removals)
-  # For badges, savedPlans, and recentlyViewed, we merge to avoid losing data
+  def visited_profile_entries(visits = visits_for_profile)
+    visits.uniq(&:location_id).map do |visit|
+      {
+        "id" => visit.location.uuid,
+        "type" => "location",
+        "name" => visit.location.name,
+        "visitedAt" => visit.created_at.iso8601,
+        "city" => visit.location.city,
+        "tags" => visit.location.tags
+      }
+    end
+  end
+
+  # Cities and seasons come off every visit rather than the deduplicated list:
+  # returning to one place in a later season must not retire the season the
+  # first walk there earned.
+  def visit_stats(visits = visits_for_profile)
+    {
+      "totalVisits" => visits.uniq(&:location_id).size,
+      "citiesVisited" => visits.filter_map { |visit| visit.location.city.presence }.uniq,
+      "seasonsVisited" => visits.map { |visit| Location.season_for(visit.created_at) }.uniq
+    }
+  end
+
+  # Merge incoming profile data with existing. `visited` and `stats` are not
+  # merged — both are derived from PlanVisit, so whatever the client sends is
+  # discarded. For badges, savedPlans, and recentlyViewed, we merge to avoid
+  # losing data.
   def merge_travel_profile(incoming_data)
     return if incoming_data.blank?
 
@@ -122,24 +160,52 @@ class User < ApplicationRecord
     merged = {
       "createdAt" => [ current_data["createdAt"], incoming_data["createdAt"] ].compact.min,
       "updatedAt" => Time.current.iso8601,
-      # Client is authoritative for favorites and visited (supports removals)
-      "visited" => incoming_data["visited"] || current_data["visited"] || [],
-      "favorites" => incoming_data["favorites"] || current_data["favorites"] || [],
+      "favorites" => merge_favorites(current_data, incoming_data).first(MAX_PROFILE_ENTRIES),
       "recentlyViewed" => (current_data["recentlyViewed"].to_a + incoming_data["recentlyViewed"].to_a)
                            .uniq { |item| item["id"] }
                            .sort_by { |item| item["viewedAt"] || "" }
                            .reverse
-                           .first(20),
-      "badges" => merge_arrays_by_id(current_data["badges"], incoming_data["badges"]),
-      "savedPlans" => merge_arrays_by_id(current_data["savedPlans"], incoming_data["savedPlans"]),
-      "stats" => incoming_data["stats"] || current_data["stats"] || {}
+                           .first(MAX_RECENTLY_VIEWED),
+      "badges" => merge_arrays_by_id(current_data["badges"], incoming_data["badges"]).first(MAX_PROFILE_ENTRIES),
+      "savedPlans" => merge_arrays_by_id(current_data["savedPlans"], incoming_data["savedPlans"]).first(MAX_PROFILE_ENTRIES)
     }
 
     update!(travel_profile_data: merged)
   end
-end
 
   private
+
+  def visits_for_profile
+    plan_visits.includes(:location).order(created_at: :desc).to_a
+  end
+
+  # Favourites have no server-side source to recompute from, so the device stays
+  # their owner — but a device holding no profile yet sends an empty list, and an
+  # empty array is truthy in Ruby. Nothing said is not the same as delete these.
+  def merge_favorites(current_data, incoming_data)
+    incoming = incoming_data["favorites"]
+    current = current_data["favorites"].to_a
+    return current if incoming.blank?
+    return incoming if current.empty?
+
+    client_copy_newer?(current_data, incoming_data) ? incoming : current
+  end
+
+  def client_copy_newer?(current_data, incoming_data)
+    incoming_at = parsed_profile_time(incoming_data["updatedAt"])
+    return true if incoming_at.nil?
+
+    current_at = parsed_profile_time(current_data["updatedAt"])
+    current_at.nil? || incoming_at >= current_at
+  end
+
+  # The two sides stamp in different formats — Rails writes a zoned iso8601, the
+  # browser writes UTC with milliseconds — so the strings cannot be compared.
+  def parsed_profile_time(value)
+    Time.iso8601(value.to_s)
+  rescue ArgumentError, TypeError
+    nil
+  end
 
   def reset_activity_count_if_needed!
     if activity_count_reset_at.nil? || activity_count_reset_at < Time.current.beginning_of_day
@@ -172,17 +238,6 @@ end
     combined.group_by { |item| item["id"] }.map { |_id, items| items.last }
   end
 
-  def merge_stats(stats1, stats2)
-    stats1 ||= {}
-    stats2 ||= {}
-
-    {
-      "totalVisits" => [ stats1["totalVisits"].to_i, stats2["totalVisits"].to_i ].max,
-      "citiesVisited" => ((stats1["citiesVisited"] || []) + (stats2["citiesVisited"] || [])).uniq,
-      "seasonsVisited" => ((stats1["seasonsVisited"] || []) + (stats2["seasonsVisited"] || [])).uniq
-    }
-  end
-
   def acceptable_avatar
     acceptable_types = [ "image/jpeg", "image/png", "image/webp", "image/gif" ]
     unless acceptable_types.include?(avatar.content_type)
@@ -193,3 +248,4 @@ end
       errors.add(:avatar, "must be less than 5MB")
     end
   end
+end

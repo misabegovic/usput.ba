@@ -157,7 +157,9 @@ class UserTest < ActiveSupport::TestCase
     user.destroy
   end
 
-  test "merge_travel_profile merges visited items" do
+  # A visit is a check-in, not a client preference: the browser can claim
+  # anything, so `visited` comes from PlanVisit and the payload is ignored.
+  test "merge_travel_profile ignores visited sent by the client" do
     user = User.create!(@valid_params)
 
     user.merge_travel_profile({
@@ -166,8 +168,132 @@ class UserTest < ActiveSupport::TestCase
     })
 
     user.reload
-    assert_equal 1, user.travel_profile_data["visited"].length
-    assert_equal "loc1", user.travel_profile_data["visited"].first["id"]
+    assert_empty user.travel_profile_data["visited"]
+
+    user.destroy
+  end
+
+  test "travel_profile_data projects visited from plan visits" do
+    user = User.create!(@valid_params)
+    location = Location.create!(name: "Projected Fort", city: "Sarajevo", lat: 43.85, lng: 18.41)
+    plan = Plan.create!(title: "Trip", visibility: :private_plan, user: user)
+    user.plan_visits.create!(plan: plan, location: location)
+
+    visited = user.reload.travel_profile_data["visited"]
+
+    assert_equal 1, visited.length
+    assert_equal location.uuid, visited.first["id"]
+    assert_equal "Sarajevo", visited.first["city"]
+
+    location.destroy
+    user.destroy
+  end
+
+  test "travel_profile_data projects stats from plan visits" do
+    user = User.create!(@valid_params)
+    plan = Plan.create!(title: "Trip", visibility: :private_plan, user: user)
+    mostar = Location.create!(name: "Stats Bridge", city: "Mostar", lat: 43.337, lng: 17.815)
+    sarajevo = Location.create!(name: "Stats Tunnel", city: "Sarajevo", lat: 43.82, lng: 18.32)
+    user.plan_visits.create!(plan: plan, location: mostar, created_at: Time.zone.local(2026, 1, 15))
+    user.plan_visits.create!(plan: plan, location: sarajevo, created_at: Time.zone.local(2026, 7, 15))
+
+    stats = user.reload.travel_profile_data["stats"]
+
+    assert_equal 2, stats["totalVisits"]
+    assert_equal %w[Mostar Sarajevo], stats["citiesVisited"].sort
+    assert_equal %w[summer winter], stats["seasonsVisited"].sort
+
+    mostar.destroy
+    sarajevo.destroy
+    user.destroy
+  end
+
+  # The counters are a function of the visits, exactly as `visited` is, so a
+  # browser that never saw the last check-in cannot reverse it.
+  test "merge_travel_profile ignores stats sent by the client" do
+    user = User.create!(@valid_params)
+    plan = Plan.create!(title: "Trip", visibility: :private_plan, user: user)
+    location = Location.create!(name: "Stats Fort", city: "Jajce", lat: 44.34, lng: 17.27)
+    user.plan_visits.create!(plan: plan, location: location)
+
+    user.merge_travel_profile({
+      "stats" => { "totalVisits" => 99, "citiesVisited" => [ "Paris" ], "seasonsVisited" => [] }
+    })
+
+    stats = user.reload.travel_profile_data["stats"]
+    assert_equal 1, stats["totalVisits"]
+    assert_equal [ "Jajce" ], stats["citiesVisited"]
+
+    location.destroy
+    user.destroy
+  end
+
+  test "travel_profile_data reflects a visit recorded after it was first read" do
+    user = User.create!(@valid_params)
+    plan = Plan.create!(title: "Trip", visibility: :private_plan, user: user)
+    location = Location.create!(name: "Stats Mill", city: "Travnik", lat: 44.22, lng: 17.66)
+
+    assert_equal 0, user.travel_profile_data["stats"]["totalVisits"]
+    user.plan_visits.create!(plan: plan, location: location)
+
+    assert_equal 1, user.reload.travel_profile_data["stats"]["totalVisits"]
+
+    location.destroy
+    user.destroy
+  end
+
+  test "travel_profile_data reads the visits in one pass" do
+    user = User.create!(@valid_params)
+    plan = Plan.create!(title: "Trip", visibility: :private_plan, user: user)
+    location = Location.create!(name: "Stats Mosque", city: "Blagaj", lat: 43.25, lng: 17.89)
+    user.plan_visits.create!(plan: plan, location: location)
+    user.reload
+
+    assert_queries_count(2) { user.travel_profile_data }
+
+    location.destroy
+    user.destroy
+  end
+
+  # An empty array is truthy in Ruby, so a browser holding no profile used to
+  # arrive looking like an instruction to delete the account's favourites.
+  test "merge_travel_profile treats an empty incoming favorites list as no opinion" do
+    user = User.create!(@valid_params)
+    user.merge_travel_profile({ "favorites" => [ { "id" => "loc1", "type" => "location" } ] })
+
+    user.merge_travel_profile({ "favorites" => [] })
+
+    assert_equal [ "loc1" ], user.reload.travel_profile_data["favorites"].map { |item| item["id"] }
+
+    user.destroy
+  end
+
+  test "merge_travel_profile lets a newer client remove a favorite" do
+    user = User.create!(@valid_params)
+    user.merge_travel_profile({
+      "favorites" => [ { "id" => "loc1" }, { "id" => "loc2" } ]
+    })
+
+    user.merge_travel_profile({
+      "updatedAt" => 1.hour.from_now.utc.iso8601,
+      "favorites" => [ { "id" => "loc2" } ]
+    })
+
+    assert_equal [ "loc2" ], user.reload.travel_profile_data["favorites"].map { |item| item["id"] }
+
+    user.destroy
+  end
+
+  test "merge_travel_profile keeps stored favorites when the client copy is older" do
+    user = User.create!(@valid_params)
+    user.merge_travel_profile({ "favorites" => [ { "id" => "loc1" }, { "id" => "loc2" } ] })
+
+    user.merge_travel_profile({
+      "updatedAt" => 1.day.ago.utc.iso8601,
+      "favorites" => [ { "id" => "loc3" } ]
+    })
+
+    assert_equal %w[loc1 loc2], user.reload.travel_profile_data["favorites"].map { |item| item["id"] }.sort
 
     user.destroy
   end

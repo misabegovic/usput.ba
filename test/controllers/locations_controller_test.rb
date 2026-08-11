@@ -242,6 +242,17 @@ class LocationsControllerTest < ActionDispatch::IntegrationTest
 
   # The validation is one layer and the view is the other: a row written before
   # the format was anchored, or around it, still must not become a live href.
+  test "show never renders a curator url as an href unless it is absolute http(s)" do
+    @location.update_columns(website: "javascript:alert(1)/*http://a.com*/",
+                             video_url: "javascript:alert(1)/*http://a.com*/")
+
+    get location_path(@location)
+
+    assert_response :success
+    assert_no_match(/href="javascript:/i, response.body)
+    assert_select "a[href*=?]", "alert(1)", count: 0
+  end
+
   test "show handles concurrent access gracefully" do
     # Simulate concurrent access by making multiple requests
     threads = 3.times.map do

@@ -1,1 +1,5 @@
-@import "tailwindcss";
+/* The real stylesheet lives at the path `css:build` compiles in production
+   (lib/tasks/tailwindcss.rake). This file exists only because
+   `tailwindcss:watch` reads the gem's default input path and cannot be
+   pointed elsewhere; re-exporting keeps dev and production on one source. */
+@import "../stylesheets/application.tailwind.css";

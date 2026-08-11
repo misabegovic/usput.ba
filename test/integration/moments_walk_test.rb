@@ -21,6 +21,38 @@ class MomentsWalkTest < ActionDispatch::IntegrationTest
     @user&.destroy
   end
 
+  test "the profile shows the traveller's own moments with location and photo" do
+    add_moment(note: "sunset")
+    login_as(@user)
+
+    get profile_page_path
+
+    assert_response :success
+    assert_match @location.name, response.body
+    assert_select "img[src*='/moments/']", { minimum: 1 }, "the moment photo renders on the profile"
+  end
+
+  test "the profile's visited places reflect a walk check-in (PlanVisit)" do
+    @user.plan_visits.create!(plan: @plan, location: @location)
+    login_as(@user)
+
+    get profile_page_path
+
+    assert_response :success
+    assert_select "a[href=?]", location_path(@location), { minimum: 1 }, "the checked-in location appears under Visited places"
+    assert_match @location.name, response.body
+  end
+
+  test "a plan card links to the plan page where moments live" do
+    login_as(@user)
+
+    # Cards are lazy-loaded into a turbo-frame, so they are not in the profile HTML
+    get profile_plans_path
+
+    assert_response :success
+    assert_select "a[href=?]", plan_path(@plan), count: 1
+  end
+
   test "the walk offers to share a private moment" do
     add_moment(note: "shareable")
     login_as(@user)

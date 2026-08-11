@@ -406,11 +406,67 @@ export default class extends Controller {
           <div class="space-y-4" data-experiences-container data-day-index="${dayIndex}">
             ${experiencesHtml}
           </div>
+          ${this.renderDayLocations(day, dayIndex)}
+          <div class="mt-4">
+            <button type="button"
+                    class="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
+                    data-action="click->plan-viewer#toggleLocationPicker"
+                    data-day-index="${dayIndex}">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              ${this.t('add_location', 'Add location')}
+            </button>
+            <div class="hidden mt-3" data-location-picker data-day-index="${dayIndex}"></div>
+          </div>
         </div>
       `
     }).join('')
 
     this.daysTarget.innerHTML = html
+  }
+
+  // Standalone locations added to a day (below its experiences)
+  renderDayLocations(day, dayIndex) {
+    const locations = day.locations || []
+    if (locations.length === 0) return ''
+
+    const items = locations.map((loc, index) => this.renderLocation(loc, index, dayIndex)).join('')
+    return `<div class="space-y-3 mt-4" data-locations-container data-day-index="${dayIndex}">${items}</div>`
+  }
+
+  renderLocation(loc, index, dayIndex) {
+    const meta = [ loc.city, loc.category ].filter(Boolean).join(' · ')
+
+    return `
+      <div class="group flex items-start p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl transition-colors"
+           data-location-id="${loc.id}"
+           data-day-index="${dayIndex}"
+           data-location-index="${index}">
+        <div class="flex-shrink-0 w-6 h-10 flex items-center justify-center mr-2 text-emerald-500">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+        </div>
+        <a href="/locations/${loc.id}" class="flex-grow min-w-0 hover:opacity-80">
+          <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+            ${loc.name}
+          </h3>
+          ${meta ? `<p class="text-sm text-gray-600 dark:text-gray-400 mt-1">${meta}</p>` : ''}
+        </a>
+        <button type="button"
+                class="flex-shrink-0 ml-2 p-2 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                title="${this.t('remove_from_plan', 'Remove from plan')}"
+                data-action="click->plan-viewer#removeLocation"
+                data-day-index="${dayIndex}"
+                data-location-index="${index}">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+        </button>
+      </div>
+    `
   }
 
   renderExperience(exp, index, dayIndex) {
@@ -978,6 +1034,116 @@ export default class extends Controller {
   }
 
   // ============================================
+  // Standalone locations (added per day)
+  // ============================================
+
+  async toggleLocationPicker(event) {
+    event.preventDefault()
+    const dayIndex = parseInt(event.currentTarget.dataset.dayIndex)
+    const picker = this.element.querySelector(`[data-location-picker][data-day-index="${dayIndex}"]`)
+    if (!picker) return
+
+    // Toggle closed
+    if (!picker.classList.contains("hidden")) {
+      picker.classList.add("hidden")
+      picker.innerHTML = ""
+      return
+    }
+
+    picker.classList.remove("hidden")
+    picker.innerHTML = `<p class="text-sm text-gray-500 dark:text-gray-400">${this.t('loading', 'Loading…')}</p>`
+
+    // Make sure we have this city's locations to offer
+    if (!this.availableLocations || this.availableLocations.length === 0) {
+      await this.loadRecommendations()
+    }
+    this.buildLocationPicker(picker, dayIndex)
+  }
+
+  buildLocationPicker(picker, dayIndex) {
+    const day = this.currentPlan && this.currentPlan.days && this.currentPlan.days[dayIndex]
+    if (!day) return
+
+    const existingIds = new Set((day.locations || []).map(l => l.id))
+    const options = (this.availableLocations || []).filter(loc => !existingIds.has(loc.id))
+
+    if (options.length === 0) {
+      picker.innerHTML = `<p class="text-sm text-gray-500 dark:text-gray-400">${this.t('no_locations_available', 'No locations to add')}</p>`
+      return
+    }
+
+    // In-flow list rendered right under the button. A native <select> popup
+    // mispositions to the top-left corner on some browsers/OSes, so we build
+    // our own list that always appears exactly here.
+    const itemsHtml = options.map(loc => `
+      <button type="button"
+              class="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-emerald-50 dark:hover:bg-emerald-900/20 flex items-center gap-2 transition-colors"
+              data-action="click->plan-viewer#addLocationChoice"
+              data-day-index="${dayIndex}"
+              data-location-id="${loc.id}">
+        <svg class="w-4 h-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+        <span class="truncate">${loc.name}${loc.city ? ` <span class="text-gray-400 dark:text-gray-500">— ${loc.city}</span>` : ''}</span>
+      </button>
+    `).join('')
+
+    picker.innerHTML = `
+      <div class="max-h-56 overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 divide-y divide-gray-100 dark:divide-gray-600 shadow-sm">
+        ${itemsHtml}
+      </div>
+    `
+  }
+
+  addLocationChoice(event) {
+    event.preventDefault()
+    const button = event.currentTarget
+    const dayIndex = parseInt(button.dataset.dayIndex)
+    const locId = button.dataset.locationId
+
+    const loc = (this.availableLocations || []).find(l => l.id === locId)
+    const day = this.currentPlan && this.currentPlan.days && this.currentPlan.days[dayIndex]
+    if (!loc || !day) return
+
+    day.locations = day.locations || []
+    day.locations.push({
+      id: loc.id,
+      name: loc.name,
+      city: loc.city,
+      category: loc.category,
+      lat: loc.lat,
+      lng: loc.lng
+    })
+
+    this.recomputeLocationTotal()
+    this.saveCurrentPlan()
+    this.renderPlan(this.currentPlan)
+  }
+
+  removeLocation(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const dayIndex = parseInt(event.currentTarget.dataset.dayIndex)
+    const locIndex = parseInt(event.currentTarget.dataset.locationIndex)
+    const day = this.currentPlan && this.currentPlan.days && this.currentPlan.days[dayIndex]
+    if (!day || !day.locations) return
+
+    day.locations.splice(locIndex, 1)
+    this.recomputeLocationTotal()
+    this.saveCurrentPlan()
+    this.renderPlan(this.currentPlan)
+  }
+
+  recomputeLocationTotal() {
+    if (!this.currentPlan) return
+    this.currentPlan.total_locations = (this.currentPlan.days || []).reduce(
+      (sum, day) => sum + (day.locations ? day.locations.length : 0), 0
+    )
+  }
+
+  // ============================================
   // Recommendations
   // ============================================
 
@@ -1064,6 +1230,9 @@ export default class extends Controller {
   }
 
   renderRecommendations(data) {
+    // Cache city locations for the per-day "Add location" picker
+    this.availableLocations = data.locations || []
+
     const hasExperiences = data.experiences && data.experiences.length > 0
     const hasPlans = data.plans && data.plans.length > 0
 

@@ -31,7 +31,7 @@
   </div>
 
   <!-- Filters -->
-  <div class="rounded-lg bg-white dark:bg-gray-800 shadow px-4 py-4">
+  <div class="rounded-lg bg-white dark:bg-gray-800 shadow px-4 py-4 overflow-visible">
     <%= form_with url: curator_reviews_path, method: :get, class: "flex flex-col sm:flex-row flex-wrap gap-3" do |f| %>
       <div class="flex-1 min-w-0 sm:max-w-xs">
         <%= f.text_field :search,

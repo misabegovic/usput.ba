@@ -17,11 +17,38 @@ module Authenticatable
 
   def require_login
     unless logged_in?
+      remember_where_we_were
       respond_to do |format|
         format.html { redirect_to login_path, alert: t("auth.login_required") }
         format.json { render json: { error: "Unauthorized" }, status: :unauthorized }
       end
     end
+  end
+
+  def remember_where_we_were(path = request.fullpath)
+    session[:return_to] = path if request.get? && internal_path?(path) && !auth_path?(path)
+  end
+
+  # A visitor who reaches sign-in through an ordinary link carries no return_to,
+  # so the referring page is the only record of where they were.
+  def remember_origin_for_sign_in
+    remember_where_we_were(params[:return_to].presence || referring_path)
+  end
+
+  def internal_path?(path)
+    path.to_s.match?(%r{\A/(?!/)})
+  end
+
+  # Remembering an auth page would bounce the visitor between login and register
+  # instead of back to the page they left.
+  def auth_path?(path)
+    [ login_path, register_path ].include?(path.to_s.split("?").first)
+  end
+
+  def referring_path
+    URI.parse(request.referer.to_s).path.presence
+  rescue URI::InvalidURIError
+    nil
   end
 
   def log_in(user)

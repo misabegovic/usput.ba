@@ -1,4 +1,15 @@
 class UserPlansController < ApplicationController
+  PLAN_ATTRIBUTES = [
+    :id, :generated_at, :duration_days, :saved, :savedAt, :custom_title, :notes, :city_name,
+    { city: [ :id, :name, :display_name ],
+      preferences: [ :budget, :meat_lover, :custom_title, { interests: [] } ],
+      days: [
+        :day_number, :date,
+        { experiences: [ :id, :title, :description, :formatted_duration, { locations: [] } ],
+          locations: [ :id, :name, :description, :category, :budget, :lat, :lng, :city ] }
+      ] }
+  ].freeze
+
   before_action :require_login
   before_action :set_plan, only: [ :show, :update, :destroy, :toggle_visibility ]
 
@@ -8,7 +19,7 @@ class UserPlansController < ApplicationController
   # GET /user/plans
   # Dohvati sve planove korisnika
   def index
-    plans = current_user.plans.includes(plan_experiences: { experience: :locations })
+    plans = current_user.plans.without_explore_bosnia.includes(plan_experiences: { experience: :locations }, plan_locations: :location)
                         .order(created_at: :desc)
 
     render json: {
@@ -24,12 +35,11 @@ class UserPlansController < ApplicationController
   # POST /user/plans/sync
   # Sinkroniziraj planove iz localStorage-a
   def sync
-    local_plans = params[:plans] || []
+    local_plans = synced_plans_params.map(&:to_h)
     synced_plans = []
     errors = []
 
     local_plans.each do |plan_data|
-      plan_data = plan_data.to_unsafe_h if plan_data.respond_to?(:to_unsafe_h)
       result = sync_single_plan(plan_data)
 
       if result[:success]
@@ -41,9 +51,9 @@ class UserPlansController < ApplicationController
 
     # Also get any plans that exist in DB but not in local
     existing_local_ids = local_plans.map { |p| p["id"] }.compact
-    db_only_plans = current_user.plans.where.not(local_id: existing_local_ids)
-                                .or(current_user.plans.where(local_id: nil))
-                                .includes(plan_experiences: { experience: :locations })
+    db_only_plans = current_user.plans.without_explore_bosnia.where.not(local_id: existing_local_ids)
+                                .or(current_user.plans.without_explore_bosnia.where(local_id: nil))
+                                .includes(plan_experiences: { experience: :locations }, plan_locations: :location)
 
     db_only_plans.each do |plan|
       synced_plans << plan.to_local_storage_format
@@ -97,14 +107,12 @@ class UserPlansController < ApplicationController
   # POST /user/plans/share
   # Podijeli plan sa zajednicom (učini ga javnim)
   def share
-    plan_data = params[:plan]
-
-    if plan_data.blank?
+    if params[:plan].blank?
       render json: { success: false, error: "No plan data provided" }, status: :unprocessable_entity
       return
     end
 
-    plan_data = plan_data.to_unsafe_h if plan_data.respond_to?(:to_unsafe_h)
+    plan_data = plan_params.to_h
     local_id = plan_data["id"]
     warnings = []
 
@@ -139,7 +147,8 @@ class UserPlansController < ApplicationController
     end
   rescue => e
     Rails.logger.error "Share plan error: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}"
-    render json: { success: false, error: e.message }, status: :unprocessable_entity
+    Rollbar.error(e) if defined?(Rollbar)
+    render json: { success: false, error: I18n.t("plans.errors.invalid_plan_data") }, status: :unprocessable_entity
   end
 
   # POST /user/plans/:id/toggle_visibility
@@ -167,10 +176,14 @@ class UserPlansController < ApplicationController
     end
   end
 
+  # The explore plan is hidden infrastructure — it carries the traveller's
+  # check-ins and moments and is never listed, so it is out of reach here too:
+  # an update would replace the marker that identifies it, and a delete would
+  # take the visits with it.
   def set_plan
+    scope = current_user.plans.without_explore_bosnia
     # Look up by UUID first, then by local_id for backwards compatibility
-    @plan = current_user.plans.find_by(uuid: params[:id]) ||
-            current_user.plans.find_by(local_id: params[:id])
+    @plan = scope.find_by(uuid: params[:id]) || scope.find_by(local_id: params[:id])
 
     unless @plan
       render json: { error: "Plan not found" }, status: :not_found
@@ -179,12 +192,14 @@ class UserPlansController < ApplicationController
   end
 
   def plan_params
-    params.require(:plan).permit(
-      :id, :generated_at, :duration_days, :saved, :savedAt, :custom_title, :notes,
-      city: [ :id, :name, :display_name ],
-      preferences: [ :budget, :meat_lover, :custom_title, interests: [] ],
-      days: [ :day_number, :date, experiences: [ :id, :title, :description, :formatted_duration, locations: [] ] ]
-    )
+    params.require(:plan).permit(*PLAN_ATTRIBUTES)
+  end
+
+  # The device sends a whole array at once, but each element goes through the
+  # same filter #create uses — preferences carry the explore-mode marker that
+  # decides which listings a plan appears in, so raw client data cannot reach it.
+  def synced_plans_params
+    params.permit(plans: PLAN_ATTRIBUTES)[:plans] || []
   end
 
   def sync_single_plan(plan_data)

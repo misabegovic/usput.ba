@@ -122,39 +122,16 @@ class TravelProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  # === Show action tests ===
+  # === No GET endpoint for the profile blob ===
 
-  test "show requires authentication for JSON request" do
-    get travel_profile_path, as: :json
-
-    assert_response :unauthorized
-  end
-
-  test "show returns travel profile data as JSON" do
+  # It dumped the whole profile as JSON and nothing consumed it; the client reads
+  # its own copy back through :sync, so the surface is gone rather than hidden.
+  test "the profile blob has no GET endpoint" do
     login_as(@user)
 
-    get travel_profile_path, as: :json
+    get "/travel_profile"
 
-    assert_response :success
-    body = response.parsed_body
-    assert body["travel_profile_data"].present?
-  end
-
-  test "show returns default profile data for new user" do
-    new_user = User.create!(
-      username: "newuser",
-      password: "password123",
-      password_confirmation: "password123"
-    )
-    login_as(new_user)
-
-    get travel_profile_path, as: :json
-
-    assert_response :success
-    body = response.parsed_body
-    assert body["travel_profile_data"].present?
-
-    new_user.destroy
+    assert_response :not_found
   end
 
   # === Update action tests ===
@@ -177,7 +154,7 @@ class TravelProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     body = response.parsed_body
     assert body["success"]
-    assert body["travel_profile_data"]["visited"].present?
+    assert_empty body["travel_profile_data"]["visited"], "visited comes from PlanVisit, not the browser"
   end
 
   test "update accepts JSON string parameter" do
@@ -298,194 +275,12 @@ class TravelProfilesControllerTest < ActionDispatch::IntegrationTest
 
   # === Validate Visit action tests ===
 
-  test "validate_visit requires authentication for JSON request" do
-    post validate_visit_travel_profile_path, params: {
-      location_id: @location.uuid,
-      user_lat: 43.8563,
-      user_lng: 18.4131
-    }, as: :json
-
-    assert_response :unauthorized
-  end
-
-  test "validate_visit requires location_id" do
-    login_as(@user)
-
-    post validate_visit_travel_profile_path, params: {
-      user_lat: 43.8563,
-      user_lng: 18.4131
-    }, as: :json
-
-    assert_response :bad_request
-    body = response.parsed_body
-    assert_not body["success"]
-    assert_equal "Location ID is required", body["error"]
-  end
-
-  test "validate_visit requires user coordinates" do
-    login_as(@user)
-
-    post validate_visit_travel_profile_path, params: {
-      location_id: @location.uuid
-    }, as: :json
-
-    assert_response :bad_request
-    body = response.parsed_body
-    assert_not body["success"]
-    assert_equal "User coordinates are required", body["error"]
-  end
-
-  test "validate_visit returns not found for invalid location" do
-    login_as(@user)
-
-    post validate_visit_travel_profile_path, params: {
-      location_id: "non-existent-uuid",
-      user_lat: 43.8563,
-      user_lng: 18.4131
-    }, as: :json
-
-    assert_response :not_found
-    body = response.parsed_body
-    assert_not body["success"]
-    assert_equal "Location not found", body["error"]
-  end
-
-  test "validate_visit returns error for location without coordinates" do
-    location_without_coords = Location.create!(
-      name: "No Coords Location",
-      description: "A location without coordinates",
-      city: "Unknown",
-      lat: nil,
-      lng: nil
-    )
-    login_as(@user)
-
-    post validate_visit_travel_profile_path, params: {
-      location_id: location_without_coords.uuid,
-      user_lat: 43.8563,
-      user_lng: 18.4131
-    }, as: :json
-
-    assert_response :unprocessable_entity
-    body = response.parsed_body
-    assert_not body["success"]
-    assert_equal "Location does not have coordinates", body["error"]
-
-    location_without_coords.destroy
-  end
-
-  test "validate_visit succeeds when user is close enough" do
-    login_as(@user)
-    # Use coordinates very close to the location (within 500m)
-    post validate_visit_travel_profile_path, params: {
-      location_id: @location.uuid,
-      user_lat: @location.lat,
-      user_lng: @location.lng
-    }, as: :json
-
-    assert_response :success
-    body = response.parsed_body
-    assert body["success"]
-    assert body["validated"]
-    assert body["travel_profile_data"].present?
-    assert body["message"].present?
-  end
-
-  test "validate_visit fails when user is too far away" do
-    login_as(@user)
-    # Use coordinates far from the location (different city)
-    post validate_visit_travel_profile_path, params: {
-      location_id: @location.uuid,
-      user_lat: 44.7758, # Banja Luka
-      user_lng: 17.1858
-    }, as: :json
-
-    assert_response :unprocessable_entity
-    body = response.parsed_body
-    assert_not body["success"]
-    assert_not body["validated"]
-    assert body["distance_km"].present?
-    assert body["max_distance_km"].present?
-    assert body["error"].present?
-  end
-
-  test "validate_visit adds location to visited list" do
-    login_as(@user)
-    initial_visits = @user.travel_profile_data["visited"]&.length || 0
-
-    post validate_visit_travel_profile_path, params: {
-      location_id: @location.uuid,
-      user_lat: @location.lat,
-      user_lng: @location.lng
-    }, as: :json
-
-    assert_response :success
-    @user.reload
-    assert_equal initial_visits + 1, @user.travel_profile_data["visited"].length
-  end
-
-  test "validate_visit does not duplicate visits" do
-    login_as(@user)
-
-    # First visit
-    post validate_visit_travel_profile_path, params: {
-      location_id: @location.uuid,
-      user_lat: @location.lat,
-      user_lng: @location.lng
-    }, as: :json
-    assert_response :success
-    @user.reload
-    initial_count = @user.travel_profile_data["visited"].length
-
-    # Second visit to same location
-    post validate_visit_travel_profile_path, params: {
-      location_id: @location.uuid,
-      user_lat: @location.lat,
-      user_lng: @location.lng
-    }, as: :json
-    assert_response :success
-    @user.reload
-    assert_equal initial_count, @user.travel_profile_data["visited"].length
-  end
-
-  test "validate_visit updates stats correctly" do
-    login_as(@user)
-
-    post validate_visit_travel_profile_path, params: {
-      location_id: @location.uuid,
-      user_lat: @location.lat,
-      user_lng: @location.lng
-    }, as: :json
-
-    assert_response :success
-    @user.reload
-    stats = @user.travel_profile_data["stats"]
-    assert stats["totalVisits"] >= 1
-    assert stats["citiesVisited"].include?(@location.city)
-    assert stats["seasonsVisited"].present?
-  end
-
-  test "validate_visit returns distance in response" do
-    login_as(@user)
-
-    post validate_visit_travel_profile_path, params: {
-      location_id: @location.uuid,
-      user_lat: @location.lat + 0.001, # Slightly off
-      user_lng: @location.lng
-    }, as: :json
-
-    assert_response :success
-    body = response.parsed_body
-    assert body["distance_km"].present?
-    assert body["distance_km"].is_a?(Numeric)
-  end
-
   # === Authentication redirect tests ===
 
-  test "show redirects to login for HTML request when not authenticated" do
-    get travel_profile_path
+  test "the profile page is reachable without signing in, and shows no one else's data" do
+    get profile_page_path
 
-    assert_redirected_to login_path
+    assert_response :success
   end
 
   test "update redirects to login for HTML request when not authenticated" do
@@ -496,16 +291,6 @@ class TravelProfilesControllerTest < ActionDispatch::IntegrationTest
 
   test "sync redirects to login for HTML request when not authenticated" do
     post sync_travel_profile_path
-
-    assert_redirected_to login_path
-  end
-
-  test "validate_visit redirects to login for HTML request when not authenticated" do
-    post validate_visit_travel_profile_path, params: {
-      location_id: @location.uuid,
-      user_lat: 43.8563,
-      user_lng: 18.4131
-    }
 
     assert_redirected_to login_path
   end
@@ -560,32 +345,50 @@ class TravelProfilesControllerTest < ActionDispatch::IntegrationTest
     # (pagination limits to 6 per page - PER_PAGE constant)
   end
 
-  test "validate_visit handles zero coordinates as missing" do
+  # An exception message names classes, columns and constraints; the caller gets
+  # a translated line and the detail goes to the reporter.
+  test "an unexpected failure does not hand the exception message to the caller" do
     login_as(@user)
 
-    post validate_visit_travel_profile_path, params: {
-      location_id: @location.uuid,
-      user_lat: 0,
-      user_lng: 0
-    }, as: :json
+    patch travel_profile_path, params: { travel_profile_data: "[1, 2]" }, as: :json
 
-    assert_response :bad_request
-    body = response.parsed_body
-    assert_equal "User coordinates are required", body["error"]
+    assert_response :unprocessable_entity
+    error = response.parsed_body["error"]
+    assert_equal I18n.t("travel_profile.sync_error"), error
+    assert_not_includes error, "TypeError"
   end
 
-  test "validate_visit handles string coordinates" do
+  test "the passport counts every place but lists only a recent slice" do
+    places = (TravelProfilesController::VISITED_LIMIT + 3).times.map do |i|
+      Location.create!(name: "Passport #{i}", city: "Sarajevo", lat: 43.8 + i * 0.01, lng: 18.4 + i * 0.01)
+    end
+    places.each { |place| PlanVisit.create!(user: @user, plan: @plan, location: place) }
     login_as(@user)
 
-    post validate_visit_travel_profile_path, params: {
-      location_id: @location.uuid,
-      user_lat: @location.lat.to_s,
-      user_lng: @location.lng.to_s
-    }, as: :json
+    get profile_page_path
 
     assert_response :success
-    body = response.parsed_body
-    assert body["success"]
+    # The stat is the whole passport; the list below it stops at the cap.
+    assert_select "p.text-3xl", text: places.size.to_s
+    assert_select "a[href=?]", location_path(places.last), count: 1
+    assert_select "a[href=?]", location_path(places.first), count: 0
+  ensure
+    places&.each(&:destroy)
+  end
+
+  test "a place reached on two plans counts and lists once" do
+    other_plan = Plan.create!(title: "Second", city_name: "Sarajevo", user: @user)
+    PlanVisit.create!(user: @user, plan: @plan, location: @location)
+    PlanVisit.create!(user: @user, plan: other_plan, location: @location)
+    login_as(@user)
+
+    get profile_page_path
+
+    assert_response :success
+    assert_select "p.text-3xl", text: "1"
+    assert_select "a[href=?]", location_path(@location), count: 1
+  ensure
+    other_plan&.destroy
   end
 
   private

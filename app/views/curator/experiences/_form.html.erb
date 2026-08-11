@@ -37,17 +37,17 @@
       </div>
 
       <div>
-        <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"><%= t("curator.experiences.seasons", default: "Best Seasons") %></span>
+        <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"><%= t("curator.experiences.best_seasons") %></span>
         <div class="flex flex-wrap gap-3">
           <% Experience::SEASONS.each do |season| %>
             <label class="inline-flex items-center">
               <%= check_box_tag "experience[seasons][]", season, experience.seasons.include?(season),
                   class: "rounded border-gray-300 text-emerald-600 shadow-sm focus:border-emerald-500 focus:ring-emerald-500" %>
-              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300"><%= t("seasons.#{season}", default: season.titleize) %></span>
+              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300"><%= experience_season_label(season) %></span>
             </label>
           <% end %>
         </div>
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400"><%= t("curator.experiences.seasons_hint", default: "Leave unchecked for year-round experiences") %></p>
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400"><%= t("curator.experiences.seasons_hint") %></p>
         <%# Hidden field to ensure empty array is sent when no seasons selected %>
         <%= hidden_field_tag "experience[seasons][]", "" %>
       </div>

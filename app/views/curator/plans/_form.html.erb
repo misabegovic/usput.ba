@@ -176,6 +176,34 @@
   </div>
   <% end %>
 
+  <%# Standalone locations per day (optional extras alongside experiences) %>
+  <% if defined?(locations) && locations.any? %>
+  <div class="rounded-lg bg-white dark:bg-gray-800 shadow">
+    <div class="px-4 py-5 sm:px-6">
+      <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4"><%= t("curator.plans.sections.locations", default: "Locations") %></h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4"><%= t("curator.plans.locations_management_hint", default: "Optionally add standalone locations to visit on each day, alongside the experiences.") %></p>
+
+      <% max_location_days = [ plan.plan_experiences.maximum(:day_number) || 1, plan.plan_locations.maximum(:day_number) || 1, 7 ].max %>
+      <div class="space-y-4" id="plan-location-days">
+        <% (1..max_location_days).each do |day_num| %>
+          <% current_location_uuids = plan.persisted? ? plan.plan_locations.where(day_number: day_num).order(:position).includes(:location).map { |pl| pl.location.uuid } : [] %>
+          <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+            <label class="block font-medium text-gray-900 dark:text-white mb-2">
+              <%= t("plans.show.day", number: day_num) %>
+            </label>
+            <%= select_tag "plan[location_days][#{day_num}][]",
+                options_from_collection_for_select(locations, :uuid, :name, current_location_uuids),
+                multiple: true,
+                class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm",
+                data: { placeholder: t("curator.plans.select_locations", default: "Select locations for this day...") } %>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400"><%= t("curator.plans.day_hint", default: "Hold Ctrl/Cmd to select multiple. Leave empty if no activities for this day.") %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <% end %>
+
   <div class="flex justify-end gap-3">
     <%= link_to t("common.cancel"), curator_plans_path, class: "rounded-md bg-white dark:bg-gray-800 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700" %>
     <%= f.submit t("common.save"), class: "rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 cursor-pointer" %>

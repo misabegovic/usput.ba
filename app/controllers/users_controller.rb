@@ -1,8 +1,12 @@
 class UsersController < ApplicationController
+  include SyncsLocalData
+
   before_action :require_login, only: [ :update_avatar, :remove_avatar ]
 
   def new
-    redirect_to root_path if logged_in?
+    return redirect_to root_path if logged_in?
+
+    remember_origin_for_sign_in
     @user = User.new
   end
 
@@ -12,29 +16,11 @@ class UsersController < ApplicationController
     if @user.save
       log_in(@user)
 
-      # Merge travel profile from localStorage if provided
-      if params[:travel_profile_data].present?
-        begin
-          profile_data = JSON.parse(params[:travel_profile_data])
-          @user.merge_travel_profile(profile_data)
-        rescue JSON::ParserError
-          # Ignore invalid JSON
-        end
-      end
-
-      # Sync plans from localStorage if provided
-      synced_plans = []
-      if params[:plans_data].present?
-        begin
-          plans_data = JSON.parse(params[:plans_data])
-          synced_plans = sync_plans_for_user(@user, plans_data)
-        rescue JSON::ParserError
-          # Ignore invalid JSON
-        end
-      end
+      merge_local_profile(@user, params[:travel_profile_data])
+      synced_plans = sync_local_plans(@user, params[:plans_data])
 
       respond_to do |format|
-        format.html { redirect_to root_path, notice: t("auth.registration_success") }
+        format.html { redirect_to session.delete(:return_to) || root_path, notice: t("auth.registration_success") }
         format.json { render json: { success: true, user: user_json(@user), plans: synced_plans } }
       end
     else
@@ -101,15 +87,5 @@ class UsersController < ApplicationController
   def avatar_url_for(user)
     return nil unless user.avatar.attached?
     Rails.application.routes.url_helpers.rails_blob_url(user.avatar, only_path: true)
-  end
-
-  def sync_plans_for_user(user, plans_data)
-    return [] unless plans_data.is_a?(Array)
-
-    plans_data.filter_map do |plan_data|
-      result = Plan.create_from_local_storage(plan_data, user: user)
-      plan = result[:plan]
-      plan&.to_local_storage_format if plan&.persisted?
-    end
   end
 end

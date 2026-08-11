@@ -129,6 +129,9 @@ class ContentChange < ApplicationRecord
     true
   rescue StandardError => e
     Rails.logger.error "Failed to approve content change #{id}: #{e.message}"
+    # A refused destroy explains itself on the record; the admin needs that
+    # reason, not just "approval failed".
+    errors.add(:base, changeable.errors.full_messages.to_sentence) if changeable&.errors&.any?
     false
   end
 
@@ -282,7 +285,7 @@ class ContentChange < ApplicationRecord
     when "Experience"
       %w[title description experience_category_id estimated_duration contact_name contact_email contact_phone contact_website seasons location_uuids]
     when "Plan"
-      %w[title notes city_name visibility start_date end_date user_id preferences experience_days]
+      %w[title notes city_name visibility start_date end_date user_id preferences experience_days location_days]
     when "AudioTour"
       %w[location_id locale script word_count duration]
     when "Review"

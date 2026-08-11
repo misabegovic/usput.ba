@@ -114,8 +114,9 @@ module Curator
 
     def build_original_data
       data = @plan.attributes.slice(*editable_attributes)
-      # Include current experience structure
+      # Include current experience and standalone-location structure
       data["experience_days"] = build_current_experience_days
+      data["location_days"] = build_current_location_days
       data
     end
 
@@ -123,6 +124,14 @@ module Curator
       days = {}
       @plan.plan_experiences.includes(:experience).group_by(&:day_number).each do |day_num, plan_exps|
         days[day_num.to_s] = plan_exps.sort_by(&:position).map { |pe| pe.experience.uuid }
+      end
+      days
+    end
+
+    def build_current_location_days
+      days = {}
+      @plan.plan_locations.includes(:location).group_by(&:day_number).each do |day_num, plan_locs|
+        days[day_num.to_s] = plan_locs.sort_by(&:position).map { |pl| pl.location.uuid }
       end
       days
     end
@@ -136,6 +145,11 @@ module Curator
       # Include experience_uuids for managing plan experiences
       if params[:plan][:experience_days].present?
         data["experience_days"] = params[:plan][:experience_days].to_unsafe_h
+      end
+
+      # Include location_uuids for managing standalone plan locations
+      if params[:plan][:location_days].present?
+        data["location_days"] = params[:plan][:location_days].to_unsafe_h
       end
 
       # Include the user_id for new plans (will be the curator who proposed)
@@ -160,6 +174,7 @@ module Curator
     def load_form_options
       @city_names = Location.where.not(city: [ nil, "" ]).distinct.pluck(:city).sort
       @experiences = Experience.includes(:locations).order(:title)
+      @locations = Location.order(:name)
       @experience_types = ExperienceType.active.order(:position)
     end
   end

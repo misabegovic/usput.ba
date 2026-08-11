@@ -19,6 +19,17 @@ class VisitedAtAGlanceTest < ActionDispatch::IntegrationTest
     [ @visited, @unvisited ].each { |location| location&.destroy }
   end
 
+  test "a visited location's card is ringed and labelled, an unvisited one is not" do
+    login_as(@user)
+
+    get explore_path(q: "Fort", type: "location")
+
+    assert_response :success
+    assert_select "a[href=?].ring-2.ring-emerald-500", location_path(@visited), count: 1
+    assert_select "a[href=?].ring-2", location_path(@unvisited), count: 0
+    assert_includes response.body, I18n.t("profile.visited", default: "Visited")
+  end
+
   test "a guest sees no visited marking" do
     get explore_path(q: "Fort", type: "location")
 

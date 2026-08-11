@@ -113,6 +113,39 @@ class PlanStartTest < ActionDispatch::IntegrationTest
 
   # A guest may look at a place's moments; capturing one is what needs an account,
   # so the tile signs them in and brings them back to the walk.
+  test "a guest walking a public plan is offered sign-in from the moments panel" do
+    @plan.update!(visibility: :public_plan)
+
+    get start_plan_path(@plan)
+
+    assert_response :success
+    assert_select "turbo-frame[id^='moments_frame_']", count: 1
+
+    get plan_moments_path(@plan, location_id: @location.uuid),
+        headers: { "Turbo-Frame" => ActionView::RecordIdentifier.dom_id(@location, :moments_frame),
+                   "Referer" => start_plan_url(@plan) }
+
+    assert_response :success
+    assert_select "a[href=?][aria-label=?]",
+                  login_path(return_to: start_plan_path(@plan)), I18n.t("plans.moments.add"), count: 1
+  end
+
+  test "signing in from a walk comes back to the walk" do
+    @plan.update!(visibility: :public_plan)
+
+    get login_path(return_to: start_plan_path(@plan))
+    post login_path, params: { username: @user.username, password: "password123" }
+
+    assert_redirected_to start_plan_path(@plan)
+  end
+
+  test "a return path pointing off the site is refused" do
+    get login_path(return_to: "//evil.example.com")
+    post login_path, params: { username: @user.username, password: "password123" }
+
+    assert_redirected_to root_path
+  end
+
   test "a guest cannot walk a private plan" do
     get start_plan_path(@plan)
 
@@ -172,6 +205,27 @@ class PlanStartTest < ActionDispatch::IntegrationTest
   # These two moved here with `touch_visit_stats`, which used to live on the
   # location page's own check-in endpoint and so only ever fired on that one
   # surface. It belongs to recording a visit, whichever screen asked.
+  test "checking in updates the profile's visit stats" do
+    login_as(@user)
+
+    post plan_visits_path(@plan), params: { location_id: @location.uuid, user_lat: @location.lat, user_lng: @location.lng }, as: :turbo_stream
+
+    stats = @user.reload.travel_profile_data["stats"]
+    assert_equal 1, stats["totalVisits"]
+    assert_includes stats["citiesVisited"], @location.city
+    assert_includes stats["seasonsVisited"], Location.current_season
+  end
+
+  test "checking in twice records one visit and does not inflate the stats" do
+    login_as(@user)
+    coordinates = { location_id: @location.uuid, user_lat: @location.lat, user_lng: @location.lng }
+
+    2.times { post plan_visits_path(@plan), params: coordinates, as: :turbo_stream }
+
+    assert_equal 1, @user.plan_visits.where(plan: @plan, location: @location).count
+    assert_equal 1, @user.reload.travel_profile_data["stats"]["totalVisits"]
+  end
+
   # Same guard as the deck's: the walk renders the same card, and the readers
   # behind it query past a preload unless they branch on `loaded?`.
   test "the walk costs the same whether it stacks one card or twelve" do

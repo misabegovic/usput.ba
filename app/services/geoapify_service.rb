@@ -582,6 +582,26 @@ class GeoapifyService
     places.reject { |place| excluded_place?(place) }
   end
 
+  # Find bicycle rental places near a location (used for cycling experiences)
+  # Minimal wrapper around search_nearby scoped to the rental.bicycle category.
+  # @param lat [Float] Latitude
+  # @param lng [Float] Longitude
+  # @param radius [Integer] Radius in meters (default 10km)
+  # @param max_results [Integer] Maximum number of results (default 5)
+  # @return [Array<Hash>] Array of bicycle rental place data
+  def bicycle_rentals_near(lat:, lng:, radius: 10_000, max_results: 5)
+    search_nearby(
+      lat: lat,
+      lng: lng,
+      radius: radius,
+      types: [ "bicycle_rental" ],
+      max_results: max_results
+    )
+  rescue ApiError, ConfigurationError => e
+    Rails.logger.warn "[GeoapifyService] Bicycle rental lookup failed for #{lat}, #{lng}: #{e.message}"
+    []
+  end
+
   # Get detailed information about a place
   # @param place_id [String] Geoapify Place ID
   # @return [Hash] Place details

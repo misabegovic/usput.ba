@@ -27,6 +27,16 @@
           </svg>
           <%= t("curator.plans.edit", default: "Edit") %>
         <% end %>
+        <%# Files a deletion proposal for admin review %>
+        <%= button_to curator_plan_path(@plan),
+            method: :delete,
+            class: "inline-flex items-center justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500",
+            data: { turbo_confirm: t("curator.plans.confirm_delete", title: @plan.title) } do %>
+          <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+          </svg>
+          <%= t("curator.plans.delete") %>
+        <% end %>
       <% end %>
     </div>
   </div>
@@ -115,18 +125,35 @@
     </div>
   <% end %>
 
-  <% if Flipper.enabled?(:curator_edit_delete) %>
-    <div class="flex gap-3">
-      <%= link_to edit_curator_plan_path(@plan),
-          class: "inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500" do %>
-        <%= t("curator.plans.edit") %>
-      <% end %>
-      <%= button_to curator_plan_path(@plan),
-          method: :delete,
-          class: "inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500",
-          data: { turbo_confirm: t("curator.plans.confirm_delete", title: @plan.title) } do %>
-        <%= t("curator.plans.delete") %>
-      <% end %>
+  <!-- Standalone Locations by Day -->
+  <% if @plan.plan_locations.any? %>
+    <div class="rounded-lg bg-white dark:bg-gray-800 shadow">
+      <div class="px-4 py-5 sm:px-6">
+        <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4"><%= t("curator.plans.sections.locations", default: "Locations") %></h2>
+
+        <% (1..@plan.duration_in_days).each do |day_num| %>
+          <% day_locations = @plan.plan_locations.where(day_number: day_num).order(:position).includes(:location) %>
+          <% if day_locations.any? %>
+            <div class="mb-4 last:mb-0">
+              <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><%= t("plans.show.day", number: day_num) %></h3>
+              <ul class="space-y-2">
+                <% day_locations.each do |pl| %>
+                  <li class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <span class="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-xs font-medium">
+                      <%= pl.position %>
+                    </span>
+                    <%= link_to pl.location.name, curator_location_path(pl.location), class: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300" %>
+                    <% if pl.location.city.present? %>
+                      <span class="text-gray-400 dark:text-gray-500"><%= pl.location.city %></span>
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
     </div>
   <% end %>
+
 </div>

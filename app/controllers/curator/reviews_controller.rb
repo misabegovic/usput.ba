@@ -50,7 +50,9 @@ module Curator
     private
 
     def set_review
-      @review = Review.find(params[:id])
+      # Review includes Identifiable, so to_param — and therefore every generated
+      # path — is the uuid. Review.find looks up by id and never resolves it.
+      @review = Review.find_by_public_id!(params[:id])
     end
 
     def review_not_found

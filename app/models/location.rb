@@ -50,12 +50,12 @@ class Location < ApplicationRecord
   # Validations
   validates :name, presence: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
-  validates :website, format: { with: /\A#{URI::DEFAULT_PARSER.make_regexp(%w[http https])}\z/, message: "must be a valid URL" }, allow_blank: true
+  validates :website, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), message: "must be a valid URL" }, allow_blank: true
   validates :phone, format: { with: /\A[\d\s\+\-\(\)]+\z/, message: "must be a valid phone number" }, allow_blank: true
   validates :lat, numericality: { greater_than_or_equal_to: -90, less_than_or_equal_to: 90 }, allow_nil: true
   validates :lng, numericality: { greater_than_or_equal_to: -180, less_than_or_equal_to: 180 }, allow_nil: true
   validates :lat, uniqueness: { scope: :lng, message: "i longitude kombinacija već postoji" }, allow_nil: true
-  validates :video_url, format: { with: /\A#{URI::DEFAULT_PARSER.make_regexp(%w[http https])}\z/, message: "must be a valid URL" }, allow_blank: true
+  validates :video_url, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), message: "must be a valid URL" }, allow_blank: true
 
   # Mine Checker hard-block (docs/mine_checker/SPEC.md §6): any coordinate
   # change must pass the mine check. Fail-closed — stale data also blocks.

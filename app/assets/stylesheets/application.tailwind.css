@@ -629,3 +629,9 @@
     background-color: #eab308;
   }
 }
+
+/* A story owns the whole screen: while one is open, global chrome
+   (PWA install banner) must never paint or intercept above it. */
+.story-open [data-pwa-install-target] {
+  display: none !important;
+}

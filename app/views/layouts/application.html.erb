@@ -17,10 +17,11 @@
     <%= csp_meta_tag %>
     <meta name="user-logged-in" content="<%= logged_in? ? 'true' : 'false' %>">
     <% if logged_in? %>
-      <meta name="user-id" content="<%= current_user.uuid %>">
+      <meta name="travel-store-scope" content="<%= travel_store_scope %>">
     <% end %>
-
-    <%= yield :head %>
+    <% if dev_position %>
+      <meta name="dev-position" content="<%= dev_position %>">
+    <% end %>
 
     <%# PWA Manifest %>
     <link rel="manifest" href="/manifest.json">
@@ -47,6 +48,7 @@
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    <%= yield :head %>
   </head>
 
   <body class="h-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 overflow-x-hidden">

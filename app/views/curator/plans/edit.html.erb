@@ -4,5 +4,5 @@
     <%= link_to t("curator.plans.back_to_view", default: "Back to View"), curator_plan_path(@plan), class: "text-sm text-emerald-600 hover:text-emerald-900 dark:hover:text-emerald-700" %>
   </div>
 
-  <%= render "form", plan: @plan, city_names: @city_names, experience_types: @experience_types, experiences: @experiences %>
+  <%= render "form", plan: @plan, city_names: @city_names, experience_types: @experience_types, experiences: @experiences, locations: @locations %>
 </div>
