@@ -31,6 +31,9 @@ Rails.application.routes.draw do
   get "register", to: "users#new", as: :register
   post "register", to: "users#create"
   get "route", to: "map_routes#show", as: :map_route
+  get "explore-bosnia", to: "explore_bosnia#show", as: :explore_bosnia
+  # "all" is the unfiltered entry; several at once ride in the query string.
+  get "explore-bosnia/:category", to: "explore_bosnia#experience", as: :explore_bosnia_experience
   get "login", to: "sessions#new", as: :login
   post "login", to: "sessions#create"
   delete "logout", to: "sessions#destroy", as: :logout

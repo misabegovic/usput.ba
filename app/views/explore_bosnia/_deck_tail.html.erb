@@ -1,0 +1,12 @@
+<%# Locals: next_url, end_message — either may be nil. The last slot: the loader
+    for the next slice, or the card that says there is nothing left. Same id
+    either way, so each appended slice can swap it again. %>
+<% if next_url %>
+  <div id="explore_deck_tail" class="flex h-full snap-start items-center justify-center"
+       data-controller="deck-pagination"
+       data-deck-pagination-url-value="<%= next_url %>">
+    <span class="size-10 animate-spin rounded-full border-4 border-white/30 border-t-white"></span>
+  </div>
+<% elsif end_message %>
+  <%= render "explore_bosnia/message_card", message: end_message, id: "explore_deck_tail" %>
+<% end %>

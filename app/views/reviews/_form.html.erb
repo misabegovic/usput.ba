@@ -1,12 +1,14 @@
 <%# Review form component %>
 <%# Usage: render "reviews/form", reviewable: location, review: review %>
 
-<div id="review-form" class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
+<div id="<%= dom_id(reviewable, :review_form) %>" class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
   <h3 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4">
     <%= t("reviews.form.title", default: "Ostavi recenziju") %>
   </h3>
 
-  <%= form_with model: [reviewable, review], local: true, class: "space-y-4" do |f| %>
+  <%# namespace scopes the generated field ids per reviewable — the explore deck %>
+  <%# renders this form for every card at once, so unscoped ids would collide. %>
+  <%= form_with model: [reviewable, review], namespace: dom_id(reviewable), local: true, class: "space-y-4" do |f| %>
     <% if review.errors.any? %>
       <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
         <p class="text-red-700 dark:text-red-400 text-sm">

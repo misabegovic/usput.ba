@@ -181,6 +181,135 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "explore returns approved public moments under the moment type" do
+    user = User.create!(username: "explorer_sharer", password: "password123")
+    moment = user.moments.build(plan: @plan, location: @location)
+    moment.photo.attach(io: File.open(file_fixture("real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
+    moment.save!
+    moment.update!(visibility: :public_moment)
+    moment.update!(moderation_status: :approved)
+
+    get explore_path, params: { types: [ "moment" ] }
+
+    assert_response :success
+    assert_select "a[href=?]", location_path(@location), minimum: 1
+  ensure
+    Moment.destroy_all
+    user&.destroy
+  end
+
+  test "explore does not surface a pending or private moment" do
+    user = User.create!(username: "private_sharer", password: "password123")
+    moment = user.moments.build(plan: @plan, location: @mostar_location)
+    moment.photo.attach(io: File.open(file_fixture("real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
+    moment.save!
+    moment.update!(visibility: :public_moment) # pending, not approved
+
+    get explore_path, params: { types: [ "moment" ] }
+
+    assert_response :success
+    assert_select "a[href=?]", location_path(@mostar_location), count: 0
+  ensure
+    Moment.destroy_all
+    user&.destroy
+  end
+
+  test "explore shows a traveller their own private moment, which the public grid never gets" do
+    user = User.create!(username: "band_owner", password: "password123")
+    moment = own_moment_for(user, @location)
+    login_as(user)
+
+    get explore_path, params: { types: [ "moment" ] }
+
+    assert_response :success
+    assert_select "turbo-frame##{ActionView::RecordIdentifier.dom_id(moment)}", { count: 1 },
+      "the traveller's own private moment must appear in their band"
+    assert_select "form[action=?]", publish_plan_moment_path(@plan, moment), count: 1
+    assert_select "form[action=?]", plan_moment_path(@plan, moment), count: 1
+  ensure
+    Moment.destroy_all
+    user&.destroy
+  end
+
+  # travel_profile_path is the JSON endpoint: linking there printed the raw
+  # profile payload on screen instead of opening the profile.
+  test "see-all-your-moments goes to the profile page, not the JSON endpoint" do
+    user = User.create!(username: "band_all_link", password: "password123")
+    NewDesignController::OWN_MOMENTS_LIMIT.times { own_moment_for(user, @location) }
+    login_as(user)
+
+    get explore_path, params: { types: [ "moment" ] }
+
+    assert_response :success
+    assert_select "a[href=?]", profile_page_path, minimum: 1
+    assert_select "a[href=?]", "/travel_profile", count: 0
+  ensure
+    Moment.destroy_all
+    user&.destroy
+  end
+
+  test "the band card links through to the moment's location" do
+    user = User.create!(username: "band_linker", password: "password123")
+    own_moment_for(user, @location)
+    login_as(user)
+
+    get explore_path, params: { types: [ "moment" ] }
+
+    assert_response :success
+    assert_select "a[href=?]", location_path(@location), minimum: 1
+  ensure
+    Moment.destroy_all
+    user&.destroy
+  end
+
+  test "a logged-out visitor gets no own-moments band" do
+    user = User.create!(username: "band_absent", password: "password123")
+    own_moment_for(user, @location)
+
+    get explore_path, params: { types: [ "moment" ] }
+
+    assert_response :success
+    assert_select "turbo-frame[id^=?]", "moment_", count: 0
+  ensure
+    Moment.destroy_all
+    user&.destroy
+  end
+
+  test "another traveller's private moment stays out of your band" do
+    mine = User.create!(username: "band_mine", password: "password123")
+    theirs = User.create!(username: "band_theirs", password: "password123")
+    hidden = own_moment_for(theirs, @mostar_location)
+    login_as(mine)
+
+    get explore_path, params: { types: [ "moment" ] }
+
+    assert_response :success
+    assert_select "turbo-frame##{ActionView::RecordIdentifier.dom_id(hidden)}", { count: 0 },
+      "the band is scoped to the signed-in traveller"
+  ensure
+    Moment.destroy_all
+    mine&.destroy
+    theirs&.destroy
+  end
+
+  test "a public moment expands like your own instead of navigating away" do
+    sharer = User.create!(username: "band_public", password: "password123")
+    shared = own_moment_for(sharer, @location)
+    # Publishing re-enters moderation, so approval is a second step.
+    shared.update!(visibility: :public_moment)
+    shared.update!(moderation_status: :approved)
+
+    get explore_path, params: { types: [ "moment" ] }
+
+    assert_response :success
+    assert_select "[data-photo-gallery-target='thumbnail']", { minimum: 1 },
+      "a public moment's photo must open full screen, not link to the location"
+    assert_select "[data-photo-gallery-target='lightbox']", minimum: 1
+  ensure
+    Moment.destroy_all
+    sharer&.destroy
+  end
+
   test "explore filters by multiple types" do
     get explore_path, params: { types: [ "location", "experience" ] }
 
@@ -469,6 +598,17 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def own_moment_for(user, location)
+    moment = user.moments.build(plan: @plan, location: location)
+    moment.photo.attach(io: File.open(file_fixture("real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
+    moment.save!
+    moment
+  end
+
+  def login_as(user)
+    post login_path, params: { username: user.username, password: "password123" }
+  end
 
   # Helper to sync Browse records for search functionality
   def sync_browse_records

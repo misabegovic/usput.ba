@@ -1,0 +1,36 @@
+<%# Locals: moment. Optional: linked — the owner's card carries buttons and
+    cannot nest a link, so it links the place line itself. Optional: byline. %>
+<% linked = local_assigns.fetch(:linked, false) %>
+
+<div class="p-4">
+  <% place = capture do %>
+    <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-yellow-400 transition-colors line-clamp-1 break-words">
+      <%= moment.location.name %>
+    </h3>
+
+    <% if moment.location.city.present? %>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 flex items-center min-w-0">
+        <svg class="w-3.5 h-3.5 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+        </svg>
+        <span class="truncate"><%= moment.location.city %></span>
+      </p>
+    <% end %>
+  <% end %>
+
+  <% if linked %>
+    <%= link_to location_path(moment.location), class: "block hover:underline", data: { turbo_frame: "_top" } do %>
+      <%= place %>
+    <% end %>
+  <% else %>
+    <%= place %>
+  <% end %>
+
+  <% if moment.note.present? %>
+    <p class="mt-2 text-sm text-gray-600 dark:text-gray-300 line-clamp-2 break-words"><%= moment.note %></p>
+  <% end %>
+
+  <% if local_assigns[:byline].present? %>
+    <p class="mt-3 text-xs text-gray-400 dark:text-gray-500"><%= byline %></p>
+  <% end %>
+</div>

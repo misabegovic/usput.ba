@@ -120,6 +120,23 @@
                 </span>
               </label>
 
+              <label class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" name="types[]" value="moment"
+                       <%= "checked" if @types.include?("moment") %>
+                       class="sr-only peer"
+                       data-explore-target="typeCheckbox"
+                       data-action="change->explore#onTypeChange">
+                <span class="px-4 py-2 rounded-full text-sm font-medium transition-all
+                             peer-checked:bg-blue-600 peer-checked:text-white peer-checked:dark:bg-yellow-500 peer-checked:dark:text-gray-900
+                             bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                  <svg class="w-4 h-4 inline-block mr-1.5 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                  <%= t("explore.types.moment") %>
+                </span>
+              </label>
+
               <%# Divider %>
               <div class="hidden sm:block h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
 
@@ -173,7 +190,7 @@
 
               <%# Clear Filters %>
               <button type="button"
-                      class="hidden inline-flex items-center px-3 py-2 rounded-full text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                      class="hidden flex w-fit items-center px-3 py-2 rounded-full text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                       data-explore-target="clearFiltersButton"
                       data-action="click->explore#clearAllFilters">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -194,7 +211,7 @@
                   <% [
                     ["spring", t("explore.seasons.spring")],
                     ["summer", t("explore.seasons.summer")],
-                    ["autumn", t("explore.seasons.autumn")],
+                    ["fall", t("explore.seasons.autumn")],
                     ["winter", t("explore.seasons.winter")]
                   ].each do |value, label| %>
                     <label class="inline-flex items-center cursor-pointer">
@@ -462,12 +479,12 @@
 
       <%# Results Container %>
       <div data-explore-target="resultsContainer">
-        <% total_results = @locations.size + @experiences.size + @plans.size %>
+        <% total_results = @locations.size + @experiences.size + @plans.size + @moments.size + @my_moments.size %>
 
         <% if total_results > 0 %>
           <%# Results Summary %>
           <p class="text-sm text-gray-600 dark:text-gray-400 mb-8">
-            <% total_count = @locations.total_count + @experiences.total_count + @plans.total_count %>
+            <% total_count = @locations.total_count + @experiences.total_count + @plans.total_count + @moments.total_count + @my_moments.size %>
             <%= t("explore.results_count", count: total_count) %>
           </p>
 
@@ -582,6 +599,75 @@
                 <% end %>
               </div>
               <% if @plans.total_count > 3 %>
+                <div class="mt-8 text-center">
+                  <button type="button"
+                          data-load-more-target="button"
+                          data-action="click->load-more#loadMore"
+                          class="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                    <%= t("explore.load_more") %>
+                  </button>
+                  <div class="hidden" data-load-more-target="loading">
+                    <svg class="animate-spin h-6 w-6 mx-auto text-blue-600 dark:text-yellow-500" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+
+          <%# Own moments, above the public ones and never merged into them. %>
+          <% if @my_moments.any? %>
+            <div class="mb-12" data-controller="photo-gallery" data-photo-gallery-index-value="0">
+              <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-blue-600 dark:text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <%= t("explore.sections.my_moments") %>
+                <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">(<%= @my_moments.size %>)</span>
+              </h2>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <% @my_moments.each_with_index do |moment, index| %>
+                  <%= render "new_design/explore/my_moment_card", moment: moment, index: index %>
+                <% end %>
+              </div>
+
+              <%= render "shared/photo_lightbox", count: @my_moments.size %>
+            </div>
+          <% end %>
+
+          <%# Moments Section %>
+          <% if @moments.any? %>
+            <div class="mb-12" data-controller="load-more photo-gallery"
+                 data-photo-gallery-index-value="0"
+                 data-load-more-url-value="<%= explore_path %>"
+                 data-load-more-resource-type-value="moments"
+                 data-load-more-page-value="1"
+                 data-load-more-total-count-value="<%= @moments.total_count %>"
+                 data-load-more-per-page-value="3">
+              <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-blue-600 dark:text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <%= t("explore.sections.moments") %>
+                <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
+                  (<span data-load-more-target="count"><%= @moments.size %></span>/<%= @moments.total_count %>)
+                </span>
+              </h2>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-load-more-target="container">
+                <% @moments.each do |moment| %>
+                  <%= render "new_design/explore/moment_card", moment: moment, expandable: true %>
+                <% end %>
+              </div>
+
+              <%= render "shared/photo_lightbox", count: @moments.total_count %>
+              <% if @moments.total_count > 3 %>
                 <div class="mt-8 text-center">
                   <button type="button"
                           data-load-more-target="button"
