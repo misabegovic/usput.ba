@@ -1003,11 +1003,13 @@ pt:
       confirm_delete: Tem certeza de que deseja excluir %{name}?
       filter:
         all_cities: Todas as cidades
+      best_seasons: Melhores estações
+      seasons_hint: Deixe desmarcado para experiências durante todo o ano
       seasons:
         all_year: Ano todo
         spring: Primavera
         summer: Verão
-        autumn: Outono
+        fall: Outono
         winter: Inverno
       difficulties:
         easy: Fácil

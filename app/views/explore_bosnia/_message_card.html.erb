@@ -1,0 +1,12 @@
+<%# Locals: message. Optional: id. A deck slot shaped like any other card. %>
+<div <%= tag.attributes(id: local_assigns[:id]) %> class="flex h-full snap-start items-center justify-center px-3 py-2">
+  <div class="w-[min(100%,calc((100dvh-10rem)*0.62))]">
+    <div class="relative mx-auto flex aspect-[2/3] max-h-full w-full touch-pan-y flex-col items-center justify-center overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm sm:max-w-lg dark:border-gray-700 dark:bg-gray-800"
+         data-plan-deck-target="card">
+      <svg class="mb-3 size-8 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7" />
+      </svg>
+      <p class="text-sm text-gray-500 dark:text-gray-400"><%= message %></p>
+    </div>
+  </div>
+</div>

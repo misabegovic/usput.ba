@@ -1,0 +1,7 @@
+<% if @saved %>
+  <%= turbo_stream.replace dom_id(@reviewable, :reviews_section),
+        partial: "reviews/reviews_section", locals: { reviewable: @reviewable } %>
+<% else %>
+  <%= turbo_stream.replace dom_id(@reviewable, :review_form),
+        partial: "reviews/form", locals: { reviewable: @reviewable, review: @review } %>
+<% end %>

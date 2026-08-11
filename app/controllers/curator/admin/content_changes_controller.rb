@@ -31,7 +31,8 @@ module Curator
               notice: t("curator.admin.content_changes.approved")
           else
             redirect_to curator_admin_content_change_path(@content_change),
-              alert: t("curator.admin.content_changes.approval_failed")
+              alert: [ t("curator.admin.content_changes.approval_failed"),
+                       @content_change.errors.full_messages.to_sentence.presence ].compact.join(" ")
           end
         else
           redirect_to curator_admin_content_changes_path,

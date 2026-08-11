@@ -16,6 +16,7 @@
      data-travel-profile-item-type-value="location"
      data-travel-profile-item-name-value="<%= @location.translate(:name, I18n.locale) %>"
      data-travel-profile-logged-in-value="<%= logged_in? %>"
+     data-travel-profile-geofence-disabled-value="<%= geofence_disabled? %>"
      data-travel-profile-translations-value="<%= travel_profile_translations_json %>"
      <% if @location.geocoded? %>
      data-travel-profile-location-lat-value="<%= @location.lat %>"
@@ -60,7 +61,7 @@
         <%# Left side - Title and basic info %>
         <div class="flex-1 min-w-0">
           <span class="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/30 rounded-full text-xs font-semibold text-blue-600 dark:text-blue-400 mb-4">
-            <%= t("locations.types.#{@location.category_key}") %>
+            <%= location_type_label(@location.category_key) %>
           </span>
           <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white break-words">
             <%= @location.translate(:name, I18n.locale) %>
@@ -86,8 +87,9 @@
 
         <%# Right side - Action buttons %>
         <div class="flex flex-wrap gap-3 lg:flex-col lg:w-auto">
-          <%# Action buttons %>
-          <div class="flex gap-2 flex-wrap">
+          <%# Action buttons. items-start so the check-in's distance hint grows
+              downward without stretching the buttons beside it. %>
+          <div class="flex items-start gap-2 flex-wrap">
             <%# Curator Edit Button %>
             <% if current_user_can_curate? %>
               <%= link_to curator_location_path(@location),
@@ -131,22 +133,33 @@
               <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-red-500 transition-colors"><%= t('profile.add_favorite', default: 'Spremi') %></span>
             </button>
 
-            <%# Visited Button %>
-            <button data-action="click->travel-profile#markVisited"
-                    data-travel-profile-target="visitedButton"
-                    data-city="<%= @location.city %>"
-                    data-tags="<%= @location.suitable_experiences.join(',') %>"
-                    class="inline-flex items-center space-x-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors group"
-                    aria-label="<%= t('profile.mark_visited', default: 'Označi kao posjećeno') %>"
-                    title="<%= t('profile.mark_visited', default: 'Označi kao posjećeno') %>">
-              <svg class="w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-emerald-500 check-empty transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-              <svg class="w-5 h-5 text-emerald-500 check-filled hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <%# Visited: a stamp, not a control. A visit cannot be taken back. %>
+            <% if @visited %>
+            <div class="inline-flex items-center space-x-2 px-4 py-2.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
+              <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
               </svg>
-              <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-emerald-500 transition-colors"><%= t('profile.mark_visited', default: 'Posjećeno') %></span>
-            </button>
+              <span class="text-sm font-medium text-emerald-700 dark:text-emerald-300"><%= t("profile.visited", default: "Visited") %></span>
+            </div>
+            <% else %>
+            <% unless logged_in? %>
+              <%# Same stamp as above, revealed when a guest marks the place. %>
+              <div class="hidden" data-visited-badge>
+                <div class="inline-flex items-center space-x-2 px-4 py-2.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
+                  <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  <span class="text-sm font-medium text-emerald-700 dark:text-emerald-300"><%= t("profile.visited", default: "Visited") %></span>
+                </div>
+              </div>
+            <% end %>
+            <%# The same control the deck and the walk render — one check-in. %>
+            <%= render "shared/check_in", location: @location, plan: @moments_plan, icon: true,
+                  button_class: "inline-flex items-center space-x-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors group cursor-pointer",
+                  icon_class: "w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-emerald-500 transition-colors",
+                  label_class: "text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-emerald-500 transition-colors",
+                  wrapper_class: "inline-block" %>
+            <% end %>
           </div>
 
           <%# Feedback message area %>
@@ -159,7 +172,8 @@
   </div>
 
   <%# Photo Gallery Section - Horizontal Slider %>
-  <% if @location.photos.attached? %>
+  <% gallery_photos = @location.display_photos %>
+  <% if gallery_photos.any? %>
     <div class="bg-gray-100 dark:bg-gray-800 py-6"
          data-controller="photo-gallery"
          data-photo-gallery-index-value="0">
@@ -170,7 +184,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
             </svg>
             <%= t("locations.show.photos", default: "Fotografije") %>
-            <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">(<%= @location.photos.count %>)</span>
+            <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">(<%= gallery_photos.count %>)</span>
           </h2>
           <button data-action="click->photo-gallery#openLightbox"
                   data-index="0"
@@ -185,7 +199,7 @@
         <%# Horizontal slider %>
         <div class="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
              data-photo-gallery-target="slider">
-          <% @location.photos.each_with_index do |photo, index| %>
+          <% gallery_photos.each_with_index do |photo, index| %>
             <button data-action="click->photo-gallery#openLightbox"
                     data-index="<%= index %>"
                     data-photo-gallery-target="thumbnail"
@@ -197,66 +211,7 @@
         </div>
       </div>
 
-      <%# Lightbox Modal %>
-      <div data-photo-gallery-target="lightbox"
-           data-action="click->photo-gallery#closeLightboxOnBackground"
-           class="hidden fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
-        <%# Close button %>
-        <button data-action="click->photo-gallery#closeLightbox"
-                class="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
-                aria-label="<%= t('common.close', default: 'Zatvori') %>">
-          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-
-        <%# Counter %>
-        <div data-photo-gallery-target="lightboxCounter"
-             class="absolute top-4 left-4 px-3 py-1.5 bg-black/60 rounded-full text-white text-sm font-medium">
-          1 / <%= @location.photos.count %>
-        </div>
-
-        <%# Navigation arrows %>
-        <% if @location.photos.count > 1 %>
-          <button data-action="click->photo-gallery#previous"
-                  class="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
-                  aria-label="<%= t('common.previous', default: 'Prethodna') %>">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-          </button>
-          <button data-action="click->photo-gallery#next"
-                  class="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
-                  aria-label="<%= t('common.next', default: 'Sljedeća') %>">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          </button>
-        <% end %>
-
-        <%# Main image %>
-        <div class="max-w-6xl max-h-[85vh] mx-4">
-          <img data-photo-gallery-target="lightboxImage"
-               src=""
-               alt=""
-               class="max-w-full max-h-[85vh] object-contain rounded-lg">
-        </div>
-
-        <%# Thumbnail strip at bottom %>
-        <div class="absolute bottom-4 left-0 right-0 px-4">
-          <div class="max-w-4xl mx-auto flex gap-2 justify-center overflow-x-auto pb-2">
-            <% @location.photos.each_with_index do |photo, index| %>
-              <button data-action="click->photo-gallery#goTo"
-                      data-index="<%= index %>"
-                      data-photo-gallery-target="lightboxThumbnail"
-                      class="flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden ring-2 transition-all hover:opacity-100 <%= index == 0 ? 'ring-emerald-500 opacity-100' : 'ring-transparent opacity-60' %>"
-                      aria-label="<%= t('locations.show.go_to_photo', number: index + 1, default: 'Idi na fotografiju %{number}') %>">
-                <%= image_tag photo.variant(resize_to_fill: [128, 96]), class: "w-full h-full object-cover", alt: "Thumbnail #{index + 1}" %>
-              </button>
-            <% end %>
-          </div>
-        </div>
-      </div>
+      <%= render "shared/photo_lightbox", count: gallery_photos.count, thumbnails: gallery_photos, label_scope: "locations.show", accent: "ring-emerald-500" %>
     </div>
   <% end %>
 
@@ -289,8 +244,8 @@
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowfullscreen>
                 </iframe>
-              <% else %>
-                <a href="<%= @location.video_url %>" target="_blank" class="flex items-center justify-center w-full h-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+              <% elsif (video_href = safe_external_url(@location.video_url)) %>
+                <a href="<%= video_href %>" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-full h-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                   <span class="text-gray-600 dark:text-gray-300"><%= t("locations.show.watch_video", default: "Pogledaj video") %> →</span>
                 </a>
               <% end %>
@@ -417,6 +372,14 @@
           <% end %>
         </div>
 
+        <%# Moments — your own plus everyone's public ones. Loads on scroll so
+            the page above it is not held up. %>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg mb-6">
+          <turbo-frame id="<%= dom_id(@location, :moments_frame) %>"
+                       src="<%= @moments_plan ? plan_moments_path(@moments_plan, location_id: @location.uuid, context: "location") : location_moments_path(@location.uuid, context: "location") %>"
+                       loading="lazy"></turbo-frame>
+        </div>
+
         <%# Reviews Section %>
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
           <%= render "reviews/reviews_section", reviewable: @location %>
@@ -435,7 +398,7 @@
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0">
               <span class="text-gray-600 dark:text-gray-400"><%= t("locations.show.type", default: "Tip") %></span>
-              <span class="font-medium text-gray-900 dark:text-white"><%= t("locations.types.#{@location.category_key}") %></span>
+              <span class="font-medium text-gray-900 dark:text-white"><%= location_type_label(@location.category_key) %></span>
             </div>
 
             <%# Suitable Experiences %>
@@ -466,50 +429,10 @@
           </div>
         </div>
 
-        <%# Location / Google Maps %>
-        <% if @location.geocoded? %>
-          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-              <svg class="w-5 h-5 mr-2 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-              </svg>
-              <%= t("locations.show.location", default: "Lokacija") %>
-            </h3>
-            <div class="space-y-4">
-              <%# Coordinates %>
-              <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm text-gray-500 dark:text-gray-400"><%= t("locations.show.coordinates", default: "Koordinate") %></span>
-                </div>
-                <div class="font-mono text-sm text-gray-900 dark:text-white break-all">
-                  <%= number_with_precision(@location.lat, precision: 6) %>, <%= number_with_precision(@location.lng, precision: 6) %>
-                </div>
-              </div>
-
-              <%# Google Maps Button %>
-              <a href="https://www.google.com/maps/search/?api=1&query=<%= @location.lat %>,<%= @location.lng %>"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 class="flex items-center justify-center w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 rounded-xl text-white font-medium transition-all shadow-md hover:shadow-lg">
-                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                </svg>
-                <%= t("locations.show.view_in_google_maps", default: "Otvori u Google Maps") %>
-              </a>
-
-              <%# Get Directions Button %>
-              <a href="https://www.google.com/maps/dir/?api=1&destination=<%= @location.lat %>,<%= @location.lng %>"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 class="flex items-center justify-center w-full py-3 px-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl text-gray-700 dark:text-gray-300 font-medium transition-colors">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
-                </svg>
-                <%= t("locations.show.get_directions", default: "Dobij upute") %>
-              </a>
-            </div>
-          </div>
+        <%# Map — the place itself. Directions and the Google hand-off live on
+            the canvas, so no coordinate card duplicates them here. %>
+        <% if @location.lat && @location.lng %>
+          <%= render "map", location: @location %>
         <% end %>
 
         <%# Contact Info %>
@@ -533,8 +456,8 @@
                   <span class="truncate"><%= @location.email %></span>
                 </a>
               <% end %>
-              <% if @location.website.present? %>
-                <a href="<%= @location.website %>" target="_blank" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">
+              <% if (website_href = safe_external_url(@location.website)) %>
+                <a href="<%= website_href %>" target="_blank" rel="noopener noreferrer" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">
                   <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
                   </svg>
@@ -570,7 +493,7 @@
                         <%= render "shared/star_rating", rating: nearby.average_rating, size: "sm" %>
                         <span class="ml-1 text-xs text-gray-500 dark:text-gray-400"><%= number_with_precision(nearby.average_rating, precision: 1) %></span>
                       </div>
-                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"><%= t("locations.types.#{nearby.category_key}") %></p>
+                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"><%= location_type_label(nearby.category_key) %></p>
                     </div>
                   </div>
                 <% end %>

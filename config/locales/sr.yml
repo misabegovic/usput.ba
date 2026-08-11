@@ -1036,11 +1036,13 @@ sr:
       confirm_delete: Да ли сте сигурни да желите да обришете %{name}?
       filter:
         all_cities: Сва места
+      best_seasons: Најбоље сезоне
+      seasons_hint: Оставите неозначено за доживљаје током целе године
       seasons:
         all_year: Цела година
         spring: Пролеће
         summer: Лето
-        autumn: Јесен
+        fall: Јесен
         winter: Зима
       difficulties:
         easy: Лако

@@ -26,6 +26,10 @@ Rails.application.routes.draw do
   # New design pages (visual development)
   get "new/home", to: "new_design#home", as: :new_home
   get "explore", to: "new_design#explore", as: :explore
+  get "explore-bosnia", to: "explore_bosnia#show", as: :explore_bosnia
+  get "route", to: "map_routes#show", as: :map_route
+  # "all" is the unfiltered entry; several at once ride in the query string.
+  get "explore-bosnia/:category", to: "explore_bosnia#experience", as: :explore_bosnia_experience
 
   # Authentication routes
   get "register", to: "users#new", as: :register
@@ -41,9 +45,10 @@ Rails.application.routes.draw do
   # Travel profile page (accessible to everyone, syncs for logged-in users)
   get "profile", to: "travel_profiles#page", as: :profile_page
   get "profile/plans", to: "travel_profiles#my_plans", as: :profile_plans
-  resource :travel_profile, only: [ :show, :update ], controller: "travel_profiles" do
+  # No :show — it rendered the whole profile blob as JSON and nothing consumed it;
+  # the client reads its own copy back through :sync.
+  resource :travel_profile, only: [ :update ], controller: "travel_profiles" do
     post :sync, on: :member
-    post :validate_visit, on: :member
   end
 
   # User plans (for logged-in users)
@@ -65,9 +70,16 @@ Rails.application.routes.draw do
 
   # Locations (index removed - use /explore instead)
   resources :locations, only: [ :show ] do
+    collection do
+      get :map_points
+    end
     resources :reviews, only: [ :index, :create ]
+    # Reading a place's moments needs no plan — a guest walking explore mode has
+    # none. Writing one still does, and stays on the plan-nested route below.
+    resources :moments, only: [ :index ]
     member do
       get :audio_tour
+      get :map_panel
     end
   end
 
@@ -88,7 +100,25 @@ Rails.application.routes.draw do
   # Plans (index redirects to explore)
   get "plans", to: redirect("/explore"), as: :plans
   resources :plans, only: [ :show ], constraints: { id: /(?!(wizard|find_city|search_cities|generate|view|recommendations)\b)[^\/]+/ } do
+    # Walk the plan as a trip: locations stacked as steps, swipe a visited one
+    # right to capture a moment. See PlansController#start.
+    member do
+      get :start
+    end
+    # Per-user, server-owned "I was here" progress for the walk. Create only:
+    # a visit is permanent, so there is no route that takes one back.
+    resources :visits, only: [ :create ], module: :plans
     resources :reviews, only: [ :index, :create ]
+    # Private photos a logged-in traveller attaches to this plan's locations.
+    # The photo is served by our own action rather than Active Storage's route,
+    # which does not check the session — see MomentsController#photo.
+    resources :moments, only: [ :index, :create, :destroy ] do
+      member do
+        get :photo
+        patch :publish
+        patch :unpublish
+      end
+    end
   end
 
   # Curator dashboard - for curators and admins
@@ -109,6 +139,13 @@ Rails.application.routes.draw do
       end
     end
     resources :photo_suggestions, only: [ :index, :show ]
+    resources :moments, only: [ :index ] do
+      member do
+        get :photo
+        post :approve
+        post :reject
+      end
+    end
 
     # Admin features for admin users within curator dashboard
     namespace :admin do

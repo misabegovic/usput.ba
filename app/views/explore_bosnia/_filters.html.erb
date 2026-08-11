@@ -1,0 +1,57 @@
+<%# Locals: category, tile_keys, selected_tiles, lat, lng, season, budget,
+    min_rating.
+    Same pill pattern as the explore page's filter bar: a hidden radio drives a
+    styled span through peer-checked, and any change submits the form. %>
+<% groups = [
+     { name: "season", value: season, options: Location::SEASONS.map { |s| [ s, t("explore_bosnia.filters.seasons.#{s}") ] } },
+     { name: "budget", value: budget, options: Location.budgets.keys.map { |b| [ b, t("explore_bosnia.filters.budgets.#{b}") ] } },
+     { name: "min_rating", value: min_rating, options: %w[4.5 4.0 3.5 3.0].map { |r| [ r, "#{r}+" ] } }
+   ] %>
+
+<%= form_with url: explore_bosnia_experience_path(category), method: :get, class: "space-y-4" do |f| %>
+  <%= f.hidden_field :lat, value: lat %>
+  <%= f.hidden_field :lng, value: lng %>
+
+  <div>
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"><%= t("explore_bosnia.filters.category") %></p>
+    <div class="flex flex-wrap gap-2">
+      <% tile_keys.each do |key| %>
+        <label class="inline-flex cursor-pointer items-center" data-action="click->deck-filters#choose">
+          <input type="checkbox" name="categories[]" value="<%= key %>"
+                 <%= "checked" if selected_tiles.include?(key) %>
+                 class="sr-only peer">
+          <span class="rounded-full px-4 py-2 text-sm font-semibold ring-1 ring-gray-200 transition-colors peer-checked:bg-yellow-400 peer-checked:text-gray-900 peer-checked:ring-0 bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:ring-gray-600 dark:hover:bg-gray-600">
+            <%= t("explore_bosnia.tiles.#{key}") %>
+          </span>
+        </label>
+      <% end %>
+    </div>
+  </div>
+
+  <% groups.each do |group| %>
+    <div>
+      <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"><%= t("explore_bosnia.filters.#{group[:name]}") %></p>
+      <%# Turning the last pill off submits this empty value instead of nothing,
+          which is how a cleared filter stays cleared instead of re-defaulting. %>
+      <%= hidden_field_tag group[:name], "", id: nil %>
+      <div class="flex flex-wrap gap-2">
+        <% group[:options].each do |value, label| %>
+          <label class="inline-flex cursor-pointer items-center" data-action="click->deck-filters#choose">
+            <input type="radio" name="<%= group[:name] %>" value="<%= value %>"
+                   <%= "checked" if group[:value].to_s == value.to_s %>
+                   class="sr-only peer">
+            <span class="rounded-full px-3 py-1.5 text-sm font-medium ring-1 ring-gray-200 transition-all peer-checked:bg-yellow-400 peer-checked:text-gray-900 peer-checked:ring-0 bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:ring-gray-600 dark:hover:bg-gray-600">
+              <%= label %>
+            </span>
+          </label>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if chosen_filter_count.positive? %>
+    <%= link_to t("explore_bosnia.filters.clear"),
+          explore_bosnia_experience_path(category, lat: lat, lng: lng),
+          class: "text-xs font-medium text-gray-500 underline hover:text-gray-900 dark:text-gray-400 dark:hover:text-white" %>
+  <% end %>
+<% end %>

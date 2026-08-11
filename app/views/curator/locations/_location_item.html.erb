@@ -24,7 +24,7 @@
     <%# Type badge %>
     <div class="absolute top-2 left-2">
       <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-white/90 dark:bg-gray-800/90 text-gray-800 dark:text-gray-200 backdrop-blur-sm">
-        <%= t("locations.types.#{location.category_key}", default: location.category_key&.humanize) %>
+        <%= location_type_label(location.category_key) %>
       </span>
     </div>
   </div>

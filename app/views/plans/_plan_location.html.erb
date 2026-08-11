@@ -1,0 +1,36 @@
+<%# A standalone Location added to a plan day, rendered as a timeline item so it %>
+<%# visually connects to the experiences above it. %>
+<%# Locals: location (a Location record), is_last (Boolean — hides the connector line). %>
+<li>
+  <div class="relative pb-8">
+    <%# Connector line - hide for the last item in the day %>
+    <% unless is_last %>
+      <span aria-hidden="true" class="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200 dark:bg-white/10"></span>
+    <% end %>
+    <div class="relative flex items-start space-x-4">
+      <%# Timeline icon (emerald pin to distinguish a standalone location) %>
+      <div class="relative">
+        <%= link_to location_path(location), class: "flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 ring-4 ring-white dark:ring-gray-800" do %>
+          <svg class="size-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+        <% end %>
+      </div>
+      <%# Content %>
+      <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1">
+        <div class="min-w-0 flex-1">
+          <%= link_to location_path(location), class: "group" do %>
+            <p class="font-medium text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+              <%= location.translate(:name, I18n.locale) %>
+            </p>
+          <% end %>
+          <% meta = [ location.city, location_type_label(location.category_key) ].select(&:present?).join(" · ") %>
+          <% if meta.present? %>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400"><%= meta %></p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</li>

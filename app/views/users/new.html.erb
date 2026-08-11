@@ -18,7 +18,7 @@
 
     <%# Registration Form %>
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-      <%= form_with model: @user, url: register_path, local: true, class: "space-y-6", data: { controller: "registration-form" } do |f| %>
+      <%= form_with model: @user, url: register_path, local: true, class: "space-y-6", data: { controller: "local-data" } do |f| %>
         <% if @user.errors.any? %>
           <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
             <div class="flex">
@@ -77,10 +77,10 @@
         </div>
 
         <%# Hidden field for travel profile data from localStorage %>
-        <input type="hidden" name="travel_profile_data" id="travel_profile_data" data-registration-form-target="profileData">
+        <input type="hidden" name="travel_profile_data" id="travel_profile_data" data-local-data-target="profileData">
 
         <%# Hidden field for plans data from localStorage %>
-        <input type="hidden" name="plans_data" id="plans_data" data-registration-form-target="plansData">
+        <input type="hidden" name="plans_data" id="plans_data" data-local-data-target="plansData">
 
         <%# Info about profile sync %>
         <div class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4">
@@ -115,30 +115,3 @@
     </div>
   </div>
 </div>
-
-<script nonce="<%= content_security_policy_nonce %>" data-turbo-eval="false">
-  // Populate hidden fields with localStorage data on page load
-  (function() {
-    function populateLocalStorageData() {
-      try {
-        // Travel profile
-        var profile = localStorage.getItem('usput_travel_profile');
-        if (profile) {
-          var profileField = document.getElementById('travel_profile_data');
-          if (profileField) profileField.value = profile;
-        }
-
-        // Plans
-        var plans = localStorage.getItem('visitumo_plans');
-        if (plans) {
-          var plansField = document.getElementById('plans_data');
-          if (plansField) plansField.value = plans;
-        }
-      } catch (e) {
-        console.error('Could not read data from localStorage:', e);
-      }
-    }
-    // Run immediately since script is at bottom of body
-    populateLocalStorageData();
-  })();
-</script>

@@ -1,0 +1,15 @@
+<%# Locals: plan, locations. The snap slots, dealt on load or appended on scroll. %>
+<% locations.each do |location| %>
+  <div class="flex h-full snap-start items-center justify-center px-3 py-2">
+    <%# Width derived from the slot height at 2:3, clamped to the screen —
+        the card always fits and always centers, portrait or landscape. %>
+    <div class="w-[min(100%,calc((100dvh-10rem)*0.62))]">
+      <%= render "plans/walk_card",
+            plan: plan,
+            location: location,
+            visited: false,
+            distance_km: (location.respond_to?(:distance) ? location.distance : nil),
+            context: "explore" %>
+    </div>
+  </div>
+<% end %>

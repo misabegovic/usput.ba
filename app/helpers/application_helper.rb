@@ -1,4 +1,86 @@
 module ApplicationHelper
+  # Admins review the walk without standing at the place. An env-var bypass used
+  # to cover development, but it only ever lifted the distance check — the deck
+  # still needs coordinates to deal from — so it never made a usable dev flow.
+  # Development only. A laptop has no GPS, so working on the walk otherwise
+  # means waiting on a network lookup that often never answers.
+  def dev_position
+    return nil unless Rails.env.development?
+    ENV["DEV_POSITION"].presence
+  end
+
+  def geofence_disabled?
+    current_user_admin?
+  end
+
+  # Names the traveller's device store without naming the traveller. The browser
+  # keeps its profile reads synchronous, and its only digest is asynchronous, so
+  # the hash is taken here — which also stops the account id being left behind on
+  # a shared machine. Obfuscation, not a boundary: the page carries it in clear.
+  def travel_store_scope
+    return nil unless logged_in?
+
+    Digest::SHA256.hexdigest(current_user.uuid)[0, 16]
+  end
+
+  # Curator-supplied urls are rendered as hrefs, and Rails does not escape the
+  # scheme — `javascript:alert(1)` would run on click. Only absolute http(s)
+  # survives; anything else comes back nil so the caller prints text instead.
+  def safe_external_url(url)
+    parsed = URI.parse(url.to_s.strip)
+    return nil unless parsed.is_a?(URI::HTTP) || parsed.is_a?(URI::HTTPS)
+    return nil if parsed.host.blank?
+
+    parsed.to_s
+  rescue URI::InvalidURIError
+    nil
+  end
+
+  # Stamps the catalogue so a browser holding an old copy can tell. Rails builds
+  # this from count plus max(updated_at) in one query — seconds alone collide
+  # when several places are written inside the same second.
+  # Called by the controller and again by every map on the page; the count and
+  # max behind it are one query too many, let alone several.
+  def map_points_version
+    @map_points_version ||= Location.all.cache_key_with_version.parameterize
+  end
+
+  # Where signing in should land the visitor. A frame is fetched at its own url,
+  # so for those the page to come back to is the one that asked for the frame.
+  def sign_in_return_path
+    path = if request.headers["Turbo-Frame"].present?
+      URI.parse(request.referer.to_s).path
+    else
+      request.fullpath
+    end
+
+    path.to_s.match?(%r{\A/(?!/)}) ? path : root_path
+  rescue URI::InvalidURIError
+    root_path
+  end
+
+  # Human-readable label for a location category key.
+  #
+  # A blank key must never be interpolated straight into the I18n lookup: a key
+  # like "locations.types." resolves to the *parent* hash and I18n returns the
+  # whole { place: ..., guide: ... } Hash, which then renders as raw text on the
+  # page. Uncategorized locations are places by definition (see Location#place_type?),
+  # so we fall back to the "place" type.
+  # @param category_key [String, nil] The location's category key
+  # @return [String] The translated type label (e.g. "Place" / "Mjesto")
+  def location_type_label(category_key)
+    key = category_key.presence || "place"
+    t("locations.types.#{key}", default: key.to_s.humanize)
+  end
+
+  # A blank season key would resolve to the parent hash and render it raw; the
+  # seasons array carries a blank from the form's empty-array hidden field, and
+  # an experience with no seasons is year-round by definition.
+  def experience_season_label(season)
+    key = season.presence || "all_year"
+    t("curator.experiences.seasons.#{key}", default: key.to_s.humanize)
+  end
+
   # Safely renders an ActiveStorage attachment image, handling missing files gracefully
   # @param attachment [ActiveStorage::Attached, ActiveStorage::Attachment] The attachment to render
   # @param variant_options [Hash] Options to pass to variant() (e.g., resize_to_fill: [400, 300])
@@ -80,6 +162,33 @@ module ApplicationHelper
 
   public
 
+  # Memoized per request so a grid of cards costs one query, not one each.
+  def visited_location_ids
+    @visited_location_ids ||= if logged_in?
+      current_user.plan_visits.distinct.pluck(:location_id).to_set
+    else
+      Set.new
+    end
+  end
+
+  def visited_location?(location)
+    visited_location_ids.include?(location.id)
+  end
+
+  # One grouped count per request. Plans the traveller never touched short-
+  # circuit before we ask a plan how many locations it holds.
+  def plan_visit_counts
+    @plan_visit_counts ||= logged_in? ? current_user.plan_visits.group(:plan_id).count : {}
+  end
+
+  def plan_progress(plan)
+    visited = plan_visit_counts[plan.id].to_i
+    return :not_started if visited.zero?
+
+    total = plan.all_location_count
+    total.positive? && visited >= total ? :finished : :started
+  end
+
   # Returns the appropriate back path based on where the user came from
   # If the user came from the homepage, return root_path
   # Otherwise, return explore_path
@@ -100,7 +209,6 @@ module ApplicationHelper
     {
       checking_location: t("travel_profile.checking_location"),
       visit_recorded: t("travel_profile.visit_recorded"),
-      removed_from_visited: t("travel_profile.removed_from_visited"),
       removed_from_favorites: t("travel_profile.removed_from_favorites"),
       added_to_favorites: t("travel_profile.added_to_favorites"),
       too_far_from_location: t("travel_profile.too_far_from_location", distance: "%{distance}", max_distance: "%{max_distance}"),

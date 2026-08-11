@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { travelProfileService } from "services/travel_profile_service"
 
 // Travel Profile Controller
 // Manages user's travel data in localStorage including:
@@ -16,7 +17,6 @@ export default class extends Controller {
     "favoritesCount",
     "badgesCount",
     "favoriteButton",
-    "visitedButton",
     "badgesList",
     "recentlyViewed",
     "syncStatus",
@@ -42,11 +42,11 @@ export default class extends Controller {
     syncUrl: String,
     locationLat: Number,
     locationLng: Number,
-    maxDistanceMeters: { type: Number, default: 500 },
+    maxDistanceMeters: { type: Number, default: 100 },
+    geofenceDisabled: Boolean,
     translations: Object // I18n translations passed from Rails
   }
 
-  static STORAGE_KEY = "usput_travel_profile"
   static BADGES = {
     first_visit: { id: "first_visit", name: "Prvi Korak", nameEn: "First Step", icon: "👣", description: "Posjetio prvu lokaciju" },
     explorer_5: { id: "explorer_5", name: "Istraživač", nameEn: "Explorer", icon: "🧭", description: "Posjetio 5 lokacija" },
@@ -114,7 +114,6 @@ export default class extends Controller {
     const fallbacks = {
       checking_location: "Provjeravamo vašu lokaciju...",
       visit_recorded: "Posjeta uspješno zabilježena!",
-      removed_from_visited: "Uklonjeno iz posjećenih",
       removed_from_favorites: "Uklonjeno iz omiljenih",
       added_to_favorites: "Dodano u omiljene!",
       too_far_from_location: `Predaleko ste od lokacije (${replacements.distance || ''}). Morate biti unutar ${replacements.max_distance || '500'}m.`,
@@ -152,13 +151,14 @@ export default class extends Controller {
 
   // Load profile from localStorage
   loadProfile() {
-    const stored = localStorage.getItem(this.constructor.STORAGE_KEY)
-    this.profile = stored ? JSON.parse(stored) : this.defaultProfile()
+    this.profile = travelProfileService.read()
   }
 
   // Save profile to localStorage and optionally sync to server
   saveProfile() {
-    localStorage.setItem(this.constructor.STORAGE_KEY, JSON.stringify(this.profile))
+    // The check-in writes visits directly; ours is a stale copy.
+    this.profile.visited = travelProfileService.visited()
+    travelProfileService.write(this.profile)
     this.updateUI()
 
     // If user is logged in, sync to server
@@ -224,8 +224,11 @@ export default class extends Controller {
         if (data.success && data.travel_profile_data) {
           // Merge server data with local data
           this.profile = data.travel_profile_data
-          localStorage.setItem(this.constructor.STORAGE_KEY, JSON.stringify(this.profile))
+          travelProfileService.write(this.profile)
           this.updateUI()
+          // `visited` came back projected from PlanVisit, so a check-in made on
+          // another surface — or on another device — earns its badge here.
+          this.checkBadges()
           this.updateSyncStatus("synced")
         }
       } else {
@@ -260,20 +263,7 @@ export default class extends Controller {
 
   // Default profile structure
   defaultProfile() {
-    return {
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      visited: [], // { id, type, name, visitedAt, city, tags }
-      favorites: [], // { id, type, name, addedAt }
-      recentlyViewed: [], // { id, type, name, viewedAt } - last 20
-      badges: [], // { id, earnedAt }
-      savedPlans: [], // { id, name, savedAt, data }
-      stats: {
-        totalVisits: 0,
-        citiesVisited: [],
-        seasonsVisited: []
-      }
-    }
+    return travelProfileService.defaultProfile()
   }
 
   // Track current page view
@@ -334,287 +324,15 @@ export default class extends Controller {
     this.saveProfile()
   }
 
-  // Mark location as visited - requires geolocation validation
-  markVisited(event) {
-    event.preventDefault()
-
-    if (!this.hasItemIdValue || !this.hasItemTypeValue) return
-
-    const button = event.currentTarget
-
-    // Check if already visited - allow removal without geolocation
-    const existingIndex = this.profile.visited.findIndex(
-      v => String(v.id) === String(this.itemIdValue) && v.type === this.itemTypeValue
-    )
-
-    if (existingIndex >= 0) {
-      // Already visited - remove (no geolocation needed)
-      this.profile.visited.splice(existingIndex, 1)
-      this.profile.stats.totalVisits--
-      this.showFeedback(this.t('removed_from_visited'), "success")
-      this.profile.updatedAt = new Date().toISOString()
-      this.saveProfile()
-      return
-    }
-
-    // For new visits, require geolocation validation
-    this.showFeedback(this.t('checking_location'), "info")
-    button.disabled = true
-
-    this.requestGeolocationForVisit(button)
-  }
-
-  // Request geolocation and validate visit
-  requestGeolocationForVisit(button) {
-    if (!navigator.geolocation) {
-      this.showFeedback(this.t('geolocation_not_supported'), "error")
-      button.disabled = false
-      return
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => this.handleVisitGeolocationSuccess(position, button),
-      (error) => this.handleVisitGeolocationError(error, button),
-      {
-        enableHighAccuracy: true,
-        timeout: 20000,
-        maximumAge: 0
-      }
-    )
-  }
-
-  // Handle successful geolocation for visit
-  async handleVisitGeolocationSuccess(position, button) {
-    const userLat = position.coords.latitude
-    const userLng = position.coords.longitude
-
-    // For logged-in users, validate on server
-    if (this.loggedInValue) {
-      await this.validateVisitOnServer(userLat, userLng, button)
-    } else {
-      // For guests, validate locally
-      this.validateVisitLocally(userLat, userLng, button)
-    }
-  }
-
-  // Validate visit on server (for logged-in users)
-  async validateVisitOnServer(userLat, userLng, button) {
-    try {
-      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content
-      const response = await fetch("/travel_profile/validate_visit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": csrfToken,
-          "Accept": "application/json"
-        },
-        body: JSON.stringify({
-          location_id: this.itemIdValue,
-          user_lat: userLat,
-          user_lng: userLng
-        })
-      })
-
-      const data = await response.json()
-
-      if (response.ok && data.success) {
-        // Server validated and added to profile
-        this.profile = data.travel_profile_data
-        localStorage.setItem(this.constructor.STORAGE_KEY, JSON.stringify(this.profile))
-        this.updateUI()
-        this.showFeedback(data.message || this.t('visit_recorded'), "success")
-        this.checkBadges()
-      } else {
-        // Validation failed
-        this.showFeedback(data.error || this.t('not_close_enough'), "error")
-      }
-    } catch (error) {
-      console.error("Visit validation error:", error)
-      this.showFeedback(this.t('validation_error'), "error")
-    } finally {
-      button.disabled = false
-    }
-  }
-
-  // Validate visit locally (for guest users)
-  validateVisitLocally(userLat, userLng, button) {
-    // Check if location has coordinates
-    if (!this.hasLocationLatValue || !this.hasLocationLngValue) {
-      this.showFeedback(this.t('location_no_coordinates'), "error")
-      button.disabled = false
-      return
-    }
-
-    const locationLat = this.locationLatValue
-    const locationLng = this.locationLngValue
-    const maxDistanceMeters = this.maxDistanceMetersValue
-
-    // Calculate distance using Haversine formula
-    const distanceMeters = this.calculateDistance(userLat, userLng, locationLat, locationLng)
-
-    if (distanceMeters <= maxDistanceMeters) {
-      // User is close enough - add to visited
-      const city = button.dataset.city || null
-      const tags = button.dataset.tags ? button.dataset.tags.split(",") : []
-
-      const item = {
-        id: this.itemIdValue,
-        type: this.itemTypeValue,
-        name: this.itemNameValue || `${this.itemTypeValue} ${this.itemIdValue}`,
-        visitedAt: new Date().toISOString(),
-        city: city,
-        tags: tags
-      }
-
-      this.profile.visited.push(item)
-      this.profile.stats.totalVisits++
-
-      // Track city
-      if (city && !this.profile.stats.citiesVisited.includes(city)) {
-        this.profile.stats.citiesVisited.push(city)
-      }
-
-      // Track season
-      const currentSeason = this.getCurrentSeason()
-      if (!this.profile.stats.seasonsVisited.includes(currentSeason)) {
-        this.profile.stats.seasonsVisited.push(currentSeason)
-      }
-
-      this.profile.updatedAt = new Date().toISOString()
-      this.saveProfile()
-      this.showFeedback(this.t('visit_recorded'), "success")
-      this.checkBadges()
-    } else {
-      // User is too far
-      const distanceText = distanceMeters >= 1000
-        ? `${(distanceMeters / 1000).toFixed(1)} km`
-        : `${Math.round(distanceMeters)} m`
-      this.showFeedback(this.t('too_far_from_location', { distance: distanceText, max_distance: maxDistanceMeters }), "error")
-    }
-
-    button.disabled = false
-  }
-
-  // Handle geolocation error
-  handleVisitGeolocationError(error, button) {
-    let message = this.t('geolocation_error')
-
-    switch (error.code) {
-      case error.PERMISSION_DENIED:
-        message = this.t('geolocation_permission_denied')
-        break
-      case error.POSITION_UNAVAILABLE:
-        message = this.t('geolocation_unavailable')
-        break
-      case error.TIMEOUT:
-        message = this.t('geolocation_timeout')
-        break
-    }
-
-    this.showFeedback(message, "error")
-    button.disabled = false
-  }
-
-  // Calculate distance between two coordinates using Haversine formula
-  calculateDistance(lat1, lng1, lat2, lng2) {
-    const R = 6371000 // Earth's radius in meters
-    const dLat = this.toRad(lat2 - lat1)
-    const dLng = this.toRad(lng2 - lng1)
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(this.toRad(lat1)) * Math.cos(this.toRad(lat2)) *
-      Math.sin(dLng / 2) * Math.sin(dLng / 2)
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-    return R * c
-  }
-
-  // Convert degrees to radians
-  toRad(deg) {
-    return deg * (Math.PI / 180)
-  }
-
-  // Check and award badges
+  // The rules live with the store that holds the walk, so a check-in earns the
+  // same badges whether or not this controller is on the page. Here they are
+  // persisted and shown.
   checkBadges() {
-    const newBadges = []
-    const visited = this.profile.visited
-    const favorites = this.profile.favorites
+    const earned = travelProfileService.awardBadges(this.profile)
+    if (earned.length === 0) return
 
-    // First visit
-    if (visited.length >= 1 && !this.hasBadge("first_visit")) {
-      newBadges.push("first_visit")
-    }
-
-    // Explorer badges
-    if (visited.length >= 5 && !this.hasBadge("explorer_5")) {
-      newBadges.push("explorer_5")
-    }
-    if (visited.length >= 10 && !this.hasBadge("explorer_10")) {
-      newBadges.push("explorer_10")
-    }
-    if (visited.length >= 25 && !this.hasBadge("explorer_25")) {
-      newBadges.push("explorer_25")
-    }
-
-    // Culture lover
-    const culturalVisits = visited.filter(v =>
-      v.tags && (v.tags.includes("culture") || v.tags.includes("history") || v.tags.includes("museum"))
-    ).length
-    if (culturalVisits >= 5 && !this.hasBadge("culture_lover")) {
-      newBadges.push("culture_lover")
-    }
-
-    // Foodie
-    const foodVisits = visited.filter(v =>
-      v.type === "restaurant" || (v.tags && v.tags.includes("food"))
-    ).length
-    if (foodVisits >= 5 && !this.hasBadge("foodie")) {
-      newBadges.push("foodie")
-    }
-
-    // Nature lover
-    const natureVisits = visited.filter(v =>
-      v.tags && (v.tags.includes("nature") || v.tags.includes("park") || v.tags.includes("mountain"))
-    ).length
-    if (natureVisits >= 5 && !this.hasBadge("nature_lover")) {
-      newBadges.push("nature_lover")
-    }
-
-    // City hopper
-    if (this.profile.stats.citiesVisited.length >= 3 && !this.hasBadge("city_hopper")) {
-      newBadges.push("city_hopper")
-    }
-
-    // All seasons
-    if (this.profile.stats.seasonsVisited.length >= 4 && !this.hasBadge("all_seasons")) {
-      newBadges.push("all_seasons")
-    }
-
-    // Collector
-    if (favorites.length >= 10 && !this.hasBadge("collector")) {
-      newBadges.push("collector")
-    }
-
-    // Award new badges
-    newBadges.forEach(badgeId => {
-      this.profile.badges.push({
-        id: badgeId,
-        earnedAt: new Date().toISOString()
-      })
-      const badge = this.constructor.BADGES[badgeId]
-      this.showBadgeEarned(badge)
-    })
-  }
-
-  hasBadge(badgeId) {
-    return this.profile.badges.some(b => b.id === badgeId)
-  }
-
-  getCurrentSeason() {
-    const month = new Date().getMonth() + 1
-    if (month >= 3 && month <= 5) return "spring"
-    if (month >= 6 && month <= 8) return "summer"
-    if (month >= 9 && month <= 11) return "autumn"
-    return "winter"
+    this.saveProfile()
+    earned.forEach(badgeId => this.showBadgeEarned(this.constructor.BADGES[badgeId]))
   }
 
   // Update UI elements
@@ -643,54 +361,6 @@ export default class extends Controller {
       if (emptyHeart && filledHeart) {
         emptyHeart.classList.toggle("hidden", isFavorite)
         filledHeart.classList.toggle("hidden", !isFavorite)
-      }
-    }
-
-    // Update visited button state
-    if (this.hasVisitedButtonTarget && this.hasItemIdValue && this.hasItemTypeValue) {
-      const isVisited = this.profile.visited.some(
-        v => String(v.id) === String(this.itemIdValue) && v.type === this.itemTypeValue
-      )
-
-      // Remove default background classes and add visited state
-      if (isVisited) {
-        this.visitedButtonTarget.classList.remove("bg-white/90", "dark:bg-gray-800/90", "bg-gray-100", "dark:bg-gray-800", "hover:bg-emerald-100", "dark:hover:bg-emerald-900/30")
-        this.visitedButtonTarget.classList.add("bg-emerald-500", "!text-white")
-        // Update text color for children
-        const textSpan = this.visitedButtonTarget.querySelector("span")
-        if (textSpan) {
-          textSpan.classList.remove("text-gray-700", "dark:text-gray-300", "group-hover:text-emerald-500")
-          textSpan.classList.add("!text-white")
-        }
-      } else {
-        this.visitedButtonTarget.classList.add("bg-gray-100", "dark:bg-gray-800", "hover:bg-emerald-100", "dark:hover:bg-emerald-900/30")
-        this.visitedButtonTarget.classList.remove("bg-emerald-500", "!text-white")
-        // Restore text color for children
-        const textSpan = this.visitedButtonTarget.querySelector("span")
-        if (textSpan) {
-          textSpan.classList.add("text-gray-700", "dark:text-gray-300", "group-hover:text-emerald-500")
-          textSpan.classList.remove("!text-white")
-        }
-      }
-      this.visitedButtonTarget.setAttribute("aria-pressed", isVisited)
-
-      // Toggle checkmark icons (empty/filled) and update their colors
-      const emptyCheck = this.visitedButtonTarget.querySelector(".check-empty")
-      const filledCheck = this.visitedButtonTarget.querySelector(".check-filled")
-      if (emptyCheck && filledCheck) {
-        emptyCheck.classList.toggle("hidden", isVisited)
-        filledCheck.classList.toggle("hidden", !isVisited)
-
-        // Update icon colors when visited
-        if (isVisited) {
-          emptyCheck.classList.remove("text-gray-600", "dark:text-gray-300", "group-hover:text-emerald-500")
-          emptyCheck.classList.add("!text-white")
-          filledCheck.classList.add("!text-white")
-        } else {
-          emptyCheck.classList.add("text-gray-600", "dark:text-gray-300", "group-hover:text-emerald-500")
-          emptyCheck.classList.remove("!text-white")
-          filledCheck.classList.remove("!text-white")
-        }
       }
     }
 

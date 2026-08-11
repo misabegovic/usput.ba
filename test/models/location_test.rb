@@ -78,6 +78,27 @@ class LocationTest < ActiveSupport::TestCase
     assert location.valid?
   end
 
+  # Rails' format validator matches anywhere in the string, so an unanchored URL
+  # regexp accepted any scheme that carried an http(s) url somewhere in it — and
+  # both fields are rendered as hrefs.
+  # Interim guard: a traveller's record is never destroyed by a cascade, and the
+  # columns holding it are not nullable, so the location cannot go while they
+  # exist. Retiring a location instead of removing it is the follow-up.
+  test "a location travellers have reached refuses to be destroyed" do
+    location = Location.create!(@valid_params)
+    user = User.create!(username: "reached_it", password: "password123")
+    visit = user.plan_visits.create!(plan: Plan.explore_bosnia_for(user), location: location)
+
+    assert_not location.destroy
+    assert Location.exists?(location.id)
+    assert_includes location.errors[:base].join, "cannot be removed"
+
+    visit.destroy
+    assert location.reload.destroy
+  ensure
+    user&.destroy
+  end
+
   test "phone validation" do
     location = Location.new(@valid_params.merge(phone: "abc"))
     assert_not location.valid?
@@ -1662,5 +1683,105 @@ class LocationTest < ActiveSupport::TestCase
 
     location.destroy
     exp_type.destroy
+  end
+
+  # === Translation + audio reads: preloaded vs not ===
+  # Bullet cannot see these — the readers used find_by/exists?, which query past
+  # a preload — so the guard has to be a query count.
+
+  test "translate resolves the whole fallback chain in one query" do
+    location = Location.create!(@valid_params)
+
+    assert_equal 1, count_queries { I18n.with_locale(:pl) { location.translate(:name) } }
+
+    location.destroy
+  end
+
+  test "translate reads a preloaded chain without querying" do
+    location = Location.create!(@valid_params)
+    location.set_translation(:name, "Polskie Miejsce", :pl)
+
+    I18n.with_locale(:pl) do
+      preloaded = Location.with_card_content.find(location.id)
+
+      assert_equal 0, count_queries { preloaded.translate(:name) }
+      assert_equal "Polskie Miejsce", preloaded.translate(:name)
+    end
+
+    location.destroy
+  end
+
+  test "translate still resolves a locale the preload does not cover" do
+    location = Location.create!(@valid_params)
+    location.set_translation(:name, "Deutscher Ort", :de)
+
+    I18n.with_locale(:en) do
+      preloaded = Location.with_card_content.find(location.id)
+
+      assert_equal "Deutscher Ort", preloaded.translate(:name, :de)
+    end
+
+    location.destroy
+  end
+
+  test "translate walks the fallback chain and prefers the exact locale" do
+    location = Location.create!(@valid_params)
+    location.set_translation(:name, "Czeskie", :cs)
+
+    # Polish falls back cs -> sk -> en, so the Czech row answers a Polish read.
+    assert_equal "Czeskie", location.translate(:name, :pl)
+
+    location.set_translation(:name, "Polskie", :pl)
+    assert_equal "Polskie", location.reload.translate(:name, :pl)
+
+    location.destroy
+  end
+
+  test "source locales still prefer the original column over a fallback" do
+    location = Location.create!(@valid_params)
+    location.set_translation(:name, "English Name", :en)
+
+    assert_equal @valid_params[:name], location.translate(:name, :bs)
+
+    location.destroy
+  end
+
+  test "audio tour reads come from a preloaded association" do
+    location = Location.create!(@valid_params)
+    tour = location.audio_tours.create!(locale: "en", script: "A short tour script.")
+    tour.audio_file.attach(io: StringIO.new("audio"), filename: "t.mp3", content_type: "audio/mpeg")
+
+    preloaded = Location.with_card_content.find(location.id)
+
+    assert_equal 0, count_queries {
+      assert preloaded.has_audio_tours?
+      assert_equal tour.id, preloaded.audio_tour_with_fallback("en").id
+    }
+
+    location.destroy
+  end
+
+  test "audio tour reads still work without a preload" do
+    location = Location.create!(@valid_params)
+
+    assert_not location.has_audio_tours?
+    assert_nil location.audio_tour_with_fallback("en")
+
+    location.destroy
+  end
+
+  private
+
+  def count_queries
+    count = 0
+    subscriber = ActiveSupport::Notifications.subscribe("sql.active_record") do |*, payload|
+      next if %w[SCHEMA TRANSACTION].include?(payload[:name]) || payload[:cached]
+
+      count += 1
+    end
+    yield
+    count
+  ensure
+    ActiveSupport::Notifications.unsubscribe(subscriber)
   end
 end

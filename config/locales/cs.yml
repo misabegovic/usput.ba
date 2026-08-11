@@ -948,11 +948,13 @@ cs:
       confirm_delete: Jste si jisti, že chcete smazat %{name}?
       filter:
         all_cities: Všechna města
+      best_seasons: Nejlepší roční období
+      seasons_hint: Nechte nezaškrtnuté pro celoroční zážitky
       seasons:
         all_year: Celý rok
         spring: Jaro
         summer: Léto
-        autumn: Podzim
+        fall: Podzim
         winter: Zima
       difficulties:
         easy: Snadné

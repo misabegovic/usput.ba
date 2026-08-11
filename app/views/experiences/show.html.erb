@@ -188,66 +188,7 @@
         </div>
       </div>
 
-      <%# Lightbox Modal %>
-      <div data-photo-gallery-target="lightbox"
-           data-action="click->photo-gallery#closeLightboxOnBackground"
-           class="hidden fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
-        <%# Close button %>
-        <button data-action="click->photo-gallery#closeLightbox"
-                class="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
-                aria-label="<%= t('common.close', default: 'Zatvori') %>">
-          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-
-        <%# Counter %>
-        <div data-photo-gallery-target="lightboxCounter"
-             class="absolute top-4 left-4 px-3 py-1.5 bg-black/60 rounded-full text-white text-sm font-medium">
-          1 / <%= all_photos.count %>
-        </div>
-
-        <%# Navigation arrows %>
-        <% if all_photos.count > 1 %>
-          <button data-action="click->photo-gallery#previous"
-                  class="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
-                  aria-label="<%= t('common.previous', default: 'Prethodna') %>">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-          </button>
-          <button data-action="click->photo-gallery#next"
-                  class="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
-                  aria-label="<%= t('common.next', default: 'Sljedeća') %>">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          </button>
-        <% end %>
-
-        <%# Main image %>
-        <div class="max-w-6xl max-h-[85vh] mx-4">
-          <img data-photo-gallery-target="lightboxImage"
-               src=""
-               alt=""
-               class="max-w-full max-h-[85vh] object-contain rounded-lg">
-        </div>
-
-        <%# Thumbnail strip at bottom %>
-        <div class="absolute bottom-4 left-0 right-0 px-4">
-          <div class="max-w-4xl mx-auto flex gap-2 justify-center overflow-x-auto pb-2">
-            <% all_photos.each_with_index do |photo, index| %>
-              <button data-action="click->photo-gallery#goTo"
-                      data-index="<%= index %>"
-                      data-photo-gallery-target="lightboxThumbnail"
-                      class="flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden ring-2 transition-all hover:opacity-100 <%= index == 0 ? 'ring-purple-500 opacity-100' : 'ring-transparent opacity-60' %>"
-                      aria-label="<%= t('experiences.show.go_to_photo', number: index + 1, default: 'Idi na fotografiju %{number}') %>">
-                <%= image_tag photo.variant(resize_to_fill: [128, 96]), class: "w-full h-full object-cover", alt: "Thumbnail #{index + 1}" %>
-              </button>
-            <% end %>
-          </div>
-        </div>
-      </div>
+      <%= render "shared/photo_lightbox", count: all_photos.count, thumbnails: all_photos, label_scope: "experiences.show", accent: "ring-purple-500" %>
     </div>
   <% end %>
 
@@ -400,8 +341,8 @@
                 </a>
               <% end %>
 
-              <% if @experience.contact_website.present? %>
-                <a href="<%= @experience.contact_website.start_with?('http') ? @experience.contact_website : "https://#{@experience.contact_website}" %>"
+              <% if (contact_href = safe_external_url(@experience.contact_website)) %>
+                <a href="<%= contact_href %>"
                    target="_blank"
                    rel="noopener noreferrer"
                    class="flex items-center text-purple-600 dark:text-purple-400 hover:underline">

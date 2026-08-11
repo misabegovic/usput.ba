@@ -56,7 +56,11 @@
       <%# Stats %>
       <div class="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/20">
         <div class="text-center">
-          <p data-travel-profile-target="visitedCount" class="text-3xl font-bold">0</p>
+          <% if logged_in? %>
+            <p class="text-3xl font-bold"><%= @visited_count %></p>
+          <% else %>
+            <p data-travel-profile-target="visitedCount" class="text-3xl font-bold">0</p>
+          <% end %>
           <p class="text-sm text-white/80"><%= t('profile.visited', default: 'Posjećeno') %></p>
         </div>
         <div class="text-center">
@@ -171,11 +175,32 @@
           </span>
           <%= t('profile.visited_places', default: 'Posjećena Mjesta') %>
         </h2>
-        <div data-travel-profile-target="visitedList" class="space-y-3">
-          <p class="text-gray-500 dark:text-gray-400 text-sm py-4 text-center">
-            <%= t('profile.no_visited', default: 'Još nisi posjetio nijednu lokaciju') %>
-          </p>
-        </div>
+        <% if logged_in? %>
+          <div class="space-y-3">
+            <% if @visited_locations.any? %>
+              <% @visited_locations.each do |visit| %>
+                <%= link_to location_path(visit.location),
+                      class: "flex items-center gap-3 rounded-xl border border-gray-100 dark:border-gray-700 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors" do %>
+                  <span class="flex size-8 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+                    <svg class="size-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                  </span>
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate font-medium text-gray-900 dark:text-white"><%= visit.location.name %></span>
+                    <span class="block truncate text-xs text-gray-400 dark:text-gray-500"><%= visit.location.city %></span>
+                  </span>
+                <% end %>
+              <% end %>
+            <% else %>
+              <p class="text-gray-500 dark:text-gray-400 text-sm py-4 text-center"><%= t('profile.no_visited', default: 'Još nisi posjetio nijednu lokaciju') %></p>
+            <% end %>
+          </div>
+        <% else %>
+          <div data-travel-profile-target="visitedList" class="space-y-3">
+            <p class="text-gray-500 dark:text-gray-400 text-sm py-4 text-center">
+              <%= t('profile.no_visited', default: 'Još nisi posjetio nijednu lokaciju') %>
+            </p>
+          </div>
+        <% end %>
         <button data-travel-profile-target="visitedShowMore"
                 data-action="click->travel-profile#showMoreVisited"
                 class="hidden w-full mt-4 py-2 text-sm text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors font-medium">
@@ -252,6 +277,11 @@
     <%# My Plans Section - For all users %>
     <%= render "travel_profiles/my_plans" %>
 
+    <%# Moments are private per viewer — the traveller's own, captured on the walk %>
+    <% if logged_in? %>
+      <%= render "travel_profiles/my_moments", moments: @moments || [] %>
+    <% end %>
+
     <%# Actions %>
     <div class="mt-8 bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg">
       <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4"><%= t('profile.actions', default: 'Akcije') %></h2>
@@ -281,7 +311,9 @@
         </label>
 
         <% if logged_in? %>
-          <%= button_to logout_path, method: :delete, class: "flex items-center justify-center px-4 py-3 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 rounded-xl text-red-700 dark:text-red-400 font-medium transition-colors" do %>
+          <%= button_to logout_path, method: :delete,
+                        form: { data: { controller: "local-data", action: "submit->local-data#clear" } },
+                        class: "flex items-center justify-center px-4 py-3 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 rounded-xl text-red-700 dark:text-red-400 font-medium transition-colors" do %>
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
             </svg>

@@ -15,6 +15,7 @@ class PhotoSuggestion < ApplicationRecord
 
   validates :location, presence: true
   validates :description, length: { maximum: 1000 }
+  validates :photo_url, format: { with: /\A#{URI::DEFAULT_PARSER.make_regexp(%w[http https])}\z/, message: "must be a valid URL" }, allow_blank: true
   validate :photos_or_url_present
   validate :acceptable_photos
 

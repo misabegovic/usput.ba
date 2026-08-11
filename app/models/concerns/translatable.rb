@@ -17,8 +17,31 @@
 module Translatable
   extend ActiveSupport::Concern
 
+  # The locales a lookup for `locale` may return, in the order it tries them.
+  def self.fallback_chain(locale)
+    locale = locale.to_s
+    fallbacks = begin
+      I18n.fallbacks[locale.to_sym]
+    rescue StandardError
+      [ locale.to_sym, :en ]
+    end
+
+    ([ locale ] + Array(fallbacks).map(&:to_s)).uniq
+  end
+
+  def self.request_locale_chain
+    fallback_chain(I18n.locale)
+  end
+
   included do
     has_many :translations, as: :translatable, dependent: :destroy
+
+    # Preloading `translations` pulls every locale of every field — sixteen
+    # locales' worth to render one card. This one holds only what the current
+    # request could resolve to, so a page preloads it instead.
+    has_many :locale_translations,
+             -> { where(locale: Translatable.request_locale_chain) },
+             as: :translatable, class_name: "Translation"
 
     # Class attribute to store translatable fields
     class_attribute :translatable_fields, default: []
@@ -61,10 +84,11 @@ module Translatable
   def translate(field, locale = I18n.locale)
     locale = locale.to_s
     field = field.to_s
+    chain = fallback_chain(locale)
+    values = translated_values(field, chain)
 
     # First try to find the exact translation
-    translation = translations.find_by(field_name: field, locale: locale)
-    return translation.value if translation&.value.present?
+    return values[locale] if values[locale].present?
 
     # For source locales (bs, hr), prefer original content over fallback translations
     # This ensures Bosnian/Croatian users see Latin script content, not Cyrillic or English
@@ -74,12 +98,10 @@ module Translatable
     end
 
     # Try fallback locales (for non-source locales like de, fr, etc.)
-    fallback_locales = I18n.fallbacks[locale.to_sym] rescue [ locale.to_sym, :en ]
-    fallback_locales.each do |fallback_locale|
-      next if fallback_locale.to_s == locale
+    chain.each do |fallback_locale|
+      next if fallback_locale == locale
 
-      translation = translations.find_by(field_name: field, locale: fallback_locale.to_s)
-      return translation.value if translation&.value.present?
+      return values[fallback_locale] if values[fallback_locale].present?
     end
 
     # Fall back to the original field value
@@ -153,5 +175,34 @@ module Translatable
   # This is useful in views: location.translated(:name)
   def translated(field)
     translate(field)
+  end
+
+  private
+
+  def fallback_chain(locale)
+    Translatable.fallback_chain(locale)
+  end
+
+  # The whole fallback chain is resolved in one pass rather than one lookup per
+  # locale, and from memory when the association is preloaded — a `find_by`
+  # would query per locale and ignore the preload, which is what made a rendered
+  # card cost a query per translated field per fallback step.
+  def translated_values(field, chain)
+    rows = preloaded_translations(chain) || translations.where(field_name: field, locale: chain).to_a
+
+    rows.each_with_object({}) do |row, values|
+      next unless row.field_name == field
+
+      values[row.locale] ||= row.value
+    end
+  end
+
+  # `locale_translations` only holds the request's own chain, so an explicit
+  # lookup in some other locale has to fall through to the query.
+  def preloaded_translations(chain)
+    return translations.to_a if translations.loaded?
+    return locale_translations.to_a if locale_translations.loaded? && chain == Translatable.request_locale_chain
+
+    nil
   end
 end

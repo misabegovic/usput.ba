@@ -1,0 +1,12 @@
+<%# The map panel renders a second copy on the same page, so it needs its own
+    frame id. Derived here rather than taken from the param — it lands in the DOM. %>
+<%= turbo_frame_tag dom_id(@location, params[:panel].present? ? :map_panel_moments : :moments_frame) do %>
+  <div id="<%= dom_id(@location, :stories) %>">
+    <%= render "plans/moment_gallery",
+          plan: @plan,
+          location: @location,
+          moments: @moments,
+          public_moments: @public_moments,
+          context: params[:context] %>
+  </div>
+<% end %>

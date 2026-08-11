@@ -1,5 +1,8 @@
 <%# Location Card for Explore Results %>
-<%= link_to location_path(location), class: "group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-lg transition-all overflow-hidden", data: { turbo_frame: "_top" } do %>
+<% visited = visited_location?(location) %>
+<%= link_to location_path(location),
+      class: "group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-lg transition-all overflow-hidden #{"ring-2 ring-emerald-500" if visited}",
+      data: { turbo_frame: "_top" } do %>
   <%# Image %>
   <div class="aspect-[4/3] overflow-hidden relative">
     <% if location.photos.attached? && location.photos.first.present? %>
@@ -22,6 +25,17 @@
         </svg>
       </div>
     <% end %>
+    <% if visited %>
+      <div class="absolute top-2 right-2">
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/90 text-white backdrop-blur-sm">
+          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <%= t("profile.visited", default: "Visited") %>
+        </span>
+      </div>
+    <% end %>
+
     <%# AI Generated / Human Made badge %>
     <% if location.respond_to?(:ai_generated) %>
       <div class="absolute top-2 left-2">

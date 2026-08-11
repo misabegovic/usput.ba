@@ -31,6 +31,40 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
+  # === Returning the visitor where they were ===
+
+  test "signing in returns the visitor to the page they came from" do
+    get login_path, headers: { "HTTP_REFERER" => explore_path }
+
+    post login_path, params: { username: @user.username, password: "password123" }
+
+    assert_redirected_to explore_path
+  end
+
+  test "an explicit return_to wins over the referring page" do
+    get login_path(return_to: profile_page_path), headers: { "HTTP_REFERER" => explore_path }
+
+    post login_path, params: { username: @user.username, password: "password123" }
+
+    assert_redirected_to profile_page_path
+  end
+
+  test "arriving from the register page does not bounce the visitor back to it" do
+    get login_path, headers: { "HTTP_REFERER" => register_path }
+
+    post login_path, params: { username: @user.username, password: "password123" }
+
+    assert_redirected_to root_path
+  end
+
+  test "a visitor who typed the login url lands on the home page" do
+    get login_path
+
+    post login_path, params: { username: @user.username, password: "password123" }
+
+    assert_redirected_to root_path
+  end
+
   # === Create action tests (HTML format) ===
 
   test "create logs in user with valid credentials" do
@@ -70,10 +104,10 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_nil session[:user_id]
   end
 
-  test "create merges travel profile from localStorage" do
+  test "create merges travel profile from localStorage but never its visited claims" do
     travel_profile = {
       "visited" => [ { "id" => "test-id" } ],
-      "favorites" => []
+      "favorites" => [ "fav-1" ]
     }.to_json
 
     post login_path, params: {
@@ -84,7 +118,8 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to root_path
     @user.reload
-    assert @user.travel_profile_data["visited"].present?
+    assert_equal [ "fav-1" ], @user.travel_profile_data["favorites"]
+    assert_empty @user.travel_profile_data["visited"], "visited comes from PlanVisit, not the browser"
   end
 
   test "create ignores invalid travel profile JSON" do

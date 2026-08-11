@@ -1,17 +1,18 @@
 <%# Reviews section component %>
 <%# Usage: render "reviews/reviews_section", reviewable: location %>
+<%#        render "reviews/reviews_section", reviewable: location, initial_reviews: preloaded %>
 
 <%
   per_page = 5
-  initial_reviews = reviewable.reviews.recent.limit(per_page)
+  initial_reviews = local_assigns.fetch(:initial_reviews) { reviewable.reviews.recent.limit(per_page) }.first(per_page)
   total_reviews = reviewable.reviews_count
   has_more = total_reviews > per_page
   reviews_path = polymorphic_path([reviewable, :reviews])
 %>
 
-<div id="reviews-section" class="space-y-6">
-  <%# Reviews Header %>
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div id="<%= dom_id(reviewable, :reviews_section) %>" class="space-y-6">
+  <%# Reviews Header — off when the caller already titles the section. %>
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 <%= "hidden" unless local_assigns.fetch(:heading, true) %>">
     <h3 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
       <%= t("reviews.title", default: "Recenzije") %>
       <span class="text-gray-500 dark:text-gray-400 font-normal text-sm sm:text-base ml-1 sm:ml-2">(<%= total_reviews %>)</span>
@@ -26,7 +27,7 @@
 
   <%# Reviews List %>
   <% if initial_reviews.any? %>
-    <div id="reviews-list" class="space-y-4">
+    <div id="<%= dom_id(reviewable, :reviews_list) %>" class="space-y-4">
       <% initial_reviews.each do |review| %>
         <%= render "reviews/review_card", review: review %>
       <% end %>
@@ -34,7 +35,7 @@
 
     <%# Load More Button %>
     <% if has_more %>
-      <div id="reviews-pagination" class="text-center">
+      <div id="<%= dom_id(reviewable, :reviews_pagination) %>" class="text-center">
         <%= link_to "#{reviews_path}?page=2",
                     class: "inline-flex items-center px-6 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-xl transition-colors",
                     data: { turbo_stream: true } do %>

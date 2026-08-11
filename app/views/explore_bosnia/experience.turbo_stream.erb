@@ -1,0 +1,9 @@
+<%= turbo_stream.before "explore_deck_tail" do %>
+  <%= render "explore_bosnia/deck_cards", plan: @plan, locations: @locations %>
+<% end %>
+
+<%= turbo_stream.replace "explore_deck_tail" do %>
+  <%= render "explore_bosnia/deck_tail",
+        next_url: @next_cursor ? explore_bosnia_experience_path(@category, **next_page_params) : nil,
+        end_message: t("explore_bosnia.deck_end") %>
+<% end %>

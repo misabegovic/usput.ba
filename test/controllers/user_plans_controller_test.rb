@@ -762,7 +762,47 @@ class UserPlansControllerTest < ActionDispatch::IntegrationTest
     assert body["days"].count >= 2
   end
 
+  # === Strong parameters ===
+
+  # The explore marker decides which listings a plan appears in and which plan
+  # check-ins ride on, so it must not be settable from the device's payload.
+  test "sync cannot set the explore marker from client data" do
+    login_as(@user)
+
+    post sync_user_plans_path,
+         params: { plans: [ valid_plan_params.merge(preferences: { budget: "low", explore_bosnia: true }) ] },
+         as: :json
+
+    assert_response :success
+    assert_empty current_user_plans.select(&:explore_bosnia?)
+  end
+
+  test "share cannot set the explore marker from client data" do
+    login_as(@user)
+
+    post share_user_plans_path,
+         params: { plan: valid_plan_params.merge(preferences: { budget: "low", explore_bosnia: true }) },
+         as: :json
+
+    assert_response :success
+    assert_empty current_user_plans.select(&:explore_bosnia?)
+  end
+
+  test "the explore plan is out of reach of the plan endpoints" do
+    login_as(@user)
+    explore = Plan.explore_bosnia_for(@user)
+
+    delete user_plan_path(explore.uuid), as: :json
+
+    assert_response :not_found
+    assert Plan.exists?(explore.id)
+  end
+
   private
+
+  def current_user_plans
+    @user.plans.reload.to_a
+  end
 
   def login_as(user)
     post login_path, params: { username: user.username, password: "password123" }

@@ -550,6 +550,31 @@ class GeoapifyServiceTest < ActiveSupport::TestCase
     end
   end
 
+  # === bicycle_rentals_near tests ===
+
+  test "bicycle_rentals_near returns parsed rental places" do
+    mock_response = mock_places_response([
+      { name: "City Bikes", place_id: "rental_1", lat: 43.856, lng: 18.413 }
+    ])
+    service = build_service_with_stubbed_connection(mock_response)
+
+    results = service.bicycle_rentals_near(lat: 43.856, lng: 18.413)
+
+    assert_kind_of Array, results
+    assert_equal "City Bikes", results.first[:name]
+  end
+
+  test "bicycle_rentals_near returns empty array on API error" do
+    Rails.application.config.geoapify.stub(:api_key, "test_api_key") do
+      service = GeoapifyService.new
+      service.define_singleton_method(:search_nearby) do |**_kwargs|
+        raise GeoapifyService::ApiError, "boom"
+      end
+
+      assert_equal [], service.bicycle_rentals_near(lat: 43.856, lng: 18.413)
+    end
+  end
+
   def build_service_with_stubbed_connection(mock_response)
     Rails.application.config.geoapify.stub(:api_key, "test_api_key") do
       service = GeoapifyService.new

@@ -141,7 +141,11 @@
           <div>
             <dt class="text-sm font-medium text-gray-500 dark:text-gray-400"><%= t("admin.photo_suggestions.photo_url") %></dt>
             <dd class="mt-1 text-sm text-gray-900 dark:text-white break-all">
-              <%= link_to @photo_suggestion.photo_url, @photo_suggestion.photo_url, target: "_blank", class: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300" %>
+              <% if (href = safe_external_url(@photo_suggestion.photo_url)) %>
+                <%= link_to @photo_suggestion.photo_url, href, target: "_blank", class: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300" %>
+              <% else %>
+                <%= @photo_suggestion.photo_url %>
+              <% end %>
             </dd>
           </div>
         <% end %>

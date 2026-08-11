@@ -1,7 +1,9 @@
 <%# Individual plan card for My Plans section %>
-<%# Link to plan viewer with plan ID - this loads the plan from localStorage/server for editing %>
+<%# The card body opens the plan viewer (localStorage/server, for editing); the %>
+<%# footer links to the server-rendered plan page, which is where moments live. %>
+<div class="group bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 sm:p-4 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-all hover:shadow-md border border-transparent hover:border-teal-200 dark:hover:border-teal-800">
 <%= link_to plan_view_path(id: plan.local_id || plan.uuid),
-    class: "group block bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 sm:p-4 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-all hover:shadow-md border border-transparent hover:border-teal-200 dark:hover:border-teal-800",
+    class: "block",
     data: { turbo_frame: "_top" } do %>
   <div class="flex items-start gap-3 sm:gap-4">
     <%# City icon/badge %>
@@ -73,8 +75,22 @@
     </div>
   </div>
 
-  <%# Created date %>
-  <div class="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-200 dark:border-gray-600 text-xs text-gray-400 dark:text-gray-500">
-    <%= t('profile.my_plans.created_at', date: l(plan.created_at, format: :short), default: "Kreirano #{l(plan.created_at, format: :short)}") %>
-  </div>
 <% end %>
+
+  <%# Created date + the way in to this plan's moments %>
+  <div class="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-200 dark:border-gray-600 flex items-center justify-between gap-2">
+    <span class="text-xs text-gray-400 dark:text-gray-500">
+      <%= t('profile.my_plans.created_at', date: l(plan.created_at, format: :short), default: "Kreirano #{l(plan.created_at, format: :short)}") %>
+    </span>
+
+    <%= link_to plan_path(plan),
+        class: "inline-flex items-center text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline flex-shrink-0",
+        data: { turbo_frame: "_top" } do %>
+      <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+      </svg>
+      <%= t("plans.moments.title") %>
+    <% end %>
+  </div>
+</div>

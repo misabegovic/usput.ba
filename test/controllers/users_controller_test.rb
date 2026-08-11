@@ -23,6 +23,21 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "registering returns the visitor to the page they came from" do
+    get register_path, headers: { "HTTP_REFERER" => explore_path }
+
+    post register_path, params: {
+      user: {
+        username: "returning_user",
+        password: "password123",
+        password_confirmation: "password123"
+      }
+    }
+
+    assert_redirected_to explore_path
+    User.find_by(username: "returning_user")&.destroy
+  end
+
   test "new redirects to root when already logged in" do
     post login_path, params: { username: @existing_user.username, password: "password123" }
 
@@ -165,7 +180,8 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
 
     user = User.find_by(username: "newuser_profile")
-    assert user.travel_profile_data["visited"].present?
+    assert_equal [ "fav-1" ], user.travel_profile_data["favorites"]
+    assert_empty user.travel_profile_data["visited"], "visited comes from PlanVisit, not the browser"
 
     user.destroy
   end
