@@ -26,11 +26,11 @@ class BrowseTest < ActiveSupport::TestCase
   end
 
   test "validates browsable_type inclusion" do
-    # Test that only Location, Experience, and Plan are valid browsable types
+    # Test that only Location, Experience, Plan, and Moment are valid browsable types
     # We can verify this by checking the validation definition directly
     validation = Browse.validators_on(:browsable_type).find { |v| v.is_a?(ActiveModel::Validations::InclusionValidator) }
     assert_not_nil validation, "Should have inclusion validation on browsable_type"
-    assert_equal %w[Location Experience Plan], validation.options[:in]
+    assert_equal %w[Location Experience Plan Moment], validation.options[:in]
   end
 
   test "validates uniqueness of browsable_id scoped to browsable_type" do
