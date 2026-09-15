@@ -26,6 +26,8 @@ class CuratorActivity < ApplicationRecord
     reject_content_change
     approve_moment
     reject_moment
+    archive_location
+    restore_location
   ].freeze
 
   validates :action, presence: true, inclusion: { in: ACTIONS }

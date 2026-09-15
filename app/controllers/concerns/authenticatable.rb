@@ -20,6 +20,11 @@ module Authenticatable
       remember_where_we_were
       respond_to do |format|
         format.html { redirect_to login_path, alert: t("auth.login_required") }
+        # 303, because Turbo only follows a redirect out of a write with one.
+        # Without it the control the request was aimed at reads "Content missing".
+        format.turbo_stream do
+          redirect_to login_path, alert: t("auth.login_required"), status: :see_other
+        end
         format.json { render json: { error: "Unauthorized" }, status: :unauthorized }
       end
     end

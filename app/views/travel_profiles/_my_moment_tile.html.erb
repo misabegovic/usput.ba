@@ -1,44 +1,37 @@
-<%# One tile in the profile's moment grid. Locals: moment. Its own frame so
-    publishing or making it private rewrites the tile, not the whole profile. %>
+<%# One tile in the profile's moment grid. Locals: moment. Its own frame, so
+    publishing or making it private rewrites the tile, not the whole profile.
+    No controls sit on the photo: publish, delete and the note live in the viewer
+    this opens, which is the same viewer every other surface opens. %>
 <% location_name = moment.location.name %>
+
 <%= turbo_frame_tag dom_id(moment), class: "relative block overflow-hidden rounded-xl border border-gray-100 dark:border-gray-700" do %>
   <button type="button" class="block w-full cursor-zoom-in"
-          data-action="moment-lightbox#open"
-          data-moment-lightbox-url="<%= photo_plan_moment_path(moment.plan, moment, size: "square") %>">
+          data-action="click->photo-gallery#openLightbox"
+          data-photo-gallery-target="thumbnail"
+          data-photo-gallery-full-url="<%= photo_plan_moment_path(moment.plan, moment, size: "story") %>"
+          <%= tag.attributes(moment_caption_data(moment, scope: "profile", owned: true,
+                download_url: photo_plan_moment_path(moment.plan, moment, size: "story", disposition: "attachment"))) %>>
     <%= image_tag photo_plan_moment_path(moment.plan, moment, size: "square"),
           class: "aspect-square w-full object-cover", loading: "lazy", alt: location_name %>
+
+    <span class="absolute left-1.5 top-1.5 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium backdrop-blur-sm
+                 <%= moment.status_classes %>">
+      <%= t(moment.status_key) %>
+    </span>
   </button>
 
-  <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-    <%= link_to location_path(moment.location), class: "block truncate text-xs font-semibold text-yellow-300 hover:underline", data: { turbo_frame: "_top" } do %>
+  <div class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-gradient-to-t from-black/70 to-transparent p-2">
+    <%= link_to location_path(moment.location), class: "min-w-0 flex-1 truncate text-xs font-semibold text-yellow-300 hover:underline", data: { turbo_frame: "_top" } do %>
       <%= location_name %><%= " · #{moment.location.city}" if moment.location.city.present? %>
     <% end %>
+
+    <%# Opens the same viewer the photo does — a signpost, not a second surface. %>
+    <button type="button" data-action="click->photo-gallery#openLightbox"
+            class="flex size-8 flex-shrink-0 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow hover:text-blue-600 dark:bg-gray-900/80 dark:text-gray-200 dark:hover:text-yellow-500"
+            aria-label="<%= t("plans.moments.edit_moment") %>">
+      <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+      </svg>
+    </button>
   </div>
-
-  <%= button_to plan_moment_path(moment.plan, moment), method: :delete,
-        params: { context: "browse" },
-        form: { data: { turbo_confirm: t("plans.start.story_delete_confirm") } },
-        class: "absolute left-1.5 top-1.5 flex size-8 items-center justify-center rounded-full bg-red-600/90 text-white shadow",
-        title: t("plans.start.story_delete"),
-        aria: { label: t("plans.start.story_delete") } do %>
-    <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" /></svg>
-  <% end %>
-
-  <% if moment.visibility_public_moment? %>
-    <%= button_to unpublish_plan_moment_path(moment.plan, moment), method: :patch,
-          params: { context: "profile" },
-          class: "absolute right-1.5 top-1.5 flex size-8 items-center justify-center rounded-full #{moment.approved? ? "bg-emerald-600" : "bg-amber-500"} text-white shadow",
-          title: (moment.approved? ? t("plans.moments.public") : t("plans.moments.pending")),
-          aria: { label: t("plans.moments.make_private") } do %>
-      <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 010 18M12 3a15 15 0 000 18" /></svg>
-    <% end %>
-  <% else %>
-    <%= button_to publish_plan_moment_path(moment.plan, moment), method: :patch,
-          params: { context: "profile" },
-          class: "absolute right-1.5 top-1.5 flex size-8 items-center justify-center rounded-full bg-white/90 text-gray-600 shadow hover:text-emerald-600 dark:bg-gray-900/80 dark:text-gray-300",
-          title: t("plans.moments.share_prompt"),
-          aria: { label: t("plans.moments.share") } do %>
-      <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 010 18M12 3a15 15 0 000 18" /></svg>
-    <% end %>
-  <% end %>
 <% end %>

@@ -1,5 +1,5 @@
 class TravelProfilesController < ApplicationController
-  before_action :require_login, except: [ :page, :my_plans ]
+  before_action :require_login, except: [ :page, :my_plans, :my_moments ]
 
   PER_PAGE = 6
 
@@ -13,12 +13,6 @@ class TravelProfilesController < ApplicationController
       @plans = current_user.plans.without_explore_bosnia.includes(plan_experiences: :experience)
                            .order(created_at: :desc)
                            .page(1).per(PER_PAGE)
-
-      # The traveller's most recent moments, across every plan — the same slice
-      # the explore surface deals, not the whole collection.
-      @moments = current_user.moments.with_attached_photo
-                             .includes(:location, :plan)
-                             .recent_own
 
       # Visited places come from the authoritative check-in (PlanVisit), not the
       # localStorage travel profile — one place a location becomes "visited".
@@ -37,13 +31,30 @@ class TravelProfilesController < ApplicationController
     if logged_in?
       @plans = current_user.plans.without_explore_bosnia.includes(plan_experiences: :experience)
                            .order(created_at: :desc)
-                           .page(params[:page]).per(PER_PAGE)
+                           .page(params[:my_moments_page] || params[:page]).per(PER_PAGE)
       render partial: "travel_profiles/my_plans_content", locals: { plans: @plans }
     else
       head :no_content
     end
   end
 
+  # GET /profile/moments - Paginated moments for Turbo Frame
+  def my_moments
+    if logged_in?
+      @moments= current_user.moments.with_attached_photo
+                            .includes(:location, :plan)
+                            .newest_first
+                            .page(params[:my_moments_page] || params[:page]).per(PER_PAGE)
+      # load-more asks for the tiles alone; the frame asks for the whole block.
+      if params[:partial] == "my_moments"
+        render partial: "travel_profiles/my_moments_items", locals: { moments: @moments }, layout: false
+      else
+        render partial: "travel_profiles/my_moments_content", locals: { moments: @moments }
+      end
+    else
+      head :no_content
+    end
+  end
   # PATCH /travel_profile
   def update
     if params[:travel_profile_data].present?

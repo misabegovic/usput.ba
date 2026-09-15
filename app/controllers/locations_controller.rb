@@ -1,10 +1,16 @@
 class LocationsController < ApplicationController
+  # Raised where a not-found would be, so the two answers stay one behaviour:
+  # a retired place and a missing one both leave through a rescue_from on this
+  # controller rather than through each action remembering to check.
+  Retired = Class.new(StandardError)
+
   MAP_POINTS_TTL = 1.hour
 
   rescue_from ActiveRecord::RecordNotFound, with: :redirect_to_explore
+  rescue_from Retired, with: :redirect_from_retired
 
   def show
-    @location = Location.includes(:reviews).find_by_public_id!(params[:id])
+    @location = visible_location(Location.includes(:reviews))
 
     if logged_in?
       visit = current_user.plan_visits.find_by(location: @location)
@@ -36,7 +42,7 @@ class LocationsController < ApplicationController
   end
 
   def audio_tour
-    @location = Location.find_by_public_id!(params[:id])
+    @location = visible_location(Location)
   end
 
   def map_points
@@ -54,7 +60,7 @@ class LocationsController < ApplicationController
 
 
   def map_panel
-    location = Location.includes(:reviews).find_by_public_id!(params[:id])
+    location = visible_location(Location.includes(:reviews))
 
     render partial: "locations/map_panel", locals: { location: location, frame_id: panel_frame_id }
   end
@@ -73,7 +79,30 @@ class LocationsController < ApplicationController
     "locations/map_points/#{I18n.locale}/#{helpers.map_points_version}"
   end
 
+  def visible_location(scope)
+    location = scope.find_by_public_id!(params[:id])
+    raise Retired if location.archived?
+
+    location
+  end
+
   def redirect_to_explore
-    redirect_to explore_path, alert: I18n.t("locations.not_found", default: "Location not found. Explore other destinations.")
+    answer_gone(t("locations.not_found"))
+  end
+
+  def redirect_from_retired
+    answer_gone(t("locations.retired"))
+  end
+
+  # A frame cannot redirect the page — Turbo would fetch explore, find no frame
+  # of that id, and blank the panel. Same sentence either way; only the
+  # transport differs.
+  def answer_gone(message)
+    if turbo_frame_request?
+      render partial: "locations/gone_panel",
+             locals: { message: message, frame_id: panel_frame_id }
+    else
+      redirect_to explore_path, alert: message
+    end
   end
 end

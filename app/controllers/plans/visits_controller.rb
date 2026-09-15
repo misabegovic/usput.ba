@@ -19,8 +19,10 @@ class Plans::VisitsController < ApplicationController
 
   private
 
+  # nil means the check-in is allowed, so a place with no coordinates has to
+  # refuse by name — there is no distance to measure against.
   def out_of_range_reason(location)
-    return nil unless location.geocoded?
+    return t("plans.start.no_coordinates") unless location.geocoded?
 
     lat = params[:user_lat].to_f
     lng = params[:user_lng].to_f

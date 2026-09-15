@@ -82,7 +82,7 @@ class ExploreBosniaController < ApplicationController
   end
 
   def approximate_origin
-    @approximate_origin_coordinates ||= Maps::IpPosition.call(request.remote_ip)
+    @approximate_origin_coordinates ||= Maps::IpPosition.call(VisitorIp.from(request))
   end
 
   def apply_filters(scope)
@@ -134,7 +134,7 @@ class ExploreBosniaController < ApplicationController
   # a cursor. One row past the page is fetched and dropped, so "is there more"
   # comes from a place that exists rather than from this page being full.
   def dealt_locations(skip_visited: true, cursor: nil)
-    scope = Location.with_coordinates
+    scope = Location.with_coordinates.not_archived
     scope = scope.where(id: tile_location_ids) if @type_keys.any?
     scope = scope.where.not(id: current_user.plan_visits.select(:location_id)) if skip_visited && logged_in?
     scope = apply_filters(scope)
@@ -158,7 +158,8 @@ class ExploreBosniaController < ApplicationController
   def tile_location_ids
     type_ids = ExperienceType.active.where(key: @type_keys).select(:id)
 
-    Location.joins(:location_experience_types)
+    Location.not_archived
+            .joins(:location_experience_types)
             .where(location_experience_types: { experience_type_id: type_ids })
             .distinct
             .select(:id)

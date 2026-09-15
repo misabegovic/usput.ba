@@ -1,11 +1,12 @@
-<%# Locals: moment, index. The photo streams through our own action, never a
-    signed blob url, which would serve a private moment without a session. %>
-<%= turbo_frame_tag dom_id(moment), class: "group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm transition-all hover:shadow-lg overflow-hidden" do %>
+<%# Locals: moment. No rendered index: an appended tile cannot know its own.
+    Owner actions live in the viewer; edit is a signpost to it. %>
+<%= turbo_frame_tag dom_id(moment), class: "group flex h-full flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-sm transition-all hover:shadow-lg overflow-hidden" do %>
   <button type="button"
           data-action="click->photo-gallery#openLightbox"
-          data-index="<%= index %>"
           data-photo-gallery-target="thumbnail"
           data-photo-gallery-full-url="<%= photo_plan_moment_path(moment.plan, moment, size: "story") %>"
+          <%= tag.attributes(moment_caption_data(moment, scope: "my_moments", owned: true,
+                download_url: photo_plan_moment_path(moment.plan, moment, size: "story", disposition: "attachment"))) %>
           class="relative block w-full cursor-zoom-in aspect-[4/3] overflow-hidden">
     <%= image_tag photo_plan_moment_path(moment.plan, moment, size: "square"),
           alt: moment.location.name, loading: "lazy",
@@ -19,23 +20,18 @@
 
   <%= render "new_design/explore/moment_card_body", moment: moment, linked: true %>
 
-  <div class="flex flex-wrap items-center gap-2 px-4 pb-4">
-    <% if moment.visibility_private_moment? %>
-      <%= button_to t("plans.start.story_publish"), publish_plan_moment_path(moment.plan, moment),
-            method: :patch,
-            params: { context: "browse", index: index },
-            class: "rounded-full bg-gray-900 px-3 py-1 text-xs font-semibold text-white dark:bg-white dark:text-gray-900" %>
-    <% else %>
-      <%= button_to t("plans.moments.make_private"), unpublish_plan_moment_path(moment.plan, moment),
-            method: :patch,
-            params: { context: "browse", index: index },
-            class: "rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-200" %>
-    <% end %>
+  <div class="mt-auto flex items-center gap-2 px-4 pb-4">
+    <%= render "new_design/explore/moment_card_likes", moment: moment, scope: "my_moments" %>
 
-    <%= button_to t("plans.start.story_delete"), plan_moment_path(moment.plan, moment),
-          method: :delete,
-          params: { context: "browse" },
-          form: { data: { turbo_confirm: t("plans.start.story_delete_confirm") } },
-          class: "rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white" %>
+    <span class="text-xs text-gray-400 dark:text-gray-500"><%= moment_uploaded_at(moment) %></span>
+
+    <%# Opens the same viewer the photo does — a signpost, not a second surface. %>
+    <button type="button" data-action="click->photo-gallery#openLightbox"
+            class="ml-auto inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-blue-100 hover:text-blue-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-yellow-500/20 dark:hover:text-yellow-500">
+      <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+      </svg>
+      <%= t("plans.moments.edit_moment") %>
+    </button>
   </div>
 <% end %>

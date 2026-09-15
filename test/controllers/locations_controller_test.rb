@@ -265,4 +265,57 @@ class LocationsControllerTest < ActionDispatch::IntegrationTest
     results = threads.map(&:value)
     assert results.all? { |status| status == 200 }
   end
+
+  # A retired place and a missing one leave through the same controller-level
+  # rescue, so every entry point answers the same way without knowing about it.
+  test "a retired place redirects to explore instead of rendering" do
+    @location.archive!
+
+    get location_path(@location)
+
+    assert_redirected_to explore_path
+    assert_equal I18n.t("locations.retired"), flash[:alert]
+  end
+
+  test "the audio tour of a retired place redirects too" do
+    @location.archive!
+
+    get audio_tour_location_path(@location)
+
+    assert_redirected_to explore_path
+  end
+
+  # The map panel is fetched into a Turbo Frame, and a frame cannot redirect —
+  # Turbo would find no matching frame in the explore page and blank the panel.
+  test "the map panel of a retired place answers inside the frame" do
+    @location.archive!
+
+    get map_panel_location_path(@location, frame: "map_panel_location_#{@location.id}"),
+        headers: { "Turbo-Frame" => "map_panel_location_#{@location.id}" }
+
+    assert_response :success
+    assert_match "map_panel_location_#{@location.id}", response.body
+    assert_match I18n.t("locations.retired"), response.body
+  end
+
+  test "the map panel of a missing place answers inside the frame too" do
+    get map_panel_location_path(id: "does-not-exist"),
+        headers: { "Turbo-Frame" => "map_panel" }
+
+    assert_response :success
+    assert_match "<turbo-frame", response.body
+    assert_match I18n.t("locations.not_found"), response.body
+  end
+
+  test "map points drop a retired place" do
+    get map_points_locations_path
+
+    assert_includes response.body, @location.uuid
+
+    @location.archive!
+    Rails.cache.clear
+
+    get map_points_locations_path
+    assert_not_includes response.body, @location.uuid
+  end
 end

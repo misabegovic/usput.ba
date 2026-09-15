@@ -242,8 +242,16 @@ class ContentChange < ApplicationRecord
     mark_for_ai_regeneration!(changeable)
   end
 
+  # Approving a location deletion is the one place that takes travellers'
+  # records with it. The curator saw the count before filing the proposal and
+  # the admin saw it before approving; everywhere else a held location still
+  # refuses to be destroyed.
   def apply_delete!
-    changeable.destroy!
+    if changeable.respond_to?(:destroy_with_traveller_records!)
+      changeable.destroy_with_traveller_records!
+    else
+      changeable.destroy!
+    end
   end
 
   # Mark resource for AI regeneration (translations, audio tours)

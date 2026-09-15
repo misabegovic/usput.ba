@@ -21,21 +21,19 @@ class VisitBadgesTest < ApplicationSystemTestCase
   end
 
   def login
-    visit login_path
-    within "form" do
-      fill_in "username", with: "sys_walker"
-      fill_in "password", with: "password123"
-      click_button
-    end
-    assert_no_current_path login_path, wait: 5
+    sign_in_as("sys_walker")
   end
 
   def visit_deck
     visit explore_bosnia_experience_path("history", lat: @location.lat, lng: @location.lng)
+    settle_deck
   end
 
   # A guest presses a plain button; a signed-in traveller submits a form.
+  # The button is wired by geo-visit, and a press that lands before the
+  # controller does is swallowed with no error — the card just stays unvisited.
   def check_in
+    wait_for_controller("[data-controller~='geo-visit']", "geo-visit")
     find("button", text: I18n.t("plans.start.mark_visited"), match: :first).click
   end
 
@@ -72,7 +70,7 @@ class VisitBadgesTest < ApplicationSystemTestCase
     visit_deck
 
     check_in
-    assert_text "Visited", wait: 5
+    assert_text "Visited"
 
     assert_includes stored_badges, "first_visit"
   end
@@ -85,13 +83,13 @@ class VisitBadgesTest < ApplicationSystemTestCase
     visit_deck
 
     check_in
-    assert_text "Visited", wait: 5
+    assert_text "Visited"
 
     # The badge is decided from `visited`, which the server projects from
     # PlanVisit — so it is earned on the next screen carrying the profile.
     visit location_path(@location)
 
-    assert_text I18n.t("travel_profile.new_badge"), wait: 5
+    assert_text I18n.t("travel_profile.new_badge")
     assert_includes stored_badges, "first_visit"
   end
 end

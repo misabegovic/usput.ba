@@ -3,7 +3,19 @@
 # your test database is "scratch space" for the test suite and is wiped
 # and recreated between test runs. Don't rely on the data there!
 
+# No test reaches the internet. dotenv loads .env in every environment, so the
+# routing key is present here too and every deck page called the live
+# openrouteservice API — which answers in 200ms or in its five-second timeout,
+# and a suite whose own waits are five seconds then fails somewhere different
+# each run. Without a key the fetcher returns nil, which is a state production
+# already has and every caller already draws nothing for.
+ENV["OPENROUTESERVICE_API_KEY"] = nil
+
 Rails.application.configure do
+  # Every user the suite creates and every login it performs hashes a password,
+  # and at the production cost that is ~290ms each — tens of seconds across a
+  # run, spent making the server slow enough that other tests miss their waits.
+  config.after_initialize { ActiveModel::SecurePassword.min_cost = true }
   # Settings specified here will take precedence over those in config/application.rb.
 
   # While tests run files are not watched, reloading is not necessary.

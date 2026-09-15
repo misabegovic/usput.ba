@@ -69,6 +69,15 @@
               onchange: "this.form.submit()" %>
         </div>
 
+        <!-- Live / Archived -->
+        <div class="w-full sm:w-auto">
+          <%= f.select :archived,
+              options_for_select([[t("curator.locations.show_live"), ""], [t("curator.locations.show_archived"), "1"]], params[:archived]),
+              {},
+              class: "block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500",
+              onchange: "this.form.submit()" %>
+        </div>
+
         <!-- Search Button (for text search) -->
         <div class="w-full sm:w-auto">
           <%= f.submit t("common.search"), class: "w-full sm:w-auto inline-flex justify-center items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 cursor-pointer" %>

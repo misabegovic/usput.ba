@@ -20,13 +20,18 @@ class ExploreDeckPagingTest < ApplicationSystemTestCase
   end
 
   def login
-    visit login_path
-    within "form" do
-      fill_in "username", with: "sys_pager"
-      fill_in "password", with: "password123"
-      click_button
-    end
-    assert_no_current_path login_path, wait: 5
+    sign_in_as("sys_pager")
+  end
+
+  # Without this the browser answers with the machine's own position and the deck
+  # is dealt from somewhere this test never meant.
+  def stand_at(lat, lng)
+    uri = URI.parse(page.current_url)
+    browser = page.driver.browser
+    browser.execute_cdp("Browser.grantPermissions", origin: "#{uri.scheme}://#{uri.host}:#{uri.port}",
+                        permissions: [ "geolocation" ])
+    browser.execute_cdp("Emulation.setGeolocationOverride", latitude: lat, longitude: lng, accuracy: 5)
+    page.refresh
   end
 
   def scroll_deck_to_bottom
@@ -39,6 +44,7 @@ class ExploreDeckPagingTest < ApplicationSystemTestCase
   test "scrolling to the bottom of a full page deals the next one and then ends" do
     login
     visit explore_bosnia_experience_path("history", lat: 43.85, lng: 18.41)
+    stand_at(43.85, 18.41)
 
     assert_selector "[data-plan-deck-target='card'][data-plan-deck-lat]", count: 10, wait: 10
 

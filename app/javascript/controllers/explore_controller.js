@@ -89,9 +89,11 @@ export default class extends Controller {
       if (this.hasLngInputTarget) this.lngInputTarget.disabled = true
     }
 
-    // Set type checkboxes
+    // Set type checkboxes. Only where the url carries a query at all: a moment's
+    // own address selects its type server-side and carries no params, and reading
+    // the boxes off an empty query would uncheck what the server just checked.
     const types = urlParams.getAll("types[]")
-    if (this.hasTypeCheckboxTarget) {
+    if (this.hasTypeCheckboxTarget && window.location.search) {
       this.typeCheckboxTargets.forEach(checkbox => {
         checkbox.checked = types.includes(checkbox.value)
       })
@@ -133,10 +135,38 @@ export default class extends Controller {
     const newUrl = `${this.searchUrlValue}${queryString ? '?' + queryString : ''}`
     window.history.pushState({}, "", newUrl)
 
-    // Submit form to load new results
+    // A native GET submits every field, empty ones included, and navigating
+    // overwrites the clean url pushed above — which is why pressing a filter
+    // landed on "?q=&types[]=moment&radius=25&sort=relevance&city_name=" while
+    // the same view reached by a link read "?types[]=moment". Disabled fields
+    // are not submitted, the same mechanism clearNearby already uses.
     if (this.hasFormTarget) {
+      this.disableEmptyFields()
       this.formTarget.submit()
     }
+  }
+
+  // A field that is blank, or still sitting on the value the server rendered,
+  // says nothing the url needs to carry — and a disabled field is not submitted.
+  // Defaults are read off the DOM (defaultChecked / defaultSelected) rather than
+  // named here, so the server stays the only place a default is decided.
+  // Checkboxes are exempt: the resource types are checked by the server, and an
+  // unchecked one is already not submitted.
+  disableEmptyFields() {
+    Array.from(this.formTarget.elements).forEach((field) => {
+      if (field.type === "checkbox") return
+
+      if (field.type === "radio") {
+        if (field.checked && field.defaultChecked) field.disabled = true
+        return
+      }
+
+      if (String(field.value ?? "").trim() === "") {
+        field.disabled = true
+      } else if (field.tagName === "SELECT" && field.selectedOptions[0]?.defaultSelected) {
+        field.disabled = true
+      }
+    })
   }
 
   // Build form data from all inputs

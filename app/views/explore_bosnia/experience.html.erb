@@ -13,8 +13,8 @@
 <%# explore-geo only mounts while the position is missing: it asks once, then
     reloads the deck with the coordinates. %>
 <div class="fixed inset-x-0 bottom-0 top-[calc(5rem+env(safe-area-inset-top))] flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)]"
-     data-controller="moment-lightbox<%= " explore-geo" if @needs_location %>"
      <% if @needs_location %>
+       data-controller="explore-geo"
        data-explore-geo-failed-body-value="<%= t("explore_bosnia.needs_location.body") %>"
        data-explore-geo-retry-label-value="<%= t("explore_bosnia.needs_location.retry") %>"
        data-explore-geo-fallback-lat-value="<%= ExploreBosniaController::DEFAULT_ORIGIN.first %>"
@@ -79,7 +79,7 @@
               rather than a snap slot so it never becomes a card you scroll past.
               The traveller asks for a new position; nothing tracks them between
               asks. %>
-          <div class="sticky top-0 z-30 flex justify-end px-4 pt-2">
+          <div class="sticky top-0 z-30 flex justify-end px-4 pt-0">
             <%# Hidden until the deck is provably out of date. It says why the
                 button is worth pressing, which the button alone cannot. %>
             <span data-plan-deck-target="movedPrompt"
@@ -115,17 +115,4 @@
       </div>
     </div>
   <% end %>
-
-  <div data-moment-lightbox-target="overlay"
-       data-action="click->moment-lightbox#closeOnBackground"
-       class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/80 p-4">
-    <button type="button" data-action="moment-lightbox#close"
-            class="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
-            aria-label="<%= t('common.close') %>">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-    </button>
-    <img data-moment-lightbox-target="image" src="" alt="" class="max-h-[85vh] max-w-full rounded-lg object-contain shadow-2xl">
-  </div>
 </div>

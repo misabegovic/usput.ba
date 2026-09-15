@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import { planSyncService } from "services/plan_sync_service"
+import { escapeHtml } from "services/html_escape"
 
 export default class extends Controller {
   static targets = [
@@ -296,7 +297,7 @@ export default class extends Controller {
                 }"
                 data-action="click->plan-viewer#switchPlan"
                 data-plan-id="${plan.id}">
-          ${displayName}
+          ${escapeHtml(displayName)}
           <span class="ml-1 opacity-70">(${plan.duration_days}d)</span>
         </button>
       `
@@ -436,7 +437,7 @@ export default class extends Controller {
   }
 
   renderLocation(loc, index, dayIndex) {
-    const meta = [ loc.city, loc.category ].filter(Boolean).join(' · ')
+    const meta = [ loc.city, loc.category ].filter(Boolean).map(v => escapeHtml(v)).join(' · ')
 
     return `
       <div class="group flex items-start p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl transition-colors"
@@ -451,7 +452,7 @@ export default class extends Controller {
         </div>
         <a href="/locations/${loc.id}" class="flex-grow min-w-0 hover:opacity-80">
           <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-            ${loc.name}
+            ${escapeHtml(loc.name)}
           </h3>
           ${meta ? `<p class="text-sm text-gray-600 dark:text-gray-400 mt-1">${meta}</p>` : ''}
         </a>
@@ -489,10 +490,10 @@ export default class extends Controller {
         <!-- Content (clickable) -->
         <a href="/experiences/${exp.uuid || exp.id}" class="flex-grow min-w-0 hover:opacity-80">
           <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-            ${exp.title}
+            ${escapeHtml(exp.title)}
           </h3>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            ${exp.description ? exp.description.substring(0, 150) + (exp.description.length > 150 ? '...' : '') : ''}
+            ${exp.description ? escapeHtml(exp.description.substring(0, 150) + (exp.description.length > 150 ? '...' : '')) : ''}
           </p>
           <div class="flex flex-wrap items-center gap-2 mt-3">
             ${exp.formatted_duration ? `
@@ -500,7 +501,7 @@ export default class extends Controller {
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                ${exp.formatted_duration}
+                ${escapeHtml(exp.formatted_duration)}
               </span>
             ` : ''}
             ${locationsCount > 0 ? `
@@ -698,7 +699,7 @@ export default class extends Controller {
     this.preferencesListTarget.innerHTML = items.map(item => `
       <div class="flex items-center space-x-3 text-gray-600 dark:text-gray-400">
         ${item.icon}
-        <span>${item.label}</span>
+        <span>${escapeHtml(item.label)}</span>
       </div>
     `).join('')
   }
@@ -1085,7 +1086,7 @@ export default class extends Controller {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
         </svg>
-        <span class="truncate">${loc.name}${loc.city ? ` <span class="text-gray-400 dark:text-gray-500">— ${loc.city}</span>` : ''}</span>
+        <span class="truncate">${escapeHtml(loc.name)}${loc.city ? ` <span class="text-gray-400 dark:text-gray-500">— ${escapeHtml(loc.city)}</span>` : ''}</span>
       </button>
     `).join('')
 
@@ -1263,11 +1264,11 @@ export default class extends Controller {
            data-recommendation-id="${exp.id}">
         <a href="/experiences/${exp.uuid || exp.id}" class="block p-4">
           <h4 class="font-semibold text-gray-900 dark:text-white hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
-            ${exp.title}
+            ${escapeHtml(exp.title)}
           </h4>
           ${exp.description ? `
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
-              ${exp.description}
+              ${escapeHtml(exp.description)}
             </p>
           ` : ''}
           <div class="flex items-center gap-3 mt-3 text-xs text-gray-500 dark:text-gray-400">
@@ -1276,7 +1277,7 @@ export default class extends Controller {
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                ${exp.formatted_duration}
+                ${escapeHtml(exp.formatted_duration)}
               </span>
             ` : ''}
             ${exp.locations_count > 0 ? `
@@ -1293,9 +1294,9 @@ export default class extends Controller {
                 class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-medium transition-colors"
                 data-action="click->plan-viewer#addExperienceToPlan"
                 data-experience-id="${exp.id}"
-                data-experience-title="${exp.title}"
-                data-experience-description="${exp.description || ''}"
-                data-experience-duration="${exp.formatted_duration || ''}"
+                data-experience-title="${escapeHtml(exp.title)}"
+                data-experience-description="${escapeHtml(exp.description || '')}"
+                data-experience-duration="${escapeHtml(exp.formatted_duration || '')}"
                 data-experience-locations="${exp.locations_count || 0}">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -1314,7 +1315,7 @@ export default class extends Controller {
       <a href="/plans/${plan.id}"
          class="group block bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow">
         <h4 class="font-semibold text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-          ${displayTitle}
+          ${escapeHtml(displayTitle)}
         </h4>
         <div class="flex items-center gap-3 mt-2 text-sm text-gray-600 dark:text-gray-400">
           <span>${plan.duration_days} ${this.daysWord(plan.duration_days)}</span>

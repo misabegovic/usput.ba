@@ -36,30 +36,27 @@ module Identifiable
   end
 
   class_methods do
-    # Find a record by its public-facing UUID
-    # Falls back to ID lookup for backwards compatibility during migration
+    # Find a record by its public-facing UUID.
     #
-    # @param id_or_uuid [String, Integer] The UUID or ID to search for
+    # UUID only. A row id used to answer here too, for the migration onto uuids,
+    # and that made every record walkable by counting — which is the one thing
+    # this concern exists to prevent.
+    #
+    # @param uuid [String] The UUID to search for
     # @return [ApplicationRecord, nil] The found record or nil
-    def find_by_public_id(id_or_uuid)
-      return nil if id_or_uuid.blank?
+    def find_by_public_id(uuid)
+      return nil unless uuid_format?(uuid)
 
-      # Try UUID first (36 chars with dashes, 32 without)
-      if uuid_format?(id_or_uuid)
-        find_by(uuid: id_or_uuid)
-      else
-        # Fall back to ID for backwards compatibility
-        find_by(id: id_or_uuid)
-      end
+      find_by(uuid: uuid)
     end
 
     # Find a record by its public-facing UUID, raising an error if not found
     #
-    # @param id_or_uuid [String, Integer] The UUID or ID to search for
+    # @param uuid [String] The UUID to search for
     # @return [ApplicationRecord] The found record
     # @raise [ActiveRecord::RecordNotFound] If the record is not found
-    def find_by_public_id!(id_or_uuid)
-      find_by_public_id(id_or_uuid) || raise(ActiveRecord::RecordNotFound, "Couldn't find #{name} with UUID or ID '#{id_or_uuid}'")
+    def find_by_public_id!(uuid)
+      find_by_public_id(uuid) || raise(ActiveRecord::RecordNotFound, "Couldn't find #{name} with UUID '#{uuid}'")
     end
 
     private

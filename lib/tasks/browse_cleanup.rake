@@ -47,14 +47,29 @@ namespace :browse do
       puts "  ✅ No orphaned Plan entries found"
     end
 
+    # Find orphaned Moment browse entries
+    moment_browse_ids = Browse.where(browsable_type: "Moment").pluck(:id, :browsable_id)
+    existing_moment_ids = Moment.pluck(:id)
+    orphaned_moments = moment_browse_ids.reject { |_bid, mid| existing_moment_ids.include?(mid) }
+
+    if orphaned_moments.any?
+      orphaned_browse_ids = orphaned_moments.map(&:first)
+      puts "  Found #{orphaned_moments.count} orphaned Moment browse entries"
+      Browse.where(id: orphaned_browse_ids).destroy_all
+      puts "  ✅ Deleted #{orphaned_moments.count} orphaned Moment entries"
+    else
+      puts "  ✅ No orphaned Moment entries found"
+    end
+
     puts "\n📊 Final counts:"
     puts "  Locations: #{Location.count} (Browse: #{Browse.where(browsable_type: 'Location').count})"
     puts "  Experiences: #{Experience.count} (Browse: #{Browse.where(browsable_type: 'Experience').count})"
     puts "  Plans: #{Plan.count} (Browse: #{Browse.where(browsable_type: 'Plan').count})"
+    puts "  Moments: #{Moment.publicly_visible.count} (Browse: #{Browse.where(browsable_type: 'Moment').count})"
     puts "\n✨ Browse cleanup complete!"
   end
 
-  desc "Re-sync all browse entries to match current location/experience/plan data"
+  desc "Re-sync all browse entries to match current location/experience/moment data"
   task resync: :environment do
     puts "🔄 Re-syncing Browse table with current data..."
 
@@ -78,6 +93,15 @@ namespace :browse do
     end
     puts "\n  ✅ Synced #{experience_count} experiences"
 
+    puts "\n📸 Syncing Moments..."
+    moment_count = 0
+    Moment.publicly_visible.includes(:location).find_each do |moment|
+      Browse.sync_record(moment)
+      moment_count += 1
+      print "\r  Synced: #{moment_count}" if moment_count % 10 == 0
+    end
+    puts "\n  ✅ Synced #{moment_count} moments"
+
     puts "\n✨ Browse re-sync complete!"
   end
 
@@ -98,6 +122,10 @@ namespace :browse do
     plans_browse = Browse.where(browsable_type: "Plan").count
     plans_diff = plans_browse - plans_actual
 
+    moments_actual = Moment.publicly_visible.count
+    moments_browse = Browse.where(browsable_type: "Moment").count
+    moments_diff = moments_browse - moments_actual
+
     puts "Locations:"
     puts "  Actual:  #{locations_actual}"
     puts "  Browse:  #{locations_browse}"
@@ -113,10 +141,15 @@ namespace :browse do
     puts "  Browse:  #{plans_browse}"
     puts "  Diff:    #{plans_diff > 0 ? "+#{plans_diff}" : plans_diff}"
 
+    puts "\nMoments:"
+    puts "  Actual:  #{moments_actual}"
+    puts "  Browse:  #{moments_browse}"
+    puts "  Diff:    #{moments_diff > 0 ? "+#{moments_diff}" : moments_diff}"
+
     puts "\nTotal Browse: #{Browse.count}"
     puts "=" * 50
 
-    total_orphaned = locations_diff + experiences_diff + plans_diff
+    total_orphaned = locations_diff + experiences_diff + plans_diff + moments_diff
     if total_orphaned > 0
       puts "\n⚠️  Found #{total_orphaned} orphaned browse entries"
       puts "Run 'rake browse:cleanup' to remove them"

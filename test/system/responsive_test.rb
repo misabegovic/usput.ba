@@ -123,13 +123,7 @@ class ResponsiveTest < ApplicationSystemTestCase
   private
 
   def login
-    visit login_path
-    within "form" do
-      fill_in "username", with: @user.username
-      fill_in "password", with: "password123"
-      click_button
-    end
-    assert_no_current_path login_path, wait: 5
+    sign_in_as(@user.username)
   end
 
   def each_signed_in_page

@@ -52,7 +52,8 @@
     <% end %>
   </div>
 
-  <div class="absolute inset-x-0 bottom-4 z-10 px-4">
+  <%# Low enough to sit at the card's foot, clear of the deck's scroll hint. %>
+  <div class="absolute inset-x-0 bottom-8 z-10 px-4">
     <%= render "plans/plan_step", plan: plan, location: location, visited: visited,
           show_photo: false, show_name: false, overlay: true, context: context %>
   </div>

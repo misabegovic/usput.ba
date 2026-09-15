@@ -103,6 +103,13 @@ bs:
       plan: Planovi
       moment: Uspomene
     moment_by: objavio/la %{user}
+    moment_like_add: Sviđa mi se
+    moment_like_undo: Ukloni sviđanje
+    moment_download: Preuzmi fotografiju
+    moment_share: Podijeli ovaj trenutak
+    moment_share_copied: Link kopiran
+    moment_share_failed: Nije moguće kopirati link
+    moment_like_sign_in: Prijavi se da označiš da ti se sviđa
     moments_home_subtitle: Fotografije koje su putnici podijelili sa svojih putovanja
     nearby: U blizini
     more_filters: Više filtera
@@ -401,13 +408,13 @@ bs:
       back: Nazad na plan
       subtitle: Prevuci mjesto udesno kada ga posjetiš da sačuvaš uspomenu.
       visited: Posjećeno
-      mark_visited: Provjeri jesam li tu
-      compass: S,SI,I,JI,J,JZ,Z,SZ
-      warmth: Ledeno,Hladno,Prohladno,Toplo
+      mark_visited: Označi kao posjećeno
+      out_of_range: Priđi na %{m} m da označiš kao posjećeno
       add_moment_prompt: Želiš li podijeliti svoj momenat s drugim putnicima iz ovog kraja?
       login_to_capture: Prijavi se da sačuvaš uspomene na ovom putovanju.
       too_far: Predaleko si (%{distance}). Priđi na manje od %{max} m da označiš posjetu.
       need_location: Ne možemo potvrditi tvoju lokaciju. Uključi lokaciju i pokušaj ponovo.
+      no_coordinates: Ovo mjesto još nema koordinate, pa prijava dolaska ne može biti potvrđena.
       locating: Tražimo te…
       imprecise: Još te ne možemo dovoljno precizno locirati. Sačekaj trenutak i pokušaj ponovo.
       visit_failed: Nije uspjelo. Pokušaj ponovo.
@@ -426,6 +433,11 @@ bs:
       share: Podijeli ovu uspomenu
       share_prompt: Želiš li podijeliti ovu uspomenu s drugim putnicima?
       make_private: Vrati na privatno
+      edit_moment: Uredi uspomenu
+      note_label: Tvoja bilješka
+      note_save: Sačuvaj bilješku
+      note_saved: Bilješka sačuvana
+      note_failed: Bilješka nije sačuvana
       public: Javno
       pending: Čeka pregled
       add_for_plan: Dodaj uspomene
@@ -643,7 +655,6 @@ bs:
     import: Import Profila
     add_favorite: Dodaj u omiljene
     remove_favorite: Ukloni iz omiljenih
-    mark_visited: Označi kao posjećeno
     avatar:
       remove: Ukloni sliku
       remove_confirm: Da li ste sigurni da želite ukloniti profilnu sliku?
@@ -880,6 +891,7 @@ bs:
       one: 1 lokacija
       other: '%{count} lokacija'
     show:
+      photos: Fotografije lokacija
       about: O iskustvu
       locations: Lokacije u iskustvu
       info: Informacije
@@ -904,6 +916,9 @@ bs:
     no_position: Lokacija nije dostupna
     no_route: Ruta nije dostupna
   locations:
+    not_found: Lokacija nije pronađena. Istraži druga odredišta.
+    retired: To mjesto se više ne nudi. Istraži druga odredišta.
+    explore_others: Istraži druga mjesta
     errors:
       held_by_travellers:
         one: Ovo mjesto se ne može obrisati — putnik ovdje ima zabilježenu posjetu ili trenutak.
@@ -933,6 +948,8 @@ bs:
       whatsapp: WhatsApp
       viber: Viber
     show:
+      photos: Fotografije
+      view_all: Pogledaj sve
       audio_tour: Audio Tura
       audio_tour_subtitle: Slušaj priču o ovoj lokaciji
       audio_not_supported: Tvoj preglednik ne podržava audio player.
@@ -1046,6 +1063,7 @@ bs:
   curator:
     title: Kurator Panel
     nav:
+      admin_photo_suggestions: Fotografije
       dashboard: Pregled
       locations: Lokacije
       experiences: Iskustva
@@ -1163,6 +1181,16 @@ bs:
       updated: Lokacija uspješno ažurirana
       deleted: Lokacija uspješno obrisana
       confirm_delete: Jesi li siguran da želiš obrisati %{name}?
+      confirm_delete_with_memories:
+        one: "Obrisati %{name}? Putnik ovdje ima 1 zabilježenu posjetu ili trenutak koji će također biti obrisan. Ovo se ne može poništiti — arhiviraj umjesto toga da sačuvaš."
+        other: "Obrisati %{name}? Putnici ovdje imaju %{count} zabilježenih posjeta i trenutaka koji će svi biti obrisani. Ovo se ne može poništiti — arhiviraj umjesto toga da ih sačuvaš."
+      archive: Arhiviraj
+      restore: Vrati
+      confirm_archive: "Arhivirati %{name}? Prestaje se nuditi putnicima; sve što su ovdje zabilježili ostaje sačuvano."
+      archived: Lokacija arhivirana — putnici je više ne vide, a njihove uspomene su sačuvane
+      restored: Lokacija vraćena — putnici je ponovo mogu pronaći
+      show_archived: Arhivirane
+      show_live: Aktivne
       tags: Oznake
       tags_placeholder: npr. priroda, istorijsko, za porodice
       tags_hint: Razdvoji oznake zarezom
@@ -1320,6 +1348,10 @@ bs:
         approval_failed: Nije uspjelo primjenjivanje promjene sadržaja
         rejection_failed: Nije uspjelo odbijanje promjene sadržaja
         already_reviewed: Ova promjena sadržaja je već pregledana
+  pagination:
+    aria_label: Paginacija
+    previous_short: Nazad
+    next_short: Naprijed
   travel_profile:
     checking_location: Provjeravamo vašu lokaciju...
     visit_recorded: Posjeta uspješno zabilježena!

@@ -1,0 +1,7 @@
+<%# Locals: moments, public_moments, context, tile.
+    Own first, then other travellers'; appended pages follow the same order. %>
+<% own = moments.to_a.select(&:displayable?).sort_by { |m| [ m.visibility_private_moment? ? 0 : 1, -m.created_at.to_i ] }
+   others = public_moments.to_a.select(&:displayable?) %>
+<% (own + others).each do |moment| %>
+  <%= render "plans/moment_gallery_item", moment: moment, context: context, tile: tile %>
+<% end %>

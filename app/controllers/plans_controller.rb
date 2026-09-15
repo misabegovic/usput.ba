@@ -56,7 +56,7 @@ class PlansController < ApplicationController
     lng = params[:lng].to_f
 
     # Find nearest location with a city name
-    nearest_location = Location.with_coordinates
+    nearest_location = Location.with_coordinates.not_archived
                                .where.not(city: [ nil, "" ])
                                .near([ lat, lng ], 100, units: :km)
                                .first
@@ -86,7 +86,7 @@ class PlansController < ApplicationController
     end
 
     # Get distinct city names from locations
-    city_names = Location.where("city ILIKE ?", "%#{query}%")
+    city_names = Location.not_archived.where("city ILIKE ?", "%#{query}%")
                          .where.not(city: [ nil, "" ])
                          .distinct
                          .pluck(:city)
@@ -133,7 +133,7 @@ class PlansController < ApplicationController
 
     # Standalone locations in this city, for the per-day "Add location" picker.
     # The client filters out ones already added to the plan.
-    locations = Location.where(city: city_name)
+    locations = Location.not_archived.where(city: city_name)
                         .order(:name)
                         .limit(50)
                         .map do |loc|
@@ -200,7 +200,7 @@ class PlansController < ApplicationController
 
     if locations.empty?
       # Try without filters if no locations match
-      locations = Location.where(city: city_name).order("RANDOM()").limit(20)
+      locations = Location.not_archived.where(city: city_name).order("RANDOM()").limit(20)
       if locations.any?
         warnings << I18n.t("plans.errors.no_matching_locations", default: "No locations matched your preferences, showing all available")
       end
@@ -300,7 +300,7 @@ class PlansController < ApplicationController
   end
 
   def find_matching_locations(city_name, budget, meat_lover, interests)
-    locations = Location.where(city: city_name)
+    locations = Location.not_archived.where(city: city_name)
 
     # Filter by budget (already validated by validate_budget)
     if budget.present?

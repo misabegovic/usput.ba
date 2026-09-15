@@ -105,6 +105,13 @@ en:
       plan: Plans
       moment: Moments
     moment_by: by %{user}
+    moment_like_add: Like this moment
+    moment_like_undo: Remove like
+    moment_download: Download photo
+    moment_share: Share this moment
+    moment_share_copied: Link copied
+    moment_share_failed: Could not copy the link
+    moment_like_sign_in: Sign in to like this moment
     moments_home_subtitle: Photos travellers shared from their trips
     nearby: Nearby
     more_filters: More filters
@@ -404,11 +411,11 @@ en:
       back: Back to plan
       subtitle: Swipe a place right once you've been there to keep a moment.
       visited: Visited
-      mark_visited: Check if I'm here
       add_moment_prompt: Would you share your moment with other travellers from this area?
       login_to_capture: Log in to capture moments on this trip.
       too_far: You're too far away (%{distance}). Get within %{max} m to mark the visit.
       need_location: We couldn't get your location. Enable location and try again.
+      no_coordinates: This place has no coordinates yet, so a check-in cannot be confirmed.
       locating: Finding you…
       imprecise: We can't place you accurately enough yet. Wait a moment and try again.
       visit_failed: That didn't go through. Try again.
@@ -420,8 +427,8 @@ en:
       shared_moments_here: Travellers' moments
       no_shared_moments: Be the first to share a moment here!
       deck_done: You've seen them all. Nice!
-      compass: N,NE,E,SE,S,SW,W,NW
-      warmth: Freezing,Cold,Cool,Warm
+      mark_visited: Mark as visited
+      out_of_range: Get within %{m} m to mark as visited
     moments:
       title: Moments
       privacy_note: Your photos are private — only you can see them, on this plan.
@@ -429,6 +436,11 @@ en:
       share: Share this moment
       share_prompt: Would you like to share this moment with other travellers?
       make_private: Make private
+      edit_moment: Edit moment
+      note_label: Your note
+      note_save: Save note
+      note_saved: Note saved
+      note_failed: That note could not be saved
       public: Public
       pending: Awaiting review
       add_for_plan: Add moments
@@ -592,6 +604,7 @@ en:
       one: 1 location
       other: '%{count} locations'
     show:
+      photos: Location photos
       about: About
       locations: Locations in experience
       info: Information
@@ -630,6 +643,9 @@ en:
     no_position: Location unavailable
     no_route: Route unavailable
   locations:
+    not_found: Location not found. Explore other destinations.
+    retired: That place is no longer listed. Explore other destinations.
+    explore_others: Explore other places
     errors:
       held_by_travellers:
         one: This place cannot be removed — a traveller has a visit or a moment recorded here.
@@ -659,6 +675,8 @@ en:
       whatsapp: WhatsApp
       viber: Viber
     show:
+      photos: Photos
+      view_all: View all
       audio_tour: Audio Tour
       audio_tour_subtitle: Listen to the story about this location
       audio_not_supported: Your browser does not support the audio player.
@@ -802,6 +820,10 @@ en:
     invalid_credentials: Invalid username or password.
     curator_required: You need curator privileges to access this page.
     admin_required: You need administrator privileges to access this page.
+  pagination:
+    aria_label: Pagination
+    previous_short: Previous
+    next_short: Next
   profile:
     my_moments:
       title: Your Moments
@@ -830,7 +852,6 @@ en:
     import: Import Profile
     add_favorite: Add to favorites
     remove_favorite: Remove from favorites
-    mark_visited: Mark as visited
     avatar:
       remove: Remove image
       remove_confirm: Are you sure you want to remove the profile picture?
@@ -1098,6 +1119,7 @@ en:
   curator:
     title: Curator Dashboard
     nav:
+      admin_photo_suggestions: Photos
       dashboard: Dashboard
       content: Content
       media: Media
@@ -1223,6 +1245,16 @@ en:
       updated: Location updated successfully
       deleted: Location deleted successfully
       confirm_delete: Are you sure you want to delete %{name}?
+      confirm_delete_with_memories:
+        one: "Delete %{name}? A traveller has 1 visit or moment recorded here and it will be deleted too. This cannot be undone — archive instead to keep it."
+        other: "Delete %{name}? Travellers have %{count} visits and moments recorded here and they will all be deleted. This cannot be undone — archive instead to keep them."
+      archive: Archive
+      restore: Restore
+      confirm_archive: "Archive %{name}? It stops being offered to travellers; everything they recorded there is kept."
+      archived: Location archived — travellers no longer see it, and their memories are kept
+      restored: Location restored — travellers can find it again
+      show_archived: Archived
+      show_live: Live
       suggest_photo: Suggest Photo
       tags: Tags
       tags_placeholder: e.g. nature, historic, family-friendly

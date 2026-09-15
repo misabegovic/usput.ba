@@ -16,6 +16,20 @@ export default class extends Controller {
     this.updateButtonVisibility()
   }
 
+  // The gallery announces reaching its last loaded tile. Preventing the default
+  // is how it learns someone is fetching, so it waits instead of wrapping.
+  async loadFromEdge(event) {
+    if (this.loading || !this.hasMore()) return
+
+    event.preventDefault()
+    await this.loadMore(event)
+    event.detail.advance()
+  }
+
+  hasMore() {
+    return this.pageValue * this.perPageValue < this.totalCountValue
+  }
+
   async loadMore(event) {
     event.preventDefault()
 
@@ -79,10 +93,7 @@ export default class extends Controller {
   updateButtonVisibility() {
     if (!this.hasButtonTarget) return
 
-    const loadedCount = this.pageValue * this.perPageValue
-    const hasMore = loadedCount < this.totalCountValue
-
-    if (hasMore) {
+    if (this.hasMore()) {
       this.buttonTarget.classList.remove("hidden")
     } else {
       this.buttonTarget.classList.add("hidden")

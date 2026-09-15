@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { escapeHtml } from "services/html_escape"
 
 export default class extends Controller {
   static targets = ["addButton", "noplanMessage", "hasplanMessage", "feedback", "planSelector"]
@@ -87,8 +88,8 @@ export default class extends Controller {
         <select data-action="change->add-to-plan#selectPlan"
                 class="w-full px-3 py-2 rounded-lg bg-white text-gray-900 border border-white/30 focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50">
           ${this.allPlans.map(plan => `
-            <option value="${plan.id}" ${plan.id === this.selectedPlanId ? 'selected' : ''} class="text-gray-900 bg-white">
-              ${plan.city?.display_name || plan.city?.name || 'Plan'} - ${plan.duration_days} ${plan.duration_days === 1 ? 'dan' : 'dana'}
+            <option value="${escapeHtml(plan.id)}" ${plan.id === this.selectedPlanId ? 'selected' : ''} class="text-gray-900 bg-white">
+              ${escapeHtml(plan.city?.display_name || plan.city?.name || 'Plan')} - ${plan.duration_days} ${plan.duration_days === 1 ? 'dan' : 'dana'}
             </option>
           `).join('')}
         </select>

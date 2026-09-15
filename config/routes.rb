@@ -45,6 +45,7 @@ Rails.application.routes.draw do
   # Travel profile page (accessible to everyone, syncs for logged-in users)
   get "profile", to: "travel_profiles#page", as: :profile_page
   get "profile/plans", to: "travel_profiles#my_plans", as: :profile_plans
+  get "profile/moments", to: "travel_profiles#my_moments", as: :profile_moments
   # No :show — it rendered the whole profile blob as JSON and nothing consumed it;
   # the client reads its own copy back through :sync.
   resource :travel_profile, only: [ :update ], controller: "travel_profiles" do
@@ -88,6 +89,18 @@ Rails.application.routes.draw do
     resources :reviews, only: [ :index, :create ]
   end
 
+  # A moment's own address renders the moments view with that moment open — the
+  # same view, not one that resembles it, so the count, the order and the paging
+  # agree however you arrived. The url is the moment's; the surface is the one it
+  # belongs to.
+  get "moments/:id", to: "new_design#explore", as: :moment, defaults: { types: [ "moment" ] }
+
+  # A moment is reacted to from wherever it is browsed, which is not the plan
+  # that captured it — so the like hangs off the moment itself.
+  resources :moments, only: [] do
+    resource :like, only: [ :create, :destroy ], module: :moments
+  end
+
   # Plan wizard (must be before resources :plans to avoid matching plans#show)
   get "plans/wizard", to: "plans#wizard", as: :plan_wizard
   get "plans/wizard/:city_slug", to: "plans#wizard", as: :plan_wizard_city
@@ -112,7 +125,7 @@ Rails.application.routes.draw do
     # Private photos a logged-in traveller attaches to this plan's locations.
     # The photo is served by our own action rather than Active Storage's route,
     # which does not check the session — see MomentsController#photo.
-    resources :moments, only: [ :index, :create, :destroy ] do
+    resources :moments, only: [ :index, :create, :destroy, :update ] do
       member do
         get :photo
         patch :publish
@@ -127,6 +140,10 @@ Rails.application.routes.draw do
       resources :photo_suggestions, only: [ :new, :create ]
       collection do
         get :needs_photos
+      end
+      member do
+        patch :archive
+        patch :restore
       end
     end
     resources :experiences

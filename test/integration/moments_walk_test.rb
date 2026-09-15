@@ -28,6 +28,13 @@ class MomentsWalkTest < ActionDispatch::IntegrationTest
     get profile_page_path
 
     assert_response :success
+    # The grid is fetched lazily now, so the profile carries the frame and the
+    # frame carries the tiles.
+    assert_select "turbo-frame#my-moments-frame[src=?]", profile_moments_path
+
+    get profile_moments_path
+
+    assert_response :success
     assert_match @location.name, response.body
     assert_select "img[src*='/moments/']", { minimum: 1 }, "the moment photo renders on the profile"
   end

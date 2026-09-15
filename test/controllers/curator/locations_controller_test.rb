@@ -685,6 +685,110 @@ class Curator::LocationsControllerTest < ActionDispatch::IntegrationTest
     assert_includes [ 302, 400, 422 ], response.status
   end
 
+  # The action bar hides behind curator_edit_delete, so both the button being
+  # there and the flag actually gating it are worth asserting — the flag was
+  # unset in a working checkout and every action silently disappeared.
+  test "the archive button shows on the location page when the flag is on" do
+    Flipper.enable(:curator_edit_delete)
+    login_as(@curator)
+
+    get curator_location_path(@location)
+
+    assert_response :success
+    assert_match archive_curator_location_path(@location), response.body
+    assert_match curator_location_path(@location), response.body
+  ensure
+    Flipper.disable(:curator_edit_delete)
+  end
+
+  test "an archived location offers restore instead of archive" do
+    Flipper.enable(:curator_edit_delete)
+    @location.archive!
+    login_as(@curator)
+
+    get curator_location_path(@location)
+
+    assert_response :success
+    assert_match restore_curator_location_path(@location), response.body
+    assert_no_match archive_curator_location_path(@location), response.body
+  ensure
+    Flipper.disable(:curator_edit_delete)
+  end
+
+  test "the action bar disappears entirely when the flag is off" do
+    Flipper.disable(:curator_edit_delete)
+    login_as(@curator)
+
+    get curator_location_path(@location)
+
+    assert_response :success
+    assert_no_match archive_curator_location_path(@location), response.body
+  end
+
+  test "archiving hides the place from travellers and keeps it for the curator" do
+    login_as(@curator)
+
+    patch archive_curator_location_path(@location)
+
+    assert_redirected_to curator_location_path(@location)
+    assert @location.reload.archived?
+
+    get curator_locations_path(archived: "1")
+    assert_response :success
+    assert_match @location.name, response.body
+
+    patch restore_curator_location_path(@location)
+    assert_not @location.reload.archived?
+  end
+
+  test "the delete confirmation names the memories it will destroy" do
+    Flipper.enable(:curator_edit_delete)
+    traveller = User.create!(username: "held_#{SecureRandom.hex(4)}", password: "password123")
+    plan = Plan.explore_bosnia_for(traveller)
+    traveller.plan_visits.create!(plan: plan, location: @location)
+    moment = traveller.moments.build(plan: plan, location: @location, note: "here")
+    moment.photo.attach(io: StringIO.new("fake"), filename: "m.jpg", content_type: "image/jpeg")
+    moment.save!
+
+    login_as(@curator)
+    get curator_location_path(@location)
+
+    assert_response :success
+    assert_match I18n.t("curator.locations.confirm_delete_with_memories", name: @location.name, count: 2),
+                 CGI.unescapeHTML(response.body)
+  ensure
+    Flipper.disable(:curator_edit_delete)
+    traveller&.destroy
+  end
+
+  test "the delete confirmation stays plain when nothing was recorded there" do
+    Flipper.enable(:curator_edit_delete)
+    login_as(@curator)
+
+    get curator_location_path(@location)
+
+    assert_response :success
+    body = CGI.unescapeHTML(response.body)
+    assert_match I18n.t("curator.locations.confirm_delete", name: @location.name), body
+    assert_no_match(/will all be deleted/, body)
+  ensure
+    Flipper.disable(:curator_edit_delete)
+  end
+
+  # CuratorActivity.record validates the action name and the caller swallows the
+  # failure, so a name missing from ACTIONS logs a line and records nothing.
+  test "archiving and restoring are recorded in the curator activity trail" do
+    login_as(@curator)
+
+    assert_difference -> { CuratorActivity.by_action("archive_location").count }, 1 do
+      patch archive_curator_location_path(@location)
+    end
+
+    assert_difference -> { CuratorActivity.by_action("restore_location").count }, 1 do
+      patch restore_curator_location_path(@location)
+    end
+  end
+
   private
 
   def login_as(user)

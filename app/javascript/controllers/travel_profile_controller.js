@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import { travelProfileService } from "services/travel_profile_service"
+import { escapeHtml } from "services/html_escape"
 
 // Travel Profile Controller
 // Manages user's travel data in localStorage including:
@@ -405,10 +406,10 @@ export default class extends Controller {
       const el = document.createElement("div")
       el.className = "flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
       el.innerHTML = `
-        <span class="text-3xl mr-3">${badge.icon}</span>
+        <span class="text-3xl mr-3">${escapeHtml(badge.icon)}</span>
         <div>
-          <p class="font-medium text-gray-900 dark:text-white">${badgeName}</p>
-          <p class="text-sm text-gray-500 dark:text-gray-400">${badgeDescription}</p>
+          <p class="font-medium text-gray-900 dark:text-white">${escapeHtml(badgeName)}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">${escapeHtml(badgeDescription)}</p>
         </div>
       `
       container.appendChild(el)
@@ -439,7 +440,7 @@ export default class extends Controller {
           </svg>
         </div>
         <div class="flex-grow min-w-0">
-          <p class="font-medium text-gray-900 dark:text-white truncate">${item.name}</p>
+          <p class="font-medium text-gray-900 dark:text-white truncate">${escapeHtml(item.name)}</p>
           <p class="text-xs text-gray-500 dark:text-gray-400">${this.formatDate(item.viewedAt)}</p>
         </div>
       `
@@ -471,8 +472,8 @@ export default class extends Controller {
           </svg>
         </div>
         <div class="flex-grow min-w-0">
-          <p class="font-medium text-gray-900 dark:text-white truncate">${item.name}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400">${item.city ? item.city + " - " : ""}${this.formatDate(item.visitedAt)}</p>
+          <p class="font-medium text-gray-900 dark:text-white truncate">${escapeHtml(item.name)}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">${item.city ? escapeHtml(item.city) + " - " : ""}${this.formatDate(item.visitedAt)}</p>
         </div>
       `
       container.appendChild(el)
@@ -503,7 +504,7 @@ export default class extends Controller {
           </svg>
         </div>
         <div class="flex-grow min-w-0">
-          <p class="font-medium text-gray-900 dark:text-white truncate">${item.name}</p>
+          <p class="font-medium text-gray-900 dark:text-white truncate">${escapeHtml(item.name)}</p>
           <p class="text-xs text-gray-500 dark:text-gray-400">${this.formatDate(item.addedAt)}</p>
         </div>
       `
@@ -1019,8 +1020,8 @@ export default class extends Controller {
                   <span class="plane-icon">✈️</span>
                 </div>
                 <div class="airport">
-                  <div class="airport-code">${topCity.substring(0, 3).toUpperCase()}</div>
-                  <div class="airport-name">${topCity}</div>
+                  <div class="airport-code">${escapeHtml(topCity.substring(0, 3).toUpperCase())}</div>
+                  <div class="airport-name">${escapeHtml(topCity)}</div>
                 </div>
               </div>
               <div class="flight-stats">
@@ -1066,7 +1067,7 @@ export default class extends Controller {
               <div class="section-title">Posjećene Destinacije</div>
               <div class="destination-list">
                 ${recentVisits.length > 0
-                  ? recentVisits.map(v => `<span class="destination-tag">${v.name}</span>`).join("")
+                  ? recentVisits.map(v => `<span class="destination-tag">${escapeHtml(v.name)}</span>`).join("")
                   : '<span class="destination-tag">Čeka te avantura!</span>'
                 }
               </div>
@@ -1076,7 +1077,7 @@ export default class extends Controller {
             <div class="badges-row">
               <span class="badges-label">Achievements</span>
               <div class="badge-icons">
-                ${topBadges.map(b => `<span class="badge-icon" title="${b.name}">${b.icon}</span>`).join("")}
+                ${topBadges.map(b => `<span class="badge-icon" title="${escapeHtml(b.name)}">${escapeHtml(b.icon)}</span>`).join("")}
               </div>
             </div>
             ` : ""}
@@ -1091,7 +1092,7 @@ export default class extends Controller {
 
             <div class="stub-route">
               <div class="stub-codes">
-                DOM <span class="stub-arrow">→</span> ${topCity.substring(0, 3).toUpperCase()}
+                DOM <span class="stub-arrow">→</span> ${escapeHtml(topCity.substring(0, 3).toUpperCase())}
               </div>
             </div>
 
@@ -1215,7 +1216,7 @@ export default class extends Controller {
       icon = '<svg class="w-5 h-5 mr-2 flex-shrink-0 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>'
     }
 
-    feedback.innerHTML = `<div class="flex items-center">${icon}<span>${message}</span></div>`
+    feedback.innerHTML = `<div class="flex items-center">${icon}<span>${escapeHtml(message)}</span></div>`
 
     // Auto-hide after delay (except for loading/info messages)
     if (type !== "info") {
@@ -1299,10 +1300,10 @@ export default class extends Controller {
     modal.className = "fixed inset-0 bg-black/50 flex items-center justify-center z-50"
     modal.innerHTML = `
       <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center max-w-sm mx-4 transform animate-bounce-in">
-        <div class="text-6xl mb-4">${badge.icon}</div>
+        <div class="text-6xl mb-4">${escapeHtml(badge.icon)}</div>
         <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">${this.t('new_badge')}</h3>
-        <p class="text-xl font-semibold text-emerald-600 dark:text-emerald-400 mb-2">${badgeName}</p>
-        <p class="text-gray-600 dark:text-gray-400 mb-6">${badgeDescription}</p>
+        <p class="text-xl font-semibold text-emerald-600 dark:text-emerald-400 mb-2">${escapeHtml(badgeName)}</p>
+        <p class="text-gray-600 dark:text-gray-400 mb-6">${escapeHtml(badgeDescription)}</p>
         <button class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2 rounded-lg font-medium transition-colors">
           ${this.t('badge_awesome')}
         </button>

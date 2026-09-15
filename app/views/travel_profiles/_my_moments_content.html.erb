@@ -1,0 +1,44 @@
+<%# Locals: moments (one page of the traveller's own, private + public).
+    load-more appends, the same as the explore bands: the gallery reads whatever
+    tiles are in the DOM, so appending is what lets a swipe walk the whole
+    collection rather than stopping at the page boundary. %>
+<turbo-frame id="my-moments-frame">
+  <% if moments.any? %>
+    <div data-controller="load-more photo-gallery"
+         data-photo-gallery-index-value="0"
+         data-photo-gallery-total-value="<%= moments.total_count %>"
+         data-action="photo-gallery:edgeReached->load-more#loadFromEdge"
+         data-load-more-url-value="<%= profile_moments_path %>"
+         data-load-more-resource-type-value="my_moments"
+         data-load-more-page-value="1"
+         data-load-more-total-count-value="<%= moments.total_count %>"
+         data-load-more-per-page-value="<%= TravelProfilesController::PER_PAGE %>">
+
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3" data-load-more-target="container">
+        <%= render "travel_profiles/my_moments_items", moments: moments %>
+      </div>
+
+      <%= render "shared/photo_lightbox", count: moments.total_count, moment_caption: "profile" %>
+
+      <div class="mt-8 hidden text-center" data-load-more-target="loading">
+        <div class="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-emerald-500"></div>
+      </div>
+
+      <% if moments.total_count > TravelProfilesController::PER_PAGE %>
+        <div class="mt-8 text-center">
+          <button type="button"
+                  data-load-more-target="button"
+                  data-action="click->load-more#loadMore"
+                  class="inline-flex items-center rounded-full bg-gray-100 px-6 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+            <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+            <%= t("explore.load_more") %>
+          </button>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="py-4 text-center text-sm text-gray-500 dark:text-gray-400"><%= t("profile.my_moments.empty") %></p>
+  <% end %>
+</turbo-frame>

@@ -47,8 +47,7 @@
 
     <p class="hidden mt-2 <%= hint_class %> rounded-full bg-black/60 px-3 py-1 text-sm font-semibold text-white"
        data-geo-visit-target="hint"
-       data-directions="<%= t('plans.start.compass', default: 'N,NE,E,SE,S,SW,W,NW') %>"
-       data-warmth="<%= t('plans.start.warmth', default: 'Freezing,Cold,Cool,Warm') %>"
+       data-out-of-range="<%= t('plans.start.out_of_range', m: (RecordsVisits::MAX_VISIT_DISTANCE_KM * 1000).round) %>"
        data-enable-location="<%= t('plans.start.need_location') %>"
        data-locating="<%= t('plans.start.locating') %>"
        data-imprecise="<%= t('plans.start.imprecise') %>"

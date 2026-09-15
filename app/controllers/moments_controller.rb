@@ -3,6 +3,11 @@
 class MomentsController < ApplicationController
   include ServesMomentPhotos
 
+  # Surfaces that draw a moment as its own tile in a grid: the answer rewrites or
+  # removes that tile. Everywhere else the moment lives inside a place's strip,
+  # which is redrawn whole.
+  TILE_CONTEXTS = %w[browse caption profile my_moments].freeze
+
   before_action :require_login, except: :index
   before_action :set_plan
 
@@ -12,19 +17,29 @@ class MomentsController < ApplicationController
     # still needs somewhere to upload to, and that is their explore plan. A guest
     # gets no plan and the form renders as a sign-in link.
     @plan ||= Plan.explore_bosnia_for(current_user) if logged_in?
+    @page = [ (params[:moments_page] || params[:page]).to_i, 1 ].max
     @moments = if logged_in?
-      current_user.moments.where(location: @location).with_attached_photo.includes(:plan).recent_own
+      current_user.moments.where(location: @location)
+                  .with_attached_photo.includes(:plan).newest_first.page(@page).per(Moment::PAGE_SIZE)
     else
-      Moment.none
+      Moment.none.page(1)
     end
+    # Yours are already in @moments, private and public alike. Leaving them out
+    # here keeps the two lists disjoint, so the counts that add them are right and
+    # a page arrives full instead of losing rows the gallery would drop anyway.
     @public_moments = Moment.where(location: @location)
-                            .with_attached_photo.recent_public
+                            .with_attached_photo.includes(:user)
+                            .publicly_visible.not_by(current_user)
+                            .newest_first.page(@page).per(Moment::PAGE_SIZE)
+
+    return render partial: "plans/moment_gallery_items",
+                  locals: gallery_locals, layout: false if params[:partial] == "moments"
 
     render layout: false
   end
 
   def create
-    @moment = current_user.moments.build(moment_params)
+    @moment = current_user.moments.build(moment_params.merge(photo: CameraPhoto.as_jpeg(params.dig(:moment, :photo))))
     @moment.plan = @plan
     @moment.location = Location.find_by_public_id!(params[:moment][:location_id])
 
@@ -44,6 +59,25 @@ class MomentsController < ApplicationController
   def photo
     moment = current_user.moments.find_by_public_id!(params[:id])
     stream_moment_photo(moment, public: false)
+  end
+
+  # Edited in the viewer, which reads the tile — so the answer is the tile,
+  # plus a line saying it landed.
+  def update
+    moment = current_user.moments.find_by_public_id!(params[:id])
+    saved = moment.update(note: params.require(:moment).permit(:note)[:note])
+    scope = params[:scope].presence || "my_moments"
+
+    render turbo_stream: [
+      turbo_stream.replace(helpers.dom_id(moment),
+                           partial: "new_design/explore/my_moment_card",
+                           locals: { moment: moment }),
+      turbo_stream.replace("#{scope}_moment_status",
+                           partial: "shared/moment_status",
+                           locals: { scope: scope,
+                                     message: t(saved ? "plans.moments.note_saved"
+                                                      : "plans.moments.note_failed") })
+    ]
   end
 
   def publish
@@ -67,7 +101,7 @@ class MomentsController < ApplicationController
     respond_to do |format|
       format.html { redirect_back fallback_location: plan_path(@plan), notice: t("flash.moment.destroyed") }
       format.turbo_stream do
-        if params[:context] == "browse"
+        if TILE_CONTEXTS.include?(params[:context])
           render turbo_stream: turbo_stream.remove(card)
         else
           render :update, locals: { location: location }
@@ -77,6 +111,14 @@ class MomentsController < ApplicationController
   end
 
   private
+
+  # The panel and its load-more both render the same tiles from the same shape.
+  def gallery_locals
+    narrow = params[:context].in?(%w[explore walk])
+    { moments: @moments, public_moments: @public_moments, context: params[:context],
+      tile: narrow ? { wrapper: "text-center", image: "aspect-square w-full", size: "thumb", fill: [ 200, 200 ], inline_controls: true }
+                   : { wrapper: "flex-shrink-0 snap-start w-48 sm:w-56", image: "h-36 sm:h-40 w-full", size: "square", fill: [ 400, 300 ] } }
+  end
 
   def respond_with_visibility(moment, notice)
     respond_to do |format|
@@ -90,12 +132,13 @@ class MomentsController < ApplicationController
   # An absent context is the strip, not a reload: the gallery drops the param
   # when its frame was loaded without one, and reloading mid-walk to publish a
   # photo loses the traveller's place in the deck.
+  # "caption" rewrites the same tile as "browse": the caption reads that tile.
   def render_visibility_change(moment)
     case params[:context]
-    when "browse"
+    when "browse", "caption", "my_moments"
       render turbo_stream: turbo_stream.replace(helpers.dom_id(moment),
                                                 partial: "new_design/explore/my_moment_card",
-                                                locals: { moment: moment, index: params[:index].to_i })
+                                                locals: { moment: moment })
     when "profile"
       render turbo_stream: turbo_stream.replace(helpers.dom_id(moment),
                                                 partial: "travel_profiles/my_moment_tile",
@@ -119,6 +162,6 @@ class MomentsController < ApplicationController
   end
 
   def moment_params
-    params.require(:moment).permit(:photo, :note, :taken_at)
+    params.require(:moment).permit(:photo, :note)
   end
 end

@@ -391,7 +391,45 @@ class TravelProfilesControllerTest < ActionDispatch::IntegrationTest
     other_plan&.destroy
   end
 
+  # === Moments frame tests ===
+
+  test "the moments frame pages instead of stopping at the first slice" do
+    login_as(@user)
+    total = TravelProfilesController::PER_PAGE + 2
+    made = total.times.map { own_moment }
+
+    get profile_moments_path
+    assert_response :success
+    first_page = css_select("[data-photo-gallery-target='thumbnail']").size
+    assert_equal TravelProfilesController::PER_PAGE, first_page,
+      "the first page must hold exactly PER_PAGE tiles"
+
+    get profile_moments_path(page: 2)
+    assert_response :success
+    second_page = css_select("[data-photo-gallery-target='thumbnail']").size
+    assert_equal total - TravelProfilesController::PER_PAGE, second_page,
+      "the remainder must be reachable on page two — this is the bug being fixed"
+
+    # The newest leads, so the oldest is the one stranded when paging is missing.
+    assert_select "##{ActionView::RecordIdentifier.dom_id(made.first)}"
+  end
+
+  test "the moments frame gives a guest nothing" do
+    get profile_moments_path
+
+    # Answered, and empty — a 404 would satisfy "no tiles" without the action
+    # ever having decided anything.
+    assert_response :no_content
+  end
+
   private
+
+  def own_moment
+    moment = @user.moments.build(plan: @plan, location: @location)
+    moment.photo.attach(io: File.open(file_fixture("test_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
+    moment.save!
+    moment
+  end
 
   def login_as(user)
     post login_path, params: { username: user.username, password: "password123" }

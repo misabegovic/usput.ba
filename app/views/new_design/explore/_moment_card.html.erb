@@ -26,22 +26,30 @@
 <% end %>
 
 <% if expandable %>
-  <div class="group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
+  <%# Column, not a block: a moment without a note leaves the grid row's height
+      unfilled and the heart rides up out of line with its neighbours. %>
+  <%= turbo_frame_tag dom_id(moment, :public), class: "group flex h-full flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden" do %>
     <button type="button"
             data-action="click->photo-gallery#openLightbox"
             data-photo-gallery-target="thumbnail"
             data-photo-gallery-full-url="<%= url_for(moment.photo.variant(resize_to_limit: [ 1080, 1080 ])) if moment.displayable? %>"
+            <%= tag.attributes(moment_caption_data(moment, scope: "moments", download_url: rails_blob_path(moment.photo, disposition: "attachment"))) %>
             class="block w-full cursor-zoom-in">
       <%= media %>
     </button>
 
     <%= render "new_design/explore/moment_card_body", moment: moment, linked: true,
           byline: t("explore.moment_by", user: moment.user.username) %>
-  </div>
+
+    <div class="mt-auto flex items-center gap-2 px-4 pb-4">
+      <%= render "new_design/explore/moment_card_likes", moment: moment, scope: "moments" %>
+      <span class="ml-auto text-xs text-gray-400 dark:text-gray-500"><%= moment_uploaded_at(moment) %></span>
+    </div>
+  <% end %>
 <% else %>
   <%= link_to location_path(moment.location), class: "group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-lg transition-all overflow-hidden", data: { turbo_frame: "_top" } do %>
     <%= media %>
     <%= render "new_design/explore/moment_card_body", moment: moment,
-          byline: t("explore.moment_by", user: moment.user.username) %>
+          byline: "#{t("explore.moment_by", user: moment.user.username)} · #{moment_uploaded_at(moment)}" %>
   <% end %>
 <% end %>

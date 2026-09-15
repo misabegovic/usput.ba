@@ -977,4 +977,25 @@ class BrowseTest < ActiveSupport::TestCase
 
     location.destroy
   end
+
+  # Retiring a place answers the same question unpublishing answers for a plan
+  # or a moment, so the existing after_save sync takes it out of the index.
+  test "archiving a location takes it out of the index and restoring puts it back" do
+    location = create_test_location(name: "Retired Place")
+    Browse.sync_record(location)
+
+    assert Browse.exists?(browsable: location)
+
+    location.archive!
+
+    assert_not Browse.syncable?(location)
+    assert_not Browse.exists?(browsable: location)
+
+    location.restore!
+
+    assert Browse.syncable?(location)
+    assert Browse.exists?(browsable: location)
+
+    location.destroy
+  end
 end

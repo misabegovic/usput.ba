@@ -1,6 +1,6 @@
 <%# Locals: plan, locations. The snap slots, dealt on load or appended on scroll. %>
 <% locations.each do |location| %>
-  <div class="flex h-full snap-start items-center justify-center px-3 py-2">
+  <div class="flex h-full snap-start items-center justify-center px-3 py-1">
     <%# Width derived from the slot height at 2:3, clamped to the screen —
         the card always fits and always centers, portrait or landscape. %>
     <div class="w-[min(100%,calc((100dvh-10rem)*0.62))]">

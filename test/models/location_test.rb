@@ -81,9 +81,23 @@ class LocationTest < ActiveSupport::TestCase
   # Rails' format validator matches anywhere in the string, so an unanchored URL
   # regexp accepted any scheme that carried an http(s) url somewhere in it — and
   # both fields are rendered as hrefs.
-  # Interim guard: a traveller's record is never destroyed by a cascade, and the
-  # columns holding it are not nullable, so the location cannot go while they
-  # exist. Retiring a location instead of removing it is the follow-up.
+  test "a url carrying a hostile scheme is refused however it hides a valid one" do
+    [
+      "javascript:alert(1)/*http://a.com*/",
+      "javascript:alert(1)#http://a.com",
+      " javascript:alert(1)\nhttps://a.com"
+    ].each do |hostile|
+      location = Location.new(@valid_params.merge(website: hostile, video_url: hostile))
+
+      assert_not location.valid?, "#{hostile.inspect} must not validate"
+      assert_includes location.errors[:website], "must be a valid URL"
+      assert_includes location.errors[:video_url], "must be a valid URL"
+    end
+  end
+
+  # The default answer for every destroy path. Retiring is the ordinary way out
+  # of the catalogue now; destroy_with_traveller_records! is the one opt-in past
+  # this, and it is covered below.
   test "a location travellers have reached refuses to be destroyed" do
     location = Location.create!(@valid_params)
     user = User.create!(username: "reached_it", password: "password123")
@@ -97,6 +111,79 @@ class LocationTest < ActiveSupport::TestCase
     assert location.reload.destroy
   ensure
     user&.destroy
+  end
+
+  test "archiving keeps the location and everything travellers recorded there" do
+    location = Location.create!(@valid_params)
+    user = User.create!(username: "kept_it", password: "password123")
+    visit = user.plan_visits.create!(plan: Plan.explore_bosnia_for(user), location: location)
+
+    location.archive!
+
+    assert location.reload.archived?
+    assert Location.exists?(location.id)
+    assert PlanVisit.exists?(visit.id)
+    assert_not_includes Location.not_archived, location
+    assert_includes Location.archived, location
+
+    location.restore!
+    assert_not location.reload.archived?
+    assert_includes Location.not_archived, location
+  ensure
+    visit&.destroy
+    location&.reload&.destroy
+    user&.destroy
+  end
+
+  # The executor reaches for soft_delete before falling back to destroy, so the
+  # name is what stops the AI content tool hard-deleting a place.
+  test "soft_delete archives rather than destroying" do
+    location = Location.create!(@valid_params)
+
+    location.soft_delete
+
+    assert location.reload.archived?
+    assert Location.exists?(location.id)
+  ensure
+    location&.destroy
+  end
+
+  test "destroy_with_traveller_records! takes the memories and the location" do
+    location = Location.create!(@valid_params)
+    user = User.create!(username: "deleted_it", password: "password123")
+    plan = Plan.explore_bosnia_for(user)
+    visit = user.plan_visits.create!(plan: plan, location: location)
+    moment = user.moments.build(plan: plan, location: location, note: "was here")
+    moment.photo.attach(io: StringIO.new("fake image data"), filename: "moment.jpg", content_type: "image/jpeg")
+    moment.save!
+
+    assert_equal 2, location.held_records_count
+
+    location.destroy_with_traveller_records!
+
+    assert_not Location.exists?(location.id)
+    assert_not PlanVisit.exists?(visit.id)
+    assert_not Moment.exists?(moment.id)
+  ensure
+    user&.destroy
+  end
+
+  # The opt-in is per-call, not a mode the record stays in.
+  test "the guard is back in force after a cascading destroy" do
+    survivor = Location.create!(@valid_params.merge(name: "Survivor", lat: 43.9, lng: 18.5))
+    doomed = Location.create!(@valid_params.merge(name: "Doomed", lat: 43.8, lng: 18.3))
+    user = User.create!(username: "twice_over", password: "password123")
+    plan = Plan.explore_bosnia_for(user)
+    user.plan_visits.create!(plan: plan, location: doomed)
+    user.plan_visits.create!(plan: plan, location: survivor)
+
+    doomed.destroy_with_traveller_records!
+
+    assert_not survivor.destroy
+    assert Location.exists?(survivor.id)
+  ensure
+    user&.destroy
+    survivor&.reload&.destroy
   end
 
   test "phone validation" do

@@ -115,6 +115,15 @@ class ExploreBosniaTest < ActionDispatch::IntegrationTest
     assert_select "[data-plan-deck-target='card'][data-plan-deck-lat]", count: 0
   end
 
+  test "the deck's next page without a position answers instead of crashing" do
+    login_as(@user)
+
+    get explore_bosnia_experience_path("history"), as: :turbo_stream
+
+    assert_response :success
+    assert_no_match(/deck-card|plan-deck-lat/, response.body)
+  end
+
   test "a budget filter narrows the deck and keeps closest first" do
     @near.update!(budget: :low)
     @mid.update!(budget: :high)
@@ -775,7 +784,8 @@ class ExploreBosniaTest < ActionDispatch::IntegrationTest
     get explore_bosnia_experience_path("history", **SARAJEVO)
 
     assert_response :success
-    assert_select "[data-geo-visit-target='hint'][data-warmth=?]", I18n.t("plans.start.warmth"), minimum: 1
+    assert_select "[data-geo-visit-target='hint'][data-out-of-range=?]",
+      I18n.t("plans.start.out_of_range", m: (RecordsVisits::MAX_VISIT_DISTANCE_KM * 1000).round), minimum: 1
     assert_select "[data-geo-visit-target='hint'][data-enable-location=?]", I18n.t("plans.start.need_location"), minimum: 1
   end
 

@@ -89,6 +89,8 @@ class BrowseAdapter
       return nil unless moment.visibility_public_moment? && moment.approved?
 
       location = moment.location
+      # Blank seasons and budget read as wildcards, so a moment matched every
+      # filter rather than none.
       {
         title: location.name,
         description: build_moment_description(moment),
@@ -96,11 +98,13 @@ class BrowseAdapter
         city_name: location.city,
         lat: location.lat,
         lng: location.lng,
-        average_rating: nil,
-        reviews_count: 0,
-        budget: nil,
+        average_rating: location.average_rating,
+        # Relevance reads this column, and a like is the only response a moment
+        # can receive — without it every moment at a place sorts identically.
+        reviews_count: moment.likes_count,
+        budget: location.budget_before_type_cast,
         category_keys: location.category_keys,
-        seasons: [],
+        seasons: location.seasons,
         ai_generated: false
       }
     end
@@ -111,6 +115,8 @@ class BrowseAdapter
       parts = []
       parts << moment.note if moment.note.present?
       parts << moment.location.name if moment.location.name.present?
+      # Holds the unaccented alias, so "orasje" reaches Orašje.
+      parts << moment.location.tags.join(" ") if moment.location.tags.present?
       parts << moment.location.city if moment.location.city.present?
       parts << moment.user.username if moment.user.username.present?
       parts.join(" ")

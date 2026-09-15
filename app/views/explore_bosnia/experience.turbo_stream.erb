@@ -1,5 +1,10 @@
-<%= turbo_stream.before "explore_deck_tail" do %>
-  <%= render "explore_bosnia/deck_cards", plan: @plan, locations: @locations %>
+<%# The position can be gone by the time the deck asks for its next page, and
+    the action returns before dealing any — so there is nothing to append, and
+    the html view's own guard has to hold here too. %>
+<% unless @needs_location %>
+  <%= turbo_stream.before "explore_deck_tail" do %>
+    <%= render "explore_bosnia/deck_cards", plan: @plan, locations: @locations %>
+  <% end %>
 <% end %>
 
 <%= turbo_stream.replace "explore_deck_tail" do %>

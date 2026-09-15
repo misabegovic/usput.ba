@@ -55,8 +55,6 @@ class NewDesignController < ApplicationController
 
   PER_PAGE = 3
 
-  OWN_MOMENTS_LIMIT = Moment::OWN_LIMIT
-
   def explore
     @query = params[:q]
     @types = Array(params[:types]).reject(&:blank?)
@@ -72,27 +70,46 @@ class NewDesignController < ApplicationController
     @radius = params[:radius].presence&.to_i || 25
     @sort = params[:sort].presence || "relevance"
 
+    # The load-more fetch carries the filters in its own url instead of reading
+    # them back from the address bar: an open moment viewer rewrites that to the
+    # moment's own address, which has no query string.
+    @filter_params = filter_params
+
     # Pagination params per resource type
     @locations_page = (params[:locations_page] || 1).to_i
     @experiences_page = (params[:experiences_page] || 1).to_i
     @plans_page = (params[:plans_page] || 1).to_i
     @moments_page = (params[:moments_page] || 1).to_i
+    @my_moments_page = (params[:my_moments_page] || 1).to_i
 
     # Initialize empty result sets
     @locations = Location.none.page(1)
     @experiences = Experience.none.page(1)
     @plans = Plan.none.page(1)
     @moments = Moment.none.page(1)
-    @my_moments = Moment.none
+    @my_moments = Moment.none.page(1)
 
     # Determine which types to search
     search_types = @types.presence || %w[location experience plan moment]
 
+    # A moment's own address lands here. The named one leads its band so the
+    # viewer opens on the first tile, which keeps one moments view rather than a
+    # second that merely resembles it.
+    @named_moment = readable_named_moment
+
+    # Asked for a moment nobody may show them: the address is not theirs to keep,
+    # so it becomes the moments view's own url rather than lying about what is on
+    # screen. A private moment and an id that never existed redirect alike, so the
+    # url still says nothing about whether the moment exists.
+    return redirect_to(explore_path(types: [ "moment" ])) if params[:id].present? && @named_moment.nil?
+
     # Always use Browse model for consistent search and filtering
     build_browse_queries(search_types)
 
+    @open_band = band_holding_named_moment
+
     # Load city names for filter dropdown
-    @city_names = Location.where.not(city: [ nil, "" ])
+    @city_names = Location.not_archived.where.not(city: [ nil, "" ])
                           .distinct
                           .pluck(:city)
                           .sort
@@ -116,6 +133,8 @@ class NewDesignController < ApplicationController
       render partial: "new_design/explore/plans_items", locals: { plans: @plans }, layout: false
     when "moments"
       render partial: "new_design/explore/moments_items", locals: { moments: @moments }, layout: false
+    when "my_moments"
+      render partial: "new_design/explore/my_moments_items", locals: { moments: @my_moments }, layout: false
     end
   end
 
@@ -163,16 +182,79 @@ class NewDesignController < ApplicationController
   # Browse indexes only public moments, so own ones are read from the
   # association and kept beside the public results, never merged into them.
   def build_own_moments(base_browse)
-    return Moment.none unless logged_in?
+    return Moment.none.page(1) unless logged_in?
 
     scope = current_user.moments.with_attached_photo.includes(:location, :plan)
-    # Moments have no text of their own; Browse matches them via their location.
-    scope = scope.where(location_id: base_browse.locations.select(:browsable_id)) if @query.present?
-    scope.recent_own
+    # A moment's note is indexed, but only once public and approved — a
+    # traveller's own list includes private ones, so location is the only
+    # handle that narrows the whole set.
+    scope = scope.where(location_id: base_browse.locations.select(:browsable_id)) if filters_active?
+    lead_own_with_named(scope.newest_first).page(@my_moments_page).per(PER_PAGE)
+  end
+
+  # Public to anyone, yours to you, nil for the rest — someone else's private
+  # moment and an id that never existed answer identically, so the url never
+  # says whether a private moment exists.
+  def readable_named_moment
+    return nil if params[:id].blank?
+
+    public_moment = Moment.publicly_visible.find_by_public_id(params[:id])
+    return public_moment if public_moment || !logged_in?
+
+    current_user.moments.find_by_public_id(params[:id])
+  end
+
+  # Named only where it genuinely leads the band: the viewer opens on index 0,
+  # so a moment that did not reach page one must not claim to be there.
+  def band_holding_named_moment
+    return nil if @named_moment.nil?
+    return "moments" if @moments.first&.id == @named_moment.id
+    return "my_moments" if @my_moments.first&.id == @named_moment.id
+
+    nil
+  end
+
+  # Order is defined by this array, so moving the id is all the hoisting takes —
+  # paging and load-more keep working against it unchanged.
+  def lead_with_named(ids)
+    named = @named_moment&.id
+    return ids unless named && ids.include?(named)
+
+    [ named, *(ids - [ named ]) ]
+  end
+
+  # Kaminari pages whatever order it is handed; leading with the named moment
+  # keeps it on page one, which is the page the viewer opens against.
+  def lead_own_with_named(scope)
+    named = @named_moment&.id
+    return scope unless named
+
+    scope.reorder(Arel.sql(ActiveRecord::Base.sanitize_sql_array([ "(moments.id = ?) DESC", named ])),
+                  created_at: :desc)
+  end
+
+  # Passed through as given rather than rebuilt from the ivars: the fetch has to
+  # reproduce this request, and @radius and @sort carry defaults that were never
+  # asked for. id, partial and the *_page keys stay out — loadMore sets its own
+  # page, and an id would re-name a moment on every fetch.
+  def filter_params
+    params.permit(:q, :season, :budget, :duration, :min_rating, :city_name,
+                  :origin, :audio_support, :lat, :lng, :radius, :sort, types: [])
+          .to_h.reject { |_, value| value.blank? }
+  end
+
+  # Unfiltered, a traveller keeps seeing every moment they own, including ones
+  # at places since retired that browse no longer indexes.
+  def filters_active?
+    @query.present? || @city_name.present? || @season.present? || @budget.present? ||
+      @min_rating.present? || @origin.present? || (@lat.present? && @lng.present?)
   end
 
   def build_moments_from_browse(base_browse)
-    matching_ids = base_browse.moments.pluck(:browsable_id)
+    # reorder replaces the caller's by_relevance: a moment ranks on its own likes.
+    moment_rows = base_browse.moments
+    moment_rows = moment_rows.reorder(reviews_count: :desc, id: :desc) if @sort == "relevance"
+    matching_ids = lead_with_named(moment_rows.pluck(:browsable_id))
     return Moment.none.page(1) if matching_ids.empty?
 
     # Browse only indexes approved public moments; publicly_visible re-asserts it.

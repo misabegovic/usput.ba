@@ -1,0 +1,5 @@
+<%# Locals: scope, message. Said once and gone: never stored, never a flash. %>
+<p id="<%= scope %>_moment_status" data-photo-gallery-target="captionStatus"
+   class="text-sm font-semibold text-yellow-500<%= " hidden" if message.blank? %>">
+  <%= message %>
+</p>

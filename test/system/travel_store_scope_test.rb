@@ -25,13 +25,7 @@ class TravelStoreScopeTest < ApplicationSystemTestCase
   end
 
   def login(username)
-    visit login_path
-    within "form" do
-      fill_in "username", with: username
-      fill_in "password", with: "password123"
-      click_button
-    end
-    assert_no_current_path login_path, wait: 5
+    sign_in_as(username)
   end
 
   # Drops the session without running the logout button's clear, which is the
@@ -55,6 +49,20 @@ class TravelStoreScopeTest < ApplicationSystemTestCase
   # not — the bare one, and any traveller already accounted for.
   def scoped_keys(except: [])
     profile_keys - [ BARE_KEY ] - except
+  end
+
+  # The store is written on its first save, and for a signed-in traveller that
+  # follows a sync the page never announces — so the controller having mounted
+  # is not the signal that the key exists. Waited for like any other assertion:
+  # a key that never arrives still fails, it just fails after looking properly.
+  def scoped_key(except: [])
+    deadline = Time.now + Capybara.default_max_wait_time
+    keys = scoped_keys(except: except)
+    while keys.empty? && Time.now < deadline
+      sleep 0.1
+      keys = scoped_keys(except: except)
+    end
+    keys.sole
   end
 
   def seed_favorite(key, id)
@@ -86,27 +94,31 @@ class TravelStoreScopeTest < ApplicationSystemTestCase
     visit explore_bosnia_path
     stand_at(@location)
     visit explore_bosnia_experience_path(@type.key, lat: @location.lat, lng: @location.lng)
+    # The deck re-points its frame when the position lands; a button found before
+    # that is detached by the time the click reaches it, and the deck reads empty.
+    settle_deck
+    wait_for_controller("[data-controller~='geo-visit']", "geo-visit")
     find("button", text: I18n.t("plans.start.mark_visited"), match: :first).click
-    assert_text "Visited", wait: 5
+    assert_text "Visited"
   end
 
   test "each traveller gets their own store key and cannot read the other's" do
     start_fresh
     login("sys_ana")
     visit profile_page_path
-    assert_selector "[data-controller~='travel-profile']", wait: 5
+    assert_selector "[data-controller~='travel-profile']"
 
     assert_not_includes profile_keys, BARE_KEY, "expected a traveller-scoped store key, got #{profile_keys.inspect}"
-    ana_key = scoped_keys.sole
+    ana_key = scoped_key
     seed_favorite(ana_key, "ana-favourite")
 
     abandon_session
 
     login("sys_bob")
     visit profile_page_path
-    assert_selector "[data-controller~='travel-profile']", wait: 5
+    assert_selector "[data-controller~='travel-profile']"
 
-    bob_key = scoped_keys(except: [ ana_key ]).sole
+    bob_key = scoped_key(except: [ ana_key ])
     assert_empty stored_favorites(bob_key)
     assert_equal [ "ana-favourite" ], stored_favorites(ana_key)
   end
@@ -115,8 +127,8 @@ class TravelStoreScopeTest < ApplicationSystemTestCase
     start_fresh
     login("sys_ana")
     visit profile_page_path
-    assert_selector "[data-controller~='travel-profile']", wait: 5
-    ana_key = scoped_keys.sole
+    assert_selector "[data-controller~='travel-profile']"
+    ana_key = scoped_key
 
     page.execute_script(<<~JS)
       localStorage.setItem("theme", "dark")
@@ -127,7 +139,9 @@ class TravelStoreScopeTest < ApplicationSystemTestCase
     JS
 
     click_button I18n.t("auth.logout", default: "Odjavi se")
-    assert_no_selector "[data-controller~='travel-profile'][data-travel-profile-logged-in-value='true']", wait: 5
+    # Signing out is a full navigation, and under a loaded suite it is the slowest
+    # thing this file does — the same budget the sign-in above gets.
+    assert_no_selector "[data-controller~='travel-profile'][data-travel-profile-logged-in-value='true']", wait: 10
 
     assert_nil page.evaluate_script("localStorage.getItem(arguments[0])", ana_key)
     assert_equal "dark", page.evaluate_script("localStorage.getItem('theme')")
@@ -155,12 +169,12 @@ class TravelStoreScopeTest < ApplicationSystemTestCase
       fill_in "password", with: "password123"
       click_button
     end
-    assert_no_current_path login_path, wait: 5
+    assert_no_current_path login_path, wait: 10
 
     visit profile_page_path
-    assert_selector "[data-controller~='travel-profile']", wait: 5
+    assert_selector "[data-controller~='travel-profile']"
 
-    adopted = scoped_keys.sole
+    adopted = scoped_key
     assert_equal [ "legacy-favourite" ], stored_favorites(adopted)
     assert_not_includes profile_keys, BARE_KEY
   end
@@ -179,7 +193,7 @@ class TravelStoreScopeTest < ApplicationSystemTestCase
     assert_no_selector "[data-controller~='travel-profile']"
 
     assert_not_includes profile_keys, BARE_KEY, "expected the walk to be claimed, got #{profile_keys.inspect}"
-    assert_equal [ @location.name ], stored_visits(scoped_keys.sole)
+    assert_equal [ @location.name ], stored_visits(scoped_key)
 
     abandon_session
     visit root_path

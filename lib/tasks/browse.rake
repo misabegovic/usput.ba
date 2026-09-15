@@ -1,5 +1,5 @@
 namespace :browse do
-  desc "Rebuild the entire Browse table from Location, Experience, and Plan records"
+  desc "Rebuild the entire Browse table from Location, Experience, Plan and Moment records"
   task rebuild: :environment do
     puts "Rebuilding Browse table..."
 
@@ -20,6 +20,7 @@ namespace :browse do
     puts "  - Locations: #{Browse.locations.count}"
     puts "  - Experiences: #{Browse.experiences.count}"
     puts "  - Plans: #{Browse.plans.count}"
+    puts "  - Moments: #{Browse.moments.count}"
   end
 
   desc "Sync a specific record to Browse (usage: rake browse:sync[Location,123])"
@@ -29,7 +30,7 @@ namespace :browse do
 
     unless type && id
       puts "Usage: rake browse:sync[Type,ID]"
-      puts "  Type: Location, Experience, or Plan"
+      puts "  Type: Location, Experience, Plan, or Moment"
       puts "  ID: The record ID"
       exit 1
     end
@@ -43,7 +44,7 @@ namespace :browse do
     puts "Record not found: #{type} ##{id}"
     exit 1
   rescue NameError
-    puts "Invalid type: #{type}. Use Location, Experience, or Plan."
+    puts "Invalid type: #{type}. Use Location, Experience, Plan, or Moment."
     exit 1
   end
 
@@ -57,6 +58,7 @@ namespace :browse do
     puts "  - Locations: #{Browse.locations.count}"
     puts "  - Experiences: #{Browse.experiences.count}"
     puts "  - Plans: #{Browse.plans.count}"
+    puts "  - Moments: #{Browse.moments.count}"
     puts ""
     puts "By city (top 10):"
     Browse.group(:city_id)

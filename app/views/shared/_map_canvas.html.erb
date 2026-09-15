@@ -13,6 +13,14 @@
   <% content_for :leaflet_styles, "linked" %>
   <% content_for :head do %>
     <%= stylesheet_link_tag "leaflet" %>
+  <% end %>
+<% end %>
+
+<%# Only the catalogue draws clusters, and the walk renders this canvas with the
+    catalogue off — so the plan walk was linking a stylesheet nothing used. %>
+<% if catalogue && !content_for?(:cluster_styles) %>
+  <% content_for :cluster_styles, "linked" %>
+  <% content_for :head do %>
     <%= stylesheet_link_tag "leaflet.markercluster" %>
   <% end %>
 <% end %>

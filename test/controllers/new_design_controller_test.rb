@@ -181,6 +181,17 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  # The moment viewer replaceStates the address bar to /moments/<uuid>, which has
+  # no query string, so load_more cannot recover the filters from there.
+  test "load more carries the filters in its own url rather than the address bar" do
+    get explore_path, params: { types: [ "location" ], city_name: "Sarajevo" }
+
+    assert_response :success
+    assert_select "[data-load-more-url-value=?]",
+                  explore_path(types: [ "location" ], city_name: "Sarajevo"),
+                  minimum: 1
+  end
+
   test "explore returns approved public moments under the moment type" do
     user = User.create!(username: "explorer_sharer", password: "password123")
     moment = user.moments.build(plan: @plan, location: @location)
@@ -196,6 +207,36 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   ensure
     Moment.destroy_all
     user&.destroy
+  end
+
+  test "relevance ranks a moment by its own likes, not the rating of its place" do
+    user = User.create!(username: "likes_ranker", password: "password123")
+    liker = User.create!(username: "likes_giver", password: "password123")
+    # Own places: relevance leads with the rating, so the liked moment has to
+    # sit at the weaker of the two for the likes to be what moves it.
+    weaker = Location.create!(name: "Ranker Weaker", city: "Tuzla", lat: 44.53, lng: 18.67,
+                              location_type: :place, average_rating: 3.0, reviews_count: 2)
+    stronger = Location.create!(name: "Ranker Stronger", city: "Tuzla", lat: 44.54, lng: 18.68,
+                                location_type: :place, average_rating: 5.0, reviews_count: 9)
+
+    quiet = publish_moment(user, stronger)
+    liked = publish_moment(user, weaker)
+    liker.likes.create!(likeable: liked)
+
+    get explore_path, params: { types: [ "moment" ] }
+
+    assert_response :success
+    # Scoped to the public-moments grid: the same place links from elsewhere on
+    # the page.
+    places = css_select('[data-load-more-resource-type-value="moments"] a[href]').map { |link| link["href"] }
+    assert_includes places, location_path(weaker)
+    assert_operator places.index(location_path(weaker)), :<,
+                    places.index(location_path(stronger))
+  ensure
+    Like.destroy_all
+    Moment.destroy_all
+    [ user, liker ].compact.each(&:destroy)
+    [ weaker, stronger ].compact.each(&:destroy)
   end
 
   test "explore does not surface a pending or private moment" do
@@ -214,6 +255,62 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
     user&.destroy
   end
 
+  test "a traveller's own moments arrive three at a time, like the public ones beside them" do
+    user = User.create!(username: "band_pager", password: "password123")
+    5.times { own_moment_for(user, @location) }
+    login_as(user)
+
+    get explore_path, params: { types: [ "moment" ] }
+
+    assert_response :success
+    assert_select "[data-load-more-resource-type-value=?]", "my_moments", count: 1
+    assert_select "turbo-frame[id^=?]", "moment_", { count: 3 },
+      "the band renders one page, not the whole collection"
+  ensure
+    Moment.destroy_all
+    user&.destroy
+  end
+
+  test "the next page of own moments comes back without a rendered position" do
+    user = User.create!(username: "band_page_two", password: "password123")
+    5.times { own_moment_for(user, @location) }
+    login_as(user)
+
+    get explore_path, params: { types: [ "moment" ], partial: "my_moments", my_moments_page: 2 },
+        xhr: true
+
+    assert_response :success
+    assert_select "turbo-frame[id^=?]", "moment_", { count: 2 }, "page two holds the remainder"
+    assert_select "button[data-index]", { count: 0 },
+      "an appended tile cannot know its offset, so it must not claim one"
+  ensure
+    Moment.destroy_all
+    user&.destroy
+  end
+
+  # Asking each moment whether it is liked is the N+1 this guards: the cost is
+  # one query for the whole page, so more moments must not mean more queries.
+  test "the moment band's query count does not grow with the number of moments" do
+    user = User.create!(username: "band_counter", password: "password123")
+    3.times { own_moment_for(user, @location) }
+    login_as(user)
+    get explore_path, params: { types: [ "moment" ] } # warm the caches
+
+    three = count_moment_queries(user)
+
+    20.times { own_moment_for(user, @location) }
+    get explore_path, params: { types: [ "moment" ] } # warm again, so both counts are measured alike
+    twenty_three = count_moment_queries(user)
+
+    marginal = (twenty_three - three) / 20.0
+    assert_operator marginal, :<=, 0.1,
+      "twenty more moments cost #{twenty_three - three} more queries; the page still renders three, " \
+      "so the per-moment cost must be flat"
+  ensure
+    Moment.destroy_all
+    user&.destroy
+  end
+
   test "explore shows a traveller their own private moment, which the public grid never gets" do
     user = User.create!(username: "band_owner", password: "password123")
     moment = own_moment_for(user, @location)
@@ -224,8 +321,16 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "turbo-frame##{ActionView::RecordIdentifier.dom_id(moment)}", { count: 1 },
       "the traveller's own private moment must appear in their band"
-    assert_select "form[action=?]", publish_plan_moment_path(@plan, moment), count: 1
-    assert_select "form[action=?]", plan_moment_path(@plan, moment), count: 1
+    # Publishing and deleting moved into the gallery caption, so the tile carries
+    # the routes for the caption to adopt rather than forms of its own.
+    assert_select "button[data-moment-visibility-url=?]", publish_plan_moment_path(@plan, moment), count: 1
+    assert_select "button[data-moment-delete-url=?]", plan_moment_path(@plan, moment), count: 1
+    assert_select "form[action=?]", plan_moment_path(@plan, moment), count: 0
+    # Edit is a signpost to the viewer, not a second surface: the tile carries the
+    # note route for the caption to adopt, and no link goes anywhere else.
+    assert_select "button[data-moment-note-url=?]", plan_moment_path(@plan, moment), count: 1
+    # A private moment has an audience of one, so it offers no reaction at all.
+    assert_select "button[data-moment-like-url]", count: 0
   ensure
     Moment.destroy_all
     user&.destroy
@@ -235,7 +340,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   # profile payload on screen instead of opening the profile.
   test "see-all-your-moments goes to the profile page, not the JSON endpoint" do
     user = User.create!(username: "band_all_link", password: "password123")
-    NewDesignController::OWN_MOMENTS_LIMIT.times { own_moment_for(user, @location) }
+    Moment::PAGE_SIZE.times { own_moment_for(user, @location) }
     login_as(user)
 
     get explore_path, params: { types: [ "moment" ] }
@@ -597,6 +702,83 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.content_type, "text/html"
   end
 
+  test "a moment's own address opens the viewer on it, in the moments view" do
+    user = User.create!(username: "addressed", password: "password123")
+    named = publish_moment(user, @location)
+    sync_browse_records
+
+    get moment_path(named.public_id)
+
+    assert_response :success
+    # The named moment leads its band, because the viewer opens on index 0.
+    assert_select "[data-photo-gallery-open-on-connect-value='true']" do |bands|
+      assert_equal 1, bands.size
+      thumbnails = bands.first.css("[data-photo-gallery-target='thumbnail']")
+      assert_equal moment_url(named), thumbnails.first["data-moment-page-url"]
+    end
+  end
+
+  test "a moment's address is the moments view, paged exactly as it is at /explore" do
+    user = User.create!(username: "pager", password: "password123")
+    5.times { publish_moment(user, @location) }
+    named = publish_moment(user, @location)
+    sync_browse_records
+
+    get moment_path(named.public_id)
+    from_address = css_select("[data-photo-gallery-target='thumbnail']").size
+
+    get explore_path, params: { types: [ "moment" ] }
+    from_explore = css_select("[data-photo-gallery-target='thumbnail']").size
+
+    # One moments view: arriving by a moment's url must not change the page size.
+    assert_equal from_explore, from_address
+    assert_equal NewDesignController::PER_PAGE, from_address
+  end
+
+  test "someone else's private moment sends you to the moments view instead" do
+    owner = User.create!(username: "addr_owner", password: "password123")
+    stranger = User.create!(username: "addr_stranger", password: "password123")
+    hidden = own_moment_for(owner, @location)
+    visible = publish_moment(owner, @location)
+    sync_browse_records
+    login_as(stranger)
+
+    get moment_path(hidden.public_id)
+
+    # The address is not theirs to keep: it becomes the moments view's own url.
+    assert_redirected_to explore_path(types: [ "moment" ])
+    follow_redirect!
+    assert_select "[data-photo-gallery-open-on-connect-value='true']", count: 0
+    assert_select "#public_moment_#{hidden.id}", count: 0
+    assert_select "#public_moment_#{visible.id}"
+  end
+
+  test "an id that never existed answers exactly as a private moment does" do
+    user = User.create!(username: "addr_ghost", password: "password123")
+    visible = publish_moment(user, @location)
+    sync_browse_records
+
+    get moment_path("no-such-moment")
+
+    # Identical to the private case above, which is what stops the url saying
+    # whether a private moment exists.
+    assert_redirected_to explore_path(types: [ "moment" ])
+    follow_redirect!
+    assert_select "#public_moment_#{visible.id}"
+  end
+
+  test "a moment's address previews as the moment, not as the search page" do
+    user = User.create!(username: "addr_preview", password: "password123")
+    named = publish_moment(user, @location)
+    named.update!(note: "The bridge at dusk")
+    sync_browse_records
+
+    get moment_path(named.public_id)
+
+    assert_select "meta[property='og:type'][content='article']", count: 1
+    assert_select "meta[property='og:description'][content=?]", "The bridge at dusk"
+  end
+
   private
 
   def own_moment_for(user, location)
@@ -604,6 +786,17 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
     moment.photo.attach(io: File.open(file_fixture("real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
     moment.save!
     moment
+  end
+
+  def count_moment_queries(_user)
+    count = 0
+    counter = ->(_name, _start, _finish, _id, payload) do
+      count += 1 unless payload[:name] == "SCHEMA" || payload[:cached]
+    end
+    ActiveSupport::Notifications.subscribed(counter, "sql.active_record") do
+      get explore_path, params: { types: [ "moment" ] }
+    end
+    count
   end
 
   def login_as(user)
@@ -616,5 +809,14 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
     Browse.sync_record(@mostar_location) if @mostar_location&.persisted?
     Browse.sync_record(@experience) if @experience&.persisted?
     Browse.sync_record(@plan) if @plan&.persisted?
+  end
+
+  def publish_moment(user, location)
+    moment = user.moments.build(plan: @plan, location: location)
+    moment.photo.attach(io: File.open(file_fixture("real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
+    moment.save!
+    moment.update!(visibility: :public_moment)
+    moment.update!(moderation_status: :approved)
+    moment
   end
 end

@@ -1,6 +1,12 @@
 <%# Locals: plan, location. Optional: compact (small "+" tile), overlay (on a photo).
     Signed out, the tile is a link to sign in that comes back to this page. %>
-<% tile = "flex aspect-square w-full items-center justify-center rounded-full border-2 border-dashed cursor-pointer transition-colors #{local_assigns[:overlay] ? "border-white/60 text-white hover:border-white" : "border-gray-300 dark:border-gray-600 text-gray-400 hover:border-emerald-400 hover:text-emerald-500"}" %>
+<%# image/* rather than a MIME list, so the phone's own sheet offers the camera
+    beside the library — Android hides the camera when the list is explicit, and
+    iOS offers it either way. Never name image/heic here: Safari 17+ converts
+    *other* formats to HEIC when it sees it advertised. %>
+<%# Square like the photo tiles beside it, and sized by the caller when one says. %>
+<% shape = local_assigns[:tile]&.dig(:image) || "aspect-square w-full"
+   tile = "flex #{shape} items-center justify-center rounded-xl border-2 border-dashed cursor-pointer transition-colors #{local_assigns[:overlay] ? "border-white/60 text-white hover:border-white" : "border-gray-300 dark:border-gray-600 text-gray-400 hover:border-emerald-400 hover:text-emerald-500"}" %>
 
 <% if !logged_in? %>
   <%= link_to login_path(return_to: sign_in_return_path), class: tile,
@@ -20,7 +26,7 @@
   <% if local_assigns[:story] %>
     <label class="flex aspect-[4/3] w-full cursor-pointer flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed border-white/40 px-6 text-center transition-colors hover:border-white hover:bg-white/5">
       <%= form.file_field :photo,
-            accept: "image/jpeg,image/png,image/gif,image/webp",
+            accept: "image/*",
             required: true,
             class: "sr-only",
             data: { instant_moment_target: "input", action: "change->instant-moment#select" } %>
@@ -33,7 +39,7 @@
   <% elsif local_assigns[:compact] %>
     <label class="<%= tile %>" aria-label="<%= t("plans.moments.add") %>">
       <%= form.file_field :photo,
-            accept: "image/jpeg,image/png,image/gif,image/webp",
+            accept: "image/*",
             required: true,
             class: "sr-only",
             data: { instant_moment_target: "input", action: "change->instant-moment#select" } %>
@@ -42,7 +48,7 @@
   <% else %>
     <label class="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed px-3 py-2 cursor-pointer transition-colors <%= local_assigns[:overlay] ? "border-white/60 text-white hover:border-white hover:bg-white/10" : "border-gray-300 dark:border-gray-600 hover:border-emerald-400 hover:bg-gray-50 dark:hover:bg-gray-700/40" %>">
       <%= form.file_field :photo,
-            accept: "image/jpeg,image/png,image/gif,image/webp",
+            accept: "image/*",
             required: true,
             class: "sr-only",
             data: { instant_moment_target: "input", action: "change->instant-moment#select" } %>

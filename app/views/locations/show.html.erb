@@ -139,7 +139,7 @@
               <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
               </svg>
-              <span class="text-sm font-medium text-emerald-700 dark:text-emerald-300"><%= t("profile.visited", default: "Visited") %></span>
+              <span class="text-sm font-medium text-emerald-700 dark:text-emerald-300"><%= t("profile.visited") %></span>
             </div>
             <% else %>
             <% unless logged_in? %>
@@ -149,7 +149,7 @@
                   <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                   </svg>
-                  <span class="text-sm font-medium text-emerald-700 dark:text-emerald-300"><%= t("profile.visited", default: "Visited") %></span>
+                  <span class="text-sm font-medium text-emerald-700 dark:text-emerald-300"><%= t("profile.visited") %></span>
                 </div>
               </div>
             <% end %>
@@ -214,6 +214,14 @@
       <%= render "shared/photo_lightbox", count: gallery_photos.count, thumbnails: gallery_photos, label_scope: "locations.show", accent: "ring-emerald-500" %>
     </div>
   <% end %>
+
+  <div class="mt-8 bg-gray-100 py-8 dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <turbo-frame id="<%= dom_id(@location, :moments_frame) %>"
+                   src="<%= @moments_plan ? plan_moments_path(@moments_plan, location_id: @location.uuid, context: "location") : location_moments_path(@location.uuid, context: "location") %>"
+                   loading="lazy"></turbo-frame>
+    </div>
+  </div>
 
   <%# Content %>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -370,14 +378,6 @@
               <%= @location.translate(:historical_context, I18n.locale) %>
             </p>
           <% end %>
-        </div>
-
-        <%# Moments — your own plus everyone's public ones. Loads on scroll so
-            the page above it is not held up. %>
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg mb-6">
-          <turbo-frame id="<%= dom_id(@location, :moments_frame) %>"
-                       src="<%= @moments_plan ? plan_moments_path(@moments_plan, location_id: @location.uuid, context: "location") : location_moments_path(@location.uuid, context: "location") %>"
-                       loading="lazy"></turbo-frame>
         </div>
 
         <%# Reviews Section %>

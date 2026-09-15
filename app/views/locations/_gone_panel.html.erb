@@ -1,0 +1,30 @@
+<%# The map panel for a place that is no longer listed. Locals: message, frame_id.
+    A frame cannot redirect the page, so the answer is delivered inside it. %>
+<%# Announces itself to the map: a pin whose place is gone means the cached
+    catalogue is stale, and the map drops it rather than leaving the traveller
+    tapping a pin that answers this every time. %>
+<turbo-frame id="<%= local_assigns.fetch(:frame_id, "map_panel") %>">
+  <%# The marker sits inside the frame, not on it: Turbo copies a frame's
+      children into the frame already on the page and drops the response frame's
+      own attributes, so a flag written up there would never arrive. %>
+  <div data-map-catalogue-stale
+       class="relative flex h-full flex-col items-center justify-center gap-4 bg-gray-50 p-8 text-center dark:bg-gray-900">
+    <button type="button" data-action="map#closePanel"
+            class="absolute right-3 top-3 flex size-9 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
+            aria-label="<%= t("common.close") %>">
+      <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+
+    <svg class="size-10 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+    </svg>
+
+    <p class="text-sm text-gray-600 dark:text-gray-400"><%= message %></p>
+
+    <%= link_to t("locations.explore_others"), explore_path,
+        data: { turbo_frame: "_top" },
+        class: "inline-flex items-center justify-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500" %>
+  </div>
+</turbo-frame>

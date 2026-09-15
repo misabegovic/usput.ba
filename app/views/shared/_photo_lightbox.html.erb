@@ -1,23 +1,23 @@
-<%# Locals: count. Optional: thumbnails (photos for the bottom strip),
-    label_scope (i18n scope for the thumbnail labels), accent (ring colour of
-    the active thumbnail). The fullscreen half of photo_gallery_controller.
-    A dialog, not a div: this gallery also renders inside the deck card, where a
-    fixed element is trapped by the card instead of covering the screen. The
-    browser's top layer escapes it. %>
+<%# Locals: count. Optional: thumbnails, label_scope, accent, moment_caption.
+    A dialog, not a div: inside a deck card a fixed element is trapped by it. %>
 <%# accent is the whole class, not a colour fragment: Tailwind scans source for
     literal class names, so an interpolated "ring-#{colour}-500" would only be
     generated while some unrelated file happens to spell it out. %>
+<%# moment_caption: the scope name of a moment gallery, or absent. A place's own
+    photos have no author and no separate place, so those galleries render this
+    without one and look exactly as they did. %>
 <% thumbnails = local_assigns[:thumbnails]
-   accent = local_assigns[:accent] || "ring-emerald-500" %>
+   accent = local_assigns[:accent] || "ring-emerald-500"
+   moment_caption = local_assigns[:moment_caption] %>
 <dialog data-photo-gallery-target="lightbox"
         data-action="click->photo-gallery#closeLightboxOnBackground close->photo-gallery#onLightboxClosed"
-        class="m-0 h-full max-h-none w-full max-w-none items-center justify-center bg-black/90 p-4 backdrop:bg-black/90 open:flex">
+        class="m-0 h-full max-h-none w-full max-w-none items-center justify-center bg-gradient-to-br from-gray-950/95 via-gray-950/95 to-blue-950/95 p-4 backdrop:bg-gray-950/95 open:flex">
   <button type="button" data-action="photo-gallery#closeLightbox"
           class="absolute right-4 top-4 z-10 flex size-10 items-center justify-center rounded-full bg-white/15 text-white"
           aria-label="<%= t("common.close") %>">✕</button>
 
   <div data-photo-gallery-target="lightboxCounter"
-       class="absolute left-1/2 top-4 z-10 -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white">
+       class="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white">
     1 / <%= count %>
   </div>
 
@@ -36,6 +36,10 @@
 
   <img data-photo-gallery-target="lightboxImage" src="" alt=""
        class="max-h-[85vh] max-w-full rounded-lg object-contain shadow-2xl">
+
+  <% if moment_caption.present? %>
+    <%= render "shared/moment_caption", scope: moment_caption %>
+  <% end %>
 
   <% if thumbnails.present? %>
     <div class="absolute inset-x-0 bottom-4 px-4">

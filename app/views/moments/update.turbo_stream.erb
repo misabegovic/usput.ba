@@ -2,7 +2,9 @@
     panel has the location block, the summary and the flash. Turbo skips the
     targets the requesting page does not have. %>
 <% explore = params[:context] == "explore"
-   moments = current_user.moments.where(location_id: location.id).with_attached_photo.includes(:plan).recent_own
+   moments = current_user.moments.where(location_id: location.id)
+                          .with_attached_photo.includes(:plan)
+                          .newest_first.page(1).per(Moment::PAGE_SIZE)
    visited = if explore
      current_user.plan_visits.exists?(location_id: location.id)
    else
@@ -27,7 +29,9 @@
           plan: @plan,
           location: location,
           moments: moments,
-          public_moments: Moment.where(location_id: location.id).with_attached_photo.recent_public,
+          public_moments: Moment.where(location_id: location.id).with_attached_photo.includes(:user)
+                                .publicly_visible.not_by(current_user)
+                                .newest_first.page(1).per(Moment::PAGE_SIZE),
           context: params[:context] %>
   </div>
 <% end %>

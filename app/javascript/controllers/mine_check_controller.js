@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import "leaflet"
+import { loadLeaflet } from "services/leaflet_service"
 
 // Public mine-proximity check. The server returns coarse bands only —
 // no distances or geometry ever reach this controller.
@@ -17,8 +17,10 @@ export default class extends Controller {
   static targets = ["map", "result", "lat", "lon", "playLink", "zoomHint"]
   static values = { url: String, labels: Object, playUrl: String, areasUrl: String }
 
-  connect() {
-    const L = window.L
+  async connect() {
+    const L = await loadLeaflet()
+    if (!L || !this.element.isConnected) return
+
     this.map = L.map(this.mapTarget, { attributionControl: true }).setView([44.2, 17.8], 8)
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 17,
@@ -66,6 +68,7 @@ export default class extends Controller {
   }
 
   locate() {
+    if (!this.map) return this.renderResult("error", this.labelsValue.error)
     if (!navigator.geolocation) {
       this.renderResult("error", this.labelsValue.no_gps)
       return
@@ -80,6 +83,7 @@ export default class extends Controller {
   }
 
   checkManual() {
+    if (!this.map) return this.renderResult("error", this.labelsValue.error)
     const lat = parseFloat(this.latTarget.value)
     const lon = parseFloat(this.lonTarget.value)
     if (Number.isNaN(lat) || Number.isNaN(lon)) {

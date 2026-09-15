@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { escapeHtml } from "services/html_escape"
 
 // Connects to data-controller="plan-wizard"
 export default class extends Controller {
@@ -748,7 +749,7 @@ export default class extends Controller {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
             </svg>
             <div class="text-sm text-amber-700 dark:text-amber-300">
-              ${warnings.map(w => `<p>${w}</p>`).join('')}
+              ${warnings.map(w => `<p>${escapeHtml(w)}</p>`).join('')}
             </div>
           </div>
         </div>
@@ -767,7 +768,7 @@ export default class extends Controller {
           Plan je kreiran!
         </h2>
         <p class="text-gray-600 dark:text-gray-400 mb-6">
-          ${planData.total_experiences} iskustava za ${planData.duration_days} ${planData.duration_days === 1 ? 'dan' : 'dana'} u ${planData.city_name}
+          ${planData.total_experiences} iskustava za ${planData.duration_days} ${planData.duration_days === 1 ? 'dan' : 'dana'} u ${escapeHtml(planData.city_name)}
         </p>
         ${warningsHtml}
         <div class="space-x-4">

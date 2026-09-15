@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
-# Streams moment photo variants. Shared by the owner path (MomentsController)
-# and the public path (Community::MomentsController): each resolves the moment
-# its own way — ownership vs. public visibility — and hands an already-authorised
-# one here, so the two trust models never mix in a single lookup.
+# Owner-path photo variants only: a public moment needs no session check.
 module ServesMomentPhotos
   extend ActiveSupport::Concern
 
@@ -17,6 +14,9 @@ module ServesMomentPhotos
 
   DEFAULT_PHOTO_VARIANT = "square"
 
+  # Looked up like the variant: the caller names one rather than sending a header.
+  DISPOSITIONS = { "attachment" => "attachment", "inline" => "inline" }.freeze
+
   private
 
   # A signed blob url is a bearer token Rails serves without a session check, so
@@ -29,9 +29,16 @@ module ServesMomentPhotos
     expires_in 1.hour, public: public
     send_data variant.download,
               type: moment.photo.blob.content_type,
-              disposition: "inline"
+              filename: moment.photo.filename.to_s,
+              disposition: DISPOSITIONS.fetch(params[:disposition], "inline")
   rescue Vips::Error, MiniMagick::Error => e
     Rails.logger.warn "[Moments] Unprocessable photo for moment #{params[:id]}: #{e.message}"
     head :unprocessable_entity
+  # The blob can be deleted while its variant is being recorded — the moment was
+  # removed under a request already in flight. That is a photo that is gone, not
+  # a server that is broken.
+  rescue ActiveRecord::InvalidForeignKey => e
+    Rails.logger.warn "[Moments] Photo vanished mid-request for moment #{params[:id]}: #{e.message}"
+    head :not_found
   end
 end

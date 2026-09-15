@@ -22,16 +22,13 @@ class ExploreBosniaSystemTest < ApplicationSystemTestCase
   end
 
   def login
-    visit login_path
-    within "form" do
-      fill_in "username", with: "sys_explorer"
-      fill_in "password", with: "password123"
-      click_button
-    end
-    assert_no_current_path login_path, wait: 5
+    sign_in_as("sys_explorer")
   end
 
+  # The button is wired by geo-visit, and a press that lands before the
+  # controller does is swallowed with no error — the card just stays unvisited.
   def check_in
+    wait_for_controller("[data-controller~='geo-visit']", "geo-visit")
     find("button[type=submit]", text: I18n.t("plans.start.mark_visited"), match: :first).click
   end
 
@@ -41,6 +38,8 @@ class ExploreBosniaSystemTest < ApplicationSystemTestCase
 
   def visit_deck
     visit explore_bosnia_experience_path("history", lat: @location.lat, lng: @location.lng)
+    stand_at(@location)
+    settle_deck
   end
 
   # Same CDP override the walk's system test uses.
@@ -49,6 +48,9 @@ class ExploreBosniaSystemTest < ApplicationSystemTestCase
     browser = page.driver.browser
     browser.execute_cdp("Browser.grantPermissions", origin: "#{uri.scheme}://#{uri.host}:#{uri.port}", permissions: [ "geolocation" ])
     browser.execute_cdp("Emulation.setGeolocationOverride", latitude: location.lat.to_f, longitude: location.lng.to_f, accuracy: 5)
+    # The position service starts watching on connect, so the override has to be
+    # in place before the page is: set afterwards, the machine's real position wins.
+    page.refresh
   end
 
   test "the check-in button stamps the card visited" do
@@ -59,7 +61,7 @@ class ExploreBosniaSystemTest < ApplicationSystemTestCase
 
     check_in
 
-    assert_text "Visited", wait: 5
+    assert_text "Visited"
     assert @user.plan_visits.joins(:plan).exists?(location: @location)
   end
 
@@ -67,12 +69,12 @@ class ExploreBosniaSystemTest < ApplicationSystemTestCase
     login
     visit_deck
 
-    find("[data-plan-deck-target='card'][data-plan-deck-lat]", match: :first).click
-    assert_selector "[data-card-menu-target='menu']", visible: true, wait: 5
+    click_once_wired("[data-plan-deck-target='card'][data-plan-deck-lat]", "card-menu")
+    assert_selector "[data-card-menu-target='menu']", visible: true
     find("button", text: I18n.t("plans.start.shared_moments"), match: :first).click
 
-    assert_selector "[data-card-menu-target='panel'][data-panel='moments']", visible: true, wait: 5
-    assert_selector "label[aria-label='#{I18n.t('plans.moments.add')}']", wait: 5
+    assert_selector "[data-card-menu-target='panel'][data-panel='moments']", visible: true
+    assert_selector "label[aria-label='#{I18n.t('plans.moments.add')}']"
   end
 
   test "a card's moments wrap into rows and the panel scrolls through them" do
@@ -86,10 +88,10 @@ class ExploreBosniaSystemTest < ApplicationSystemTestCase
     login
     visit_deck
 
-    find("[data-plan-deck-target='card'][data-plan-deck-lat]", match: :first).click
+    click_once_wired("[data-plan-deck-target='card'][data-plan-deck-lat]", "card-menu")
     find("button", text: I18n.t("plans.start.shared_moments"), match: :first).click
 
-    assert_selector "[data-photo-gallery-target='thumbnail']", count: 7, wait: 5
+    assert_selector "[data-photo-gallery-target='thumbnail']", count: 7
     rows = page.evaluate_script(<<~JS)
       (() => {
         const thumbs = Array.from(document.querySelectorAll("[data-photo-gallery-target='thumbnail']"))
@@ -115,10 +117,10 @@ class ExploreBosniaSystemTest < ApplicationSystemTestCase
 
     find("button[data-action='deck-filters#toggle']").click
     find("label", text: I18n.t("explore_bosnia.tiles.relax"), match: :first).click
-    assert_current_path(/categories/, wait: 5)
+    assert_current_path(/categories/)
 
     find("label", text: I18n.t("explore_bosnia.filters.seasons.winter"), match: :first).click
-    assert_current_path(/season=winter/, wait: 5)
+    assert_current_path(/season=winter/)
     assert page.evaluate_script("window.__stayedPut"), "the filters reloaded the page"
   end
 
@@ -131,7 +133,7 @@ class ExploreBosniaSystemTest < ApplicationSystemTestCase
 
     check_in
 
-    assert_text "Visited", wait: 5
+    assert_text "Visited"
     assert @user.plan_visits.joins(:plan).exists?(location: @location)
   end
 
@@ -144,7 +146,7 @@ class ExploreBosniaSystemTest < ApplicationSystemTestCase
       find("label", text: I18n.t("explore_bosnia.tiles.relax"), match: :first).click
     end
 
-    assert_current_path(/categories/, wait: 5)
+    assert_current_path(/categories/)
   end
 
   test "a chosen filter can be pressed again to clear it" do
@@ -156,28 +158,32 @@ class ExploreBosniaSystemTest < ApplicationSystemTestCase
       find("label", text: I18n.t("explore_bosnia.filters.budgets.low"), match: :first).click
     end
 
-    assert_no_current_path(/budget=low/, wait: 5)
+    assert_no_current_path(/budget=low/)
   end
 
   test "clear filters reloads the deck unfiltered" do
     page.driver.browser.manage.window.resize_to(1400, 1000)
     login
+    # Clearing drops the coordinates too, so the deck asks again — and without an
+    # override the machine's own position answers and is written back into the url.
+    visit explore_bosnia_path
+    stand_at(@location)
     visit explore_bosnia_experience_path("history", lat: @location.lat, lng: @location.lng, budget: "low")
 
     within("aside[data-controller='deck-filters']") do
       click_link I18n.t("explore_bosnia.filters.clear")
     end
 
-    assert_no_current_path(/budget/, wait: 5)
+    assert_no_current_path(/budget/)
   end
 
   test "tapping the card opens the menu" do
     login
     visit_deck
 
-    find("[data-plan-deck-target='card'][data-plan-deck-lat]", match: :first).click
+    click_once_wired("[data-plan-deck-target='card'][data-plan-deck-lat]", "card-menu")
 
-    assert_selector "[data-card-menu-target='menu']", visible: true, wait: 5
+    assert_selector "[data-card-menu-target='menu']", visible: true
   end
 
   test "the moments panel opens from the card with the upload tile" do
@@ -186,11 +192,11 @@ class ExploreBosniaSystemTest < ApplicationSystemTestCase
     stand_at(@location)
     visit_deck
     check_in
-    assert_text "Visited", wait: 5
+    assert_text "Visited"
 
     open_moments_panel
 
-    assert_selector "[data-card-menu-target='panel'][data-panel='moments']", visible: true, wait: 5
+    assert_selector "[data-card-menu-target='panel'][data-panel='moments']", visible: true
     assert_selector "p", text: I18n.t("plans.start.story_none"), visible: :all
     assert_selector "label[aria-label='#{I18n.t('plans.moments.add')}']", visible: :all
   end

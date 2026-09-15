@@ -1,0 +1,5 @@
+<%# Locals: moments. Just the tiles — load-more appends this into the grid. %>
+<% moments.each do |moment| %>
+  <% next unless moment.displayable? %>
+  <%= render "travel_profiles/my_moment_tile", moment: moment %>
+<% end %>

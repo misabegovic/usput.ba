@@ -15,6 +15,7 @@ class User < ApplicationRecord
   has_many :photo_suggestions, dependent: :destroy
   has_many :moments, dependent: :destroy
   has_many :plan_visits, dependent: :destroy
+  has_many :likes, dependent: :destroy
 
   # The profile blob is written straight from whatever the device sends, so each
   # list it holds is bounded rather than left to grow a row without limit.

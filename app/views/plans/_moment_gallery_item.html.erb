@@ -1,0 +1,51 @@
+<%# Locals: moment, context, tile. Its own frame, so a react rewrites one tile.
+    Nothing sits under the photo: the owner's controls and the heart live in the
+    viewer this opens, so a tile reads like one of the place's own pictures. %>
+<% mine = logged_in? && moment.user_id == current_user.id
+   thumb = mine ? photo_plan_moment_path(moment.plan, moment, size: tile[:size]) : url_for(moment.photo.variant(resize_to_fill: tile[:fill]))
+   full = mine ? photo_plan_moment_path(moment.plan, moment, size: "story") : url_for(moment.photo.variant(resize_to_limit: [ 1080, 1080 ]))
+   download = mine ? photo_plan_moment_path(moment.plan, moment, size: "story", disposition: "attachment") : rails_blob_path(moment.photo, disposition: "attachment") %>
+<%= turbo_frame_tag "location_#{dom_id(moment)}", class: tile[:wrapper] do %>
+  <button type="button"
+          data-action="click->photo-gallery#openLightbox"
+          data-photo-gallery-target="thumbnail"
+          data-photo-gallery-full-url="<%= full %>"
+          <%= tag.attributes(moment_caption_data(moment, scope: "location", owned: mine, download_url: download)) %>
+          class="relative block w-full overflow-hidden rounded-xl ring-2 ring-transparent transition-all hover:ring-emerald-400"
+          aria-label="<%= t("plans.start.shared_moments") %>">
+    <%= image_tag thumb, class: "#{tile[:image]} object-cover", loading: "lazy", alt: "" %>
+
+    <% if mine %>
+      <span class="absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur-sm
+                   <%= moment.visibility_private_moment? ? "bg-gray-900/80 text-yellow-200" : (moment.approved? ? "bg-emerald-900/80 text-emerald-100" : "bg-amber-900/80 text-amber-100") %>">
+        <%= moment.visibility_private_moment? ? t("plans.start.story_private") : (moment.approved? ? t("plans.start.story_public") : t("plans.start.story_pending")) %>
+      </span>
+    <% end %>
+
+    <span class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-gradient-to-t from-gray-950/80 to-transparent px-2 pb-1.5 pt-6">
+      <span class="truncate text-xs font-semibold text-white"><%= moment.user.username %></span>
+      <% if moment.likeable? && moment.likes_count.positive? %>
+        <span class="flex shrink-0 items-center gap-1 text-xs font-semibold text-white">
+          <svg class="size-3.5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+          </svg>
+          <%= moment.likes_count %>
+        </span>
+      <% end %>
+    </span>
+  </button>
+
+  <% if mine && tile[:inline_controls] %>
+    <div class="mt-1 flex flex-wrap items-center justify-center gap-1">
+      <% if moment.visibility_private_moment? %>
+        <%= button_to t("plans.start.story_publish"), publish_plan_moment_path(moment.plan, moment),
+              method: :patch, params: { context: context }.compact,
+              class: "rounded-full bg-gray-900/90 px-2 py-0.5 text-[10px] font-semibold text-white dark:bg-white/90 dark:text-gray-900" %>
+      <% end %>
+      <%= button_to t("plans.start.story_delete"), plan_moment_path(moment.plan, moment),
+            method: :delete, params: { context: context }.compact,
+            form: { data: { turbo_confirm: t("plans.start.story_delete_confirm") } },
+            class: "rounded-full bg-red-600/90 px-2 py-0.5 text-[10px] font-semibold text-white" %>
+    </div>
+  <% end %>
+<% end %>

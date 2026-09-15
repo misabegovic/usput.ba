@@ -279,7 +279,7 @@
 
     <%# Moments are private per viewer — the traveller's own, captured on the walk %>
     <% if logged_in? %>
-      <%= render "travel_profiles/my_moments", moments: @moments || [] %>
+      <%= render "travel_profiles/my_moments" %>
     <% end %>
 
     <%# Actions %>

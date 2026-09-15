@@ -2,11 +2,14 @@
 
 module Curator
   class LocationsController < BaseController
-    before_action :set_location, only: [ :show, :edit, :update, :destroy ]
+    before_action :set_location, only: [ :show, :edit, :update, :destroy, :archive, :restore ]
     before_action :load_form_options, only: [ :new, :create, :edit, :update ]
 
     def index
-      @locations = Location.order(created_at: :desc)
+      # A retired place nobody can list is a place nobody can bring back, so the
+      # curator sees live ones by default and retired ones on request.
+      @locations = params[:archived] == "1" ? Location.archived : Location.not_archived
+      @locations = @locations.order(created_at: :desc)
       @locations = @locations.by_city(params[:city_name]) if params[:city_name].present?
       @locations = @locations.by_category(params[:category]) if params[:category].present?
       @locations = @locations.where("locations.name ILIKE ?", "%#{params[:search]}%") if params[:search].present?
@@ -130,6 +133,21 @@ module Curator
       else
         redirect_to curator_locations_path, alert: t("curator.proposals.failed_to_submit"), status: :see_other
       end
+    end
+
+    # Retiring is reversible, so it lands directly instead of going through the
+    # proposal flow — that flow guards against irreversibility, and restore is
+    # one click away.
+    def archive
+      @location.archive!
+      record_activity("archive_location", recordable: @location, metadata: { type: "Location", name: @location.name })
+      redirect_to curator_location_path(@location), notice: t("curator.locations.archived"), status: :see_other
+    end
+
+    def restore
+      @location.restore!
+      record_activity("restore_location", recordable: @location, metadata: { type: "Location", name: @location.name })
+      redirect_to curator_location_path(@location), notice: t("curator.locations.restored"), status: :see_other
     end
 
     private

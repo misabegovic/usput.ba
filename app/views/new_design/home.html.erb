@@ -404,7 +404,7 @@
         </div>
         <% if @recent_moments.present? %>
           <div class="mt-8 text-center">
-            <%= link_to t("explore.view_all", default: "View all"), explore_path(types: [ "moment" ]),
+            <%= link_to t("common.view_all"), explore_path(types: [ "moment" ]),
                   class: "text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-yellow-400" %>
           </div>
         <% end %>

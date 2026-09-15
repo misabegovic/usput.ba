@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import "leaflet"
+import { loadLeaflet } from "services/leaflet_service"
 
 // Educational minesweeper: the board is a geographic grid drawn on real map
 // tiles, and the mine cells come from the server — cells that intersect
@@ -19,8 +19,9 @@ export default class extends Controller {
     dlat: Number, dlon: Number, mines: Array, labels: Object
   }
 
-  connect() {
-    this.initMap()
+  async connect() {
+    // The board is drawn onto the map, so there is no game without one.
+    if (!(await this.initMap())) return
     this.newGame()
   }
 
@@ -29,8 +30,10 @@ export default class extends Controller {
     if (this.leaflet) this.leaflet.remove()
   }
 
-  initMap() {
-    const L = window.L
+  async initMap() {
+    const L = await loadLeaflet()
+    if (!L || !this.element.isConnected) return false
+
     this.leaflet = L.map(this.mapTarget, { attributionControl: true })
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 17,
@@ -43,9 +46,12 @@ export default class extends Controller {
     this.leaflet.fitBounds(this.boardBounds, { padding: [20, 20] })
     this.cellLayer = L.layerGroup().addTo(this.leaflet)
     this.markLayer = L.layerGroup().addTo(this.leaflet)
+    return true
   }
 
   newGame() {
+    // The button exists in the markup whether or not the map ever loaded.
+    if (!this.cellLayer) return
     this.stopTimer()
     this.seconds = 0
     this.timerTarget.textContent = "0"

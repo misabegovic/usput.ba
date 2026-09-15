@@ -105,7 +105,10 @@ class Platform::DSL::MutationsTest < ActiveSupport::TestCase
   end
 
   # Delete tests
-  test "deletes location successfully" do
+  # The executor has always tried soft_delete before destroying; Location now
+  # answers it, so a delete instruction retires a place rather than taking the
+  # moments travellers recorded there with it.
+  test "deletes location by archiving it" do
     location = Location.create!(name: "Za brisanje", city: "Zenica")
 
     result = Platform::DSL.execute("delete location { id: #{location.id} }")
@@ -114,8 +117,7 @@ class Platform::DSL::MutationsTest < ActiveSupport::TestCase
     assert_equal :delete, result[:action]
     assert_equal location.id, result[:record_id]
 
-    # Verify deleted
-    assert_nil Location.find_by(id: location.id)
+    assert location.reload.archived?
   end
 
   test "rejects delete without identifier" do
