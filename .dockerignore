@@ -1,0 +1,5 @@
+# The brain (knowledge layer) is not part of the running app
+/wiki/
+/sources/
+/log/log.md
+/brain.config.yml

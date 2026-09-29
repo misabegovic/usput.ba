@@ -13,40 +13,22 @@ claude "Koristi content-director agenta. [task]"
 
 ---
 
-## Planovi i dokumentacija
+## Brain: planovi i dokumentacija
 
-### Gdje su planovi
-
-```
-📁 .claude/planning/README.md  - INDEX SVIH PLANOVA
-
-Svi planovi i dokumentacija su u .claude/planning/ folderu.
-README.md služi kao index i pokazuje gdje šta naći.
-```
-
-### Struktura .claude/planning/
-
-```
-.claude/planning/
-├── README.md              # Index - POČNI OVDJE
-├── VISION.md              # Vizija, arhitektura, tools
-├── IMPLEMENTATION.md      # 17 faza implementacije (DSL-First)
-├── TAILWIND_GUIDE.md      # Tailwind CSS vodič
-├── DEVELOPER_ONBOARDING.md # Developer onboarding
-├── archive/               # Stari dokumenti za referencu
-└── decisions/             # ADR i product odluke
-```
-
-### Quick Reference
+Repozitorij je ujedno i brain (alat `tabula`). Pravila su u `AGENTS.md` (engleski).
 
 | Trebam... | Pogledaj |
 |-----------|----------|
-| Viziju, arhitekturu | `.claude/planning/VISION.md` |
-| Taskove za fazu | `.claude/planning/IMPLEMENTATION.md` |
-| Sve planove | `.claude/planning/README.md` |
-| Tailwind CSS | `.claude/planning/TAILWIND_GUIDE.md` |
-| Developer onboarding | `.claude/planning/DEVELOPER_ONBOARDING.md` |
-| ADR odluke | `.claude/planning/decisions/` |
+| Početnu stranicu braina | `wiki/index.md` |
+| Gdje je proizvod danas i kuda ide | `wiki/state.md` |
+| Svrhu, persone, domenu, feature-e | `wiki/product/` |
+| Arhitekturu, Platform DSL, AI pipeline, konvencije | `wiki/architecture/` |
+| Odluke (ADR) | `wiki/decisions/` (redoslijed u `wiki/decisions/log.md`) |
+| Inicijative u toku i prijedloge | `wiki/initiatives/` |
+| Originalne planove (bosanski, nepromjenjivi) | `sources/planning/` |
+| Mine Checker specifikaciju | `docs/mine_checker/` |
+
+Originali u `sources/` se nikad ne mijenjaju, samo se dodaju novi. Novo znanje ide u `wiki/` (engleski), sa `sources:` koji citiraju odakle dolazi. Prije commita koji dira `wiki/`: `tabula validate`.
 
 ---
 
@@ -198,18 +180,7 @@ Primjer:
 
 ## Trenutna faza
 
-**Faza 1: Core + DSL Foundation**
-
-Fokus:
-- `bin/platform` CLI
-- `Platform::Brain` (RubyLLM wrapper + DSL generation)
-- `Platform::Conversation`
-- `Platform::DSL::Parser` - DSL parsing (Parslet)
-- `Platform::DSL::Executor` - Query execution
-
-**Arhitektura:** DSL-First (ADR: 2025-01-15)
-
-Referenca: `.claude/planning/IMPLEMENTATION.md` → Faza 1
+Trenutno stanje i sljedeći koraci su u `wiki/state.md` (sekcije Now i Target) i `wiki/initiatives/`. Stari plan od 17 faza (`sources/planning/IMPLEMENTATION.md`) je historijski izvor, ne trenutni plan.
 
 ---
 
@@ -340,8 +311,8 @@ bin/rails g model PlatformStatistic key:string value:jsonb
 
 ## Pravila
 
-1. **Čitaj dokumentaciju** - `.claude/planning/README.md` za sve planove
-2. **Prati faze** - Implementiraj po `.claude/planning/IMPLEMENTATION.md`
+1. **Čitaj brain** - `wiki/index.md`, pa stranicu koja upravlja kodom koji mijenjaš
+2. **Brain ide uz kod** - PR koji mijenja proizvod ažurira i `wiki/` (odluka, inicijativa, stanje)
 3. **Testovi obavezni** - Nema koda bez testova
 4. **Pitaj kad nisi siguran** - Bolje pitati nego pogriješiti
 5. **Atomic commits** - Mali, fokusirani commitovi

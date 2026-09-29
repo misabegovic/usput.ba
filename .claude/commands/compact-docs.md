@@ -1,6 +1,8 @@
 # /compact
 
-Kompaktuj i sredi planning dokumentaciju.
+Kompaktuj i sredi brain (`wiki/`).
+
+**Važno:** `sources/` je nepromjenjiv. Ova komanda nikad ne mijenja, ne premješta i ne briše ništa u `sources/`. Radi samo nad `wiki/`; zastarjele stranice idu u `wiki/_archive/` ili dobiju `status: superseded`.
 
 **Agent:** Tech Lead + Product Manager
 
@@ -25,7 +27,7 @@ Kompaktuj i sredi planning dokumentaciju.
 
 ### 1. Analiza trenutnog stanja
 
-Prođi kroz sve u `.claude/planning/`:
+Prođi kroz sve u `wiki/`:
 - Koji dokumenti su aktivni i relevantni?
 - Koji su zastarjeli ili duplikati?
 - Šta nedostaje?
@@ -40,7 +42,7 @@ Za svaki aktivan dokument:
 
 ### 3. Arhiviranje
 
-Premjesti u `archive/`:
+Premjesti u `wiki/_archive/` (ili označi `status: superseded` sa `superseded_by:`):
 - Dokumente koji više nisu relevantni
 - Stare verzije koje su zamijenjene
 - Completed planove (sa datumom)

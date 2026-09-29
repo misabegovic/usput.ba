@@ -64,3 +64,9 @@ tailwindcss-*
 .byebug_history
 tmp/cache/bootsnap/
 coverage/
+
+# Brain (tabula): the operations log lives beside the Rails logs
+!/log/log.md
+wiki/_state/claims/
+wiki/_state/embeddings/
+.fastembed_cache/

@@ -44,7 +44,7 @@ User Input → DSL Parser → Executor → Database
          Brain (za LLM generaciju)
 ```
 
-Referenca: `.claude/planning/VISION.md`
+Referenca: `sources/planning/VISION.md`
 
 ## Format odgovora
 
