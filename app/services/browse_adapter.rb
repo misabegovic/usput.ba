@@ -106,7 +106,8 @@ class BrowseAdapter
         budget: location.budget_before_type_cast,
         category_keys: location.category_keys,
         seasons: location.seasons,
-        ai_generated: false
+        ai_generated: false,
+        wheelchair_accessible: location.wheelchair_accessible?
       }
     end
 
