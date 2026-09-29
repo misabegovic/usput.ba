@@ -4,16 +4,27 @@ kind: decision
 status: accepted
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 supersedes: decisions/executor-simplification.md
 sources:
-  - sources/planning/adr/ADR-2026-01-16-restore-all-executor-functionality.md
-  - sources/planning/decisions/2026-02-03-remove-platform-database.md
-  - lib/platform/dsl/executor.rb
-  - lib/platform/dsl/executors.rb
+- sources/planning/adr/ADR-2026-01-16-restore-all-executor-functionality.md
+- sources/planning/decisions/2026-02-03-remove-platform-database.md
+- lib/platform/dsl/executor.rb
+- lib/platform/dsl/executors.rb
+enola_intent:
+  page:
+    type: decision
+    status: accepted
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    relations:
+    - rel: supersedes
+      to: wiki/decisions/executor-simplification.md
 ---
-
 # Restore all DSL executor functionality in modules
 
 ## Context

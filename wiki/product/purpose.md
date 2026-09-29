@@ -4,21 +4,30 @@ kind: reference
 status: living
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 sources:
-  - README.md
-  - CLAUDE.md
-  - .claude/CLAUDE.md
-  - sources/planning/VISION.md
-  - .claude/agents/curator.md
-  - .claude/agents/content-director.md
-  - .claude/agents/historian.md
-  - .claude/agents/audio-producer.md
-  - config/application.rb
-  - app/models/content_change.rb
-  - app/models/moment.rb
-  - docs/mine_checker/README.md
+- README.md
+- CLAUDE.md
+- .claude/CLAUDE.md
+- sources/planning/VISION.md
+- .claude/agents/curator.md
+- .claude/agents/content-director.md
+- .claude/agents/historian.md
+- .claude/agents/audio-producer.md
+- config/application.rb
+- app/models/content_change.rb
+- app/models/moment.rb
+- docs/mine_checker/README.md
+enola_intent:
+  page:
+    type: reference
+    status: living
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
 ---
 # Purpose of Usput.ba
 

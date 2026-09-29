@@ -4,42 +4,51 @@ kind: reference
 status: living
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 sources:
-  - config/routes.rb
-  - app/models/user.rb
-  - app/controllers/concerns/authenticatable.rb
-  - app/controllers/concerns/records_visits.rb
-  - app/controllers/concerns/syncs_local_data.rb
-  - app/helpers/application_helper.rb
-  - app/controllers/plans_controller.rb
-  - app/controllers/plans/visits_controller.rb
-  - app/controllers/moments_controller.rb
-  - app/controllers/moments/likes_controller.rb
-  - app/controllers/reviews_controller.rb
-  - app/controllers/user_plans_controller.rb
-  - app/controllers/travel_profiles_controller.rb
-  - app/controllers/explore_bosnia_controller.rb
-  - app/controllers/curator/base_controller.rb
-  - app/controllers/curator/admin/base_controller.rb
-  - app/controllers/curator/locations_controller.rb
-  - app/controllers/curator/moments_controller.rb
-  - app/controllers/curator/reviews_controller.rb
-  - app/models/content_change.rb
-  - app/models/curator_application.rb
-  - app/services/guest_visits_importer.rb
-  - .claude/CLAUDE.md
-  - .claude/agents/content-director.md
-  - .claude/agents/curator.md
-  - .claude/agents/historian.md
-  - .claude/agents/guide.md
-  - .claude/agents/robert.md
-  - .claude/agents/audio-producer.md
-  - .claude/agents/developer.md
-  - .claude/agents/tech-lead.md
-  - .claude/agents/product-manager.md
-  - https://github.com/misabegovic/usput.ba/pull/166
+- config/routes.rb
+- app/models/user.rb
+- app/controllers/concerns/authenticatable.rb
+- app/controllers/concerns/records_visits.rb
+- app/controllers/concerns/syncs_local_data.rb
+- app/helpers/application_helper.rb
+- app/controllers/plans_controller.rb
+- app/controllers/plans/visits_controller.rb
+- app/controllers/moments_controller.rb
+- app/controllers/moments/likes_controller.rb
+- app/controllers/reviews_controller.rb
+- app/controllers/user_plans_controller.rb
+- app/controllers/travel_profiles_controller.rb
+- app/controllers/explore_bosnia_controller.rb
+- app/controllers/curator/base_controller.rb
+- app/controllers/curator/admin/base_controller.rb
+- app/controllers/curator/locations_controller.rb
+- app/controllers/curator/moments_controller.rb
+- app/controllers/curator/reviews_controller.rb
+- app/models/content_change.rb
+- app/models/curator_application.rb
+- app/services/guest_visits_importer.rb
+- .claude/CLAUDE.md
+- .claude/agents/content-director.md
+- .claude/agents/curator.md
+- .claude/agents/historian.md
+- .claude/agents/guide.md
+- .claude/agents/robert.md
+- .claude/agents/audio-producer.md
+- .claude/agents/developer.md
+- .claude/agents/tech-lead.md
+- .claude/agents/product-manager.md
+- https://github.com/misabegovic/usput.ba/pull/166
+enola_intent:
+  page:
+    type: reference
+    status: living
+    scope:
+    - usput.ba
+    origin:
+    - repo
+    - web
 ---
 # Personas
 

@@ -4,17 +4,24 @@ kind: decision
 status: accepted
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 sources:
-  - docs/mine_checker/ADR-001-mine-data-source.md
-  - config/mine_checker.yml
-  - app/services/mine_checker/base_check.rb
-  - app/services/mine_checker/static_index.rb
-  - app/models/location.rb
-  - scripts/mine_checker/scrape_eufor_pdfs.py
+- docs/mine_checker/ADR-001-mine-data-source.md
+- config/mine_checker.yml
+- app/services/mine_checker/base_check.rb
+- app/services/mine_checker/static_index.rb
+- app/models/location.rb
+- scripts/mine_checker/scrape_eufor_pdfs.py
+enola_intent:
+  page:
+    type: decision
+    status: accepted
+    scope:
+    - usput.ba
+    origin:
+    - repo
 ---
-
 # Mine Checker data from EUFOR maps
 
 ## Context

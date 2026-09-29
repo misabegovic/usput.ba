@@ -4,15 +4,23 @@ kind: decision
 status: accepted
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 sources:
-  - sources/planning/decisions/2026-02-03-remove-platform-database.md
-  - config/database.yml
-  - db/schema.rb
-  - lib/platform/dsl/executors.rb
+- sources/planning/decisions/2026-02-03-remove-platform-database.md
+- config/database.yml
+- db/schema.rb
+- lib/platform/dsl/executors.rb
+enola_intent:
+  page:
+    type: decision
+    status: accepted
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
 ---
-
 # Remove the platform database and keep two databases
 
 ## Context

@@ -4,18 +4,30 @@ kind: decision
 status: proposed
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 depends_on:
-  - decisions/curator-dashboard-v2.md
+- decisions/curator-dashboard-v2.md
 sources:
-  - sources/planning/pr-151/decisions/2026-02-05-per-resource-suggestion-models.md
-  - https://github.com/misabegovic/usput.ba/pull/151
-  - app/models/content_change.rb
-  - app/models/photo_suggestion.rb
-  - db/schema.rb
+- sources/planning/pr-151/decisions/2026-02-05-per-resource-suggestion-models.md
+- https://github.com/misabegovic/usput.ba/pull/151
+- app/models/content_change.rb
+- app/models/photo_suggestion.rb
+- db/schema.rb
+enola_intent:
+  page:
+    type: decision
+    status: proposed
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    - web
+    relations:
+    - rel: depends-on
+      to: wiki/decisions/curator-dashboard-v2.md
 ---
-
 # Replace ContentChange with per-resource suggestion models
 
 ## Context

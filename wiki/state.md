@@ -4,29 +4,38 @@ kind: reference
 status: living
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 sources:
-  - sources/planning/README.md
-  - sources/planning/IMPLEMENTATION.md
-  - sources/planning/VISION.md
-  - sources/planning/REVIEW_APPROVAL_SYSTEM.md
-  - sources/planning/decisions/2026-02-03-remove-platform-database.md
-  - sources/planning/decisions/2026-02-04-ai-services-dsl-migration.md
-  - sources/planning/pr-151/rfcs/0001-curator-dashboard-v2.md
-  - docs/mine_checker/README.md
-  - config/routes.rb
-  - db/schema.rb
-  - lib/platform/cli.rb
-  - lib/platform/mcp_server.rb
-  - app/models/review.rb
-  - app/models/moment.rb
-  - app/models/location.rb
-  - app/services/ai/location_enricher.rb
-  - https://github.com/misabegovic/usput.ba/pull/154
-  - https://github.com/misabegovic/usput.ba/pull/168
+- sources/planning/README.md
+- sources/planning/IMPLEMENTATION.md
+- sources/planning/VISION.md
+- sources/planning/REVIEW_APPROVAL_SYSTEM.md
+- sources/planning/decisions/2026-02-03-remove-platform-database.md
+- sources/planning/decisions/2026-02-04-ai-services-dsl-migration.md
+- sources/planning/pr-151/rfcs/0001-curator-dashboard-v2.md
+- docs/mine_checker/README.md
+- config/routes.rb
+- db/schema.rb
+- lib/platform/cli.rb
+- lib/platform/mcp_server.rb
+- app/models/review.rb
+- app/models/moment.rb
+- app/models/location.rb
+- app/services/ai/location_enricher.rb
+- https://github.com/misabegovic/usput.ba/pull/154
+- https://github.com/misabegovic/usput.ba/pull/168
+enola_intent:
+  page:
+    type: reference
+    status: living
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    - web
 ---
-
 # Product state
 
 Where Usput.ba has been, what is true in the code today, what the older planning documents still believe, and where the next 90 days point. This page is the gap map: the distance from Now to Target is the work, and the distance from Now to Perceived is the risk. Git history in this clone is shallow (the earliest visible commit is 2f008b1 on 2026-01-15), so the earliest period is reconstructed from migrations and issue dates.
@@ -47,11 +56,11 @@ Where Usput.ba has been, what is true in the code today, what the older planning
 
 **2026-09-15: the traveller features (#161 to #167).** #161 gives check-ins (`plan_visits`), moments and plan stops (`plan_locations`) tables of their own; a published moment goes to curator moderation. #162 adds position and route services, #163 a location map. #164 lets a traveller walk a plan as a stack of cards, check in within 100 m and capture a moment. #165 turns explore into a deck of places, nearest first. #166 allows exploring and checking in without an account and replays the walk on sign-in. #167 archives a place instead of deleting it and finishes wiring moments into Browse.
 
-**2026-09-29: planning and accessibility catch up.** #152 merges the review approval plan (`sources/planning/REVIEW_APPROVAL_SYSTEM.md`). #154 is merged onto current main (d3be6c5), with a follow-up so a moment passes the accessible filter when its place does (abf62b0); it is merging via #168.
+**2026-09-29: planning and accessibility catch up.** #152 merges the review approval plan (`sources/planning/REVIEW_APPROVAL_SYSTEM.md`). #154 is merged onto current main (d3be6c5), with a follow-up so a moment passes the accessible filter when its place does (abf62b0); both land through #168, merged the same day as 7955ae9, which also marks #154 itself merged.
 
 ## Now
 
-- **Stack.** Rails 8.1 on PostgreSQL with PostGIS, Hotwire, Tailwind, Solid Queue; two databases (`db/schema.rb`, `sources/planning/decisions/2026-02-03-remove-platform-database.md`).
+- **Stack.** Rails 8.1 on PostgreSQL (PostGIS only offline, to build the Mine Checker's static artifacts, per `docs/mine_checker/README.md`), Hotwire, Tailwind, Solid Queue; two databases (`db/schema.rb`, `sources/planning/decisions/2026-02-03-remove-platform-database.md`).
 - **Public product.** Home, explore (the Browse-backed search with filters for type, season, budget, duration, rating, city, origin, audio and accessibility), Explore Bosnia (a deck of places, nearest first), location, experience and plan pages, the plan wizard, walking a plan with check-ins, moments with likes, a travel profile that works without an account, reviews, `/mine-check` and the minesweeper game (`config/routes.rb`).
 - **Curator dashboard.** Curators browse and propose changes to locations, experiences, plans and audio tours; proposals are `ContentChange` records that admins approve or reject under `curator/admin/content_changes`. Admins also approve photo suggestions, curator applications and users. Moments have a pending, approved, rejected queue (`Moment` enum `moderation_status`). Direct edit, delete and create buttons are hidden unless the global `curator_edit_delete` flag is on. Places are archived and restored rather than deleted.
 - **Reviews are unmoderated.** `Review` has no status column; any visitor can post (the controller has no login requirement and still permits `author_name`), and every review counts toward `average_rating` (`app/models/review.rb`, `app/controllers/reviews_controller.rb`).
@@ -63,7 +72,7 @@ Where Usput.ba has been, what is true in the code today, what the older planning
 
 What the planning documents in `sources/planning/` still say, and where it no longer matches the code.
 
-- **"Current phase: Phase 1, Core + DSL Foundation."** `.claude/CLAUDE.md` still says this, and `sources/planning/README.md` (last updated 2026-02-04) says phases 1 to 4 are complete and phase 5 is next. The commit history says #124 claimed all 17 phases on 2026-01-16. Neither is right: some phases shipped, several were built and later removed, and the product has since moved to traveller features no plan describes.
+- **"Current phase: Phase 1, Core + DSL Foundation."** `.claude/CLAUDE.md` said this until the brain was set up on 2026-09-29, and `sources/planning/README.md` (last updated 2026-02-04) says phases 1 to 4 are complete and phase 5 is next. The commit history says #124 claimed all 17 phases on 2026-01-16. Neither is right: some phases shipped, several were built and later removed, and the product has since moved to traveller features no plan describes.
 - **The 17 phases of `IMPLEMENTATION.md`, checked against the code:**
   - Done and still present: 1 in part (CLI, grammar, parser, executor, validator; `Platform::Brain` and `Platform::Conversation` were removed in #147), 5 (external data through `GeoapifyService` and the BiH boundary validator), 6 (content mutations through DSL, without the audit log), 7 and 8 (generation and audio synthesis through the content executor), 11 (`SpamDetector` behind curator DSL commands), 12 in part (infrastructure executor), 15 (admin features under `curator/admin`) and 16 (no separate admin dashboard remains).
   - Built and then removed on 2026-02-03: 2, 3 and 4 (knowledge layers 0 to 2 and pgvector) and 13 (prepared prompts).
@@ -78,7 +87,7 @@ What the planning documents in `sources/planning/` still say, and where it no lo
 
 Next 90 days (to about 2026-12-28), drawn from the open initiatives and issues. None of this is committed yet.
 
-- **Land accessibility and close its gaps**: merge #168, re-sync moment Browse rows when a place's accessibility changes, and fill accessibility data for existing places ([location accessibility](initiatives/location-accessibility.md)).
+- **Land accessibility and close its gaps**: re-sync moment Browse rows when a place's accessibility changes, and fill accessibility data for existing places ([location accessibility](initiatives/location-accessibility.md)).
 - **Moderate reviews** as written in the approval plan ([review approval system](initiatives/review-approval-system.md)).
 - **Take what is worth taking from #151**, starting with audio tour generation from the dashboard, and decide whether `ContentChange` is retired or fixed ([curator dashboard v2 salvage](initiatives/curator-dashboard-v2-salvage.md)).
 - **Work the open issue list** ([open issues](initiatives/open-issues.md)): video URLs (#80), a Geoapify replacement (#135), duration and price rules (#139, #85), cycling (#153), seasons (#30), stale data (#27).

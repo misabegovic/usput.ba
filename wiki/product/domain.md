@@ -4,38 +4,47 @@ kind: reference
 status: living
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 sources:
-  - db/schema.rb
-  - app/models/location.rb
-  - app/models/experience.rb
-  - app/models/experience_location.rb
-  - app/models/experience_category.rb
-  - app/models/experience_type.rb
-  - app/models/location_category.rb
-  - app/models/plan.rb
-  - app/models/plan_location.rb
-  - app/models/plan_experience.rb
-  - app/models/plan_visit.rb
-  - app/models/moment.rb
-  - app/models/like.rb
-  - app/models/review.rb
-  - app/models/browse.rb
-  - app/models/concerns/browsable.rb
-  - app/models/concerns/translatable.rb
-  - app/models/audio_tour.rb
-  - app/models/photo_suggestion.rb
-  - app/models/content_change.rb
-  - app/models/content_change_contribution.rb
-  - app/models/curator_review.rb
-  - app/models/curator_activity.rb
-  - app/models/curator_application.rb
-  - app/models/user.rb
-  - app/models/mine_check_audit.rb
-  - app/controllers/concerns/records_visits.rb
-  - docs/mine_checker/README.md
-  - https://github.com/misabegovic/usput.ba/pull/161
+- db/schema.rb
+- app/models/location.rb
+- app/models/experience.rb
+- app/models/experience_location.rb
+- app/models/experience_category.rb
+- app/models/experience_type.rb
+- app/models/location_category.rb
+- app/models/plan.rb
+- app/models/plan_location.rb
+- app/models/plan_experience.rb
+- app/models/plan_visit.rb
+- app/models/moment.rb
+- app/models/like.rb
+- app/models/review.rb
+- app/models/browse.rb
+- app/models/concerns/browsable.rb
+- app/models/concerns/translatable.rb
+- app/models/audio_tour.rb
+- app/models/photo_suggestion.rb
+- app/models/content_change.rb
+- app/models/content_change_contribution.rb
+- app/models/curator_review.rb
+- app/models/curator_activity.rb
+- app/models/curator_application.rb
+- app/models/user.rb
+- app/models/mine_check_audit.rb
+- app/controllers/concerns/records_visits.rb
+- docs/mine_checker/README.md
+- https://github.com/misabegovic/usput.ba/pull/161
+enola_intent:
+  page:
+    type: reference
+    status: living
+    scope:
+    - usput.ba
+    origin:
+    - repo
+    - web
 ---
 # Domain vocabulary
 

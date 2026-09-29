@@ -4,16 +4,24 @@ kind: decision
 status: accepted
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 sources:
-  - sources/planning/adr/2025-01-15-full-introspection-p0.md
-  - sources/planning/decisions/2026-02-03-remove-platform-database.md
-  - lib/platform/dsl/executors/infrastructure.rb
-  - lib/platform/dsl/executors/external.rb
-  - lib/platform/dsl/executor.rb
+- sources/planning/adr/2025-01-15-full-introspection-p0.md
+- sources/planning/decisions/2026-02-03-remove-platform-database.md
+- lib/platform/dsl/executors/infrastructure.rb
+- lib/platform/dsl/executors/external.rb
+- lib/platform/dsl/executor.rb
+enola_intent:
+  page:
+    type: decision
+    status: accepted
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
 ---
-
 # Introspection and self-improvement in P0
 
 ## Context

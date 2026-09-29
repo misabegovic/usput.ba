@@ -4,31 +4,45 @@ kind: initiative
 status: proposed
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 sources:
-  - sources/planning/pr-151/README.md
-  - sources/planning/pr-151/rfcs/0001-curator-dashboard-v2.md
-  - sources/planning/pr-151/decisions/2026-02-05-per-resource-suggestion-models.md
-  - sources/planning/pr-151/decisions/2026-02-05-reviews-management-system.md
-  - sources/planning/pr-151/decisions/2026-02-05-audio-tour-generation-integration.md
-  - sources/planning/pr-151/decisions/2026-02-05-video-urls-and-cover-photos.md
-  - sources/planning/pr-151/decisions/2026-02-05-ai-vs-human-suggestion-origin.md
-  - sources/planning/REVIEW_APPROVAL_SYSTEM.md
-  - config/routes.rb
-  - db/schema.rb
-  - app/models/moment.rb
-  - app/models/content_change.rb
-  - app/models/plan.rb
-  - app/models/experience.rb
-  - lib/tasks/audio_tours.rake
-  - https://github.com/misabegovic/usput.ba/pull/151
-  - https://github.com/misabegovic/usput.ba/pull/152
+- sources/planning/pr-151/README.md
+- sources/planning/pr-151/rfcs/0001-curator-dashboard-v2.md
+- sources/planning/pr-151/decisions/2026-02-05-per-resource-suggestion-models.md
+- sources/planning/pr-151/decisions/2026-02-05-reviews-management-system.md
+- sources/planning/pr-151/decisions/2026-02-05-audio-tour-generation-integration.md
+- sources/planning/pr-151/decisions/2026-02-05-video-urls-and-cover-photos.md
+- sources/planning/pr-151/decisions/2026-02-05-ai-vs-human-suggestion-origin.md
+- sources/planning/REVIEW_APPROVAL_SYSTEM.md
+- config/routes.rb
+- db/schema.rb
+- app/models/moment.rb
+- app/models/content_change.rb
+- app/models/plan.rb
+- app/models/experience.rb
+- lib/tasks/audio_tours.rake
+- https://github.com/misabegovic/usput.ba/pull/151
+- https://github.com/misabegovic/usput.ba/pull/152
 depends_on:
-  - state.md
-  - initiatives/review-approval-system.md
+- state.md
+- initiatives/review-approval-system.md
+enola_intent:
+  page:
+    type: initiative
+    status: proposed
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    - web
+    relations:
+    - rel: depends-on
+      to: wiki/state.md
+    - rel: depends-on
+      to: wiki/initiatives/review-approval-system.md
 ---
-
 # Curator dashboard v2 salvage
 
 ## Objective
@@ -37,7 +51,7 @@ Take the parts of PR #151 that still earn their place, in an order where each sl
 
 ## Background
 
-PR #151 (branch `claude/review-curator-dashboard-bah58`, last updated 2026-02-05) was never merged. Its planning documents are snapshotted under `sources/planning/pr-151/`: an umbrella RFC and ADR-0003 to ADR-0007, all "Proposed". Its merge base is #150 (605291b), and it conflicts with main in eight files after the traveller work of September 2026.
+PR #151 (branch `claude/review-curator-dashboard-bah58`, last updated 2026-02-05) was never merged. Its planning documents are snapshotted under `sources/planning/pr-151/`: an umbrella RFC and ADR-0003 to ADR-0007, all "Proposed". The brain records them as [curator dashboard v2](../decisions/curator-dashboard-v2.md), [per-resource suggestion models](../decisions/per-resource-suggestion-models.md), [post-moderated reviews](../decisions/post-moderated-reviews.md), [admin audio tour generation](../decisions/admin-audio-tour-generation.md) and [multiple videos and plan covers](../decisions/multiple-videos-and-plan-covers.md). Its merge base is #150 (605291b), and it conflicts with main in eight files after the traveller work of September 2026.
 
 The RFC's premise is that `ContentChange` does not work in production and only `PhotoSuggestion` does. It names six causes: one polymorphic JSONB model cannot cover each resource's associations, photos are excluded from proposals, string form values are not converted back to types on approve, a shallow merge lets the last curator overwrite earlier contributions, "creating" a place that does not exist until approval is confusing, and the working `PhotoSuggestion` proves the per-resource approach (`sources/planning/pr-151/rfcs/0001-curator-dashboard-v2.md`).
 

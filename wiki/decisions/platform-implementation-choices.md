@@ -4,19 +4,30 @@ kind: decision
 status: accepted
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 depends_on:
-  - decisions/dsl-first-platform-architecture.md
+- decisions/dsl-first-platform-architecture.md
 sources:
-  - sources/planning/architecture/2025-01-15-implementation-decisions.md
-  - Gemfile
-  - lib/platform/dsl/parser.rb
-  - lib/platform/cli.rb
-  - test/test_helper.rb
-  - db/schema.rb
+- sources/planning/architecture/2025-01-15-implementation-decisions.md
+- Gemfile
+- lib/platform/dsl/parser.rb
+- lib/platform/cli.rb
+- test/test_helper.rb
+- db/schema.rb
+enola_intent:
+  page:
+    type: decision
+    status: accepted
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    relations:
+    - rel: depends-on
+      to: wiki/decisions/dsl-first-platform-architecture.md
 ---
-
 # Platform implementation choices
 
 ## Context

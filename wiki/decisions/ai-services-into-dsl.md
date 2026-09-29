@@ -4,18 +4,29 @@ kind: decision
 status: proposed
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 depends_on:
-  - decisions/dsl-first-platform-architecture.md
+- decisions/dsl-first-platform-architecture.md
 sources:
-  - sources/planning/decisions/2026-02-04-ai-services-dsl-migration.md
-  - app/services/ai/location_enricher.rb
-  - lib/platform/dsl/executors/content.rb
-  - lib/tasks/audio_tours.rake
-  - lib/tasks/experience_types_cleanup.rake
+- sources/planning/decisions/2026-02-04-ai-services-dsl-migration.md
+- app/services/ai/location_enricher.rb
+- lib/platform/dsl/executors/content.rb
+- lib/tasks/audio_tours.rake
+- lib/tasks/experience_types_cleanup.rake
+enola_intent:
+  page:
+    type: decision
+    status: proposed
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    relations:
+    - rel: depends-on
+      to: wiki/decisions/dsl-first-platform-architecture.md
 ---
-
 # Migrate the AI services into DSL executors
 
 ## Context

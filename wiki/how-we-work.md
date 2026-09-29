@@ -4,14 +4,23 @@ kind: meta
 status: living
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 sources:
-  - AGENTS.md
-  - .claude/agents/content-director.md
-  - .github/workflows/ci.yml
-  - https://github.com/misabegovic/usput.ba/pull/154
-  - https://github.com/misabegovic/usput.ba/pull/168
+- AGENTS.md
+- .claude/agents/content-director.md
+- .github/workflows/ci.yml
+- https://github.com/misabegovic/usput.ba/pull/154
+- https://github.com/misabegovic/usput.ba/pull/168
+enola_intent:
+  page:
+    type: meta
+    status: living
+    scope:
+    - usput.ba
+    origin:
+    - repo
+    - web
 ---
 # How we work
 

@@ -4,17 +4,26 @@ kind: decision
 status: proposed
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 sources:
-  - sources/planning/pr-151/rfcs/0001-curator-dashboard-v2.md
-  - https://github.com/misabegovic/usput.ba/pull/151
-  - app/models/content_change.rb
-  - app/models/location.rb
-  - app/controllers/curator/locations_controller.rb
-  - app/views/curator/locations/index.html.erb
+- sources/planning/pr-151/rfcs/0001-curator-dashboard-v2.md
+- https://github.com/misabegovic/usput.ba/pull/151
+- app/models/content_change.rb
+- app/models/location.rb
+- app/controllers/curator/locations_controller.rb
+- app/views/curator/locations/index.html.erb
+enola_intent:
+  page:
+    type: decision
+    status: proposed
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    - web
 ---
-
 # Curator dashboard v2 (RFC-0001)
 
 ## Context

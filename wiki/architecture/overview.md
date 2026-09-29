@@ -4,36 +4,56 @@ kind: reference
 status: living
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 sources:
-  - Gemfile
-  - .ruby-version
-  - Dockerfile
-  - Procfile.dev
-  - config/deploy.yml
-  - config/database.yml
-  - config/queue.yml
-  - config/routes.rb
-  - config/importmap.rb
-  - config/storage.yml
-  - config/environments/production.rb
-  - config/environments/development.rb
-  - config/initializers/ruby_llm.rb
-  - config/initializers/flipper.rb
-  - config/initializers/rack_attack.rb
-  - config/ci.rb
-  - .github/workflows/ci.yml
-  - README.md
-  - CLAUDE.md
-  - sources/planning/DEVELOPER_ONBOARDING.md
-  - sources/planning/decisions/2026-02-03-remove-platform-database.md
+- Gemfile
+- .ruby-version
+- Dockerfile
+- Procfile.dev
+- config/deploy.yml
+- config/database.yml
+- config/queue.yml
+- config/routes.rb
+- config/importmap.rb
+- config/storage.yml
+- config/environments/production.rb
+- config/environments/development.rb
+- config/initializers/ruby_llm.rb
+- config/initializers/flipper.rb
+- config/initializers/rack_attack.rb
+- config/ci.rb
+- .github/workflows/ci.yml
+- README.md
+- CLAUDE.md
+- sources/planning/DEVELOPER_ONBOARDING.md
+- sources/planning/decisions/2026-02-03-remove-platform-database.md
 depends_on:
-  - architecture/platform-dsl.md
-  - architecture/ai-content-pipeline.md
-  - architecture/mine-checker.md
-  - architecture/frontend.md
-  - architecture/conventions.md
+- architecture/platform-dsl.md
+- architecture/ai-content-pipeline.md
+- architecture/mine-checker.md
+- architecture/frontend.md
+- architecture/conventions.md
+enola_intent:
+  page:
+    type: reference
+    status: living
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    relations:
+    - rel: depends-on
+      to: wiki/architecture/platform-dsl.md
+    - rel: depends-on
+      to: wiki/architecture/ai-content-pipeline.md
+    - rel: depends-on
+      to: wiki/architecture/mine-checker.md
+    - rel: depends-on
+      to: wiki/architecture/frontend.md
+    - rel: depends-on
+      to: wiki/architecture/conventions.md
 ---
 # Architecture overview
 

@@ -4,14 +4,24 @@ kind: decision
 status: superseded
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 superseded_by: decisions/restore-all-dsl-executors.md
 sources:
-  - sources/planning/archive/ADR-2026-01-16-executor-simplification.md
-  - sources/planning/adr/ADR-2026-01-16-restore-all-executor-functionality.md
+- sources/planning/archive/ADR-2026-01-16-executor-simplification.md
+- sources/planning/adr/ADR-2026-01-16-restore-all-executor-functionality.md
+enola_intent:
+  page:
+    type: decision
+    status: superseded
+    scope:
+    - usput.ba
+    origin:
+    - other
+    relations:
+    - rel: superseded-by
+      to: wiki/decisions/restore-all-dsl-executors.md
 ---
-
 # Simplify the DSL executor by archiving unused query types
 
 ## Context

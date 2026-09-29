@@ -4,23 +4,35 @@ kind: initiative
 status: proposed
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 sources:
-  - sources/planning/REVIEW_APPROVAL_SYSTEM.md
-  - sources/planning/pr-151/decisions/2026-02-05-reviews-management-system.md
-  - app/models/review.rb
-  - app/models/moment.rb
-  - app/controllers/reviews_controller.rb
-  - app/models/curator_activity.rb
-  - config/routes.rb
-  - db/schema.rb
-  - https://github.com/misabegovic/usput.ba/pull/152
-  - https://github.com/misabegovic/usput.ba/pull/151
+- sources/planning/REVIEW_APPROVAL_SYSTEM.md
+- sources/planning/pr-151/decisions/2026-02-05-reviews-management-system.md
+- app/models/review.rb
+- app/models/moment.rb
+- app/controllers/reviews_controller.rb
+- app/models/curator_activity.rb
+- config/routes.rb
+- db/schema.rb
+- https://github.com/misabegovic/usput.ba/pull/152
+- https://github.com/misabegovic/usput.ba/pull/151
 depends_on:
-  - state.md
+- state.md
+enola_intent:
+  page:
+    type: initiative
+    status: proposed
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    - web
+    relations:
+    - rel: depends-on
+      to: wiki/state.md
 ---
-
 # Review approval system
 
 ## Objective
@@ -47,7 +59,7 @@ The plan's decisions, translated from the Bosnian table:
 
 The plan is laid out in five phases: migration and model (status, `reviewed_by`, `reviewed_at`), public controller and form, curator approve and reject, activity integration, and tests.
 
-**A competing design exists.** PR #151 (never merged) carries ADR-0004, a post-moderation design: reviews are visible at once with a `moderation_status` of unreviewed, approved, flagged or removed, curators flag and admins approve or remove (`sources/planning/pr-151/decisions/2026-02-05-reviews-management-system.md`). Both designs claim the same column. #151's `removed` status is also never filtered from public pages or the average, so it is incomplete as written.
+**A competing design exists.** PR #151 (never merged) carries ADR-0004, a post-moderation design: reviews are visible at once with a `moderation_status` of unreviewed, approved, flagged or removed, curators flag and admins approve or remove (`sources/planning/pr-151/decisions/2026-02-05-reviews-management-system.md`; recorded as [post-moderated reviews](../decisions/post-moderated-reviews.md)). Both designs claim the same column. #151's `removed` status is also never filtered from public pages or the average, so it is incomplete as written.
 
 **The house convention already exists.** `Moment` uses `enum :moderation_status, { pending: 0, approved: 1, rejected: 2 }`, a curator queue with approve and reject actions, and `approve_moment` and `reject_moment` activities (`app/models/moment.rb`, `app/models/curator_activity.rb`). The #152 plan matches it; #151 does not.
 

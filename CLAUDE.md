@@ -5,7 +5,7 @@
 
 ## Tech Stack
 - Ruby 3.3+ / Rails 8
-- PostgreSQL + pgvector
+- PostgreSQL (pgvector uklonjen u #147; PostGIS samo offline za Mine Checker artefakte)
 - Tailwind CSS
 - Hotwire (Turbo + Stimulus)
 

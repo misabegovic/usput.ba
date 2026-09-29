@@ -4,18 +4,26 @@ kind: decision
 status: accepted
 updated: 2026-09-29
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 sources:
-  - sources/planning/architecture/2025-01-15-dsl-first-architecture.md
-  - sources/planning/decisions/2026-02-03-remove-platform-database.md
-  - lib/platform/dsl/parser.rb
-  - lib/platform/dsl/executor.rb
-  - lib/platform/cli.rb
-  - lib/platform/mcp_server.rb
-  - config/database.yml
+- sources/planning/architecture/2025-01-15-dsl-first-architecture.md
+- sources/planning/decisions/2026-02-03-remove-platform-database.md
+- lib/platform/dsl/parser.rb
+- lib/platform/dsl/executor.rb
+- lib/platform/cli.rb
+- lib/platform/mcp_server.rb
+- config/database.yml
+enola_intent:
+  page:
+    type: decision
+    status: accepted
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
 ---
-
 # DSL-first architecture for the Platform
 
 ## Context
