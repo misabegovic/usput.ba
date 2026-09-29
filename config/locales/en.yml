@@ -123,7 +123,9 @@ en:
       rating: Minimum rating
       sort: Sort by
       audio_support: Audio tours
+      accessible: "♿ Accessible"
       origin: Origin
+      accessible_aria: Show only wheelchair accessible places
     origins:
       ai: AI Generated
       human: Human Made
@@ -377,9 +379,17 @@ en:
       balanced: Balanced
       active: Active
       intensive: Intensive
+      accessibility: Accessibility
+      accessibility_label: Only accessible locations
+      accessibility_hint: Show only wheelchair accessible locations
+      accessibility_aria: Only show wheelchair accessible locations
       food: Food
       meat_lover: Meat lover
       vegetarian: Vegetarian option
+      accessibility: Accessibility
+      accessibility_aria: Show only wheelchair accessible places
+      accessibility_label: Accessible places only
+      accessibility_hint: Show only places accessible by wheelchair
     generate:
       title: Generate Your Plan
       subtitle: We'll create a personalized itinerary for you
@@ -1279,6 +1289,7 @@ en:
         photos: Photos
         audio: Audio Recording
         metadata: Metadata
+        accessibility: Accessibility
       filter:
         all_cities: All places
       needs_photos:
@@ -1291,6 +1302,7 @@ en:
         add_photo: Add Photo
         no_results: No locations found
         no_results_hint: Try adjusting your filters
+      accessibility_hint: Wheelchair and disability access information for this location
     experiences:
       title: Experiences
       new: New Experience
@@ -1773,3 +1785,21 @@ en:
     areas_legend: Approximate boundaries of recorded mine-suspected areas (2024 snapshot). Danger can
       extend BEYOND the shapes shown.
     zoom_hint: Zoom in to see area boundaries.
+  accessibility:
+    section_title: Accessibility
+    wheelchair_accessible: Wheelchair accessible
+    wheelchair_access: Wheelchair Access
+    features_label: Available Features
+    notes_label: Accessibility Notes
+    notes_placeholder: "e.g. Ramp at main entrance. Restroom on 2nd floor, no elevator."
+    levels:
+      unknown: Unknown
+      full: Fully accessible
+      partial: Partially accessible
+      none: Not accessible
+    features:
+      ramp: Ramp
+      elevator: Elevator
+      flat_terrain: Flat terrain
+      wheelchair_parking: Parking
+      wheelchair_toilet: Accessible WC

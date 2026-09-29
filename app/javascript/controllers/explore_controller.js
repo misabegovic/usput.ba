@@ -16,6 +16,7 @@ export default class extends Controller {
     "filterInput",
     "citySelect",
     "audioToggle",
+    "accessibleToggle",
     "nearbyButton",
     "nearbyStatus",
     "nearbyOptions",
@@ -107,6 +108,11 @@ export default class extends Controller {
     // Set audio toggle
     if (this.hasAudioToggleTarget && urlParams.has("audio_support")) {
       this.audioToggleTarget.checked = urlParams.get("audio_support") === "true"
+    }
+
+    // Set accessible toggle
+    if (this.hasAccessibleToggleTarget && urlParams.has("accessible")) {
+      this.accessibleToggleTarget.checked = urlParams.get("accessible") === "true"
     }
   }
 
@@ -204,6 +210,11 @@ export default class extends Controller {
     // Audio support filter
     if (this.hasAudioToggleTarget && this.audioToggleTarget.checked) {
       formData.append("audio_support", "true")
+    }
+
+    // Accessible filter
+    if (this.hasAccessibleToggleTarget && this.accessibleToggleTarget.checked) {
+      formData.append("accessible", "true")
     }
 
     // Nearby coordinates and radius
@@ -315,6 +326,7 @@ export default class extends Controller {
 
     // Count toggles
     if (this.hasAudioToggleTarget && this.audioToggleTarget.checked) count++
+    if (this.hasAccessibleToggleTarget && this.accessibleToggleTarget.checked) count++
     if (this.nearbyActiveValue) count++
 
     // Update badge
@@ -353,6 +365,7 @@ export default class extends Controller {
 
     // Clear toggles
     if (this.hasAudioToggleTarget) this.audioToggleTarget.checked = false
+    if (this.hasAccessibleToggleTarget) this.accessibleToggleTarget.checked = false
 
     // Clear nearby
     this.clearNearby()

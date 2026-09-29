@@ -95,6 +95,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_120000) do
     t.jsonb "seasons", default: []
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.boolean "wheelchair_accessible", default: false, null: false
     t.index ["ai_generated"], name: "index_browses_on_ai_generated"
     t.index ["average_rating"], name: "index_browses_on_average_rating"
     t.index ["browsable_subtype"], name: "index_browses_on_browsable_subtype"
@@ -108,6 +109,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_120000) do
     t.index ["reviews_count"], name: "index_browses_on_reviews_count"
     t.index ["searchable"], name: "index_browses_on_searchable", using: :gin
     t.index ["seasons"], name: "index_browses_on_seasons", using: :gin
+    t.index ["wheelchair_accessible"], name: "index_browses_on_wheelchair_accessible"
   end
 
   create_table "content_change_contributions", force: :cascade do |t|
@@ -381,6 +383,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_120000) do
   end
 
   create_table "locations", force: :cascade do |t|
+    t.jsonb "accessibility", default: {}, null: false
     t.boolean "ai_generated", default: false, null: false
     t.datetime "archived_at"
     t.jsonb "audio_tour_metadata"
@@ -398,6 +401,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_120000) do
     t.string "phone"
     t.integer "reviews_count", default: 0
     t.jsonb "seasons", default: [], null: false
+    t.text "short_description"
     t.jsonb "social_links", default: {}
     t.jsonb "suitable_experiences", default: []
     t.jsonb "tags", default: []

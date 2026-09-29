@@ -157,7 +157,7 @@ module Curator
     end
 
     def editable_attributes
-      %w[name description historical_context city lat lng budget phone email website video_url tags suitable_experiences social_links]
+      %w[name description historical_context city lat lng budget phone email website video_url tags suitable_experiences social_links accessibility]
     end
 
     def build_original_data
@@ -195,7 +195,9 @@ module Curator
         :tags_input,
         suitable_experiences: [],
         social_links: Location.supported_social_platforms,
-        location_category_ids: []
+        location_category_ids: [],
+        accessibility: [ :wheelchair_access, :wheelchair_parking, :wheelchair_toilet,
+                        :flat_terrain, :elevator, :ramp, :notes ]
       )
 
       # Process tags from comma-separated input
@@ -207,6 +209,19 @@ module Curator
       # Clean empty social links
       if permitted[:social_links].present?
         permitted[:social_links] = permitted[:social_links].reject { |_, v| v.blank? }
+      end
+
+      # Process accessibility: convert string "true" to boolean for feature checkboxes
+      # Initialize all features to false so unchecked checkboxes are properly cleared
+      if permitted[:accessibility].present?
+        acc = permitted[:accessibility].to_h
+        base = Location::ACCESSIBILITY_FEATURES.each_with_object({}) { |f, h| h[f] = false }
+        acc = base.merge(acc)
+        Location::ACCESSIBILITY_FEATURES.each do |feature|
+          acc[feature] = acc[feature] == "true" if acc[feature].is_a?(String)
+        end
+        acc["notes"] = acc["notes"].presence
+        permitted[:accessibility] = acc
       end
 
       permitted

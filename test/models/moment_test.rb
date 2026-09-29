@@ -159,6 +159,15 @@ class MomentTest < ActiveSupport::TestCase
     assert Browse.moments.smart_search("kayak").exists?(browsable: moment)
   end
 
+  test "a moment at a wheelchair accessible place passes the accessible filter" do
+    @location.update!(accessibility: { "wheelchair_access" => "full" })
+    moment = build_moment
+    moment.update!(visibility: :public_moment)
+    moment.update!(moderation_status: :approved)
+
+    assert Browse.by_accessible("true").exists?(browsable: moment)
+  end
+
   test "deleting a moment purges its photo file from storage (S3 in production)" do
     moment = build_moment
     moment.save!
