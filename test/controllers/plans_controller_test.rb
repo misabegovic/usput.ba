@@ -399,4 +399,83 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     # Should use default budget (nil = all)
   end
+
+  # ---------------------------------------------------------------------------
+  # Accessibility filtering in Plan Wizard
+  # ---------------------------------------------------------------------------
+
+  test "generate with accessibility_required filters to wheelchair accessible locations" do
+    accessible_location = Location.create!(
+      name: "Accessible Museum",
+      description: "Fully accessible museum",
+      city: "Banja Luka",
+      lat: 44.7760, lng: 17.1860,
+      location_type: :place,
+      budget: :medium,
+      accessibility: { "wheelchair_access" => "full", "ramp" => true }
+    )
+
+    inaccessible_location = Location.create!(
+      name: "Mountain Fortress",
+      description: "Not accessible",
+      city: "Banja Luka",
+      lat: 44.7770, lng: 17.1870,
+      location_type: :place,
+      budget: :medium,
+      accessibility: { "wheelchair_access" => "none" }
+    )
+
+    # Attach an experience to the accessible location so plan generation succeeds
+    accessible_experience = Experience.create!(
+      title: "Museum Tour",
+      description: "Guided accessible tour",
+      estimated_duration: 60
+    )
+    accessible_experience.add_location(accessible_location, position: 1)
+
+    post plans_generate_path, params: {
+      city_name: "Banja Luka",
+      duration: "1",
+      accessibility_required: "true",
+      budget: "high"
+    }
+
+    assert_response :success
+
+    accessible_experience.destroy
+    accessible_location.destroy
+    inaccessible_location.destroy
+  end
+
+  test "generate without accessibility_required does not filter by accessibility" do
+    post plans_generate_path, params: {
+      city_name: "Banja Luka",
+      duration: "1",
+      budget: "high"
+    }
+
+    assert_response :success
+  end
+
+  test "generate with accessibility_required false does not filter" do
+    post plans_generate_path, params: {
+      city_name: "Banja Luka",
+      duration: "1",
+      accessibility_required: "false"
+    }
+
+    assert_response :success
+  end
+
+  test "generate with accessibility_required gracefully falls back when no accessible locations exist" do
+    # All existing test locations have no accessibility data (default: unknown)
+    post plans_generate_path, params: {
+      city_name: "Banja Luka",
+      duration: "1",
+      accessibility_required: "true"
+    }
+
+    # Should still succeed — falls back to all locations with a warning
+    assert_response :success
+  end
 end

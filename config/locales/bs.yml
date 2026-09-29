@@ -121,7 +121,9 @@ bs:
       rating: Minimalna ocjena
       sort: Sortiraj po
       audio_support: Audio ture
+      accessible: "♿ Pristupačno"
       origin: Porijeklo
+      accessible_aria: Prikaži samo lokacije pristupačne za invalidska kolica
     origins:
       ai: AI Generirano
       human: Ljudski kreirano
@@ -374,9 +376,17 @@ bs:
       balanced: Uravnoteženo
       active: Aktivno
       intensive: Intenzivno
+      accessibility: Pristupačnost
+      accessibility_label: Samo pristupačne lokacije
+      accessibility_hint: Prikaži samo lokacije pristupačne za invalidska kolica
+      accessibility_aria: Prikaži samo lokacije pristupačne za invalidska kolica
       food: Hrana
       meat_lover: Ljubitelj mesa
       vegetarian: Vegetarijanska opcija
+      accessibility: Pristupačnost
+      accessibility_aria: Prikaži samo lokacije pristupačne za invalidska kolica
+      accessibility_label: Samo pristupačne lokacije
+      accessibility_hint: Prikaži samo lokacije pristupačne za invalidska kolica
     generate:
       title: Generiši Svoj Plan
       subtitle: Kreiraćemo personalizirani itinerar za tebe
@@ -1214,6 +1224,7 @@ bs:
         photos: Fotografije
         audio: Audio zapis
         metadata: Metapodaci
+        accessibility: Pristupačnost
       filter:
         all_cities: Sva mjesta
       needs_photos:
@@ -1226,6 +1237,7 @@ bs:
         add_photo: Dodaj fotografiju
         no_results: Nema pronađenih lokacija
         no_results_hint: Pokušajte prilagoditi filtere
+      accessibility_hint: Informacije o pristupu za osobe u invalidskim kolicima i osobe s invaliditetom
     experiences:
       title: Iskustva
       new: Novo iskustvo
@@ -1542,3 +1554,21 @@ bs:
     areas_legend: Približne granice evidentiranih minski sumnjivih područja (snimak 2024). Opasnost se
       može protezati i IZVAN prikazanih oblika.
     zoom_hint: Približi kartu da vidiš granice područja.
+  accessibility:
+    section_title: Pristupačnost
+    wheelchair_accessible: Pristupačno za kolica
+    wheelchair_access: Pristup kolicima
+    features_label: Dostupne pogodnosti
+    notes_label: Napomene o pristupačnosti
+    notes_placeholder: "npr. Rampa na glavnom ulazu. WC na spratu bez lifta."
+    levels:
+      unknown: Nepoznato
+      full: Potpuno pristupačno
+      partial: Djelomično pristupačno
+      none: Nije pristupačno
+    features:
+      ramp: Rampa
+      elevator: Lift
+      flat_terrain: Ravan teren
+      wheelchair_parking: Parking
+      wheelchair_toilet: Pristupačan WC

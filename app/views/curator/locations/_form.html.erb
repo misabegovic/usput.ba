@@ -156,6 +156,69 @@
     </div>
   </div>
 
+  <%# Accessibility Section %>
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
+    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+      <span class="inline-flex items-center">
+        <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+        <%= t("curator.locations.sections.accessibility", default: "Accessibility") %>
+      </span>
+    </h3>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4"><%= t("curator.locations.accessibility_hint", default: "Wheelchair and disability access information for this location") %></p>
+
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <%# Wheelchair Access Level %>
+      <div>
+        <%= f.label "accessibility[wheelchair_access]", t("accessibility.wheelchair_access", default: "Wheelchair Access"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
+        <%= f.select "accessibility[wheelchair_access]",
+            options_for_select([
+              [t("accessibility.levels.unknown", default: "Unknown"), "unknown"],
+              [t("accessibility.levels.full", default: "Full access"), "full"],
+              [t("accessibility.levels.partial", default: "Partial access"), "partial"],
+              [t("accessibility.levels.none", default: "Not accessible"), "none"]
+            ], location.wheelchair_access),
+            {},
+            class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" %>
+      </div>
+
+      <%# Spacer for grid alignment %>
+      <div></div>
+
+      <%# Accessibility Features - Checkboxes %>
+      <div class="sm:col-span-2">
+        <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"><%= t("accessibility.features_label", default: "Available Features") %></span>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          <% [
+            ["ramp", t("accessibility.features.ramp", default: "Ramp")],
+            ["elevator", t("accessibility.features.elevator", default: "Elevator")],
+            ["flat_terrain", t("accessibility.features.flat_terrain", default: "Flat terrain")],
+            ["wheelchair_parking", t("accessibility.features.wheelchair_parking", default: "Parking")],
+            ["wheelchair_toilet", t("accessibility.features.wheelchair_toilet", default: "Accessible WC")]
+          ].each do |feature, label| %>
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <%= check_box_tag "location[accessibility][#{feature}]", "true",
+                  location.accessibility_feature?(feature),
+                  class: "rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" %>
+              <span class="text-sm text-gray-700 dark:text-gray-300"><%= label %></span>
+            </label>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Accessibility Notes %>
+      <div class="sm:col-span-2">
+        <%= f.label "accessibility[notes]", t("accessibility.notes_label", default: "Accessibility Notes"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
+        <%= f.text_area "accessibility[notes]",
+            value: location.accessibility_notes,
+            rows: 3,
+            class: "mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm",
+            placeholder: t("accessibility.notes_placeholder", default: "e.g. Ramp at main entrance. Restroom on 2nd floor, no elevator.") %>
+      </div>
+    </div>
+  </div>
+
   <%# Photos Section %>
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
     <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4"><%= t("curator.locations.sections.photos", default: "Photos") %></h3>
