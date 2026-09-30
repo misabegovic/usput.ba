@@ -2,6 +2,7 @@ class UsersController < ApplicationController
   include SyncsLocalData
 
   before_action :require_login, only: [ :update_avatar, :remove_avatar ]
+  rate_limit to: 10, within: 1.hour, only: :create, store: RateLimitStore, with: -> { refuse_too_many_attempts }
 
   def new
     return redirect_to root_path if logged_in?
@@ -13,7 +14,7 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
 
-    if @user.save
+    if @user.save(context: %i[create registration])
       log_in(@user)
 
       merge_local_profile(@user, params[:travel_profile_data])
@@ -72,7 +73,7 @@ class UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:username, :password, :password_confirmation)
+    params.require(:user).permit(:username, :email, :password, :password_confirmation)
   end
 
   def user_json(user)

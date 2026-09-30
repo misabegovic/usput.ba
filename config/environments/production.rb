@@ -48,7 +48,7 @@ Rails.application.configure do
   config.active_support.report_deprecations = false
 
   # Use memory cache store (simple, no external dependencies)
-  config.cache_store = :memory_store
+  config.cache_store = :solid_cache_store
 
   # Use Solid Queue for background job processing (separate process with dedicated database)
   config.active_job.queue_adapter = :solid_queue

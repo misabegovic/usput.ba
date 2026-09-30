@@ -69,7 +69,7 @@ class GuestWalkTest < ActionDispatch::IntegrationTest
   test "signing up carries the walk across too" do
     assert_difference "PlanVisit.count", 1 do
       post register_path, params: {
-        user: { username: "fresh", password: "password123", password_confirmation: "password123" },
+        user: { username: "fresh", email: "fresh@example.test", password: "password123", password_confirmation: "password123" },
         travel_profile_data: { "visited" => [ { "id" => @location.uuid, "type" => "location" } ] }.to_json
       }
     end

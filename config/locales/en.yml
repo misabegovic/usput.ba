@@ -830,6 +830,10 @@ en:
     invalid_credentials: Invalid username or password.
     curator_required: You need curator privileges to access this page.
     admin_required: You need administrator privileges to access this page.
+    email: Email
+    email_placeholder: e.g. name@example.com
+    email_hint: Used only for your account, for example to reset your password.
+    too_many_attempts: Too many attempts. Please wait a little and try again.
   pagination:
     aria_label: Pagination
     previous_short: Previous

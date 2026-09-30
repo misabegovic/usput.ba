@@ -1,6 +1,8 @@
 class SessionsController < ApplicationController
   include SyncsLocalData
 
+  rate_limit to: 10, within: 3.minutes, only: :create, store: RateLimitStore, with: -> { refuse_too_many_attempts }
+
   def new
     return redirect_to root_path if logged_in?
 
@@ -8,9 +10,9 @@ class SessionsController < ApplicationController
   end
 
   def create
-    user = User.find_by("lower(username) = ?", params[:username].to_s.downcase)
+    user = User.authenticate_by(username: params[:username].to_s.downcase, password: params[:password].to_s)
 
-    if user&.authenticate(params[:password])
+    if user
       log_in(user)
 
       merge_local_profile(user, params[:travel_profile_data])

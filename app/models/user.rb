@@ -16,6 +16,7 @@ class User < ApplicationRecord
   has_many :moments, dependent: :destroy
   has_many :plan_visits, dependent: :destroy
   has_many :likes, dependent: :destroy
+  has_many :sessions, dependent: :destroy
 
   # The profile blob is written straight from whatever the device sends, so each
   # list it holds is bounded rather than left to grow a row without limit.
@@ -42,6 +43,14 @@ class User < ApplicationRecord
                        format: { with: /\A[a-zA-Z0-9_]+\z/, message: "can only contain letters, numbers, and underscores" }
 
   validates :password, length: { minimum: 6 }, on: :create
+
+  normalizes :email, with: ->(email) { email.strip.downcase }
+  # Every new account gives an email; accounts made before the rebuild have
+  # none, so the rule binds at registration rather than on every save.
+  validates :email, presence: true, on: :registration
+  validates :email, format: { with: URI::MailTo::EMAIL_REGEXP },
+                    uniqueness: { case_sensitive: false },
+                    allow_blank: true
 
   # Normalize username to lowercase
   before_save { self.username = username.downcase }
