@@ -114,6 +114,8 @@ Medium: slices 1 to 3 ship with the first generation job of the rebuild; 4 and 5
 
 ## Decision needed
 
+**Decided on 2026-09-30** ([answers](../../sources/conversations/2026-09-30--usput--platform-direction.md)): The master copy of every prompt stays in `app/prompts/` and is synced to Langfuse. Langfuse is self-hosted on Railway, beside usput. The questions below that these answers settle are closed; the rest stay open.
+
 - **Region and plan.** EU (`cloud.langfuse.com`) is the natural choice for a Bosnian product with European travellers; which plan, and its trace and retention limits, is (unknown, needs source).
 - **Prompt source of truth**: Langfuse with file fallback, or files synced to Langfuse.
 - **Content capture**: whether prompts and replies are stored in Langfuse, and whether that includes moment notes or reviews if they ever reach a model.

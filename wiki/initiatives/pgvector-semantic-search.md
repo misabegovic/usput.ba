@@ -103,6 +103,8 @@ Medium: slices 1 to 4 are the version 1 search; 5 and 6 follow; 7 depends on the
 
 ## Decision needed
 
+**Decided on 2026-09-30** ([answers](../../sources/conversations/2026-09-30--usput--platform-direction.md)): Embeddings use OpenAI `text-embedding-3-small`. Production Postgres is Railway Postgres with pgvector. The questions below that these answers settle are closed; the rest stay open.
+
 - **Embedding model and provider**, which fixes the dimension, the cost and how well Bosnian works.
 - **Whether moments' notes are embedded.** They are user text: embedding them sends them to the provider (and to Langfuse, if content capture is on), and they may describe people. Leaving them out keeps moments findable by their place.
 - **Where the production Postgres runs**, and confirmation that it allows the `vector` extension.

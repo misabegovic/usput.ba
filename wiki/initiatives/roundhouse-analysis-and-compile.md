@@ -116,6 +116,8 @@ Phase 1 is small: a survey, a config file and a CI step. Phase 2 is not sized; i
 
 ## Decision needed
 
+**Decided on 2026-09-30** ([answers](../../sources/conversations/2026-09-30--usput--platform-direction.md)): `roundhouse check` runs on every pull request as a report and becomes a failing gate once the rebuilt core reaches zero errors. The questions below that these answers settle are closed; the rest stay open.
+
 - **Whether the rebuild holds a zero-error `roundhouse check` from its first commit**, with the gate turned on early, or reports only until launch.
 - **Which compile blockers the rebuild removes anyway because they are cheap** (the explicit CSRF line, credentials read through one config object, no `define_method` translation accessors, no string-to-class dispatch), and which stay because a decision needs them (Postgres, pgvector, S3, Solid Queue, Avo).
 - **The tension, recorded for when compiling comes back**: pgvector needs Postgres while Roundhouse's compiled path documents SQLite, and Avo is an engine Roundhouse does not mount. Compiling usput means either Roundhouse growing Postgres, cloud storage and engine support, or a split deployment.

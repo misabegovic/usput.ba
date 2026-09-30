@@ -117,6 +117,8 @@ Small to medium: seven slices, most of them one controller and one model with te
 
 ## Decision needed
 
+**Decided on 2026-09-30** ([answers](../../sources/conversations/2026-09-30--usput--platform-direction.md)): Email is required on accounts, which enables password reset and account notices. Production is deployed by hand, so the rewrite lands on `main` piece by piece. The questions below that these answers settle are closed; the rest stay open.
+
 - **Session lifetime.** Two weeks from last use (today's `expire_after`), or the generator's permanent cookie with sessions ended only by sign-out and revocation.
 - **Email on accounts.** Without an email there is no self-service reset; a forgotten password needs an admin. Keep username-only for version 1, or add email now.
 - **A server-side guest identity.** A signed guest token cookie would let a guest's review be shown to its author ([Jev review flagging](jev-review-flagging.md)). Adopt it here, as part of sessions, or leave guests device-only and require sign-in to review.

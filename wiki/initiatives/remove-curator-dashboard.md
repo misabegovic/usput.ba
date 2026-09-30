@@ -128,6 +128,8 @@ Small per slice, since each is mostly deletion with a test run; the risk is in t
 
 ## Decision needed
 
+**Decided on 2026-09-30** ([answers](../../sources/conversations/2026-09-30--usput--platform-direction.md)): Production is deployed by hand, so the removal lands on `main` piece by piece while the old site keeps running from its last deployed version. The questions below that these answers settle are closed; the rest stay open.
+
 - **Migrations on the branch.** Drop the tables in a new migration, or squash all migrations into a baseline for the rebuilt schema.
 - **The old production data at launch.** Whether the old database is archived as a snapshot or discarded when the old site goes down.
 - **The DSL curator commands.** Remove them with the tables (proposed), or rewrite the useful ones (list users by role, block and unblock) against the new models.

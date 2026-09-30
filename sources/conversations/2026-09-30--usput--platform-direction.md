@@ -68,3 +68,22 @@ Choices made when asked:
   with Langfuse from day one.
 - Content: "New content, old site stays up". The current production app runs
   until the rebuild launches; the rebuilt app starts with an empty database.
+
+## Answers to the open questions, asked one by one
+
+1. Deploys: "No auto-deploy from main". The rewrite lands on main piece by
+   piece; production is deployed by hand.
+2. Reviews require signing in.
+3. Jev flags "Negative or unsafe" reviews.
+4. Moment notes: "Yes, same flagging". Follow-up, because Jev reads text and
+   not photos: "Keep approval, Jev reads the note". Public moments still wait
+   for an admin; Jev's reading of the note is shown in the queue.
+5. Email is required on accounts.
+6. Content generation: OpenAI. Embeddings: OpenAI text-embedding-3-small.
+7. Postgres: Railway Postgres with pgvector.
+8. Prompts: files in app/prompts are the master copy, synced to Langfuse.
+   Langfuse is self-hosted, on Railway beside usput.
+9. Curators create and edit content and clear or remove flagged reviews and
+   moments; only admins delete, manage users and roles, and change settings.
+   Audio tours are in version 1. `roundhouse check` reports on every pull
+   request now and becomes a failing gate later.

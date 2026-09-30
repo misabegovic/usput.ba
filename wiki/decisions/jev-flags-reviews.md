@@ -70,9 +70,11 @@ credentials.
 - Every review's text is sent to TypeSafe. The privacy policy has to say so.
 - Ratings and review counts must be computed from visible reviews only, or a
   hidden review would still move a place's score.
-- "The author sees their own" needs an author identity. Reviews are anonymous
-  today, so either reviews require sign-in or a guest review is tied to a
-  signed browser token. The initiative decides which.
+- Reviews require signing in (decided 2026-09-30), so the author of every
+  review is an account and "the author sees their own" is exact.
+- Moment notes are read the same way. Public moments keep their approval
+  step, because Jev reads text and not photos; its reading of the note is
+  shown to the admin in the moment queue.
 - Admins need a queue of flagged reviews. It lives in the new admin
   ([Avo](admin-through-avo.md)).
 - The plan in [review approval system](../initiatives/review-approval-system.md)

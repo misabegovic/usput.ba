@@ -119,6 +119,8 @@ Medium: seven slices, the seam and the job being the smallest. The measurement i
 
 ## Decision needed
 
+**Decided on 2026-09-30** ([answers](../../sources/conversations/2026-09-30--usput--platform-direction.md)): Reviews require signing in. Jev flags reviews it reads as negative or unsafe. Moment notes are read by Jev too, but public moments keep their approval step because Jev cannot see photos; Jev's reading is shown in the moment queue. The questions below that these answers settle are closed; the rest stay open.
+
 - **Reviews and sign-in.** Anonymous reviews have no author today. Options: require sign-in to review (simplest, and a step up from the guest-friendly walk of #166); a signed guest token cookie that ties a guest's review to their browser (keeps guests reviewing, lost when the cookie is cleared); or both, with the token merged into the account at sign-in ([secure sessions](secure-sessions.md)).
 - **What counts as a flag.** Unsafe only, negative only, or either, and the thresholds.
 - **Moment notes.** In scope (Jev pre-screens notes to sort the curator's moment queue, the queue stays human), or out of scope for version 1 (moments stay human-approved only).

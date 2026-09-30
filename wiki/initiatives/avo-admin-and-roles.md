@@ -137,6 +137,8 @@ Medium: seven slices, one to two days of work each for someone who knows Avo. A 
 
 ## Decision needed
 
+**Decided on 2026-09-30** ([answers](../../sources/conversations/2026-09-30--usput--platform-direction.md)): Curators create and edit places, experiences, plans and audio tours, and clear or remove flagged reviews and moments. Only admins delete, manage users and roles, and change settings. Audio tours are in version 1. The questions below that these answers settle are closed; the rest stay open.
+
 - **Curator rights.** Confirm the proposed split: curators create and edit directly, only admins delete and manage users. The alternative is curators editing only records they created.
 - **The activity trail.** Keep a small `AdminEvent` trail written by Avo actions (proposed), or rely on logs and drop it.
 - **Audio tours in version 1.** The operator's version 1 list names places, explore, plans, walking, reviews and the AI pipeline, not audio tours.

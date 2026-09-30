@@ -112,6 +112,8 @@ Small to medium: slices 1, 2 and 4 are small, slices 3, 5 and 6 are medium, slic
 
 ## Decision needed
 
+**Decided on 2026-09-30** ([answers](../../sources/conversations/2026-09-30--usput--platform-direction.md)): Content generation uses OpenAI. Embeddings use OpenAI `text-embedding-3-small`. Audio tours are in version 1. The questions below that these answers settle are closed; the rest stay open.
+
 - **Default provider and model** for content generation. Today the default is `gpt-4o-mini` with keys for three providers configured; the rebuild can name one provider and one model per task.
 - **OpenAI protocol**: the 2.0 default (Responses API) or `chat_completions`.
 - **Whether audio tours come back** in the rebuild, and if so after version 1.
