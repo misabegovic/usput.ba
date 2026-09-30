@@ -33,6 +33,7 @@ On 2026-09-30 the operator decided to rebuild usput from scratch, in place, with
 7. [Semantic search with pgvector](pgvector-semantic-search.md): one embedding column on the search index, hybrid ranking, similar places.
 8. [Enola for usput](enola-for-usput.md): an architecture page, laws, a baseline pinned before the rewrite deletes anything.
 9. [Roundhouse: analysis now, compiling later](roundhouse-analysis-and-compile.md): `roundhouse check` clean from the first commit, and the compile blockers named.
+10. [Paid audio tours](paid-audio-tours.md): a weekly, monthly or yearly subscription through Stripe; everything else stays free.
 
 ## In flight or shipped
 

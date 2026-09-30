@@ -89,5 +89,6 @@ What the planning documents in `sources/planning/` still say, and where it no lo
 Next 90 days (to about 2026-12-28), drawn from the open initiatives and issues. None of this is committed yet.
 
 - **Rebuild usput from scratch** (decided 2026-09-30): in place on a long-lived branch, no backwards compatibility, an empty database, the old site up until launch. Version 1 is places and explore, plans and walking, reviews with Jev, and the AI content pipeline with Langfuse; admin in Avo, the curator area left out. The order and the open questions are on [initiatives](initiatives/index.md).
+- **Earn from audio tours** (decided 2026-09-30): a subscription through Stripe, everything else free ([paid audio tours](initiatives/paid-audio-tours.md)).
 - **Keep `roundhouse check` clean from the rebuild's first commit**, so compiling stays possible later ([Roundhouse](initiatives/roundhouse-analysis-and-compile.md)).
 - **Bring the planning documents in line with the code**, so the Perceived list above shrinks: the brain pages under `wiki/` are meant to replace `.claude/planning/` as the working description.

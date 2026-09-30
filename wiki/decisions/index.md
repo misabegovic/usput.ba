@@ -22,6 +22,7 @@ Architecture decision records, one choice per page. Accepted pages describe the 
 
 ## Accepted
 
+- [Audio tours are paid by subscription; everything else stays free](audio-tours-by-subscription.md)
 - [Jev flags reviews; flagged reviews wait for an admin](jev-flags-reviews.md)
 - [Admin work moves to Avo; the curator area is removed](admin-through-avo.md)
 - [Avo now; compiling with Roundhouse and Spinel later](avo-now-compile-later.md)
