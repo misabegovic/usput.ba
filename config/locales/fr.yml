@@ -698,11 +698,6 @@ fr:
       remove: Supprimer l'image
       remove_confirm: Êtes-vous sûr de vouloir supprimer la photo de profil ?
     curator:
-      title: Devenir Curateur
-      description: Les curateurs peuvent ajouter de nouveaux lieux, expériences et
-        contenus à la plateforme. Aidez-nous à découvrir les joyaux cachés de la Bosnie-Herzégovine
-        !
-      apply: Postuler pour Curateur
       you_are_curator: Vous êtes Curateur
       manage_content: Gérer les lieux et expériences
       open_dashboard: Ouvrir le Tableau de Bord
@@ -723,7 +718,6 @@ fr:
     faq: FAQ
     rights: Tous droits réservés.
     community: Communauté
-    become_curator: Devenir Curateur
   cookie_consent:
     title: Cookies et Confidentialité
     message: Nous utilisons uniquement des cookies techniquement nécessaires pour
@@ -1143,45 +1137,6 @@ fr:
       collector:
         name: Collectionneur
         description: A ajouté 10 emplacements favoris
-  curator_applications:
-    created: Votre candidature a été soumise avec succès !
-    status:
-      pending: En attente
-      approved: Approuvé
-      rejected: Rejeté
-    errors:
-      already_curator: Vous avez déjà les privilèges de curateur
-      pending_exists: Vous avez déjà une candidature en attente
-    new:
-      title: Devenir Curateur
-      subtitle: Aidez-nous à améliorer le contenu en devenant curateur
-      benefits_title: 'En tant que curateur, vous pouvez :'
-      benefit_1: Ajouter de nouveaux lieux et expériences
-      benefit_2: Modifier le contenu existant pour améliorer la précision
-      benefit_3: Aider les voyageurs à découvrir des joyaux cachés
-    form:
-      motivation: Pourquoi voulez-vous devenir curateur ?
-      motivation_hint: Parlez-nous de votre passion pour les voyages et votre connaissance
-        locale (min. 50 caractères)
-      motivation_placeholder: Je veux devenir curateur parce que...
-      experience: Expérience pertinente (facultatif)
-      experience_hint: Avez-vous de l'expérience dans le tourisme, la création de
-        contenu ou la connaissance locale ?
-      experience_placeholder: J'ai de l'expérience dans...
-      submit: Soumettre la Candidature
-    show:
-      title: Votre Candidature de Curateur
-      pending_message: Votre candidature est en cours d'examen. Nous vous informerons
-        dès qu'une décision sera prise.
-      approved_message: Félicitations ! Votre candidature a été approuvée. Vous avez
-        maintenant accès au Tableau de Bord Curateur.
-      rejected_message: Malheureusement, votre candidature n'a pas été approuvée pour
-        le moment.
-      go_to_dashboard: Aller au Tableau de Bord Curateur
-      submitted_at: Soumis
-      reviewed_at: Examiné
-      feedback: Commentaires
-
   minesweeper:
     title: Démineur
     subtitle: "Un jeu éducatif sur de vraies cartes — les mines sont là où les données réelles enregistrent des zones suspectées."

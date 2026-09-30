@@ -702,11 +702,6 @@ de:
       remove: Bild entfernen
       remove_confirm: Sind Sie sicher, dass Sie das Profilbild entfernen möchten?
     curator:
-      title: Kurator werden
-      description: Kuratoren können neue Orte, Erlebnisse und Inhalte zur Plattform
-        hinzufügen. Helfen Sie uns, die verborgenen Juwelen Bosniens und Herzegowinas
-        zu entdecken!
-      apply: Als Kurator bewerben
       you_are_curator: Sie sind Kurator
       manage_content: Orte und Erlebnisse verwalten
       open_dashboard: Dashboard öffnen
@@ -744,7 +739,6 @@ de:
     faq: FAQ
     rights: Alle Rechte vorbehalten.
     community: Community
-    become_curator: Kurator werden
   cookie_consent:
     title: Cookies & Datenschutz
     message: Wir verwenden nur technisch notwendige Cookies für den Betrieb der Website
@@ -1069,44 +1063,6 @@ de:
         easy: Einfach
         moderate: Mittel
         challenging: Anspruchsvoll
-  curator_applications:
-    created: Ihre Bewerbung wurde erfolgreich eingereicht!
-    status:
-      pending: Ausstehend
-      approved: Genehmigt
-      rejected: Abgelehnt
-    errors:
-      already_curator: Sie haben bereits Kurator-Rechte
-      pending_exists: Sie haben bereits eine ausstehende Bewerbung
-    new:
-      title: Kurator werden
-      subtitle: Helfen Sie uns, den Inhalt zu verbessern, indem Sie Kurator werden
-      benefits_title: 'Als Kurator können Sie:'
-      benefit_1: Neue Orte und Erlebnisse hinzufügen
-      benefit_2: Bestehende Inhalte bearbeiten, um die Genauigkeit zu verbessern
-      benefit_3: Reisenden helfen, versteckte Juwelen zu entdecken
-    form:
-      motivation: Warum möchten Sie Kurator werden?
-      motivation_hint: Erzählen Sie uns von Ihrer Leidenschaft für Reisen und Ihrem
-        lokalen Wissen (min. 50 Zeichen)
-      motivation_placeholder: Ich möchte Kurator werden, weil...
-      experience: Relevante Erfahrung (optional)
-      experience_hint: Haben Sie Erfahrung im Tourismus, Content-Erstellung oder lokales
-        Wissen?
-      experience_placeholder: Ich habe Erfahrung in...
-      submit: Bewerbung einreichen
-    show:
-      title: Ihre Kurator-Bewerbung
-      pending_message: Ihre Bewerbung wird geprüft. Wir benachrichtigen Sie, sobald
-        eine Entscheidung getroffen wurde.
-      approved_message: Herzlichen Glückwunsch! Ihre Bewerbung wurde genehmigt. Sie
-        haben jetzt Zugang zum Kurator-Dashboard.
-      rejected_message: Leider wurde Ihre Bewerbung diesmal nicht genehmigt.
-      go_to_dashboard: Zum Kurator-Dashboard
-      submitted_at: Eingereicht
-      reviewed_at: Geprüft
-      feedback: Feedback
-
   minesweeper:
     title: Minesweeper
     subtitle: "Ein Lernspiel auf echten Karten — Minen liegen dort, wo echte Daten minenverdächtige Gebiete verzeichnen."

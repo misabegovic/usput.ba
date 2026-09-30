@@ -606,10 +606,6 @@ tr:
       remove: Resmi kaldır
       remove_confirm: Profil resmini kaldırmak istediğinizden emin misiniz?
     curator:
-      title: Küratör Olun
-      description: Küratörler platforma yeni mekanlar, deneyimler ve içerik ekleyebilir.
-        Bosna Hersek'in gizli hazinelerini keşfetmemize yardım edin!
-      apply: Küratör Başvurusu Yap
       you_are_curator: Siz bir Küratörsünüz
       manage_content: Mekanları ve deneyimleri yönetin
       open_dashboard: Paneli Aç
@@ -646,7 +642,6 @@ tr:
     faq: SSS
     rights: Tüm hakları saklıdır.
     community: Topluluk
-    become_curator: Küratör Olun
   cookie_consent:
     title: Çerezler ve Gizlilik
     message: Sitenin çalışması için yalnızca teknik olarak gerekli çerezler kullanıyoruz
@@ -1224,56 +1219,6 @@ tr:
       collector:
         name: Koleksiyoncu
         description: 10 favori mekan ekledi
-  curator_applications:
-    created: Başvurunuz başarıyla gönderildi!
-    status:
-      pending: Beklemede
-      approved: Onaylandı
-      rejected: Reddedildi
-    errors:
-      already_curator: Zaten küratör yetkileriniz var
-      pending_exists: Zaten bekleyen bir başvurunuz var
-    new:
-      title: Küratör Olun
-      subtitle: Küratör olarak içeriği geliştirmemize yardımcı olun
-      benefits_title: 'Küratör olarak şunları yapabilirsiniz:'
-      benefit_1: Yeni mekanlar ve deneyimler ekleyin
-      benefit_2: Doğruluğu artırmak için mevcut içeriği düzenleyin
-      benefit_3: Gezginlerin gizli hazineleri keşfetmesine yardımcı olun
-    form:
-      motivation: Neden küratör olmak istiyorsunuz?
-      motivation_hint: Seyahat tutkunuzu ve yerel bilginizi anlatın (en az 50 karakter)
-      motivation_placeholder: Küratör olmak istiyorum çünkü...
-      experience: İlgili deneyim (isteğe bağlı)
-      experience_hint: Turizm, içerik oluşturma veya yerel bilgi konusunda deneyiminiz
-        var mı?
-      experience_placeholder: Deneyimim var...
-      submit: Başvuruyu Gönder
-    show:
-      title: Küratör Başvurunuz
-      pending_message: Başvurunuz inceleniyor. Bir karar verildiğinde size bildirilecek.
-      approved_message: Tebrikler! Başvurunuz onaylandı. Artık Küratör Paneline erişiminiz
-        var.
-      rejected_message: Maalesef başvurunuz şu anda onaylanmadı.
-      go_to_dashboard: Küratör Paneline Git
-      submitted_at: Gönderilme
-      reviewed_at: İncelenme
-      feedback: Geri Bildirim
-    info:
-      title: Küratör Olun
-      subtitle: Küratör topluluğumuza katılın ve başkalarının en iyi yerleri keşfetmesine
-        yardımcı olun
-      how_it_works: Nasıl çalışır?
-      step_1: Usput.ba'da profilinizi oluşturun
-      step_2: Neden küratör olmak istediğinizi kısaca açıklayan bir başvuru gönderin
-      step_3: Ekibimiz başvurunuzu inceleyecek ve kararı size bildirecek
-      create_profile_first: Önce bir profil oluşturmanız gerekiyor
-      create_profile_hint: Küratör başvurusu için kullanıcı hesabınız olmalı
-      already_curator: Zaten bir küratörsünüz! Küratör Paneline erişiminiz var.
-      pending_application: Küratör başvurunuz beklemede.
-      view_application: Başvuruyu görüntüle
-      apply_now: Şimdi başvur
-
   minesweeper:
     title: Mayın Tarlası
     subtitle: "Gerçek haritalar üzerinde eğitici bir oyun — mayınlar, gerçek verilerin mayın şüpheli bölge kaydettiği yerlerdedir."

@@ -745,10 +745,6 @@ bs:
       remove: Ukloni sliku
       remove_confirm: Da li ste sigurni da želite ukloniti profilnu sliku?
     curator:
-      title: Postani Curator
-      description: Curatori mogu dodavati nove lokacije, iskustva i sadržaj na platformu. Pomozi nam da
-        otkrijemo skrivene dragulje Bosne i Hercegovine!
-      apply: Prijavi se za Curatora
       you_are_curator: Ti si Curator
       manage_content: Upravljaj lokacijama i iskustvima
       open_dashboard: Otvori Dashboard
@@ -785,7 +781,6 @@ bs:
     faq: Česta pitanja
     rights: Sva prava pridržana.
     community: Zajednica
-    become_curator: Postani kurator
   cookie_consent:
     title: Kolačići i privatnost
     message: Koristimo samo tehnički neophodne kolačiće za funkcionisanje stranice (sesija, tema). Ne
@@ -1383,7 +1378,6 @@ bs:
       nav:
         photo_suggestions: Odobrenje fotografija
         users: Upravljanje korisnicima
-        curator_applications: Prijave za kuratora
         content_changes: Odobrenje sadržaja
       photo_suggestions:
         title: Prijedlozi fotografija
@@ -1422,13 +1416,6 @@ bs:
         updated: Korisnik uspješno ažuriran
         unblocked: Korisnik uspješno deblokiran
         not_blocked: Ovaj korisnik nije blokiran
-      curator_applications:
-        title: Prijave za kuratora
-        approved: '%{username} je odobren kao kurator'
-        rejected: Prijava korisnika %{username} je odbijena
-        approval_failed: Nije uspjelo odobrenje prijave
-        rejection_failed: Nije uspjelo odbijanje prijave
-        already_reviewed: Ova prijava je već pregledana
       content_changes:
         title: Promjene sadržaja
         approved: Promjena sadržaja odobrena i primijenjena uspješno
@@ -1505,52 +1492,6 @@ bs:
       collector:
         name: Kolekcionar
         description: Dodao 10 omiljenih lokacija
-  curator_applications:
-    created: Tvoja prijava je uspješno podnesena!
-    status:
-      pending: Na čekanju
-      approved: Odobreno
-      rejected: Odbijeno
-    errors:
-      already_curator: Već imaš kuratorske privilegije
-      pending_exists: Već imaš prijavu na čekanju
-    new:
-      title: Postani kurator
-      subtitle: Pomozi nam poboljšati sadržaj tako što ćeš postati kurator
-      benefits_title: 'Kao kurator možeš:'
-      benefit_1: Dodavati nove lokacije i iskustva
-      benefit_2: Uređivati postojeći sadržaj za poboljšanje tačnosti
-      benefit_3: Pomoći putnicima da otkriju skrivene dragulje
-    form:
-      motivation: Zašto želiš postati kurator?
-      motivation_hint: Reci nam o svojoj strasti za putovanja i lokalnom znanju (min. 50 karaktera)
-      motivation_placeholder: Želim postati kurator jer...
-      experience: Relevantno iskustvo (opcionalno)
-      experience_hint: Imaš li iskustva u turizmu, kreiranju sadržaja ili lokalnom znanju?
-      experience_placeholder: Imam iskustva u...
-      submit: Podnesi prijavu
-    show:
-      title: Tvoja prijava za kuratora
-      pending_message: Tvoja prijava se pregleda. Obavijestit ćemo te kada se donese odluka.
-      approved_message: Čestitamo! Tvoja prijava je odobrena. Sada imaš pristup Kurator Panelu.
-      rejected_message: Nažalost, tvoja prijava nije odobrena ovog puta.
-      go_to_dashboard: Idi na Kurator Panel
-      submitted_at: Podneseno
-      reviewed_at: Pregledano
-      feedback: Povratna informacija
-    info:
-      title: Postani kurator
-      subtitle: Pridruži se našoj zajednici kuratora i pomozi drugima otkriti najbolja mjesta
-      how_it_works: Kako funkcioniše?
-      step_1: Kreiraj svoj profil na Usput.ba
-      step_2: Pošalji prijavu sa kratkim opisom zašto želiš biti kurator
-      step_3: Naš tim će pregledati tvoju prijavu i obavijestiti te o odluci
-      create_profile_first: Potrebno je prvo kreirati profil
-      create_profile_hint: Da bi se prijavio/la za kuratora, moraš imati korisnički račun
-      already_curator: Već si kurator! Imaš pristup Kurator Panelu.
-      pending_application: Tvoja prijava za kuratora je na čekanju.
-      view_application: Pogledaj prijavu
-      apply_now: Prijavi se sada
   mine_check:
     disclaimer: 'Provjera se vrši prema posljednje dostupnim podacima o minski sumnjivim područjima (%{data_as_of}).
       Odsustvo poznatih presjeka NIJE garancija da je područje bez mina. Za ažurne informacije obratite

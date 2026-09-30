@@ -142,7 +142,7 @@ Medium: seven slices, one to two days of work each for someone who knows Avo. A 
 - **Curator rights.** Confirm the proposed split: curators create and edit directly, only admins delete and manage users. The alternative is curators editing only records they created.
 - **The activity trail.** Keep a small `AdminEvent` trail written by Avo actions (proposed), or rely on logs and drop it.
 - **Audio tours in version 1.** The operator's version 1 list names places, explore, plans, walking, reviews and the AI pipeline, not audio tours.
-- **Becoming a curator.** With applications dropped, an admin promotes a user by hand. Confirm there is no public "become a curator" page.
+- **Becoming a curator.** Applications are gone as [the removal plan](remove-curator-dashboard.md) set out; an admin promotes a user with the Change role action. Whether a public page should at least explain how to become a curator is open.
 
 ## Build notes
 

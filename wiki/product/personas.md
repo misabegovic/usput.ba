@@ -2,7 +2,7 @@
 title: Personas
 kind: reference
 status: living
-updated: 2026-09-29
+updated: 2026-09-30
 repos:
 - usput.ba
 confidence: medium
@@ -79,7 +79,7 @@ Registering (`/register`) or signing in (`/login`) turns the device walk into se
 - **Capture moments.** Create, edit, delete, publish and unpublish moments on a plan (`config/routes.rb`, plan-nested `moments`; `app/controllers/moments_controller.rb`).
 - **Like moments.** Liking requires a login (`app/controllers/moments/likes_controller.rb`, `before_action :require_login`).
 - **Profile.** Upload or remove an avatar and see a paginated list of own plans and moments (`config/routes.rb`, `profile/*`).
-- **Apply to curate.** `/become-curator` explains the role and a `CuratorApplication` needs a motivation of 50 to 2000 characters. Only a basic user without a pending application may apply (`app/models/user.rb`, `can_apply_for_curator?`; `app/models/curator_application.rb`).
+- **Becoming a curator.** There is no application: an admin changes a traveller's role in the admin at `/admin` (`app/avo/actions/change_role.rb`). The public application page was removed on 2026-09-30.
 
 ### Curator
 
@@ -96,7 +96,8 @@ A curator reaches the `/curator` dashboard. Its base controller requires login a
 
 An admin has every curator ability plus the `curator/admin` namespace, which requires the admin role (`app/controllers/curator/admin/base_controller.rb`).
 
-- Approve or reject content changes, photo suggestions and curator applications (`config/routes.rb`, `namespace :admin`). Approving an application turns the user into a curator (`app/models/curator_application.rb`, `approve!`).
+- Approve or reject content changes and photo suggestions (`config/routes.rb`, `namespace :admin`).
+- Change roles, block and unblock in the new admin at `/admin` ([Avo admin and roles](../initiatives/avo-admin-and-roles.md)).
 - List, view and edit users, and lift a spam block (`config/routes.rb`, `admin/users#unblock`; `app/models/user.rb`, `admin_unblock!`).
 - Check in from anywhere. The geofence is disabled for admins so a walk can be reviewed from a desk (`app/helpers/application_helper.rb`, `geofence_disabled?`; https://github.com/misabegovic/usput.ba/pull/164).
 

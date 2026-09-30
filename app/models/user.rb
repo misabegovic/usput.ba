@@ -8,7 +8,6 @@ class User < ApplicationRecord
     attachable.variant :thumb, resize_to_limit: [ 100, 100 ]
     attachable.variant :medium, resize_to_limit: [ 256, 256 ]
   end
-  has_many :curator_applications, dependent: :destroy
   has_many :plans, dependent: :nullify
   has_many :content_changes, dependent: :destroy
   has_many :content_change_contributions, dependent: :destroy
@@ -87,14 +86,6 @@ class User < ApplicationRecord
   # Permission helpers
   def can_curate?
     curator? || admin?
-  end
-
-  def pending_curator_application?
-    curator_applications.pending.exists?
-  end
-
-  def can_apply_for_curator?
-    basic? && !pending_curator_application?
   end
 
   # Spam protection methods

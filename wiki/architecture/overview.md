@@ -175,8 +175,8 @@ The request side has three audiences, all in `app/controllers/`:
   `TravelProfilesController`, `UserPlansController`,
   `MapRoutesController`, `UsersController` (avatars), the Devise
   controllers under `Users::` (sign-in, registration and the account page,
-  password reset, confirmation, signing out other devices),
-  `CuratorApplicationsController` and `PagesController`. Views for the new
+  password reset, confirmation, signing out other devices) and
+  `PagesController`. Views for the new
   public design live in `app/views/new_design/`. Shared behaviour sits in
   concerns: `Authenticatable`, `Localizable`, `RecordsVisits` (the one
   check-in distance rule), `ServesMomentPhotos` and `SyncsLocalData`.
@@ -184,7 +184,7 @@ The request side has three audiences, all in `app/controllers/`:
   controller inherits `Curator::BaseController`, which requires login,
   a curator role and a spam-block check, and renders the `curator` layout.
   `Curator::Admin::BaseController` adds an admin requirement for photo
-  suggestion approval, users, curator applications and content change
+  suggestion approval, users and content change
   approval. Curators change content through `ContentChange` proposals that
   admins approve (`app/models/content_change.rb`). Edit and delete actions
   hide behind the `curator_edit_delete` Flipper flag (#149).
@@ -217,7 +217,7 @@ Models in `app/models/` centre on `Location`, `Experience` and `Plan` with
 join models (`ExperienceLocation`, `PlanExperience`, `PlanLocation`),
 translations in a polymorphic `Translation` table, `AudioTour`, `Review`,
 `Moment`, `Like`, `PlanVisit`, `PhotoSuggestion`, `ContentChange`,
-`CuratorApplication`, `CuratorActivity`, `Browse`, `AiGeneration`,
+`CuratorActivity`, `Browse`, `AiGeneration`,
 `MineCheckAudit`, `Setting` and `User`. `Location` validates every
 coordinate change against the mine checker (`must_pass_mine_check`).
 

@@ -210,12 +210,6 @@ module Platform
         str("proposals").as(:command_type) >> space? >> filters.maybe >> space? >> operations.maybe
       end
 
-      # applications { status: "pending" } | list
-      # applications { id: 123 } | show
-      rule(:applications_command) do
-        str("applications").as(:command_type) >> space? >> filters.maybe >> space? >> operations.maybe
-      end
-
       # approve proposal { id: 123 }
       # approve proposal { id: 123 } notes "..."
       rule(:approval_notes_clause) do
@@ -224,7 +218,7 @@ module Platform
 
       rule(:approve_command) do
         str("approve").as(:approval_cmd) >> space >>
-        (str("proposal") | str("application")).as(:approval_type) >> space? >> filters >>
+        str("proposal").as(:approval_type) >> space? >> filters >>
         approval_notes_clause.maybe
       end
 
@@ -235,7 +229,7 @@ module Platform
 
       rule(:reject_command) do
         str("reject").as(:approval_cmd) >> space >>
-        (str("proposal") | str("application")).as(:approval_type) >> space? >> filters >>
+        str("proposal").as(:approval_type) >> space? >> filters >>
         rejection_reason_clause
       end
 
@@ -332,7 +326,7 @@ module Platform
       end
 
       rule(:query) do
-        space? >> (schema_command | external_command | proposals_command | applications_command | curators_command | code_command | logs_command | infrastructure_command | quality_command | validation_command | approval_command | curator_management_command | create_command | update_command | delete_command | generation_command | audio_command | table_query).as(:query) >> space?
+        space? >> (schema_command | external_command | proposals_command | curators_command | code_command | logs_command | infrastructure_command | quality_command | validation_command | approval_command | curator_management_command | create_command | update_command | delete_command | generation_command | audio_command | table_query).as(:query) >> space?
       end
 
       root(:query)

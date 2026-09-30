@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -163,24 +163,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_140000) do
     t.index ["recordable_type", "recordable_id"], name: "index_curator_activities_on_recordable"
     t.index ["user_id", "created_at"], name: "index_curator_activities_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_curator_activities_on_user_id"
-  end
-
-  create_table "curator_applications", force: :cascade do |t|
-    t.text "admin_notes"
-    t.datetime "created_at", null: false
-    t.text "experience"
-    t.text "motivation", null: false
-    t.datetime "reviewed_at"
-    t.bigint "reviewed_by_id"
-    t.integer "status", default: 0, null: false
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.string "uuid", limit: 36, null: false
-    t.index ["reviewed_by_id"], name: "index_curator_applications_on_reviewed_by_id"
-    t.index ["status"], name: "index_curator_applications_on_status"
-    t.index ["user_id", "status"], name: "index_curator_applications_on_user_id_and_status"
-    t.index ["user_id"], name: "index_curator_applications_on_user_id"
-    t.index ["uuid"], name: "index_curator_applications_on_uuid", unique: true
   end
 
   create_table "curator_reviews", force: :cascade do |t|
@@ -647,8 +629,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_140000) do
   add_foreign_key "content_changes", "users"
   add_foreign_key "content_changes", "users", column: "reviewed_by_id"
   add_foreign_key "curator_activities", "users"
-  add_foreign_key "curator_applications", "users"
-  add_foreign_key "curator_applications", "users", column: "reviewed_by_id"
   add_foreign_key "curator_reviews", "content_changes"
   add_foreign_key "curator_reviews", "users"
   add_foreign_key "events", "locations"

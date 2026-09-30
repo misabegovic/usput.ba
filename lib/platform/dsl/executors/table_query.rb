@@ -30,8 +30,6 @@ module Platform
           "translations" => "Translation",
           "translation" => "Translation",
           "browse" => "Browse",
-          "curator_applications" => "CuratorApplication",
-          "curator_application" => "CuratorApplication",
           "content_changes" => "ContentChange",
           "content_change" => "ContentChange"
         }.freeze

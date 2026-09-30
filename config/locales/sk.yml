@@ -599,10 +599,6 @@ sk:
       remove: Odstrániť obrázok
       remove_confirm: Ste si istí, že chcete odstrániť profilový obrázok?
     curator:
-      title: Staňte sa Kurátorom
-      description: Kurátori môžu pridávať nové miesta, zážitky a obsah na platformu.
-        Pomôžte nám objaviť skryté poklady Bosny a Hercegoviny!
-      apply: Prihlásiť sa ako Kurátor
       you_are_curator: Ste Kurátor
       manage_content: Spravujte miesta a zážitky
       open_dashboard: Otvoriť Dashboard
@@ -639,7 +635,6 @@ sk:
     faq: Časté Otázky
     rights: Všetky práva vyhradené.
     community: Komunita
-    become_curator: Staňte sa kurátorom
   cookie_consent:
     title: Cookies a Ochrana Súkromia
     message: Používame iba technicky nutné cookies pre fungovanie webu (relácia, téma).
@@ -959,44 +954,6 @@ sk:
         easy: Ľahké
         moderate: Stredne náročné
         challenging: Náročné
-  curator_applications:
-    created: Vaša žiadosť bola úspešne podaná!
-    status:
-      pending: Čakajúca
-      approved: Schválená
-      rejected: Zamietnutá
-    errors:
-      already_curator: Už máte oprávnenia kurátora
-      pending_exists: Už máte čakajúcu žiadosť
-    new:
-      title: Staňte Sa Kurátorom
-      subtitle: Pomôžte nám zlepšiť obsah tým, že sa stanete kurátorom
-      benefits_title: 'Ako kurátor môžete:'
-      benefit_1: Pridávať nové miesta a zážitky
-      benefit_2: Upravovať existujúci obsah pre zlepšenie presnosti
-      benefit_3: Pomáhať cestovateľom objavovať skryté klenoty
-    form:
-      motivation: Prečo sa chcete stať kurátorom?
-      motivation_hint: Povedzte nám o vašej vášni pre cestovanie a miestne znalosti
-        (min. 50 znakov)
-      motivation_placeholder: Chcem sa stať kurátorom, pretože...
-      experience: Relevantné skúsenosti (voliteľné)
-      experience_hint: Máte skúsenosti v cestovnom ruchu, tvorbe obsahu alebo miestne
-        znalosti?
-      experience_placeholder: Mám skúsenosti v...
-      submit: Podať Žiadosť
-    show:
-      title: Vaša Žiadosť o Kurátorstvo
-      pending_message: Vaša žiadosť je posudzovaná. Dáme vám vedieť, akonáhle bude
-        učinené rozhodnutie.
-      approved_message: Gratulujeme! Vaša žiadosť bola schválená. Teraz máte prístup
-        k Panelu Kurátora.
-      rejected_message: Bohužiaľ, vaša žiadosť nebola v tejto chvíli schválená.
-      go_to_dashboard: Prejsť do Panelu Kurátora
-      submitted_at: Podané
-      reviewed_at: Posúdené
-      feedback: Spätná väzba
-
   minesweeper:
     title: Míny
     subtitle: "Vzdelávacia hra na skutočných mapách — míny sú tam, kde skutočné údaje zaznamenávajú oblasti podozrivé z výskytu mín."

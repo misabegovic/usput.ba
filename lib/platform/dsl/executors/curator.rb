@@ -3,12 +3,11 @@
 module Platform
   module DSL
     module Executors
-      # Curator executor - handles proposals, applications, approval, and curator management
+      # Curator executor - handles proposals, approval, and curator management
       #
       # Query types:
       # - proposals_query: list/show content change proposals
-      # - applications_query: list/show curator applications
-      # - approval: approve/reject proposals and applications
+      # - approval: approve/reject proposals
       # - curators_query: list/show curators
       # - curator_management: block/unblock curators
       #
@@ -31,23 +30,6 @@ module Platform
             end
           end
 
-          # Execute applications query
-          def execute_applications_query(ast)
-            filters = ast[:filters] || {}
-            operation = ast[:operations]&.first
-
-            case operation&.dig(:name)
-            when :list, nil
-              list_applications(filters)
-            when :show
-              show_application(filters)
-            when :count
-              count_applications(filters)
-            else
-              list_applications(filters)
-            end
-          end
-
           # Execute approval action
           def execute_approval(ast)
             action = ast[:action]
@@ -56,17 +38,9 @@ module Platform
 
             case action
             when :approve
-              if type == :proposal
-                approve_proposal(filters, ast[:notes])
-              else
-                approve_application(filters, ast[:notes])
-              end
+              approve_proposal(filters, ast[:notes])
             when :reject
-              if type == :proposal
-                reject_proposal(filters, ast[:reason])
-              else
-                reject_application(filters, ast[:reason])
-              end
+              reject_proposal(filters, ast[:reason])
             else
               raise ExecutionError, "Nepoznata approval akcija: #{action}"
             end
@@ -214,81 +188,6 @@ module Platform
           end
 
           # ===================
-          # Applications methods
-          # ===================
-
-          def list_applications(filters)
-            scope = CuratorApplication.all
-
-            if filters[:status]
-              status = filters[:status].to_s
-              scope = scope.where(status: status) if CuratorApplication.statuses.key?(status)
-            else
-              scope = scope.pending
-            end
-
-            applications = scope.recent.limit(50)
-
-            {
-              action: :list_applications,
-              count: applications.size,
-              total_pending: CuratorApplication.pending.count,
-              applications: applications.map { |a| format_application(a) }
-            }
-          end
-
-          def show_application(filters)
-            application = find_application(filters)
-
-            {
-              action: :show_application,
-              id: application.id,
-              status: application.status,
-              user: {
-                id: application.user_id,
-                username: application.user.username
-              },
-              motivation: application.motivation,
-              experience: application.experience,
-              created_at: application.created_at.iso8601,
-              reviewed_at: application.reviewed_at&.iso8601,
-              reviewed_by: application.reviewed_by&.username,
-              admin_notes: application.admin_notes
-            }
-          end
-
-          def count_applications(filters)
-            {
-              pending: CuratorApplication.pending.count,
-              approved: CuratorApplication.approved.count,
-              rejected: CuratorApplication.rejected.count,
-              total: CuratorApplication.count
-            }
-          end
-
-          def find_application(filters)
-            raise ExecutionError, "Potreban filter: id" unless filters[:id]
-
-            application = CuratorApplication.find_by(id: filters[:id])
-            raise ExecutionError, "Application sa id=#{filters[:id]} nije pronađena" unless application
-
-            application
-          end
-
-          def format_application(application)
-            {
-              id: application.id,
-              status: application.status,
-              user: {
-                id: application.user_id,
-                username: application.user.username
-              },
-              motivation_preview: application.motivation.truncate(100),
-              created_at: application.created_at.iso8601
-            }
-          end
-
-          # ===================
           # Approval methods
           # ===================
 
@@ -335,49 +234,6 @@ module Platform
               proposal_id: proposal.id,
               reason: reason,
               message: "Prijedlog je odbijen"
-            }
-          end
-
-          def approve_application(filters, notes)
-            application = find_application(filters)
-
-            unless application.pending?
-              raise ExecutionError, "Application nije u pending statusu (trenutni status: #{application.status})"
-            end
-
-            admin = platform_admin_user
-            application.approve!(admin)
-
-            {
-              success: true,
-              action: :approve_application,
-              application_id: application.id,
-              user: {
-                id: application.user_id,
-                username: application.user.username
-              },
-              message: "Prijava za kuratora je odobrena. Korisnik je sada kurator."
-            }
-          end
-
-          def reject_application(filters, reason)
-            application = find_application(filters)
-
-            unless application.pending?
-              raise ExecutionError, "Application nije u pending statusu (trenutni status: #{application.status})"
-            end
-
-            raise ExecutionError, "Potreban razlog za odbijanje" if reason.blank?
-
-            admin = platform_admin_user
-            application.reject!(admin, reason)
-
-            {
-              success: true,
-              action: :reject_application,
-              application_id: application.id,
-              reason: reason,
-              message: "Prijava za kuratora je odbijena"
             }
           end
 

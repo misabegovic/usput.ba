@@ -605,10 +605,6 @@ pl:
       remove: Usuń zdjęcie
       remove_confirm: Czy na pewno chcesz usunąć zdjęcie profilowe?
     curator:
-      title: Zostań Kuratorem
-      description: Kuratorzy mogą dodawać nowe lokalizacje, doświadczenia i treści
-        do platformy. Pomóż nam odkryć ukryte perły Bośni i Hercegowiny!
-      apply: Aplikuj jako Kurator
       you_are_curator: Jesteś Kuratorem
       manage_content: Zarządzaj lokalizacjami i doświadczeniami
       open_dashboard: Otwórz Panel
@@ -645,7 +641,6 @@ pl:
     faq: FAQ
     rights: Wszelkie prawa zastrzeżone.
     community: Społeczność
-    become_curator: Zostań Kuratorem
   cookie_consent:
     title: Pliki Cookie i Prywatność
     message: Używamy tylko technicznie niezbędnych plików cookie do funkcjonowania
@@ -969,44 +964,6 @@ pl:
         easy: Łatwy
         moderate: Umiarkowany
         challenging: Wymagający
-  curator_applications:
-    created: Twój wniosek został pomyślnie wysłany!
-    status:
-      pending: Oczekujący
-      approved: Zatwierdzony
-      rejected: Odrzucony
-    errors:
-      already_curator: Masz już uprawnienia kuratora
-      pending_exists: Masz już oczekujący wniosek
-    new:
-      title: Zostań Kuratorem
-      subtitle: Pomóż nam ulepszyć treści, stając się kuratorem
-      benefits_title: 'Jako kurator możesz:'
-      benefit_1: Dodawać nowe lokalizacje i doświadczenia
-      benefit_2: Edytować istniejące treści, aby poprawić dokładność
-      benefit_3: Pomagać podróżnikom odkrywać ukryte perły
-    form:
-      motivation: Dlaczego chcesz zostać kuratorem?
-      motivation_hint: Opowiedz nam o swojej pasji do podróży i lokalnej wiedzy (min.
-        50 znaków)
-      motivation_placeholder: Chcę zostać kuratorem, ponieważ...
-      experience: Odpowiednie doświadczenie (opcjonalnie)
-      experience_hint: Czy masz doświadczenie w turystyce, tworzeniu treści lub lokalnej
-        wiedzy?
-      experience_placeholder: Mam doświadczenie w...
-      submit: Wyślij Wniosek
-    show:
-      title: Twój Wniosek Kuratorski
-      pending_message: Twój wniosek jest sprawdzany. Powiadomimy Cię, gdy zostanie
-        podjęta decyzja.
-      approved_message: Gratulacje! Twój wniosek został zatwierdzony. Masz teraz dostęp
-        do Panelu Kuratora.
-      rejected_message: Niestety, Twój wniosek nie został w tym czasie zatwierdzony.
-      go_to_dashboard: Przejdź do Panelu Kuratora
-      submitted_at: Wysłano
-      reviewed_at: Sprawdzono
-      feedback: Opinia
-
   minesweeper:
     title: Saper
     subtitle: "Gra edukacyjna na prawdziwych mapach — miny są tam, gdzie prawdziwe dane rejestrują obszary podejrzane o miny."

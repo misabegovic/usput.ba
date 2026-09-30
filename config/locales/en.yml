@@ -945,10 +945,6 @@ en:
       remove: Remove image
       remove_confirm: Are you sure you want to remove the profile picture?
     curator:
-      title: Become a Curator
-      description: Curators can add new locations, experiences, and content to the platform. Help us discover
-        hidden gems of Bosnia and Herzegovina!
-      apply: Apply for Curator
       you_are_curator: You are a Curator
       manage_content: Manage locations and experiences
       open_dashboard: Open Dashboard
@@ -985,7 +981,6 @@ en:
     faq: FAQ
     rights: All rights reserved.
     community: Community
-    become_curator: Become a Curator
   cookie_consent:
     title: Cookies & Privacy
     message: We only use technically necessary cookies for the site to function (session, theme). We do
@@ -1622,7 +1617,6 @@ en:
       nav:
         photo_suggestions: Photo Approvals
         users: User Management
-        curator_applications: Curator Applications
         content_changes: Content Approvals
       photo_suggestions:
         title: Photo Suggestions
@@ -1661,13 +1655,6 @@ en:
         updated: User updated successfully
         unblocked: User unblocked successfully
         not_blocked: This user is not blocked
-      curator_applications:
-        title: Curator Applications
-        approved: '%{username} has been approved as a curator'
-        rejected: '%{username}''s application has been rejected'
-        approval_failed: Failed to approve application
-        rejection_failed: Failed to reject application
-        already_reviewed: This application has already been reviewed
       content_changes:
         title: Content Changes
         approved: Content change approved and applied successfully
@@ -1740,53 +1727,6 @@ en:
       collector:
         name: Collector
         description: Added 10 favorite locations
-  curator_applications:
-    created: Your application has been submitted successfully!
-    status:
-      pending: Pending
-      approved: Approved
-      rejected: Rejected
-    errors:
-      already_curator: You already have curator privileges
-      pending_exists: You already have a pending application
-    new:
-      title: Become a Curator
-      subtitle: Help us improve the content by becoming a curator
-      benefits_title: 'As a curator you can:'
-      benefit_1: Add new locations and experiences
-      benefit_2: Edit existing content to improve accuracy
-      benefit_3: Help travelers discover hidden gems
-    form:
-      motivation: Why do you want to become a curator?
-      motivation_hint: Tell us about your passion for travel and local knowledge (min. 50 characters)
-      motivation_placeholder: I want to become a curator because...
-      experience: Relevant experience (optional)
-      experience_hint: Do you have experience in tourism, content creation, or local knowledge?
-      experience_placeholder: I have experience in...
-      submit: Submit Application
-    show:
-      title: Your Curator Application
-      pending_message: Your application is being reviewed. We'll notify you once a decision is made.
-      approved_message: Congratulations! Your application has been approved. You now have access to the
-        Curator Dashboard.
-      rejected_message: Unfortunately, your application was not approved at this time.
-      go_to_dashboard: Go to Curator Dashboard
-      submitted_at: Submitted
-      reviewed_at: Reviewed
-      feedback: Feedback
-    info:
-      title: Become a Curator
-      subtitle: Join our community of curators and help others discover the best places
-      how_it_works: How does it work?
-      step_1: Create your profile on Usput.ba
-      step_2: Submit an application with a brief description of why you want to be a curator
-      step_3: Our team will review your application and notify you of the decision
-      create_profile_first: You need to create a profile first
-      create_profile_hint: To apply for curator, you must have a user account
-      already_curator: You're already a curator! You have access to the Curator Dashboard.
-      pending_application: Your curator application is pending.
-      view_application: View application
-      apply_now: Apply now
   mine_check:
     disclaimer: 'The check runs against the most recently available data on mine-suspected areas (%{data_as_of}).
       The absence of known intersections is NOT a guarantee that an area is mine-free. For up-to-date

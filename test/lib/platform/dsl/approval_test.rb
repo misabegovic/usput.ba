@@ -42,13 +42,6 @@ class Platform::DSL::ApprovalTest < ActiveSupport::TestCase
       proposed_data: { "description" => "Novi opis lokacije" },
       status: :pending
     )
-
-    # Create a pending curator application
-    @application = CuratorApplication.create!(
-      user: @regular_user,
-      motivation: "Želim doprinijeti turističkoj ponudi BiH jer volim ovu zemlju i njene ljepote.",
-      experience: "Imam 5 godina iskustva u turizmu"
-    )
   end
 
   # Parser tests - Proposals commands
@@ -72,19 +65,14 @@ class Platform::DSL::ApprovalTest < ActiveSupport::TestCase
     assert_equal :proposals_query, ast[:type]
   end
 
-  # Parser tests - Applications commands
-  test "parses applications list command" do
-    ast = Platform::DSL::Parser.parse('applications { status: "pending" } | list')
-
-    assert_equal :applications_query, ast[:type]
-    assert_equal "pending", ast[:filters][:status]
-  end
-
-  test "parses applications show command" do
-    ast = Platform::DSL::Parser.parse("applications { id: 456 } | show")
-
-    assert_equal :applications_query, ast[:type]
-    assert_equal 456, ast[:filters][:id]
+  # Curator applications were removed with the curator area; an admin sets
+  # roles in Avo instead.
+  test "curator application commands are gone" do
+    [ "approve application { id: 1 }", 'reject application { id: 1 } reason "x"' ].each do |dsl|
+      assert_raises(Platform::DSL::ParseError, dsl) { Platform::DSL::Parser.parse(dsl) }
+    end
+    error = assert_raises(Platform::DSL::ExecutionError) { Platform::DSL.execute("applications | list") }
+    assert_match "applications", error.message
   end
 
   # Parser tests - Approve commands
@@ -105,15 +93,6 @@ class Platform::DSL::ApprovalTest < ActiveSupport::TestCase
     assert_equal "Odlična izmjena", ast[:notes]
   end
 
-  test "parses approve application command" do
-    ast = Platform::DSL::Parser.parse("approve application { id: 789 }")
-
-    assert_equal :approval, ast[:type]
-    assert_equal :approve, ast[:action]
-    assert_equal :application, ast[:approval_type]
-    assert_equal 789, ast[:filters][:id]
-  end
-
   # Parser tests - Reject commands
   test "parses reject proposal command" do
     ast = Platform::DSL::Parser.parse('reject proposal { id: 123 } reason "Netačne informacije"')
@@ -122,15 +101,6 @@ class Platform::DSL::ApprovalTest < ActiveSupport::TestCase
     assert_equal :reject, ast[:action]
     assert_equal :proposal, ast[:approval_type]
     assert_equal "Netačne informacije", ast[:reason]
-  end
-
-  test "parses reject application command" do
-    ast = Platform::DSL::Parser.parse('reject application { id: 789 } reason "Nedovoljna motivacija"')
-
-    assert_equal :approval, ast[:type]
-    assert_equal :reject, ast[:action]
-    assert_equal :application, ast[:approval_type]
-    assert_equal "Nedovoljna motivacija", ast[:reason]
   end
 
   # Execution tests - Proposals
@@ -157,25 +127,6 @@ class Platform::DSL::ApprovalTest < ActiveSupport::TestCase
 
     assert result[:pending] >= 1
     assert result[:total] >= 1
-  end
-
-  # Execution tests - Applications
-  test "lists pending applications" do
-    result = Platform::DSL.execute('applications { status: "pending" } | list')
-
-    assert_equal :list_applications, result[:action]
-    assert result[:count] >= 1
-    assert result[:applications].any? { |a| a[:id] == @application.id }
-  end
-
-  test "shows application details" do
-    result = Platform::DSL.execute("applications { id: #{@application.id} } | show")
-
-    assert_equal :show_application, result[:action]
-    assert_equal @application.id, result[:id]
-    assert_equal "pending", result[:status]
-    assert_equal @regular_user.username, result[:user][:username]
-    assert_includes result[:motivation], "Želim doprinijeti"
   end
 
   # Execution tests - Approve proposal
@@ -227,37 +178,6 @@ class Platform::DSL::ApprovalTest < ActiveSupport::TestCase
     assert_match(/razlog/i, error.message)
   end
 
-  # Execution tests - Approve application
-  test "approves curator application" do
-    result = Platform::DSL.execute("approve application { id: #{@application.id} }")
-
-    assert result[:success]
-    assert_equal :approve_application, result[:action]
-    assert_equal @application.id, result[:application_id]
-
-    @application.reload
-    assert @application.approved?
-
-    # Verify user is now curator
-    @regular_user.reload
-    assert @regular_user.curator? || @regular_user.can_curate?
-  end
-
-  test "rejects curator application" do
-    result = Platform::DSL.execute("reject application { id: #{@application.id} } reason \"Nedovoljna motivacija\"")
-
-    assert result[:success]
-    assert_equal :reject_application, result[:action]
-    assert_equal "Nedovoljna motivacija", result[:reason]
-
-    @application.reload
-    assert @application.rejected?
-
-    # Verify user is NOT curator
-    @regular_user.reload
-    refute @regular_user.curator?
-  end
-
   # Error handling
   test "rejects approval for non-existent proposal" do
     error = assert_raises(Platform::DSL::ExecutionError) do
@@ -267,29 +187,11 @@ class Platform::DSL::ApprovalTest < ActiveSupport::TestCase
     assert_match(/nije pronađen/i, error.message)
   end
 
-  test "rejects approval for non-existent application" do
-    error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL.execute("approve application { id: 999999 }")
-    end
-
-    assert_match(/nije pronađena/i, error.message)
-  end
-
   test "rejects approval for already approved proposal" do
     @proposal.update!(status: :approved)
 
     error = assert_raises(Platform::DSL::ExecutionError) do
       Platform::DSL.execute("approve proposal { id: #{@proposal.id} }")
-    end
-
-    assert_match(/pending/i, error.message)
-  end
-
-  test "rejects approval for already rejected application" do
-    @application.update!(status: :rejected)
-
-    error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL.execute("approve application { id: #{@application.id} }")
     end
 
     assert_match(/pending/i, error.message)

@@ -687,10 +687,6 @@ es:
       remove: Eliminar imagen
       remove_confirm: "¿Estás seguro de que deseas eliminar la foto de perfil?"
     curator:
-      title: Conviértete en Curador
-      description: Los curadores pueden añadir nuevos lugares, experiencias y contenido
-        a la plataforma. ¡Ayúdanos a descubrir las joyas ocultas de Bosnia y Herzegovina!
-      apply: Solicitar ser Curador
       you_are_curator: Eres Curador
       manage_content: Gestiona lugares y experiencias
       open_dashboard: Abrir Panel
@@ -710,7 +706,6 @@ es:
     faq: Preguntas Frecuentes
     rights: Todos los derechos reservados.
     community: Comunidad
-    become_curator: Conviértete en Curador
   cookie_consent:
     title: Cookies y Privacidad
     message: Solo usamos cookies técnicamente necesarias para que el sitio funcione
@@ -1123,44 +1118,6 @@ es:
       collector:
         name: Coleccionista
         description: Añadió 10 ubicaciones favoritas
-  curator_applications:
-    created: "¡Tu solicitud ha sido enviada exitosamente!"
-    status:
-      pending: Pendiente
-      approved: Aprobado
-      rejected: Rechazado
-    errors:
-      already_curator: Ya tienes privilegios de curador
-      pending_exists: Ya tienes una solicitud pendiente
-    new:
-      title: Conviértete en Curador
-      subtitle: Ayúdanos a mejorar el contenido convirtiéndote en curador
-      benefits_title: 'Como curador puedes:'
-      benefit_1: Agregar nuevos lugares y experiencias
-      benefit_2: Editar contenido existente para mejorar la precisión
-      benefit_3: Ayudar a los viajeros a descubrir joyas ocultas
-    form:
-      motivation: "¿Por qué quieres convertirte en curador?"
-      motivation_hint: Cuéntanos sobre tu pasión por los viajes y conocimiento local
-        (mín. 50 caracteres)
-      motivation_placeholder: Quiero convertirme en curador porque...
-      experience: Experiencia relevante (opcional)
-      experience_hint: "¿Tienes experiencia en turismo, creación de contenido o conocimiento
-        local?"
-      experience_placeholder: Tengo experiencia en...
-      submit: Enviar Solicitud
-    show:
-      title: Tu Solicitud de Curador
-      pending_message: Tu solicitud está siendo revisada. Te notificaremos una vez
-        que se tome una decisión.
-      approved_message: "¡Felicidades! Tu solicitud ha sido aprobada. Ahora tienes
-        acceso al Panel de Curador."
-      rejected_message: Desafortunadamente, tu solicitud no fue aprobada en este momento.
-      go_to_dashboard: Ir al Panel de Curador
-      submitted_at: Enviado
-      reviewed_at: Revisado
-      feedback: Comentarios
-
   minesweeper:
     title: Buscaminas
     subtitle: "Un juego educativo sobre mapas reales — las minas están donde los datos reales registran zonas sospechosas de minas."

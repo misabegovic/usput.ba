@@ -559,14 +559,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert_equal :list_proposals, result[:action]
   end
 
-  # Applications query tests
-  test "execute_applications_query with list" do
-    result = Platform::DSL.execute("applications | list")
-
-    assert result.is_a?(Hash)
-    assert_equal :list_applications, result[:action]
-  end
-
   # Curators query tests
   test "execute_curators_query with list" do
     result = Platform::DSL.execute("curators | list")
@@ -838,13 +830,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
     assert result.is_a?(Hash)
     assert result[:content].key?(:locations) || result[:content].key?("locations")
-  end
-
-  # Applications count test
-  test "applications count returns statistics" do
-    result = Platform::DSL.execute("applications | count")
-
-    assert result.is_a?(Hash) || result.is_a?(Integer)
   end
 
   # Code search test
@@ -1166,15 +1151,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert result.key?(:message) || result.key?(:action)
   end
 
-  # Test applications | list
-  test "applications list returns curator applications" do
-    result = Platform::DSL.execute("applications | list")
-
-    assert result.is_a?(Hash)
-    assert_equal :list_applications, result[:action]
-    assert result.key?(:applications)
-  end
-
   # Test curators | show
   test "curators show returns curator details" do
     curator = User.create!(
@@ -1338,36 +1314,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert result.is_a?(Hash)
     assert result.key?(:curators)
     assert result[:curators].is_a?(Array)
-  end
-
-  # Test count_applications through DSL
-  test "count_applications returns statistics" do
-    result = Platform::DSL::Executors::Curator.send(:count_applications, {})
-
-    assert result.is_a?(Hash)
-    assert result.key?(:total)
-    assert result.key?(:pending)
-  end
-
-  # Test find_application raises for missing id
-  test "find_application raises for missing id" do
-    assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL::Executors::Curator.send(:find_application, {})
-    end
-  end
-
-  # Test format_application with real application
-  test "format_application returns formatted application" do
-    application = CuratorApplication.create!(
-      user: @test_user,
-      motivation: "I want to help curate content for this platform. I have experience with tourism and content curation.",
-      status: :pending
-    )
-
-    result = Platform::DSL::Executors::Curator.send(:format_application, application)
-
-    assert result.is_a?(Hash)
-    assert result.key?(:motivation_preview)
   end
 
   # Test grep_code

@@ -291,11 +291,6 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
     assert_equal :logs_query, ast[:type]
   end
 
-  test "parses applications query" do
-    ast = Platform::DSL::Parser.parse("applications | list")
-    assert_equal :applications_query, ast[:type]
-  end
-
   # Proposals queries
   test "parses proposals query" do
     ast = Platform::DSL::Parser.parse('proposals { status: "pending" } | list')

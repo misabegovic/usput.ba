@@ -16,7 +16,7 @@ module Platform
     # - TableQuery: dynamic queries on tables
     # - Infrastructure: system health, queue status, logs
     # - Content: mutations, generation, audio
-    # - Curator: proposals, applications, approval, curator management
+    # - Curator: proposals, approval, curator management
     # - External: external APIs, code introspection
     #
     class Executor
@@ -52,8 +52,6 @@ module Platform
           # Curator queries
           when :proposals_query
             Executors::Curator.execute_proposals_query(ast)
-          when :applications_query
-            Executors::Curator.execute_applications_query(ast)
           when :approval
             Executors::Curator.execute_approval(ast)
           when :curators_query
@@ -136,12 +134,10 @@ module Platform
 
         # Curator delegations
         def execute_proposals_query(ast) = Executors::Curator.execute_proposals_query(ast)
-        def execute_applications_query(ast) = Executors::Curator.execute_applications_query(ast)
         def execute_approval(ast) = Executors::Curator.execute_approval(ast)
         def execute_curators_query(ast) = Executors::Curator.execute_curators_query(ast)
         def execute_curator_management(ast) = Executors::Curator.execute_curator_management(ast)
         def list_proposals(filters) = Executors::Curator.send(:list_proposals, filters)
-        def list_applications(filters) = Executors::Curator.send(:list_applications, filters)
         def list_curators(filters) = Executors::Curator.send(:list_curators, filters)
 
         # External delegations
