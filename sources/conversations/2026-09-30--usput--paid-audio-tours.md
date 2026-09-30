@@ -25,3 +25,5 @@ Answers, asked one by one:
 ## Follow-up
 
 > For the city of the company, it's Vienna, Austria
+
+> Ok, i am an einzelunternehmer and I have a stripe account with a valid vat

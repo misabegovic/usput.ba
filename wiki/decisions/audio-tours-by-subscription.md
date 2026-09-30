@@ -36,11 +36,11 @@ play every audio tour. Anyone can play the first stop of any tour as a
 preview. There is no free trial and there are no codes. Everything that is
 not an audio tour stays free.
 
-The seller is a company in Vienna, Austria, which Stripe supports.
+The seller is the operator's own business in Vienna, Austria, a sole proprietorship (Einzelunternehmen) registered for VAT, with an existing Stripe account.
 Payments go through Stripe: its hosted checkout, its customer portal for
 cancelling and changing plans, and its webhooks as the record of who is
-subscribed. Prices and payouts are in euros. Until the company's Stripe account is
-verified, usput is built and tested against Stripe's test mode.
+subscribed. Prices and payouts are in euros. Development and tests run against that
+account's test mode; switching to live keys is a launch step.
 
 ## Alternatives
 
@@ -69,13 +69,12 @@ verified, usput is built and tested against Stripe's test mode.
   consumers and the buyer's country's VAT to consumers elsewhere in the EU,
   reported through the EU's One-Stop Shop; sales to consumers outside the
   EU, Bosnia and Herzegovina included, generally carry no EU VAT (unverified,
-  2026-09-30: confirm with the company's tax adviser, including whether the
-  small-business exemption applies at the start). Stripe Tax records where
+  2026-09-30: confirm with the company's tax adviser,  given that the business already holds a VAT number). Stripe Tax records where
   each buyer is.
 - EU consumers have a right of withdrawal for digital content, which the
   checkout must handle (unverified, 2026-09-30: how the waiver on immediate
-  access applies needs a source). An Austrian company's website also needs
-  a legal notice (Impressum) naming the company. Terms of sale are part of
+  access applies needs a source). An Austrian business's website also needs
+  a legal notice (Impressum) naming the business and its address. Terms of sale are part of
   the work, not an afterthought.
 - Admins see subscriptions in Avo, read from Stripe; Stripe stays the source
   of truth for billing.
