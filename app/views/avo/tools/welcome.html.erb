@@ -1,0 +1,10 @@
+<div class="flex flex-col">
+  <%= render ui.panel(title: t("admin.welcome.title")) do |panel| %>
+    <% panel.with_card(title: t("admin.welcome.greeting", name: current_user.username)) do %>
+      <div class="flex flex-col py-6 px-6 space-y-4">
+        <p><%= t("admin.welcome.role_#{current_user.user_type}") %></p>
+        <p><%= t("admin.welcome.coming") %></p>
+      </div>
+    <% end %>
+  <% end %>
+</div>
