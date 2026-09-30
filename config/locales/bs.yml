@@ -638,6 +638,32 @@ bs:
         one: Jedan nalog je odblokiran.
         other: "Odblokirano naloga: %{count}."
       refused: "Nije promijenjeno: %{names}. Administrator ne može mijenjati svoj nalog, a odblokirati se mogu samo blokirani nalozi."
+    locations:
+      photos: Fotografije
+      photo_count: Fotografije
+      coordinates_help: Geografska širina i dužina. Mjesto u području sumnjivom na mine ne može se sačuvati.
+      fields:
+        name: Naziv
+        description: Opis
+        historical_context: Historijski kontekst
+      city: Grad
+      status: Status
+      statuses:
+        active: Aktivna
+        archived: Arhivirana
+        all: Sva
+      photo_buckets:
+        none: Bez fotografija
+        few: Manje od tri fotografije
+      archive: Arhiviraj
+      archive_message: Arhivirano mjesto nestaje sa stranice i iz pretrage, ali putnici zadržavaju svoje posjete i uspomene. Može se vratiti.
+      archived:
+        one: Jedno mjesto je arhivirano.
+        other: "Arhivirano mjesta: %{count}."
+      restore: Vrati
+      restored:
+        one: Jedno mjesto je vraćeno.
+        other: "Vraćeno mjesta: %{count}."
   auth:
     register_title: Registracija - Usput
     register_heading: Kreiraj nalog

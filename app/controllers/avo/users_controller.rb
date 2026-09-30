@@ -1,3 +1,3 @@
 class Avo::UsersController < Avo::ResourcesController
-  include AdminPolicyGate
+  include AdminResource
 end
