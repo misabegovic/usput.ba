@@ -683,6 +683,26 @@ bs:
       ownerships:
         curated: Usput
         travellers: Putnici (javni)
+    moments:
+      photo: Fotografija
+      status: Status
+      note: Bilješka
+      author: Podijelio
+      place: Mjesto
+      shared_at: Podijeljeno
+      approve: Odobri
+      reject: Odbij
+      approved:
+        one: Jedna uspomena odobrena.
+        other: "Odobreno uspomena: %{count}."
+      rejected:
+        one: Jedna uspomena odbijena.
+        other: "Odbijeno uspomena: %{count}."
+      statuses:
+        pending: Čeka
+        approved: Odobreno
+        rejected: Odbijeno
+        all: Sve
     audio_tours:
       place: Mjesto
       language: Jezik
@@ -1197,20 +1217,6 @@ bs:
       dashboard: Pregled
       reviews: Recenzije
       moments: Uspomene
-    moments:
-      title: Podijeljene uspomene
-      subtitle: Fotografije putnika koje čekaju pregled prije nego postanu javne
-      empty: Nema uspomena za pregled.
-      by: objavio/la %{user}
-      approve: Odobri
-      reject: Odbij
-      status:
-        pending: Na čekanju
-        approved: Odobreno
-        rejected: Odbijeno
-      flash:
-        approved: Uspomena odobrena
-        rejected: Uspomena odbijena
     dashboard:
       welcome: Dobrodošao, %{username}!
       total_locations: Ukupno lokacija

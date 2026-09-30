@@ -23,7 +23,7 @@ sources:
 - app/controllers/curator/plans_controller.rb
 - app/controllers/curator/audio_tours_controller.rb
 - app/controllers/curator/reviews_controller.rb
-- app/controllers/curator/moments_controller.rb
+- app/avo/resources/moment.rb
 - app/controllers/curator/proposals_controller.rb
 - app/controllers/curator/photo_suggestions_controller.rb
 - app/controllers/curator/admin/base_controller.rb
@@ -116,7 +116,7 @@ Slices, in order on the rebuild branch, each with its tests:
 2. **Done 2026-09-30.** The policy layer and the `User` resource (admin only), with role change and block actions. Policy unit tests per role; a request test that a curator cannot open users.
 3. **Done 2026-09-30.** `Location` with filters, the archive and restore actions and photo uploads. Tests that the mine check blocks a bad coordinate through Avo and that a curator cannot delete.
 4. **Done 2026-09-30.** `Experience` and `Plan`, including a plan's stops by day. Policy and request tests.
-5. `Moment` queue with approve and reject. Tests that an approved public moment becomes visible and a rejected one does not.
+5. **Done 2026-09-30.** `Moment` queue with approve and reject. Tests that an approved public moment becomes visible and a rejected one does not.
 6. `Review` queue with clear and remove, once the flag exists ([Jev review flagging](jev-review-flagging.md)). Tests for both actions and for the rating recount.
 7. `AdminEvent` written by every action and role change, shown on each record. Model and action tests.
 
@@ -242,4 +242,24 @@ which had been their only write path: search by place, the language chosen
 from the tour languages, script, audio file, voice and provider, one tour per
 place and language as the model already required. Curators create and edit;
 only admins delete, by the default policy.
+
+Slice 5 landed on 2026-09-30.
+
+- **The moments queue** lists public moments only, newest first, opening on
+  those waiting for a decision; a status filter shows approved, rejected or
+  all. A private moment is not found even by its link (`MomentPolicy.visible`).
+- **Approve and Reject** are actions for curators, on one moment or many, and
+  work in either direction, so an approved moment can be taken down and a
+  rejected one approved later. The model's existing callbacks keep search in
+  step: approving indexes a moment, rejecting removes it. Each decision is
+  still written to the curator activity trail until the admin trail replaces
+  it (slice 7).
+- **Nobody creates, edits or deletes a moment in the admin**: the traveller
+  owns the words and the photo, and rejecting is how one comes down.
+- **The photo is streamed by the app**, from `/admin/moment_photos/:id` behind
+  the same curator gate as the admin, rather than through Avo's file field,
+  which would hand out a signed storage link that works for anyone holding it.
+  This is the rule the old queue followed (`ServesMomentPhotos`).
+- **The old curator queue is gone**, with its page, route, tests and locale
+  keys; the curator menu's "Moments" link opens the admin queue.
 
