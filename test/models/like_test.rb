@@ -4,8 +4,8 @@ require "test_helper"
 
 class LikeTest < ActiveSupport::TestCase
   setup do
-    @owner = User.create!(username: "like_owner", password: "password123")
-    @reader = User.create!(username: "like_reader", password: "password123")
+    @owner = User.create!(username: "like_owner", email: "like_owner@example.com", password: "password123")
+    @reader = User.create!(username: "like_reader", email: "like_reader@example.com", password: "password123")
     @location = Location.create!(name: "Like Location", city: "Jajce", lat: 44.34, lng: 17.27)
     @plan = Plan.create!(title: "Like Plan", city_name: "Jajce", visibility: :private_plan, user: @owner)
     @moment = public_moment

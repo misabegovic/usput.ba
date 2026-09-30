@@ -2,7 +2,7 @@
 title: Decision log
 kind: reference
 status: living
-updated: 2026-09-29
+updated: 2026-09-30
 repos:
 - usput.ba
 confidence: medium
@@ -58,3 +58,4 @@ Every recorded decision for Usput.ba in date order, oldest first. Dates are thos
 | 2026-09-30 | [Admin work moves to Avo; the curator area is removed](admin-through-avo.md) | accepted | Avo Community replaces the hand-built curator area; roles basic, curator and admin enforced in the app. |
 | 2026-09-30 | [Avo now; compiling with Roundhouse and Spinel later](avo-now-compile-later.md) | accepted | Avo is adopted; Roundhouse is used for `check` only until compiling fits what usput uses. |
 | 2026-09-30 | [Audio tours are paid by subscription; everything else stays free](audio-tours-by-subscription.md) | accepted | EUR 3 a week, 6 a month, 39 a year, all renewing, first stop free, through Stripe from a company abroad. |
+| 2026-09-30 | [Accounts through Devise, signed in by email](accounts-through-devise.md) | accepted | Devise with confirmation (three-day grace), reset through Postmark, a rotating session token to sign out everywhere; replaces #171's session rows. |

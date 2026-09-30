@@ -86,3 +86,18 @@ module ActiveSupport
     # Add more helper methods to be used by all tests here...
   end
 end
+
+class ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
+
+  # Asks the app, with a request of its own, whether this browser is signed in.
+  def assert_signed_in(message = "expected the browser to be signed in")
+    get user_plans_path, as: :json
+    assert_response :success, message
+  end
+
+  def assert_signed_out(message = "expected the browser to be signed out")
+    get user_plans_path, as: :json
+    assert_response :unauthorized, message
+  end
+end

@@ -9,7 +9,7 @@ class ExploreBosniaTest < ActionDispatch::IntegrationTest
   SARAJEVO = { lat: 43.85, lng: 18.41 }.freeze
 
   setup do
-    @user = User.create!(username: "wanderer", password: "password123")
+    @user = User.create!(username: "wanderer", email: "wanderer@example.com", password: "password123")
     # Canonical keys: the "history" tile groups the "history" type.
     @history = ExperienceType.create!(key: "history", name: "History", active: true)
     @near = Location.create!(name: "Close Fort", city: "Sarajevo", lat: 43.85, lng: 18.41,
@@ -641,7 +641,7 @@ class ExploreBosniaTest < ActionDispatch::IntegrationTest
   end
 
   test "the moments panel shows another traveller's approved public moment" do
-    other = User.create!(username: "other_wanderer", password: "password123")
+    other = User.create!(username: "other_wanderer", email: "other_wanderer@example.com", password: "password123")
     moment = other.moments.new(plan: Plan.explore_bosnia_for(other), location: @near, visibility: :public_moment)
     moment.photo.attach(io: File.open(Rails.root.join("test/fixtures/files/real_image.jpg")), filename: "real_image.jpg", content_type: "image/jpeg")
     moment.save!
@@ -879,11 +879,11 @@ class ExploreBosniaTest < ActionDispatch::IntegrationTest
   end
 
   def admin
-    @admin ||= User.create!(username: "chief", password: "password123", user_type: :admin)
+    @admin ||= User.create!(username: "chief", email: "chief@example.com", password: "password123", user_type: :admin)
   end
 
   def login_as(user)
-    post login_path, params: { username: user.username, password: "password123" }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 
   def seed_places(count, type_key: @history.key)

@@ -100,7 +100,7 @@ class LocationTest < ActiveSupport::TestCase
   # this, and it is covered below.
   test "a location travellers have reached refuses to be destroyed" do
     location = Location.create!(@valid_params)
-    user = User.create!(username: "reached_it", password: "password123")
+    user = User.create!(username: "reached_it", email: "reached_it@example.com", password: "password123")
     visit = user.plan_visits.create!(plan: Plan.explore_bosnia_for(user), location: location)
 
     assert_not location.destroy
@@ -115,7 +115,7 @@ class LocationTest < ActiveSupport::TestCase
 
   test "archiving keeps the location and everything travellers recorded there" do
     location = Location.create!(@valid_params)
-    user = User.create!(username: "kept_it", password: "password123")
+    user = User.create!(username: "kept_it", email: "kept_it@example.com", password: "password123")
     visit = user.plan_visits.create!(plan: Plan.explore_bosnia_for(user), location: location)
 
     location.archive!
@@ -150,7 +150,7 @@ class LocationTest < ActiveSupport::TestCase
 
   test "destroy_with_traveller_records! takes the memories and the location" do
     location = Location.create!(@valid_params)
-    user = User.create!(username: "deleted_it", password: "password123")
+    user = User.create!(username: "deleted_it", email: "deleted_it@example.com", password: "password123")
     plan = Plan.explore_bosnia_for(user)
     visit = user.plan_visits.create!(plan: plan, location: location)
     moment = user.moments.build(plan: plan, location: location, note: "was here")
@@ -172,7 +172,7 @@ class LocationTest < ActiveSupport::TestCase
   test "the guard is back in force after a cascading destroy" do
     survivor = Location.create!(@valid_params.merge(name: "Survivor", lat: 43.9, lng: 18.5))
     doomed = Location.create!(@valid_params.merge(name: "Doomed", lat: 43.8, lng: 18.3))
-    user = User.create!(username: "twice_over", password: "password123")
+    user = User.create!(username: "twice_over", email: "twice_over@example.com", password: "password123")
     plan = Plan.explore_bosnia_for(user)
     user.plan_visits.create!(plan: plan, location: doomed)
     user.plan_visits.create!(plan: plan, location: survivor)

@@ -6,6 +6,7 @@ class TravelProfilesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = User.create!(
       username: "travelprofile_test",
+      email: "travelprofile_test@example.com",
       password: "password123",
       password_confirmation: "password123",
       travel_profile_data: {
@@ -286,13 +287,13 @@ class TravelProfilesControllerTest < ActionDispatch::IntegrationTest
   test "update redirects to login for HTML request when not authenticated" do
     patch travel_profile_path, params: { travel_profile_data: {}.to_json }
 
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "sync redirects to login for HTML request when not authenticated" do
     post sync_travel_profile_path
 
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   # === Edge cases ===
@@ -432,6 +433,6 @@ class TravelProfilesControllerTest < ActionDispatch::IntegrationTest
   end
 
   def login_as(user)
-    post login_path, params: { username: user.username, password: "password123" }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 end

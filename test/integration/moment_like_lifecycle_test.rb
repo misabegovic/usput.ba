@@ -7,8 +7,8 @@ require "test_helper"
 # place being retired, and either party being deleted.
 class MomentLikeLifecycleTest < ActionDispatch::IntegrationTest
   setup do
-    @author = User.create!(username: "life_author", password: "password123")
-    @reader = User.create!(username: "life_reader", password: "password123")
+    @author = User.create!(username: "life_author", email: "life_author@example.com", password: "password123")
+    @reader = User.create!(username: "life_reader", email: "life_reader@example.com", password: "password123")
     @location = Location.create!(name: "Life Falls", city: "Jajce", lat: 44.34, lng: 17.27)
     @plan = Plan.create!(title: "Life Plan", city_name: "Jajce", visibility: :private_plan, user: @author)
     @moment = public_moment

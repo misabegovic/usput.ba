@@ -6,8 +6,8 @@ class MomentTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
   setup do
-    @user = User.create!(username: "moment_owner", password: "password123")
-    @other_user = User.create!(username: "moment_stranger", password: "password123")
+    @user = User.create!(username: "moment_owner", email: "moment_owner@example.com", password: "password123")
+    @other_user = User.create!(username: "moment_stranger", email: "moment_stranger@example.com", password: "password123")
     @location = Location.create!(name: "Moment Location", city: "Mostar", lat: 43.34, lng: 17.81)
     @plan = Plan.create!(title: "Moment Plan", city_name: "Mostar", visibility: :private_plan, user: @user)
   end

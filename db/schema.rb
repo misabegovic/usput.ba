@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_120200) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_130100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -561,16 +561,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_120200) do
     t.index ["uuid"], name: "index_reviews_on_uuid", unique: true
   end
 
-  create_table "sessions", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "ip_address"
-    t.datetime "last_seen_at"
-    t.datetime "updated_at", null: false
-    t.string "user_agent"
-    t.bigint "user_id", null: false
-    t.index ["user_id"], name: "index_sessions_on_user_id"
-  end
-
   create_table "settings", force: :cascade do |t|
     t.string "category", default: "general"
     t.datetime "created_at", null: false
@@ -611,18 +601,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_120200) do
   create_table "users", force: :cascade do |t|
     t.datetime "activity_count_reset_at"
     t.integer "activity_count_today", default: 0
+    t.datetime "blocked_at"
+    t.datetime "confirmation_sent_at"
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
     t.datetime "created_at", null: false
-    t.string "email"
-    t.string "password_digest", null: false
+    t.string "email", null: false
+    t.string "encrypted_password", null: false
+    t.datetime "reset_password_sent_at"
+    t.string "reset_password_token"
+    t.string "session_token"
     t.string "spam_block_reason"
     t.datetime "spam_blocked_at"
     t.datetime "spam_blocked_until"
     t.jsonb "travel_profile_data", default: {}
+    t.string "unconfirmed_email"
     t.datetime "updated_at", null: false
     t.integer "user_type", default: 0, null: false
     t.string "username", null: false
     t.string "uuid", limit: 36, null: false
-    t.index "lower((email)::text)", name: "index_users_on_lower_email", unique: true
+    t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["user_type"], name: "index_users_on_user_type"
     t.index ["username"], name: "index_users_on_username", unique: true
     t.index ["uuid"], name: "index_users_on_uuid", unique: true
@@ -666,5 +666,4 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_120200) do
   add_foreign_key "plan_visits", "users"
   add_foreign_key "plans", "users"
   add_foreign_key "reviews", "users"
-  add_foreign_key "sessions", "users"
 end

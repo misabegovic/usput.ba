@@ -1,7 +1,8 @@
 class User < ApplicationRecord
   include Identifiable
 
-  has_secure_password
+  devise :database_authenticatable, :registerable, :recoverable, :validatable, :confirmable
+  has_secure_token :session_token
   has_one_attached :avatar do |attachable|
     attachable.variant :thumb, resize_to_limit: [ 100, 100 ]
     attachable.variant :medium, resize_to_limit: [ 256, 256 ]
@@ -16,7 +17,6 @@ class User < ApplicationRecord
   has_many :moments, dependent: :destroy
   has_many :plan_visits, dependent: :destroy
   has_many :likes, dependent: :destroy
-  has_many :sessions, dependent: :destroy
 
   # The profile blob is written straight from whatever the device sends, so each
   # list it holds is bounded rather than left to grow a row without limit.
@@ -42,18 +42,45 @@ class User < ApplicationRecord
                        length: { minimum: 3, maximum: 30 },
                        format: { with: /\A[a-zA-Z0-9_]+\z/, message: "can only contain letters, numbers, and underscores" }
 
-  validates :password, length: { minimum: 6 }, on: :create
-
-  normalizes :email, with: ->(email) { email.strip.downcase }
-  # Every new account gives an email; accounts made before the rebuild have
-  # none, so the rule binds at registration rather than on every save.
-  validates :email, presence: true, on: :registration
-  validates :email, format: { with: URI::MailTo::EMAIL_REGEXP },
-                    uniqueness: { case_sensitive: false },
-                    allow_blank: true
-
   # Normalize username to lowercase
   before_save { self.username = username.downcase }
+
+  # Devise checks this value on every request. The password hash is part of
+  # it, so a new password already ends every other session; rotating the token
+  # does the same without one.
+  def authenticatable_salt
+    "#{super}#{session_token}"
+  end
+
+  def end_sessions
+    regenerate_session_token
+  end
+
+  def block!
+    update!(blocked_at: Time.current)
+    end_sessions
+  end
+
+  def unblock!
+    update!(blocked_at: nil)
+  end
+
+  def blocked?
+    blocked_at.present?
+  end
+
+  def active_for_authentication?
+    super && !blocked?
+  end
+
+  def inactive_message
+    blocked? ? :blocked : super
+  end
+
+  # Mail leaves through a job, so a slow sender never holds up a request.
+  def send_devise_notification(notification, *args)
+    devise_mailer.send(notification, self, *args).deliver_later
+  end
 
   # Permission helpers
   def can_curate?

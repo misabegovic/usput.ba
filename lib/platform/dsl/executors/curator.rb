@@ -389,11 +389,14 @@ module Platform
             admin = User.admin.first
             return admin if admin
 
+            # A system account nobody signs in to: an address that can never
+            # receive mail, confirmed so that no confirmation is ever sent.
             User.create!(
               username: "platform_system",
+              email: "platform_system@usput.invalid",
               user_type: :admin,
               password: SecureRandom.hex(32)
-            )
+            ) { |user| user.skip_confirmation! }
           rescue => e
             Rails.logger.error "Failed to create platform user: #{e.message}"
             raise ExecutionError, "Nije moguće pronaći admin korisnika za odobravanje"

@@ -41,6 +41,7 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
     # Create user for authentication tests
     @user = User.create!(
       username: "plantest_user",
+      email: "plantest_user@example.com",
       password: "password123",
       password_confirmation: "password123"
     )
@@ -89,7 +90,7 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "show allows owner to view their private plan" do
-    post login_path, params: { username: @user.username, password: "password123" }
+    post user_session_path, params: { user: { email: @user.email, password: "password123" } }
 
     get plan_path(@private_plan)
 
@@ -99,11 +100,12 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
   test "show denies access to other users private plan" do
     other_user = User.create!(
       username: "other_user",
+      email: "other_user@example.com",
       password: "password123",
       password_confirmation: "password123"
     )
 
-    post login_path, params: { username: other_user.username, password: "password123" }
+    post user_session_path, params: { user: { email: other_user.email, password: "password123" } }
 
     get plan_path(@private_plan)
 

@@ -6,11 +6,13 @@ class PhotoSuggestionTest < ActiveSupport::TestCase
   setup do
     @curator = User.create!(
       username: "test_curator",
+      email: "test_curator@example.com",
       password: "password123",
       user_type: :curator
     )
     @admin = User.create!(
       username: "test_admin",
+      email: "test_admin@example.com",
       password: "password123",
       user_type: :curator
     )

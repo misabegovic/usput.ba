@@ -8,7 +8,7 @@ require "test_helper"
 # device (or anyone posting as it) got wrong.
 class GuestVisitsImporterTest < ActiveSupport::TestCase
   setup do
-    @user = User.create!(username: "returning", password: "password123")
+    @user = User.create!(username: "returning", email: "returning@example.com", password: "password123")
     @near = Location.create!(name: "Guest Fort", city: "Sarajevo", lat: 43.85, lng: 18.41)
     @other = Location.create!(name: "Guest Bridge", city: "Mostar", lat: 43.34, lng: 17.81)
   end

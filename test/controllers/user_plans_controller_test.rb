@@ -34,6 +34,7 @@ class UserPlansControllerTest < ActionDispatch::IntegrationTest
     # Create test user
     @user = User.create!(
       username: "testuser",
+      email: "testuser@example.com",
       password: "password123",
       password_confirmation: "password123"
     )
@@ -55,6 +56,7 @@ class UserPlansControllerTest < ActionDispatch::IntegrationTest
     # Create another user for authorization tests
     @other_user = User.create!(
       username: "otheruser",
+      email: "otheruser@example.com",
       password: "password123",
       password_confirmation: "password123"
     )
@@ -805,7 +807,7 @@ class UserPlansControllerTest < ActionDispatch::IntegrationTest
   end
 
   def login_as(user)
-    post login_path, params: { username: user.username, password: "password123" }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 
   def valid_plan_params

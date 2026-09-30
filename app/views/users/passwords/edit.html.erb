@@ -1,0 +1,19 @@
+<% content_for(:title) { t("auth.reset.title") } %>
+<% field = "w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors" %>
+
+<%= render layout: "users/card", locals: { heading: t("auth.reset.new_heading") } do %>
+  <%= form_with model: resource, scope: resource_name, url: user_password_path, method: :put, class: "space-y-6" do |f| %>
+    <%= render "users/errors" %>
+    <%= f.hidden_field :reset_password_token %>
+    <div>
+      <%= f.label :password, t("auth.new_password"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+      <%= f.password_field :password, autofocus: true, autocomplete: "new-password", required: true, class: field %>
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400"><%= t("auth.password_hint") %></p>
+    </div>
+    <div>
+      <%= f.label :password_confirmation, t("auth.password_confirmation"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+      <%= f.password_field :password_confirmation, autocomplete: "new-password", required: true, class: field %>
+    </div>
+    <%= f.submit t("auth.reset.save_button"), class: "w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 px-6 rounded-lg font-medium hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg cursor-pointer" %>
+  <% end %>
+<% end %>

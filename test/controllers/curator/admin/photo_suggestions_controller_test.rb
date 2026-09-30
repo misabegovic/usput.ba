@@ -6,11 +6,13 @@ class Curator::Admin::PhotoSuggestionsControllerTest < ActionDispatch::Integrati
   setup do
     @admin = User.create!(
       username: "test_admin_#{SecureRandom.hex(4)}",
+      email: "test_admin_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :admin
     )
     @curator = User.create!(
       username: "test_curator_#{SecureRandom.hex(4)}",
+      email: "test_curator_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :curator
     )
@@ -162,9 +164,6 @@ class Curator::Admin::PhotoSuggestionsControllerTest < ActionDispatch::Integrati
   private
 
   def login_as(user)
-    post login_path, params: {
-      username: user.username,
-      password: "password123"
-    }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 end

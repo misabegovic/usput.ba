@@ -771,6 +771,9 @@ en:
       long: '%B %d, %Y %H:%M'
   errors:
     messages:
+      already_confirmed: was already confirmed, please sign in
+      confirmation_period_expired: needs to be confirmed within %{period}, please request a new link
+      expired: has expired, please request a new link
       not_found: Not found
       unauthorized: Unauthorized
       server_error: Something went wrong
@@ -823,17 +826,53 @@ en:
     profile_sync_info: Your current travel profile (visited places, favorites, badges) will be saved to
       your account.
     profile_merge_info: If you have a local profile, it will be merged with your saved profile.
-    registration_success: Account created successfully! Your travel profile is now permanently saved.
-    login_success: Signed in successfully!
-    logout_success: Signed out successfully.
     login_required: You must be signed in to access this page.
-    invalid_credentials: Invalid username or password.
     curator_required: You need curator privileges to access this page.
     admin_required: You need administrator privileges to access this page.
     email: Email
     email_placeholder: e.g. name@example.com
     email_hint: Used only for your account, for example to reset your password.
     too_many_attempts: Too many attempts. Please wait a little and try again.
+    forgot_password: Forgot your password?
+    back_to_login: Back to sign in
+    new_password: New password
+    other_sessions_ended: You are signed out on every other device.
+    reset:
+      title: New password - Usput
+      heading: Forgot your password?
+      subheading: Enter your email and we will send you a link to choose a new one.
+      send_button: Send link
+      new_heading: Choose a new password
+      save_button: Save password
+    confirm:
+      title: Confirm email - Usput
+      heading: Didn't get the email?
+      subheading: We will send the confirmation link again.
+      send_button: Send again
+      resend_link: Send the link again
+    account:
+      link: Account settings
+      title: Account - Usput
+      heading: Your account
+      unconfirmed: Please confirm your email with the link we sent you.
+      pending_email: We sent a confirmation link to %{email}. Your email changes once you open it.
+      password_blank_hint: Leave blank to keep your current password.
+      current_password: Current password
+      current_password_hint: Needed to save any change.
+      save_button: Save changes
+      other_sessions_hint: Left yourself signed in somewhere else? This signs you out everywhere except here.
+      other_sessions_button: Sign out of all other devices
+    mail:
+      greeting: Hi %{name},
+      confirm_body: Thanks for joining Usput. Confirm your email address with the link below.
+      confirm_link: Confirm my email
+      confirm_grace: You can use Usput right away. Confirm within three days to keep signing in.
+      reset_body: Someone asked to reset the password for your Usput account. Choose a new one with the link below.
+      reset_link: Choose a new password
+      reset_ignore: If it wasn't you, ignore this email. Your password stays the same, and the link works for six hours.
+      email_changed_body: The email on your Usput account is changing to %{email}.
+      password_changed_body: The password for your Usput account was just changed.
+      not_you: If you didn't do this, choose a new password right away.
   pagination:
     aria_label: Pagination
     previous_short: Previous
@@ -1807,3 +1846,43 @@ en:
       flat_terrain: Flat terrain
       wheelchair_parking: Parking
       wheelchair_toilet: Accessible WC
+  devise:
+    confirmations:
+      confirmed: Your email is confirmed. Thank you!
+      send_instructions: We sent you a new confirmation link. It should arrive in a few minutes.
+      send_paranoid_instructions: If that email has an account, a confirmation link is on its way.
+    failure:
+      already_authenticated: You are already signed in.
+      blocked: This account is blocked. Get in touch if you think it is a mistake.
+      inactive: This account is not active.
+      invalid: Wrong email or password.
+      not_found_in_database: Wrong email or password.
+      timeout: Your session expired. Please sign in again.
+      unauthenticated: You must be signed in to access this page.
+      unconfirmed: Confirm your email to keep signing in. We can send the link again.
+    mailer:
+      confirmation_instructions:
+        subject: Confirm your email for Usput
+      reset_password_instructions:
+        subject: Choose a new Usput password
+      email_changed:
+        subject: Your Usput email is changing
+      password_change:
+        subject: Your Usput password was changed
+    passwords:
+      no_token: This page only opens from the link in a password email. Use the full link from the email.
+      send_instructions: We sent you a link to choose a new password.
+      send_paranoid_instructions: If that email has an account, a link to choose a new password is on its way.
+      updated: Your password is changed and you are signed in.
+      updated_not_active: Your password is changed.
+    registrations:
+      signed_up: Account created! Your travel profile is saved, and we sent you a link to confirm your email.
+      signed_up_but_inactive: Account created, but it is not active yet.
+      signed_up_but_unconfirmed: Account created. Confirm your email with the link we sent you to sign in.
+      update_needs_confirmation: Saved. We sent a link to your new email; it changes once you open it.
+      updated: Your account is saved.
+      updated_but_not_signed_in: Your account is saved. Sign in again with your new password.
+    sessions:
+      signed_in: Signed in successfully!
+      signed_out: Signed out successfully.
+      already_signed_out: Signed out successfully.

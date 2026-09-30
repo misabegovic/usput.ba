@@ -3,9 +3,12 @@
 require "test_helper"
 
 class UserTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   setup do
     @valid_params = {
       username: "testuser",
+      email: "testuser@example.com",
       password: "password123",
       password_confirmation: "password123"
     }
@@ -27,7 +30,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "username must be unique" do
     User.create!(@valid_params)
-    duplicate = User.new(@valid_params.merge(username: "testuser"))
+    duplicate = User.new(@valid_params.merge(username: "testuser", email: "testuser@example.com"))
     assert_not duplicate.valid?
     assert_includes duplicate.errors[:username], "has already been taken"
     User.find_by(username: "testuser")&.destroy
@@ -35,19 +38,19 @@ class UserTest < ActiveSupport::TestCase
 
   test "username uniqueness is case-insensitive" do
     User.create!(@valid_params)
-    duplicate = User.new(@valid_params.merge(username: "TESTUSER"))
+    duplicate = User.new(@valid_params.merge(username: "TESTUSER", email: "TESTUSER@example.com"))
     assert_not duplicate.valid?
     User.find_by(username: "testuser")&.destroy
   end
 
   test "username minimum length is 3" do
-    user = User.new(@valid_params.merge(username: "ab"))
+    user = User.new(@valid_params.merge(username: "ab", email: "ab@example.com"))
     assert_not user.valid?
     assert user.errors[:username].any? { |e| e.include?("short") || e.include?("minimum") }
   end
 
   test "username maximum length is 30" do
-    user = User.new(@valid_params.merge(username: "a" * 31))
+    user = User.new(@valid_params.merge(username: "a" * 31, email: "long@example.com"))
     assert_not user.valid?
     assert user.errors[:username].any? { |e| e.include?("long") || e.include?("maximum") }
   end
@@ -55,13 +58,13 @@ class UserTest < ActiveSupport::TestCase
   test "username only allows alphanumeric and underscore" do
     invalid_usernames = [ "user@name", "user name", "user-name", "user.name" ]
     invalid_usernames.each do |username|
-      user = User.new(@valid_params.merge(username: username))
+      user = User.new(@valid_params.merge(username: username, email: "#{username}@example.com"))
       assert_not user.valid?, "#{username} should be invalid"
     end
   end
 
   test "username allows underscores" do
-    user = User.new(@valid_params.merge(username: "test_user_123"))
+    user = User.new(@valid_params.merge(username: "test_user_123", email: "test_user_123@example.com"))
     assert user.valid?
   end
 
@@ -88,7 +91,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "uuid is unique" do
     user1 = User.create!(@valid_params)
-    user2 = User.create!(@valid_params.merge(username: "testuser2"))
+    user2 = User.create!(@valid_params.merge(username: "testuser2", email: "testuser2@example.com"))
     assert_not_equal user1.uuid, user2.uuid
     user1.destroy
     user2.destroy
@@ -109,21 +112,21 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "can_curate? returns true for curators" do
-    user = User.create!(@valid_params.merge(username: "curator_user", user_type: :curator))
+    user = User.create!(@valid_params.merge(username: "curator_user", email: "curator_user@example.com", user_type: :curator))
     assert user.can_curate?
     user.destroy
   end
 
   test "can_curate? returns true for admins" do
-    user = User.create!(@valid_params.merge(username: "admin_user", user_type: :admin))
+    user = User.create!(@valid_params.merge(username: "admin_user", email: "admin_user@example.com", user_type: :admin))
     assert user.can_curate?
     user.destroy
   end
 
   test "admin? returns true only for admin users" do
-    admin = User.create!(@valid_params.merge(username: "admin_test", user_type: :admin))
-    curator = User.create!(@valid_params.merge(username: "curator_test", user_type: :curator))
-    basic = User.create!(@valid_params.merge(username: "basic_test"))
+    admin = User.create!(@valid_params.merge(username: "admin_test", email: "admin_test@example.com", user_type: :admin))
+    curator = User.create!(@valid_params.merge(username: "curator_test", email: "curator_test@example.com", user_type: :curator))
+    basic = User.create!(@valid_params.merge(username: "basic_test", email: "basic_test@example.com"))
 
     assert admin.admin?
     assert_not curator.admin?
@@ -137,7 +140,7 @@ class UserTest < ActiveSupport::TestCase
   # === Username normalization tests ===
 
   test "username is normalized to lowercase on save" do
-    user = User.create!(@valid_params.merge(username: "MixedCase"))
+    user = User.create!(@valid_params.merge(username: "MixedCase", email: "MixedCase@example.com"))
     assert_equal "mixedcase", user.username
     user.destroy
   end
@@ -320,7 +323,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "can_apply_for_curator? returns false for curators" do
-    user = User.create!(@valid_params.merge(username: "curator_app_test", user_type: :curator))
+    user = User.create!(@valid_params.merge(username: "curator_app_test", email: "curator_app_test@example.com", user_type: :curator))
     assert_not user.can_apply_for_curator?
     user.destroy
   end
@@ -378,16 +381,86 @@ class UserTest < ActiveSupport::TestCase
 
   # === Authentication tests ===
 
-  test "authenticate succeeds with correct password" do
+  test "valid_password? accepts the right password only" do
     user = User.create!(@valid_params)
-    assert user.authenticate("password123")
-    user.destroy
+    assert user.valid_password?("password123")
+    assert_not user.valid_password?("wrongpassword")
   end
 
-  test "authenticate fails with wrong password" do
+  test "email is required and stored lower-cased" do
+    assert_not User.new(@valid_params.merge(email: "")).valid?
+    user = User.create!(@valid_params.merge(email: "  Ime.Prezime@Example.TEST "))
+    assert_equal "ime.prezime@example.test", user.email
+  end
+
+  test "email is unique regardless of case" do
+    User.create!(@valid_params)
+    duplicate = User.new(@valid_params.merge(username: "another", email: "TestUser@Example.com"))
+    assert_not duplicate.valid?
+    assert duplicate.errors[:email].present?
+  end
+
+  test "a new account can sign in for three days before confirming" do
     user = User.create!(@valid_params)
-    assert_not user.authenticate("wrongpassword")
-    user.destroy
+    assert user.active_for_authentication?
+
+    travel 4.days do
+      assert_not user.reload.active_for_authentication?
+      assert_equal :unconfirmed, user.inactive_message
+    end
+  end
+
+  test "a confirmed account keeps signing in" do
+    user = User.create!(@valid_params)
+    user.confirm
+    travel 30.days do
+      assert user.reload.active_for_authentication?
+    end
+  end
+
+  test "a new account gets a session token" do
+    assert User.create!(@valid_params).session_token.present?
+  end
+
+  test "ending sessions changes what Devise checks on each request" do
+    user = User.create!(@valid_params)
+    before = user.authenticatable_salt
+    user.end_sessions
+    assert_not_equal before, user.reload.authenticatable_salt
+  end
+
+  test "a new password changes what Devise checks on each request" do
+    user = User.create!(@valid_params)
+    before = user.authenticatable_salt
+    user.update!(password: "another-password", password_confirmation: "another-password")
+    assert_not_equal before, user.reload.authenticatable_salt
+  end
+
+  test "block! refuses sign-in and ends sessions" do
+    user = User.create!(@valid_params)
+    user.confirm
+    before = user.authenticatable_salt
+
+    user.block!
+
+    assert user.blocked?
+    assert_not user.active_for_authentication?
+    assert_equal :blocked, user.inactive_message
+    assert_not_equal before, user.authenticatable_salt
+  end
+
+  test "unblock! lets the user sign in again" do
+    user = User.create!(@valid_params)
+    user.confirm
+    user.block!
+    user.unblock!
+    assert user.active_for_authentication?
+  end
+
+  test "Devise mail is sent from a job" do
+    assert_enqueued_jobs 1, only: ActionMailer::MailDeliveryJob do
+      User.create!(@valid_params)
+    end
   end
 
   # === Association tests ===

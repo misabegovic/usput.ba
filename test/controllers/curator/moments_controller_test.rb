@@ -4,8 +4,8 @@ require "test_helper"
 
 class Curator::MomentsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @curator = User.create!(username: "mod_curator", password: "password123", user_type: :curator)
-    @user = User.create!(username: "mom_sharer", password: "password123")
+    @curator = User.create!(username: "mod_curator", email: "mod_curator@example.com", password: "password123", user_type: :curator)
+    @user = User.create!(username: "mom_sharer", email: "mom_sharer@example.com", password: "password123")
     @location = Location.create!(name: "Mod Loc", city: "Sarajevo", lat: 43.85, lng: 18.41)
     @plan = Plan.create!(title: "Mod Trip", city_name: "Sarajevo", visibility: :private_plan, user: @user)
     @moment = build_public_pending_moment
@@ -100,7 +100,7 @@ class Curator::MomentsControllerTest < ActionDispatch::IntegrationTest
   private
 
   def login_as(user)
-    post login_path, params: { username: user.username, password: "password123" }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 
   def build_public_pending_moment

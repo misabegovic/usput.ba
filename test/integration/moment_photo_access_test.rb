@@ -14,8 +14,8 @@ require "test_helper"
 # These tests exist to make that impossible to reintroduce.
 class MomentPhotoAccessTest < ActionDispatch::IntegrationTest
   setup do
-    @owner = User.create!(username: "photo_owner", password: "password123")
-    @stranger = User.create!(username: "photo_stranger", password: "password123")
+    @owner = User.create!(username: "photo_owner", email: "photo_owner@example.com", password: "password123")
+    @stranger = User.create!(username: "photo_stranger", email: "photo_stranger@example.com", password: "password123")
     @location = Location.create!(name: "Photo Loc", city: "Mostar", lat: 43.34, lng: 17.81)
     @plan = Plan.create!(title: "Photo Plan", city_name: "Mostar", visibility: :public_plan, user: @owner)
     @moment = build_moment
@@ -41,7 +41,7 @@ class MomentPhotoAccessTest < ActionDispatch::IntegrationTest
   test "a guest cannot fetch a moment photo" do
     get photo_plan_moment_path(@plan, @moment)
 
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "another logged-in user cannot fetch someone else's moment photo" do
@@ -105,7 +105,7 @@ class MomentPhotoAccessTest < ActionDispatch::IntegrationTest
   private
 
   def login_as(user)
-    post login_path, params: { username: user.username, password: "password123" }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 
   def build_moment

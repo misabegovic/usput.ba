@@ -19,7 +19,7 @@ class ResponsiveTest < ApplicationSystemTestCase
                                  description: "A place for the responsive sweep.")
     @experience = Experience.create!(title: "Resp Exp", description: "desc")
     @experience.locations << @location
-    @user = User.create!(username: "resp_walker", password: "password123")
+    @user = User.create!(username: "resp_walker", email: "resp_walker@example.com", password: "password123")
     @plan = Plan.create!(title: "Resp Plan", city_name: "Sarajevo", visibility: :private_plan, user: @user)
     @plan.plan_experiences.create!(experience: @experience, day_number: 1)
   end
@@ -144,7 +144,7 @@ class ResponsiveTest < ApplicationSystemTestCase
       explore_bosnia_path,
       location_path(@location),
       experience_path(@experience),
-      login_path
+      new_user_session_path
     ].each { |path| yield path }
   end
 

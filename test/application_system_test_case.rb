@@ -59,23 +59,25 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   # Assert the value is in before pressing, and press again if the page did not
   # move: under a full-suite load the first press can still be swallowed.
   def sign_in_as(username, password = "password123")
-    visit login_path
+    visit new_user_session_path
     submit_login(username, password)
-    return if page.has_no_current_path?(login_path, wait: 10)
+    return if page.has_no_current_path?(new_user_session_path, wait: 10)
 
     # Land back on the form before pressing again: a slow-but-successful sign-in
     # has already moved on, and the page it moved to carries no login form.
-    visit login_path
+    visit new_user_session_path
     submit_login(username, password)
-    assert_no_current_path login_path, wait: 10
+    assert_no_current_path new_user_session_path, wait: 10
   end
 
+  # Callers name the traveller by username; the form asks for the email.
   def submit_login(username, password)
+    email = User.find_by!(username: username.downcase).email
     assert_selector "form", wait: 10
     within "form" do
-      fill_in "username", with: username
-      fill_in "password", with: password
-      assert_field "username", with: username
+      fill_in "user_email", with: email
+      fill_in "user_password", with: password
+      assert_field "user_email", with: email
       click_button
     end
   end

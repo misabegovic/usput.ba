@@ -2,7 +2,7 @@
 title: Feature inventory
 kind: reference
 status: living
-updated: 2026-09-29
+updated: 2026-09-30
 repos:
 - usput.ba
 confidence: medium
@@ -85,6 +85,14 @@ This is what Usput.ba ships as of 2026-09-29, grouped by what a person does with
 | 2026-09-15 | Guest explore and check-in, replayed at sign-in | [#166](https://github.com/misabegovic/usput.ba/pull/166) |
 | 2026-09-15 | Archiving places, moments view, likes, moment links | [#167](https://github.com/misabegovic/usput.ba/pull/167) |
 | 2026-09-29 | Location accessibility merged onto main's work | [#154](https://github.com/misabegovic/usput.ba/pull/154) |
+| 2026-09-30 | Accounts through Devise: email sign-in, confirmation, reset, ending sessions | [#171](https://github.com/misabegovic/usput.ba/pull/171), [#172](https://github.com/misabegovic/usput.ba/pull/172) |
+
+## Accounts
+
+- **Sign-in by email.** Accounts use Devise: a traveller registers with a username, an email and a password, and signs in with the email. A new account works at once and must confirm its email within three days to keep signing in. A forgotten password is reset by email; asking never reveals whether an address has an account ([decision](../decisions/accounts-through-devise.md); `app/models/user.rb`, `app/controllers/users/`).
+- **Account page.** `/account/edit` changes the username, email and password with the current password. A new email only takes effect once confirmed, and both the old address and the account holder are told when an email or password changes (`app/views/users/registrations/edit.html.erb`).
+- **Ending sessions.** One button signs the traveller out of every other browser. A password change or reset does the same, and a blocked account is signed out on its next request. All of them rotate one per-user token that Devise checks on every request (`User#authenticatable_salt`, `User#end_sessions`, `User#block!`).
+- **Limits and mail.** Sign-in, registration, reset and confirmation requests are rate limited in Solid Cache. Mail is sent from jobs in the visitor's language, through Postmark in production and to `/letter_opener` in development.
 
 ## Explore and search
 

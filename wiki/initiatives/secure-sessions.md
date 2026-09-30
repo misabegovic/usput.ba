@@ -8,8 +8,10 @@ repos:
 confidence: medium
 depends_on:
 - decisions/admin-through-avo.md
+- decisions/accounts-through-devise.md
 sources:
 - sources/conversations/2026-09-30--usput--platform-direction.md
+- sources/conversations/2026-09-30--usput--devise-and-google.md
 - app/controllers/concerns/authenticatable.rb
 - app/controllers/concerns/syncs_local_data.rb
 - app/controllers/sessions_controller.rb
@@ -39,12 +41,14 @@ enola_intent:
     relations:
     - rel: depends-on
       to: wiki/decisions/admin-through-avo.md
+    - rel: depends-on
+      to: wiki/decisions/accounts-through-devise.md
 ---
 # Secure sessions for the rebuilt app
 
 ## Objective
 
-The rebuilt usput signs people in with a server-side session that the app can end: on sign-out, on a password change, on a role change and on a block. Sign-in cannot be brute-forced, the session is fresh after every sign-in, and a guest who explored without an account keeps their walk when they sign in. The shape is the one Rails 8 generates, adapted to usernames and to guests.
+The rebuilt usput signs people in by email through Devise, with sessions the app can end: on sign-out, on a password change or reset, on a block, and from a "sign out of all other devices" button. Sign-in cannot be brute-forced, a new account confirms its email, a forgotten password is reset by email, a traveller can sign in with Google, and a guest who explored without an account keeps their walk when they sign in ([decision](../decisions/accounts-through-devise.md)).
 
 ## Background
 
@@ -64,12 +68,12 @@ What the code shows, checked on 2026-09-30:
 
 **The guest walk replay (#166, commit 55757a2).** A guest explores and checks in with the data held on their device. The sign-in and register forms carry that data as hidden fields (`app/views/sessions/new.html.erb`), and both doors call `SyncsLocalData`: `merge_local_profile` merges favourites, badges and saved plans, and `GuestVisitsImporter` turns the device's visited place uuids into `PlanVisit` rows on the traveller's explore plan (`app/controllers/concerns/syncs_local_data.rb`, `app/services/guest_visits_importer.rb`). Its rules are the lesson to keep: the device list is the one check-in path that cannot re-verify the 100 m gate, so it is spent once (an account that already has visits is skipped), capped at 500 entries, deduplicated by a unique index, and anything malformed is dropped rather than failing the sign-in.
 
-**The target shape.** Rails 8.1.3.1's authentication generator (read from the installed railties gem) creates a `Session` model that belongs to the user and records `ip_address` and `user_agent`; a `Current` object holding the session and delegating `user`; a signed, http-only cookie carrying only the session id; `start_new_session_for` and `terminate_session`; `User.authenticate_by`; `rate_limit to: 10, within: 3.minutes` on sign-in; and a password update that destroys all of the user's sessions. It keys on an email address, where usput keys on a username. Roundhouse models the same shape (unverified, 2026-09-30).
+**The first shape, and the change of course.** #171 built slices 1 and 2 on the shape of the Rails 8.1.3.1 authentication generator: a `Session` row per browser, `Current`, `authenticate_by` on the username, and `rate_limit` counted in Solid Cache. The same day the operator chose Devise instead and settled its details: email-only sign-in, confirmation with a three-day grace, no session rows, mail through Postmark, a single "sign out of all other devices" button instead of a devices list, and Google as the one social sign-in, linked to an existing account when Google reports the email verified (`sources/conversations/2026-09-30--usput--devise-and-google.md`).
 
 ## Affected personas
 
 - **Guests.** Explore, walk and check in without an account; the walk must survive signing up or signing in.
-- **Travellers (`basic`).** Sign in, stay signed in across visits, and sign out everywhere when they want to.
+- **Travellers (`basic`).** Sign in by email or Google, confirm their email, reset a forgotten password, and sign out everywhere else when they want to.
 - **Curators.** Reach Avo with a curator's rights; a block or a demotion ends their access at once.
 - **Admins.** Change roles and block users, and know that the change takes effect on every device.
 
@@ -77,52 +81,52 @@ What the code shows, checked on 2026-09-30:
 
 What the rebuilt app has:
 
-- A `Session` record per signed-in browser (user, IP address, user agent, created and last-seen times) and `Current.session` and `Current.user`, replacing the cookie-held user id.
-- Sign-in with `User.authenticate_by` on username and password. The Rails session is reset first, the return-to path is carried across the reset, then a new `Session` row and cookie are issued.
-- Sign-out destroys the `Session` row and resets the Rails session.
-- Revocation in one place: a password change, a role change and a block each destroy the user's other sessions.
-- A block that holds everywhere: resuming a session for a blocked user fails on every page, not only in the admin.
-- Rate limits on sign-in and registration through Rails `rate_limit`, with a cache store that all processes share.
-- A password change for a signed-in user, since there is no email to reset through.
-- The guest door: one service that replays a guest's walk and profile at sign-in and registration, keeping the #166 rules (once per account, capped, uuids only, malformed input dropped, never repeated elsewhere).
-- The three roles (`basic`, `curator`, `admin`) on `User`, read through `Current.user` by the public site and by the Avo gate ([Avo admin and roles](avo-admin-and-roles.md)).
+- Devise on `User` (database authenticatable, registerable, recoverable, validatable, confirmable), signing in by email, with the username kept as a display name.
+- Confirmation with a three-day grace, and notices when an email or password changes.
+- One way to end sessions: a per-user session token folded into what Devise checks on each request. A password change, a reset, a block and the "sign out of all other devices" button rotate it.
+- A block that holds everywhere: a blocked user is signed out on their next request.
+- Rate limits through Rails `rate_limit` on sign-in, registration, reset and confirmation requests, counted in Solid Cache.
+- Mail through Postmark in production, opened in the browser in development, sent from background jobs, in Bosnian and English.
+- The guest door: the walk and profile replayed at sign-in and registration, keeping the #166 rules (once per account, capped, uuids only, malformed input dropped, never repeated elsewhere).
+- Google sign-in through OmniAuth, linked by verified email.
+- The three roles (`basic`, `curator`, `admin`) on `User`, read by the public site and by the Avo gate ([Avo admin and roles](avo-admin-and-roles.md)).
 
-Slices, in order on the rebuild branch, each a small pull request with its tests:
+Slices, each a small pull request with its tests:
 
-1. **Done 2026-09-30.** `Session` and `Current`, the authentication concern, sign-in and sign-out with reset. Model tests for `Session`; controller tests for sign-in, a failed sign-in, sign-out and a request after sign-out.
-2. **Done 2026-09-30**, with email required at registration. Registration through the same door, and `rate_limit` on both doors with a shared cache store. Tests that the eleventh attempt in the window is refused (with a cache store enabled in that test).
-3. The guest door: walk and profile replay at both doors. Tests carried over as behaviours from today's `test/controllers/sessions_controller_test.rb` and `test/services/guest_visits_importer_test.rb`: replay once, cap, malformed payloads, second device.
-4. Blocks and role changes end sessions; a blocked user cannot resume anywhere. Model tests for the callbacks, a controller test that a blocked user is signed out on the next request.
-5. Password change for a signed-in user and password reset by email, each ending the user's other sessions. Controller tests for both and for the other session dying.
-6. "Your devices": a user lists their sessions and ends one or all. Controller tests.
-7. Rack::Attack kept only for what `rate_limit` does not cover (exploit probes, the mine check, route lookups), with every throttle pointed at a path that exists. A test per remaining throttle path.
+1. **Done 2026-09-30 (#171), replaced by slice 3.** Server-side session rows, sign-in and sign-out with a session reset.
+2. **Done 2026-09-30 (#171).** Email required at registration; `rate_limit` on both doors with a shared cache store.
+3. Devise: email sign-in and registration with the guest door kept, confirmation with grace, password reset and change, the account page, blocks, the session token and its button, Postmark. Replaces slice 1's tables.
+4. Google sign-in.
+5. Rack::Attack kept only for what `rate_limit` does not cover (exploit probes, the mine check, route lookups), with every throttle pointed at a path that exists. A test per remaining throttle path.
 
 ## No-gos
 
 - No compatibility with today's `_usput_session` cookie or accounts; the rebuild starts with an empty database.
-- No OAuth or two-factor sign-in in version 1. (Email and reset by email were a no-go until the operator decided on 2026-09-30 that accounts require an email.)
-- No guest account rows: a guest stays device-held until they sign in (see Decision needed).
+- No two-factor sign-in and no provider other than Google in version 1.
+- No devices list; the one button covers it.
+- No guest account rows: a guest stays device-held until they sign in.
 - No second replay path: the walk is replayed at the door and nowhere else.
 
 ## Rabbit holes
 
-- **Turbo and redirects.** Today's `require_login` answers Turbo stream requests with a 303, because Turbo only follows a redirect out of a write with one (`app/controllers/concerns/authenticatable.rb`). The new concern needs the same.
-- **Last-seen writes.** Touching the session row on every request is a write per page view; update it at most every few minutes.
-- **Cache store.** `rate_limit` is only as good as its store. Solid Cache is already in the Gemfile but unused; the choice belongs with the deploy setup.
+- **Turbo and redirects.** `require_login` answers Turbo stream requests with a 303, because Turbo only follows a redirect out of a write with one (`app/controllers/concerns/authenticatable.rb`). Devise's own redirects need the same treatment where Turbo submits forms.
 - **The replay payload is untrusted.** It arrives as form fields from device storage; the importer's defensive parsing is part of the design, not an implementation detail.
+- **Mail that never arrives.** Reset and confirmation are only as good as delivery. The sending domain must be verified in Postmark before launch, and a failed send is retried by the job, not lost.
+- **Linking by email.** Linking a Google sign-in to an existing account is only safe when Google says the email is verified; anything else would let a stranger take over an account.
 
 ## Appetite
 
-Small to medium: seven slices, most of them one controller and one model with tests. A calendar estimate is (unknown, needs source).
+Small to medium: slice 3 is the large one, the rest are a controller and a model each. A calendar estimate is (unknown, needs source).
 
 ## Decision needed
 
-**Decided on 2026-09-30** ([answers](../../sources/conversations/2026-09-30--usput--platform-direction.md)): Email is required on accounts, which enables password reset and account notices. Production is deployed by hand, so the rewrite lands on `main` piece by piece. The questions below that these answers settle are closed; the rest stay open.
+**Decided on 2026-09-30** ([platform answers](../../sources/conversations/2026-09-30--usput--platform-direction.md), [account answers](../../sources/conversations/2026-09-30--usput--devise-and-google.md)): email is required, sign-in is by email through Devise, confirmation has a three-day grace, mail goes through Postmark, sessions live in the cookie and end through a rotating token, Google links by verified email. Production is deployed by hand.
 
-- **Session lifetime.** Two weeks from last use (today's `expire_after`), or the generator's permanent cookie with sessions ended only by sign-out and revocation.
-- **Email on accounts.** Without an email there is no self-service reset; a forgotten password needs an admin. Keep username-only for version 1, or add email now.
-- **A server-side guest identity.** A signed guest token cookie would let a guest's review be shown to its author ([Jev review flagging](jev-review-flagging.md)). Adopt it here, as part of sessions, or leave guests device-only and require sign-in to review.
-- **Who can be blocked.** Today only curators are spam-counted (`User#check_spam_activity!`). Decide whether a block applies to any user and who sets it (admin only, in Avo).
+Still open:
+
+- **A server-side guest identity.** A signed guest token cookie would let a guest's review be shown to its author ([Jev review flagging](jev-review-flagging.md)). Adopt it, or require sign-in to review (the operator chose sign-in to review for version 1).
+- **Who can be blocked, and where.** Any user can be blocked in the model; the admin control comes with Avo.
+- **Sending address.** Which address on usput.ba mail comes from (unknown, needs source); the code reads it from the environment.
 
 ## Build notes
 
@@ -145,3 +149,36 @@ Slices 1 and 2 landed together on 2026-09-30.
   stay an open question below.
 - **`reset_session` runs at sign-in and sign-out**, carrying only the
   return-to path and the locale across.
+
+Slice 3, the move to Devise, landed on 2026-09-30.
+
+- **The account token is folded into Devise's salt.** Devise keeps the user id
+  and `authenticatable_salt` in the session and compares the salt on every
+  request. `User#authenticatable_salt` appends a `session_token` (Rails
+  `has_secure_token`) to the part of the password hash Devise uses, so a new
+  password, a reset, `block!` and the "sign out of all other devices" button
+  all end every other session, with no session table.
+- **The login lives two weeks from sign-in**, as before, because the Rails
+  cookie store's `expire_after` already does that; Devise's remember-me module
+  is not used.
+- **A blocked user** fails `active_for_authentication?` with its own message
+  (`devise.failure.blocked`). Blocking sets `blocked_at` and rotates the token;
+  the admin control comes with Avo. The old curator spam block is unchanged.
+- **Paranoid mode is on**: reset and confirmation requests answer the same
+  whether or not the email has an account. Registration still says an email is
+  taken, which is how uniqueness shows.
+- **Account deletion is not offered yet.** Devise routes it, but
+  `Users::RegistrationsController#destroy` answers not found until the app
+  decides what happens to a deleted user's reviews, moments and curator
+  history. Several tables reference users without a rule for it.
+- **Rate limits refuse by sending the visitor back** to the form they came
+  from, or to sign-in, because Devise's POST paths (`/account`, `/password`,
+  `/confirmation`) have no page of their own to return to.
+- **Roundhouse** reports 20 more errors than after #171. Nearly all are Devise's
+  mail templates reading `@resource` and `@token`, which Roundhouse cannot type
+  without modelling Devise's mailer. The rest is one survey gap for
+  `devise_for` in the routes. The check stays a report, per
+  [Avo now, compile later](../decisions/avo-now-compile-later.md).
+- **The schema was edited by hand** alongside the two migrations, because the
+  database was unreachable from the build container; CI loads it.
+

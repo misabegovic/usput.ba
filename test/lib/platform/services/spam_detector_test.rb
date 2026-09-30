@@ -6,6 +6,7 @@ class Platform::Services::SpamDetectorTest < ActiveSupport::TestCase
   setup do
     @curator = User.create!(
       username: "test_curator_#{SecureRandom.hex(4)}",
+      email: "test_curator_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       password_confirmation: "password123",
       user_type: :curator
@@ -28,6 +29,7 @@ class Platform::Services::SpamDetectorTest < ActiveSupport::TestCase
   test "check_curator returns error for non-curator" do
     user = User.create!(
       username: "basic_user_#{SecureRandom.hex(4)}",
+      email: "basic_user_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       password_confirmation: "password123"
     )
@@ -306,6 +308,7 @@ class Platform::Services::SpamDetectorTest < ActiveSupport::TestCase
     # Create another curator with suspicious activity (near threshold but not spam)
     suspicious_curator = User.create!(
       username: "suspicious_curator_#{SecureRandom.hex(4)}",
+      email: "suspicious_curator_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       password_confirmation: "password123",
       user_type: :curator
@@ -334,6 +337,7 @@ class Platform::Services::SpamDetectorTest < ActiveSupport::TestCase
     # Create curator that will be flagged suspicious
     warn_curator = User.create!(
       username: "warn_curator_#{SecureRandom.hex(4)}",
+      email: "warn_curator_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       password_confirmation: "password123",
       user_type: :curator
@@ -381,6 +385,7 @@ class Platform::Services::SpamDetectorTest < ActiveSupport::TestCase
     # Create another curator and make them suspicious by reaching 70% threshold
     suspicious_curator = User.create!(
       username: "suspicious_test_#{SecureRandom.hex(4)}",
+      email: "suspicious_test_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       password_confirmation: "password123",
       user_type: :curator
@@ -491,6 +496,7 @@ class Platform::Services::SpamDetectorTest < ActiveSupport::TestCase
     # Create a curator that triggers the suspicious path
     test_curator = User.create!(
       username: "warning_test_#{SecureRandom.hex(4)}",
+      email: "warning_test_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       password_confirmation: "password123",
       user_type: :curator

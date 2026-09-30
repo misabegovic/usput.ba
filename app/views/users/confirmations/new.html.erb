@@ -1,0 +1,17 @@
+<% content_for(:title) { t("auth.confirm.title") } %>
+<% field = "w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors" %>
+
+<%= render layout: "users/card", locals: { heading: t("auth.confirm.heading"), subheading: t("auth.confirm.subheading") } do %>
+  <%= form_with model: resource, scope: resource_name, url: user_confirmation_path, method: :post, class: "space-y-6" do |f| %>
+    <%= render "users/errors" %>
+    <div>
+      <%= f.label :email, t("auth.email"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+      <%= f.email_field :email, autofocus: true, autocomplete: "email", required: true,
+            value: (resource.pending_reconfirmation? ? resource.unconfirmed_email : resource.email), class: field %>
+    </div>
+    <%= f.submit t("auth.confirm.send_button"), class: "w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 px-6 rounded-lg font-medium hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg cursor-pointer" %>
+  <% end %>
+  <p class="mt-6 text-center text-sm">
+    <%= link_to t("auth.back_to_login"), new_user_session_path, class: "font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-500" %>
+  </p>
+<% end %>

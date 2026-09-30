@@ -2,7 +2,7 @@ require "application_system_test_case"
 
 class PlanWalkTest < ApplicationSystemTestCase
   setup do
-    @user = User.create!(username: "sys_walker", password: "password123")
+    @user = User.create!(username: "sys_walker", email: "sys_walker@example.com", password: "password123")
     @location = Location.create!(name: "Sys Loc", city: "Sarajevo", lat: 43.85, lng: 18.41)
     @experience = Experience.create!(title: "Sys Exp", description: "desc")
     @experience.locations << @location

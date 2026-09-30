@@ -7,7 +7,7 @@ require "test_helper"
 # moments surface.
 class VisitedAtAGlanceTest < ActionDispatch::IntegrationTest
   setup do
-    @user = User.create!(username: "glance_user", password: "password123")
+    @user = User.create!(username: "glance_user", email: "glance_user@example.com", password: "password123")
     @visited = Location.create!(name: "Been Here Fort", city: "Sarajevo", lat: 43.85, lng: 18.41)
     @unvisited = Location.create!(name: "Not Yet Fort", city: "Sarajevo", lat: 43.86, lng: 18.42)
     @plan = Plan.create!(title: "Trip", visibility: :private_plan, user: @user)
@@ -79,6 +79,6 @@ class VisitedAtAGlanceTest < ActionDispatch::IntegrationTest
   private
 
   def login_as(user)
-    post login_path, params: { username: user.username, password: "password123" }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 end

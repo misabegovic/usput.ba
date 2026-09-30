@@ -10,7 +10,7 @@ require "test_helper"
 # looked at the affordance.
 class CuratorShowActionsTest < ActionDispatch::IntegrationTest
   setup do
-    @curator = User.create!(username: "actions_curator", password: "password123", user_type: :curator)
+    @curator = User.create!(username: "actions_curator", email: "actions_curator@example.com", password: "password123", user_type: :curator)
     @location = Location.create!(name: "Actions Loc", city: "Sarajevo", lat: 43.85, lng: 18.41)
     @experience = Experience.create!(title: "Actions Exp", description: "d")
     @plan = Plan.create!(title: "Actions Plan", city_name: "Sarajevo", visibility: :private_plan)
@@ -74,6 +74,6 @@ class CuratorShowActionsTest < ActionDispatch::IntegrationTest
   private
 
   def login_as(user)
-    post login_path, params: { username: user.username, password: "password123" }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 end

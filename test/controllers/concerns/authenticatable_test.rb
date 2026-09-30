@@ -6,16 +6,19 @@ class AuthenticatableTest < ActionDispatch::IntegrationTest
   setup do
     @user = User.create!(
       username: "test_user_#{SecureRandom.hex(4)}",
+      email: "test_user_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :basic
     )
     @curator = User.create!(
       username: "test_curator_#{SecureRandom.hex(4)}",
+      email: "test_curator_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :curator
     )
     @admin = User.create!(
       username: "test_admin_#{SecureRandom.hex(4)}",
+      email: "test_admin_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :admin
     )
@@ -26,11 +29,11 @@ class AuthenticatableTest < ActionDispatch::IntegrationTest
   test "current_user returns nil when not logged in" do
     get curator_root_path
 
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "current_user returns user when logged in" do
-    post login_path, params: { username: @curator.username, password: "password123" }
+    post user_session_path, params: { user: { email: @curator.email, password: "password123" } }
 
     get curator_root_path
 
@@ -42,12 +45,12 @@ class AuthenticatableTest < ActionDispatch::IntegrationTest
   test "redirects to login when not logged in for protected routes" do
     get curator_root_path
 
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
     assert_equal I18n.t("auth.login_required"), flash[:alert]
   end
 
   test "allows access when logged in" do
-    post login_path, params: { username: @curator.username, password: "password123" }
+    post user_session_path, params: { user: { email: @curator.email, password: "password123" } }
 
     get curator_root_path
 
@@ -66,7 +69,7 @@ class AuthenticatableTest < ActionDispatch::IntegrationTest
   # log_in and log_out tests
 
   test "log_in sets session" do
-    post login_path, params: { username: @curator.username, password: "password123" }
+    post user_session_path, params: { user: { email: @curator.email, password: "password123" } }
 
     get curator_root_path
 
@@ -74,19 +77,19 @@ class AuthenticatableTest < ActionDispatch::IntegrationTest
   end
 
   test "log_out clears session" do
-    post login_path, params: { username: @curator.username, password: "password123" }
+    post user_session_path, params: { user: { email: @curator.email, password: "password123" } }
 
-    delete logout_path
+    delete destroy_user_session_path
 
     get curator_root_path
 
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   # require_curator tests
 
   test "require_curator redirects regular users" do
-    post login_path, params: { username: @user.username, password: "password123" }
+    post user_session_path, params: { user: { email: @user.email, password: "password123" } }
 
     get curator_root_path
 
@@ -95,7 +98,7 @@ class AuthenticatableTest < ActionDispatch::IntegrationTest
   end
 
   test "require_curator allows curators" do
-    post login_path, params: { username: @curator.username, password: "password123" }
+    post user_session_path, params: { user: { email: @curator.email, password: "password123" } }
 
     get curator_root_path
 
@@ -103,7 +106,7 @@ class AuthenticatableTest < ActionDispatch::IntegrationTest
   end
 
   test "require_curator allows admins" do
-    post login_path, params: { username: @admin.username, password: "password123" }
+    post user_session_path, params: { user: { email: @admin.email, password: "password123" } }
 
     get curator_root_path
 
@@ -111,7 +114,7 @@ class AuthenticatableTest < ActionDispatch::IntegrationTest
   end
 
   test "require_curator returns JSON forbidden for API requests" do
-    post login_path, params: { username: @user.username, password: "password123" }
+    post user_session_path, params: { user: { email: @user.email, password: "password123" } }
 
     get curator_root_path, headers: { "Accept" => "application/json" }
 
@@ -122,7 +125,7 @@ class AuthenticatableTest < ActionDispatch::IntegrationTest
   # require_admin tests
 
   test "require_admin redirects curators" do
-    post login_path, params: { username: @curator.username, password: "password123" }
+    post user_session_path, params: { user: { email: @curator.email, password: "password123" } }
 
     get curator_admin_users_path
 
@@ -131,7 +134,7 @@ class AuthenticatableTest < ActionDispatch::IntegrationTest
   end
 
   test "require_admin allows admins" do
-    post login_path, params: { username: @admin.username, password: "password123" }
+    post user_session_path, params: { user: { email: @admin.email, password: "password123" } }
 
     get curator_admin_users_path
 
@@ -139,7 +142,7 @@ class AuthenticatableTest < ActionDispatch::IntegrationTest
   end
 
   test "require_admin returns JSON forbidden for API requests" do
-    post login_path, params: { username: @curator.username, password: "password123" }
+    post user_session_path, params: { user: { email: @curator.email, password: "password123" } }
 
     get curator_admin_users_path, headers: { "Accept" => "application/json" }
 

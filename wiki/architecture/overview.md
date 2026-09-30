@@ -2,7 +2,7 @@
 title: Architecture overview
 kind: reference
 status: living
-updated: 2026-09-29
+updated: 2026-09-30
 repos:
 - usput.ba
 confidence: medium
@@ -173,7 +173,9 @@ The request side has three audiences, all in `app/controllers/`:
   `MomentsController` and `Moments::LikesController`,
   `LocationsController`, `ExperiencesController`, `ReviewsController`,
   `TravelProfilesController`, `UserPlansController`,
-  `MapRoutesController`, `SessionsController`, `UsersController`,
+  `MapRoutesController`, `UsersController` (avatars), the Devise
+  controllers under `Users::` (sign-in, registration and the account page,
+  password reset, confirmation, signing out other devices),
   `CuratorApplicationsController` and `PagesController`. Views for the new
   public design live in `app/views/new_design/`. Shared behaviour sits in
   concerns: `Authenticatable`, `Localizable`, `RecordsVisits` (the one

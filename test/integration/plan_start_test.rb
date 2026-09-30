@@ -7,7 +7,7 @@ require "test_helper"
 # swaps in the moment capture. Progress survives leaving and returning.
 class PlanStartTest < ActionDispatch::IntegrationTest
   setup do
-    @user = User.create!(username: "walker", password: "password123")
+    @user = User.create!(username: "walker", email: "walker@example.com", password: "password123")
     @location = Location.create!(name: "Walk Loc", city: "Sarajevo", lat: 43.85, lng: 18.41)
     @experience = Experience.create!(title: "Walk Exp", description: "desc")
     @experience.locations << @location
@@ -127,21 +127,21 @@ class PlanStartTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "a[href=?][aria-label=?]",
-                  login_path(return_to: start_plan_path(@plan)), I18n.t("plans.moments.add"), count: 1
+                  new_user_session_path(return_to: start_plan_path(@plan)), I18n.t("plans.moments.add"), count: 1
   end
 
   test "signing in from a walk comes back to the walk" do
     @plan.update!(visibility: :public_plan)
 
-    get login_path(return_to: start_plan_path(@plan))
-    post login_path, params: { username: @user.username, password: "password123" }
+    get new_user_session_path(return_to: start_plan_path(@plan))
+    post user_session_path, params: { user: { email: @user.email, password: "password123" } }
 
     assert_redirected_to start_plan_path(@plan)
   end
 
   test "a return path pointing off the site is refused" do
-    get login_path(return_to: "//evil.example.com")
-    post login_path, params: { username: @user.username, password: "password123" }
+    get new_user_session_path(return_to: "//evil.example.com")
+    post user_session_path, params: { user: { email: @user.email, password: "password123" } }
 
     assert_redirected_to root_path
   end
@@ -164,7 +164,7 @@ class PlanStartTest < ActionDispatch::IntegrationTest
   end
 
   test "another traveller's private moment never surfaces as a shared moment on the walk" do
-    stranger = User.create!(username: "stranger", password: "password123")
+    stranger = User.create!(username: "stranger", email: "stranger@example.com", password: "password123")
     hidden = Moment.create!(user: stranger, plan: @plan, location: @location,
                             photo: fixture_file_upload("test/fixtures/files/real_image.jpg", "image/jpeg"))
     login_as(@user)
@@ -182,7 +182,7 @@ class PlanStartTest < ActionDispatch::IntegrationTest
   end
 
   test "an admin checks in from anywhere, so the walk can be reviewed remotely" do
-    admin = User.create!(username: "chief_walker", password: "password123", user_type: :admin)
+    admin = User.create!(username: "chief_walker", email: "chief_walker@example.com", password: "password123", user_type: :admin)
     admin_plan = Plan.create!(title: "Chief Plan", city_name: "Sarajevo", visibility: :private_plan, user: admin)
     admin_plan.plan_experiences.create!(experience: @experience, day_number: 1)
     login_as(admin)
@@ -274,6 +274,6 @@ class PlanStartTest < ActionDispatch::IntegrationTest
   end
 
   def login_as(user)
-    post login_path, params: { username: user.username, password: "password123" }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 end

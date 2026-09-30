@@ -8,8 +8,8 @@ class TravelStoreScopeTest < ApplicationSystemTestCase
   BARE_KEY = "usput_travel_profile"
 
   setup do
-    @ana = User.create!(username: "sys_ana", password: "password123")
-    @bob = User.create!(username: "sys_bob", password: "password123")
+    @ana = User.create!(username: "sys_ana", email: "sys_ana@example.com", password: "password123")
+    @bob = User.create!(username: "sys_bob", email: "sys_bob@example.com", password: "password123")
     @type = ExperienceType.create!(key: "sys_scope_history", name: "Sys Scope History", active: true)
     @location = Location.create!(name: "Sys Scope Bridge", city: "Mostar", lat: 43.337, lng: 17.815,
                                  suitable_experiences: [ @type.key ])
@@ -156,7 +156,7 @@ class TravelStoreScopeTest < ApplicationSystemTestCase
   # account either.
   test "a store written under the old key is adopted by the traveller who signs in" do
     start_fresh
-    visit login_path
+    visit new_user_session_path
     page.execute_script(<<~JS)
       localStorage.setItem("#{BARE_KEY}", JSON.stringify({
         favorites: [ { id: "legacy-favourite", type: "location", name: "Legacy" } ],
@@ -165,11 +165,11 @@ class TravelStoreScopeTest < ApplicationSystemTestCase
     JS
 
     within "form" do
-      fill_in "username", with: "sys_ana"
-      fill_in "password", with: "password123"
+      fill_in "user_email", with: User.find_by!(username: "sys_ana").email
+      fill_in "user_password", with: "password123"
       click_button
     end
-    assert_no_current_path login_path, wait: 10
+    assert_no_current_path new_user_session_path, wait: 10
 
     visit profile_page_path
     assert_selector "[data-controller~='travel-profile']"

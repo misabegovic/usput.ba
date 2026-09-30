@@ -18,6 +18,7 @@ class Platform::DSL::Executors::ContentTest < ActiveSupport::TestCase
 
     @user = User.create!(
       username: "content_test_user_#{SecureRandom.hex(4)}",
+      email: "content_test_user_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       password_confirmation: "password123"
     )

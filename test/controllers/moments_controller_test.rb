@@ -4,8 +4,8 @@ require "test_helper"
 
 class MomentsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @owner = User.create!(username: "mem_owner", password: "password123")
-    @stranger = User.create!(username: "mem_stranger", password: "password123")
+    @owner = User.create!(username: "mem_owner", email: "mem_owner@example.com", password: "password123")
+    @stranger = User.create!(username: "mem_stranger", email: "mem_stranger@example.com", password: "password123")
     @location = Location.create!(name: "Moment Loc", city: "Sarajevo", lat: 43.8563, lng: 18.4131)
     @experience = Experience.create!(title: "Moment Exp", description: "desc")
     @experience.locations << @location
@@ -27,7 +27,7 @@ class MomentsControllerTest < ActionDispatch::IntegrationTest
       post plan_moments_path(@plan), params: moment_params
     end
 
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "create attaches a moment to the plan location" do
@@ -89,7 +89,7 @@ class MomentsControllerTest < ActionDispatch::IntegrationTest
     login_as(@owner)
     post plan_moments_path(@plan), params: moment_params
     moment = Moment.last
-    delete logout_path
+    delete destroy_user_session_path
 
     login_as(@stranger)
 
@@ -228,8 +228,11 @@ class MomentsControllerTest < ActionDispatch::IntegrationTest
     moment
   end
 
+  # Devise keeps a signed-in browser signed in as whoever it already is, so a
+  # test that switches traveller signs the first one out.
   def login_as(user)
-    post login_path, params: { username: user.username, password: "password123" }
+    delete destroy_user_session_path
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 
   def moment_params(type: "image/jpeg", note: nil)

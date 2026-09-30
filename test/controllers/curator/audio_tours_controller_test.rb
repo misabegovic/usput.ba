@@ -12,21 +12,25 @@ class Curator::AudioToursControllerTest < ActionDispatch::IntegrationTest
 
     @curator = User.create!(
       username: "test_curator_#{@random_suffix}",
+      email: "test_curator_#{@random_suffix}@example.com",
       password: "password123",
       user_type: :curator
     )
     @other_curator = User.create!(
       username: "other_curator_#{@random_suffix}",
+      email: "other_curator_#{@random_suffix}@example.com",
       password: "password123",
       user_type: :curator
     )
     @admin = User.create!(
       username: "admin_user_#{@random_suffix}",
+      email: "admin_user_#{@random_suffix}@example.com",
       password: "password123",
       user_type: :admin
     )
     @basic_user = User.create!(
       username: "basic_user_#{@random_suffix}",
+      email: "basic_user_#{@random_suffix}@example.com",
       password: "password123",
       user_type: :basic
     )
@@ -74,41 +78,41 @@ class Curator::AudioToursControllerTest < ActionDispatch::IntegrationTest
 
   test "index requires login" do
     get curator_audio_tours_path
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "show requires login" do
     get curator_audio_tour_path(@audio_tour)
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "new requires login" do
     get new_curator_audio_tour_path
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "create requires login" do
     post curator_audio_tours_path, params: {
       audio_tour: { location_id: @location.id, locale: "de", script: "Test" }
     }
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "edit requires login" do
     get edit_curator_audio_tour_path(@audio_tour)
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "update requires login" do
     patch curator_audio_tour_path(@audio_tour), params: {
       audio_tour: { script: "Updated script" }
     }
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "destroy requires login" do
     delete curator_audio_tour_path(@audio_tour)
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   # ==========================================================================
@@ -673,13 +677,10 @@ class Curator::AudioToursControllerTest < ActionDispatch::IntegrationTest
   private
 
   def login_as(user)
-    post login_path, params: {
-      username: user.username,
-      password: "password123"
-    }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 
   def logout
-    delete logout_path
+    delete destroy_user_session_path
   end
 end
