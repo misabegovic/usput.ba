@@ -75,10 +75,6 @@ Rails.application.routes.draw do
     end
   end
 
-  # Curator applications (for users to apply)
-  get "become-curator", to: "curator_applications#info", as: :become_curator
-  resources :curator_applications, only: [ :new, :create, :show ]
-
   # Locations (index removed - use /explore instead)
   resources :locations, only: [ :show ] do
     collection do
@@ -185,12 +181,6 @@ Rails.application.routes.draw do
       resources :users, only: [ :index, :show, :edit, :update ] do
         member do
           post :unblock
-        end
-      end
-      resources :curator_applications, only: [ :index, :show ] do
-        member do
-          post :approve
-          post :reject
         end
       end
       resources :content_changes, only: [ :index, :show ] do

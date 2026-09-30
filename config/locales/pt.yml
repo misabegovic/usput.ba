@@ -650,10 +650,6 @@ pt:
       remove: Remover imagem
       remove_confirm: Tem certeza de que deseja remover a foto do perfil?
     curator:
-      title: Torne-se um Curador
-      description: Os curadores podem adicionar novos locais, experiências e conteúdo
-        à plataforma. Ajude-nos a descobrir as joias escondidas da Bósnia e Herzegovina!
-      apply: Candidatar-se como Curador
       you_are_curator: Você é um Curador
       manage_content: Gerenciar locais e experiências
       open_dashboard: Abrir Painel
@@ -690,7 +686,6 @@ pt:
     faq: FAQ
     rights: Todos os direitos reservados.
     community: Comunidade
-    become_curator: Torne-se um Curador
   cookie_consent:
     title: Cookies e Privacidade
     message: Usamos apenas cookies tecnicamente necessários para o funcionamento do
@@ -1015,44 +1010,6 @@ pt:
         easy: Fácil
         moderate: Moderado
         challenging: Desafiador
-  curator_applications:
-    created: Sua candidatura foi enviada com sucesso!
-    status:
-      pending: Pendente
-      approved: Aprovado
-      rejected: Rejeitado
-    errors:
-      already_curator: Você já tem privilégios de curador
-      pending_exists: Você já tem uma candidatura pendente
-    new:
-      title: Torne-se um Curador
-      subtitle: Ajude-nos a melhorar o conteúdo tornando-se um curador
-      benefits_title: 'Como curador você pode:'
-      benefit_1: Adicionar novos locais e experiências
-      benefit_2: Editar conteúdo existente para melhorar a precisão
-      benefit_3: Ajudar viajantes a descobrir joias escondidas
-    form:
-      motivation: Por que você quer se tornar um curador?
-      motivation_hint: Conte-nos sobre sua paixão por viagens e conhecimento local
-        (mín. 50 caracteres)
-      motivation_placeholder: Quero me tornar um curador porque...
-      experience: Experiência relevante (opcional)
-      experience_hint: Você tem experiência em turismo, criação de conteúdo ou conhecimento
-        local?
-      experience_placeholder: Tenho experiência em...
-      submit: Enviar Candidatura
-    show:
-      title: Sua Candidatura de Curador
-      pending_message: Sua candidatura está sendo revisada. Nós o notificaremos assim
-        que uma decisão for tomada.
-      approved_message: Parabéns! Sua candidatura foi aprovada. Agora você tem acesso
-        ao Painel do Curador.
-      rejected_message: Infelizmente, sua candidatura não foi aprovada neste momento.
-      go_to_dashboard: Ir para o Painel do Curador
-      submitted_at: Enviado
-      reviewed_at: Revisado
-      feedback: Feedback
-
   minesweeper:
     title: Campo minado
     subtitle: "Um jogo educativo sobre mapas reais — as minas estão onde os dados reais registam áreas suspeitas."

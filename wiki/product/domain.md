@@ -2,7 +2,7 @@
 title: Domain vocabulary
 kind: reference
 status: living
-updated: 2026-09-29
+updated: 2026-09-30
 repos:
 - usput.ba
 confidence: medium
@@ -128,10 +128,6 @@ A curator's comment (10 to 2000 characters) on a proposal with a recommendation 
 ### CuratorActivity
 
 The audit trail of curator and admin actions: proposals, reviews, photo suggestions, logins, moderation of moments, approvals, user changes, and archiving or restoring a location (`app/models/curator_activity.rb`, `ACTIONS`). It stores IP and user agent, and it feeds the spam limits on `User`.
-
-### CuratorApplication
-
-A basic user's request to become a curator, with a motivation (50 to 2000 characters) and optional experience (`app/models/curator_application.rb`). An admin approves it, which sets the user to `curator`, or rejects it with notes.
 
 ### User
 

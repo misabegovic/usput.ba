@@ -43,12 +43,6 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
       original_data: { name: @location.name },
       status: :pending
     )
-
-    @curator_application = CuratorApplication.create!(
-      user: @user,
-      motivation: "I want to contribute to the platform and help improve content quality. " * 5,
-      experience: "5 years in travel blogging"
-    )
   end
 
   # ===================
@@ -136,56 +130,6 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   # Applications Query Tests
   # ===================
 
-  test "execute_applications_query lists pending applications by default" do
-    ast = { filters: {} }
-
-    result = Platform::DSL::Executors::Curator.execute_applications_query(ast)
-
-    assert_equal :list_applications, result[:action]
-    assert result[:applications].is_a?(Array)
-    assert result[:total_pending] >= 0
-  end
-
-  test "execute_applications_query shows single application" do
-    ast = {
-      filters: { id: @curator_application.id },
-      operations: [ { name: :show } ]
-    }
-
-    result = Platform::DSL::Executors::Curator.execute_applications_query(ast)
-
-    assert_equal :show_application, result[:action]
-    assert_equal @curator_application.id, result[:id]
-    assert result[:motivation].present?
-  end
-
-  test "execute_applications_query raises for non-existent application" do
-    ast = {
-      filters: { id: 999999 },
-      operations: [ { name: :show } ]
-    }
-
-    error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL::Executors::Curator.execute_applications_query(ast)
-    end
-
-    assert_match(/nije pronađena/i, error.message)
-  end
-
-  test "execute_applications_query counts applications" do
-    ast = {
-      filters: {},
-      operations: [ { name: :count } ]
-    }
-
-    result = Platform::DSL::Executors::Curator.execute_applications_query(ast)
-
-    assert result.key?(:pending)
-    assert result.key?(:approved)
-    assert result.key?(:rejected)
-    assert result.key?(:total)
-  end
-
   # ===================
   # Approval Tests
   # ===================
@@ -241,45 +185,6 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
     assert_match(/razlog/i, error.message)
   end
 
-  test "execute_approval approves application" do
-    ast = {
-      action: :approve,
-      approval_type: :application,
-      filters: { id: @curator_application.id },
-      notes: "Welcome aboard"
-    }
-
-    result = Platform::DSL::Executors::Curator.execute_approval(ast)
-
-    assert result[:success]
-    assert_equal :approve_application, result[:action]
-    assert_equal @curator_application.id, result[:application_id]
-
-    @curator_application.reload
-    assert_equal "approved", @curator_application.status
-
-    @user.reload
-    assert @user.curator?
-  end
-
-  test "execute_approval rejects application" do
-    ast = {
-      action: :reject,
-      approval_type: :application,
-      filters: { id: @curator_application.id },
-      reason: "Insufficient experience"
-    }
-
-    result = Platform::DSL::Executors::Curator.execute_approval(ast)
-
-    assert result[:success]
-    assert_equal :reject_application, result[:action]
-    assert_equal @curator_application.id, result[:application_id]
-
-    @curator_application.reload
-    assert_equal "rejected", @curator_application.status
-  end
-
   test "execute_approval raises for unknown action" do
     ast = {
       action: :unknown_action,
@@ -301,23 +206,6 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
       action: :approve,
       approval_type: :proposal,
       filters: { id: @content_change.id },
-      notes: "Trying again"
-    }
-
-    error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL::Executors::Curator.execute_approval(ast)
-    end
-
-    assert_match(/nije u pending statusu/i, error.message)
-  end
-
-  test "execute_approval raises for non-pending application" do
-    @curator_application.update!(status: :approved)
-
-    ast = {
-      action: :approve,
-      approval_type: :application,
-      filters: { id: @curator_application.id },
       notes: "Trying again"
     }
 
@@ -589,14 +477,6 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
     assert_match(/Potreban filter: id/i, error.message)
   end
 
-  test "find_application raises without id filter" do
-    error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL::Executors::Curator.send(:find_application, {})
-    end
-
-    assert_match(/Potreban filter: id/i, error.message)
-  end
-
   test "find_curator raises without id or username filter" do
     error = assert_raises(Platform::DSL::ExecutionError) do
       Platform::DSL::Executors::Curator.send(:find_curator, {})
@@ -619,14 +499,6 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
     assert_equal "update_content", result[:change_type]
   end
 
-  test "format_application returns correct structure" do
-    result = Platform::DSL::Executors::Curator.send(:format_application, @curator_application)
-
-    assert_equal @curator_application.id, result[:id]
-    assert_equal "pending", result[:status]
-    assert result[:motivation_preview].present?
-  end
-
   test "format_curator returns correct structure" do
     result = Platform::DSL::Executors::Curator.send(:format_curator, @curator)
 
@@ -646,17 +518,6 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
     result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
 
     assert_equal :list_proposals, result[:action]
-  end
-
-  test "execute_applications_query with unknown operation falls back to list" do
-    ast = {
-      filters: {},
-      operations: [ { name: :unknown_operation } ]
-    }
-
-    result = Platform::DSL::Executors::Curator.execute_applications_query(ast)
-
-    assert_equal :list_applications, result[:action]
   end
 
   test "execute_curators_query with unknown operation falls back to list" do
@@ -682,16 +543,6 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
     assert result[:proposals].is_a?(Array)
   end
 
-  test "list_applications with invalid status filter ignores it" do
-    ast = { filters: { status: "invalid_status_xyz" } }
-
-    result = Platform::DSL::Executors::Curator.execute_applications_query(ast)
-
-    # Should still return results (invalid status is ignored)
-    assert_equal :list_applications, result[:action]
-    assert result[:applications].is_a?(Array)
-  end
-
   test "show_proposal for reviewed proposal includes reviewed_at" do
     @content_change.update!(status: :approved, reviewed_at: Time.current)
 
@@ -703,20 +554,6 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
     result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
 
     assert_equal :show_proposal, result[:action]
-    assert result[:reviewed_at].present?
-  end
-
-  test "show_application for reviewed application includes reviewed_at" do
-    @curator_application.update!(status: :approved, reviewed_at: Time.current)
-
-    ast = {
-      filters: { id: @curator_application.id },
-      operations: [ { name: :show } ]
-    }
-
-    result = Platform::DSL::Executors::Curator.execute_applications_query(ast)
-
-    assert_equal :show_application, result[:action]
     assert result[:reviewed_at].present?
   end
 
@@ -756,38 +593,6 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
     end
 
     assert_match(/nije u pending statusu/i, error.message)
-  end
-
-  test "reject_application raises for non-pending application" do
-    @curator_application.update!(status: :approved)
-
-    ast = {
-      action: :reject,
-      approval_type: :application,
-      filters: { id: @curator_application.id },
-      reason: "Some reason"
-    }
-
-    error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL::Executors::Curator.execute_approval(ast)
-    end
-
-    assert_match(/nije u pending statusu/i, error.message)
-  end
-
-  test "reject_application raises without reason" do
-    ast = {
-      action: :reject,
-      approval_type: :application,
-      filters: { id: @curator_application.id },
-      reason: ""
-    }
-
-    error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL::Executors::Curator.execute_approval(ast)
-    end
-
-    assert_match(/razlog/i, error.message)
   end
 
   test "list_curators with high_activity filter" do
@@ -873,21 +678,6 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
     result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
 
     assert_equal :show_proposal, result[:action]
-    assert_nil result[:reviewed_at]
-  end
-
-  test "show_application for unreviewed application has nil reviewed_at" do
-    # Test line 254: reviewed_at&.iso8601 when nil
-    @curator_application.update_column(:reviewed_at, nil)
-
-    ast = {
-      filters: { id: @curator_application.id },
-      operations: [ { name: :show } ]
-    }
-
-    result = Platform::DSL::Executors::Curator.execute_applications_query(ast)
-
-    assert_equal :show_application, result[:action]
     assert_nil result[:reviewed_at]
   end
 end

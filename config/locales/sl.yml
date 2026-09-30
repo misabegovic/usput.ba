@@ -600,10 +600,6 @@ sl:
       remove: Odstrani sliko
       remove_confirm: Ali ste prepričani, da želite odstraniti profilno sliko?
     curator:
-      title: Postanite Kustos
-      description: Kustosi lahko dodajajo nove lokacije, doživetja in vsebino na platformo.
-        Pomagajte nam odkriti skrite dragulje Bosne in Hercegovine!
-      apply: Prijavite se za Kustosa
       you_are_curator: Vi ste Kustos
       manage_content: Upravljajte lokacije in doživetja
       open_dashboard: Odprite Nadzorno Ploščo
@@ -640,7 +636,6 @@ sl:
     faq: Pogosta Vprašanja
     rights: Vse pravice pridržane.
     community: Skupnost
-    become_curator: Postanite kustos
   cookie_consent:
     title: Piškotki in Zasebnost
     message: Uporabljamo samo tehnično potrebne piškotke za delovanje strani (seja,
@@ -960,44 +955,6 @@ sl:
         easy: Lahko
         moderate: Zmerno
         challenging: Zahtevno
-  curator_applications:
-    created: Vaša prijava je bila uspešno oddana!
-    status:
-      pending: V čakanju
-      approved: Odobreno
-      rejected: Zavrnjeno
-    errors:
-      already_curator: Že imate pravice kustosa
-      pending_exists: Že imate prijavo v čakanju
-    new:
-      title: Postanite Kustos
-      subtitle: Pomagajte nam izboljšati vsebino s tem, da postanete kustos
-      benefits_title: 'Kot kustos lahko:'
-      benefit_1: Dodajate nove lokacije in doživetja
-      benefit_2: Urejate obstoječo vsebino za izboljšanje natančnosti
-      benefit_3: Pomagate potnikom odkriti skrite dragulje
-    form:
-      motivation: Zakaj želite postati kustos?
-      motivation_hint: Povejte nam o svoji strasti do potovanj in lokalnem znanju
-        (min. 50 znakov)
-      motivation_placeholder: Želim postati kustos, ker...
-      experience: Ustrezne izkušnje (izbirno)
-      experience_hint: Ali imate izkušnje v turizmu, ustvarjanju vsebine ali lokalnem
-        znanju?
-      experience_placeholder: Imam izkušnje v...
-      submit: Oddaj Prijavo
-    show:
-      title: Vaša Prijava za Kustosa
-      pending_message: Vaša prijava je v pregledu. Obvestili vas bomo, ko bo odločitev
-        sprejeta.
-      approved_message: Čestitamo! Vaša prijava je bila odobrena. Zdaj imate dostop
-        do Nadzorne Plošče Kustosa.
-      rejected_message: Na žalost vaša prijava trenutno ni bila odobrena.
-      go_to_dashboard: Pojdi na Nadzorno Ploščo Kustosa
-      submitted_at: Oddano
-      reviewed_at: Pregledano
-      feedback: Povratne Informacije
-
   minesweeper:
     title: Minolovec
     subtitle: "Izobraževalna igra na resničnih zemljevidih — mine so tam, kjer resnični podatki beležijo območja, sumljiva zaradi min."

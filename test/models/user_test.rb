@@ -314,19 +314,6 @@ class UserTest < ActiveSupport::TestCase
     user.destroy
   end
 
-  # === Curator application tests ===
-
-  test "can_apply_for_curator? returns true for basic users without pending application" do
-    user = User.create!(@valid_params)
-    assert user.can_apply_for_curator?
-    user.destroy
-  end
-
-  test "can_apply_for_curator? returns false for curators" do
-    user = User.create!(@valid_params.merge(username: "curator_app_test", email: "curator_app_test@example.com", user_type: :curator))
-    assert_not user.can_apply_for_curator?
-    user.destroy
-  end
 
   # === Spam protection tests ===
 

@@ -602,11 +602,6 @@ nl:
       remove: Afbeelding verwijderen
       remove_confirm: Weet je zeker dat je de profielfoto wilt verwijderen?
     curator:
-      title: Word een Curator
-      description: Curators kunnen nieuwe locaties, ervaringen en content toevoegen
-        aan het platform. Help ons de verborgen pareltjes van Bosnië en Herzegovina
-        te ontdekken!
-      apply: Solliciteer als Curator
       you_are_curator: Je bent een Curator
       manage_content: Beheer locaties en ervaringen
       open_dashboard: Open Dashboard
@@ -643,7 +638,6 @@ nl:
     faq: Veelgestelde Vragen
     rights: Alle rechten voorbehouden.
     community: Community
-    become_curator: Word Curator
   cookie_consent:
     title: Cookies & Privacy
     message: We gebruiken alleen technisch noodzakelijke cookies voor de werking van
@@ -970,43 +964,6 @@ nl:
         easy: Makkelijk
         moderate: Gemiddeld
         challenging: Uitdagend
-  curator_applications:
-    created: Je aanvraag is succesvol ingediend!
-    status:
-      pending: In behandeling
-      approved: Goedgekeurd
-      rejected: Afgewezen
-    errors:
-      already_curator: Je hebt al curator privileges
-      pending_exists: Je hebt al een aanvraag in behandeling
-    new:
-      title: Word een Curator
-      subtitle: Help ons de inhoud te verbeteren door curator te worden
-      benefits_title: 'Als curator kun je:'
-      benefit_1: Nieuwe locaties en ervaringen toevoegen
-      benefit_2: Bestaande inhoud bewerken om de nauwkeurigheid te verbeteren
-      benefit_3: Reizigers helpen verborgen parels te ontdekken
-    form:
-      motivation: Waarom wil je curator worden?
-      motivation_hint: Vertel ons over je passie voor reizen en lokale kennis (min.
-        50 tekens)
-      motivation_placeholder: Ik wil curator worden omdat...
-      experience: Relevante ervaring (optioneel)
-      experience_hint: Heb je ervaring in toerisme, contentcreatie of lokale kennis?
-      experience_placeholder: Ik heb ervaring in...
-      submit: Aanvraag Indienen
-    show:
-      title: Je Curator Aanvraag
-      pending_message: Je aanvraag wordt beoordeeld. We zullen je op de hoogte stellen
-        zodra er een beslissing is genomen.
-      approved_message: Gefeliciteerd! Je aanvraag is goedgekeurd. Je hebt nu toegang
-        tot het Curator Dashboard.
-      rejected_message: Helaas is je aanvraag op dit moment niet goedgekeurd.
-      go_to_dashboard: Ga naar Curator Dashboard
-      submitted_at: Ingediend
-      reviewed_at: Beoordeeld
-      feedback: Feedback
-
   minesweeper:
     title: Mijnenveger
     subtitle: "Een educatief spel op echte kaarten — mijnen liggen waar echte gegevens mijnverdachte gebieden registreren."

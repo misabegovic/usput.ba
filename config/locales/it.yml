@@ -689,10 +689,6 @@ it:
       remove: Rimuovi immagine
       remove_confirm: Sei sicuro di voler rimuovere la foto del profilo?
     curator:
-      title: Diventa Curatore
-      description: I curatori possono aggiungere nuovi luoghi, esperienze e contenuti
-        alla piattaforma. Aiutaci a scoprire le gemme nascoste della Bosnia ed Erzegovina!
-      apply: Candidati come Curatore
       you_are_curator: Sei un Curatore
       manage_content: Gestisci luoghi ed esperienze
       open_dashboard: Apri Dashboard
@@ -712,7 +708,6 @@ it:
     faq: Domande Frequenti
     rights: Tutti i diritti riservati.
     community: Comunità
-    become_curator: Diventa Curatore
   cookie_consent:
     title: Cookie e Privacy
     message: Utilizziamo solo cookie tecnicamente necessari per il funzionamento del
@@ -1059,45 +1054,6 @@ it:
         easy: Facile
         moderate: Moderato
         challenging: Impegnativo
-  curator_applications:
-    created: La tua candidatura è stata inviata con successo!
-    status:
-      pending: In attesa
-      approved: Approvato
-      rejected: Rifiutato
-    errors:
-      already_curator: Hai già i privilegi di curatore
-      pending_exists: Hai già una candidatura in attesa
-    new:
-      title: Diventa Curatore
-      subtitle: Aiutaci a migliorare i contenuti diventando curatore
-      benefits_title: 'Come curatore puoi:'
-      benefit_1: Aggiungere nuovi luoghi ed esperienze
-      benefit_2: Modificare i contenuti esistenti per migliorare l'accuratezza
-      benefit_3: Aiutare i viaggiatori a scoprire gemme nascoste
-    form:
-      motivation: Perché vuoi diventare curatore?
-      motivation_hint: Raccontaci della tua passione per i viaggi e la conoscenza
-        locale (min. 50 caratteri)
-      motivation_placeholder: Voglio diventare curatore perché...
-      experience: Esperienza rilevante (facoltativo)
-      experience_hint: Hai esperienza nel turismo, creazione di contenuti o conoscenza
-        locale?
-      experience_placeholder: Ho esperienza in...
-      submit: Invia Candidatura
-    show:
-      title: La Tua Candidatura da Curatore
-      pending_message: La tua candidatura è in fase di revisione. Ti informeremo una
-        volta presa una decisione.
-      approved_message: Congratulazioni! La tua candidatura è stata approvata. Ora
-        hai accesso alla Dashboard Curatore.
-      rejected_message: Purtroppo, la tua candidatura non è stata approvata in questo
-        momento.
-      go_to_dashboard: Vai alla Dashboard Curatore
-      submitted_at: Inviato
-      reviewed_at: Revisionato
-      feedback: Feedback
-
   minesweeper:
     title: Campo minato
     subtitle: "Un gioco educativo su mappe reali — le mine sono dove i dati reali registrano aree sospette."

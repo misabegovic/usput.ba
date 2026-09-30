@@ -139,7 +139,7 @@ Anyone can rate a location, experience or plan from 1 to 5 with an optional comm
 - **Photo suggestions** with up to 10 uploads each ([#143](https://github.com/misabegovic/usput.ba/pull/143)), and a "needs photos" list (`curator/locations_controller.rb`).
 - **Moment moderation queue** with pending, approved and rejected counts ([#164](https://github.com/misabegovic/usput.ba/pull/164); `app/controllers/curator/moments_controller.rb`). It is linked from the mobile menu since [#167](https://github.com/misabegovic/usput.ba/pull/167).
 - **Archiving.** A place is archived instead of deleted, so check-ins and moments survive, and it can be restored. Delete states what it would cost first. Archiving is recorded in the curator activity trail ([#167](https://github.com/misabegovic/usput.ba/pull/167)).
-- **Admin tools.** Approve or reject content changes, photo suggestions and curator applications, and manage and unblock users (`config/routes.rb`, `curator/admin`).
+- **Admin tools.** Approve or reject content changes and photo suggestions, and manage and unblock users (`config/routes.rb`, `curator/admin`). Curator applications were removed on 2026-09-30; roles change in the new admin at `/admin`.
 
 ## Accessibility
 

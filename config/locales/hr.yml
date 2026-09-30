@@ -546,7 +546,6 @@ hr:
     imprint: Impresum
     rights: Sva prava pridržana.
     community: Zajednica
-    become_curator: Postani kustos
   pwa:
     install_title: Instaliraj Usput aplikaciju
     install_subtitle: Brži pristup i offline podrška
@@ -625,10 +624,6 @@ hr:
       remove: Ukloni sliku
       remove_confirm: Jesi li siguran da želiš ukloniti profilnu sliku?
     curator:
-      title: Postani Kustos
-      description: Kustosi mogu dodavati nove lokacije, iskustva i sadržaj na platformu.
-        Pomozi nam otkriti skrivene dragulje Bosne i Hercegovine!
-      apply: Prijavi se za Kustosa
       you_are_curator: Ti si Kustos
       manage_content: Upravljaj lokacijama i iskustvima
       open_dashboard: Otvori Kontrolnu Ploču
@@ -994,44 +989,6 @@ hr:
       collector:
         name: Kolekcionar
         description: Dodao 10 omiljenih lokacija
-  curator_applications:
-    created: Tvoja prijava je uspješno poslana!
-    status:
-      pending: Na čekanju
-      approved: Odobreno
-      rejected: Odbijeno
-    errors:
-      already_curator: Već imaš privilegije kustosa
-      pending_exists: Već imaš prijavu na čekanju
-    new:
-      title: Postani Kustos
-      subtitle: Pomozi nam poboljšati sadržaj postajanjem kustosa
-      benefits_title: 'Kao kustos možeš:'
-      benefit_1: Dodavati nove lokacije i iskustva
-      benefit_2: Uređivati postojeći sadržaj za poboljšanje točnosti
-      benefit_3: Pomoći putnicima otkriti skrivene dragulje
-    form:
-      motivation: Zašto želiš postati kustos?
-      motivation_hint: Reci nam o svojoj strasti za putovanja i lokalnom znanju (min.
-        50 znakova)
-      motivation_placeholder: Želim postati kustos jer...
-      experience: Relevantno iskustvo (neobavezno)
-      experience_hint: Imaš li iskustvo u turizmu, stvaranju sadržaja ili lokalnom
-        znanju?
-      experience_placeholder: Imam iskustvo u...
-      submit: Pošalji Prijavu
-    show:
-      title: Tvoja Prijava za Kustosa
-      pending_message: Tvoja prijava se pregledava. Obavijestit ćemo te kada bude
-        donesena odluka.
-      approved_message: Čestitamo! Tvoja prijava je odobrena. Sada imaš pristup Kustos
-        Kontrolnoj Ploči.
-      rejected_message: Nažalost, tvoja prijava nije odobrena u ovom trenutku.
-      go_to_dashboard: Idi na Kustos Kontrolnu Ploču
-      submitted_at: Poslano
-      reviewed_at: Pregledano
-      feedback: Povratna Informacija
-
   minesweeper:
     title: Minolovac
     subtitle: "Edukativna igra na stvarnim kartama — mine su tamo gdje stvarni podaci bilježe minski sumnjiva područja."

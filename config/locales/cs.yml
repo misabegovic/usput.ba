@@ -599,10 +599,6 @@ cs:
       remove: Odstranit obrázek
       remove_confirm: Jste si jisti, že chcete odstranit profilový obrázek?
     curator:
-      title: Staňte se Kurátorem
-      description: Kurátoři mohou přidávat nová místa, zážitky a obsah na platformu.
-        Pomozte nám objevit skryté poklady Bosny a Hercegoviny!
-      apply: Přihlásit se jako Kurátor
       you_are_curator: Jste Kurátor
       manage_content: Spravujte místa a zážitky
       open_dashboard: Otevřít Dashboard
@@ -639,7 +635,6 @@ cs:
     faq: Časté Dotazy
     rights: Všechna práva vyhrazena.
     community: Komunita
-    become_curator: Staňte se kurátorem
   cookie_consent:
     title: Cookies a Ochrana Soukromí
     message: Používáme pouze technicky nutné cookies pro fungování webu (relace, téma).
@@ -960,44 +955,6 @@ cs:
         easy: Snadné
         moderate: Středně náročné
         challenging: Náročné
-  curator_applications:
-    created: Vaše žádost byla úspěšně podána!
-    status:
-      pending: Čekající
-      approved: Schváleno
-      rejected: Zamítnuto
-    errors:
-      already_curator: Již máte oprávnění kurátora
-      pending_exists: Již máte čekající žádost
-    new:
-      title: Staňte Se Kurátorem
-      subtitle: Pomozte nám zlepšit obsah tím, že se stanete kurátorem
-      benefits_title: 'Jako kurátor můžete:'
-      benefit_1: Přidávat nová místa a zážitky
-      benefit_2: Upravovat existující obsah pro zlepšení přesnosti
-      benefit_3: Pomáhat cestovatelům objevovat skryté klenoty
-    form:
-      motivation: Proč se chcete stát kurátorem?
-      motivation_hint: Řekněte nám o vaší vášni pro cestování a místní znalosti (min.
-        50 znaků)
-      motivation_placeholder: Chci se stát kurátorem, protože...
-      experience: Relevantní zkušenosti (volitelné)
-      experience_hint: Máte zkušenosti v cestovním ruchu, tvorbě obsahu nebo místní
-        znalosti?
-      experience_placeholder: Mám zkušenosti v...
-      submit: Podat Žádost
-    show:
-      title: Vaše Žádost o Kurátorství
-      pending_message: Vaše žádost je posuzována. Dáme vám vědět, jakmile bude učiněno
-        rozhodnutí.
-      approved_message: Gratulujeme! Vaše žádost byla schválena. Nyní máte přístup
-        k Panelu Kurátora.
-      rejected_message: Bohužel, vaše žádost nebyla v tuto chvíli schválena.
-      go_to_dashboard: Přejít do Panelu Kurátora
-      submitted_at: Podáno
-      reviewed_at: Posouzeno
-      feedback: Zpětná vazba
-
   minesweeper:
     title: Miny
     subtitle: "Vzdělávací hra na skutečných mapách — miny jsou tam, kde skutečná data zaznamenávají oblasti podezřelé z výskytu min."
