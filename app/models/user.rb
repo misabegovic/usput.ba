@@ -13,7 +13,6 @@ class User < ApplicationRecord
   has_many :content_change_contributions, dependent: :destroy
   has_many :curator_reviews, dependent: :destroy
   has_many :curator_activities, dependent: :destroy
-  has_many :photo_suggestions, dependent: :destroy
   has_many :moments, dependent: :destroy
   has_many :plan_visits, dependent: :destroy
   has_many :likes, dependent: :destroy

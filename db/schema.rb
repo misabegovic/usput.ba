@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -446,24 +446,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_160000) do
     t.index ["visibility", "moderation_status", "created_at"], name: "idx_on_visibility_moderation_status_created_at_5069876a7d"
   end
 
-  create_table "photo_suggestions", force: :cascade do |t|
-    t.text "admin_notes"
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.bigint "location_id", null: false
-    t.string "photo_url"
-    t.datetime "reviewed_at"
-    t.bigint "reviewed_by_id"
-    t.integer "status", default: 0
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.index ["location_id", "status"], name: "index_photo_suggestions_on_location_id_and_status"
-    t.index ["location_id"], name: "index_photo_suggestions_on_location_id"
-    t.index ["reviewed_by_id"], name: "index_photo_suggestions_on_reviewed_by_id"
-    t.index ["user_id", "status"], name: "index_photo_suggestions_on_user_id_and_status"
-    t.index ["user_id"], name: "index_photo_suggestions_on_user_id"
-  end
-
   create_table "plan_experiences", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "day_number", null: false
@@ -647,9 +629,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_160000) do
   add_foreign_key "moments", "locations"
   add_foreign_key "moments", "plans"
   add_foreign_key "moments", "users"
-  add_foreign_key "photo_suggestions", "locations"
-  add_foreign_key "photo_suggestions", "users"
-  add_foreign_key "photo_suggestions", "users", column: "reviewed_by_id"
   add_foreign_key "plan_experiences", "experiences"
   add_foreign_key "plan_experiences", "plans"
   add_foreign_key "plan_locations", "locations"

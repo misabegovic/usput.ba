@@ -16,8 +16,6 @@ module CuratorHelper
       curator_audio_tour_path(activity.recordable)
     when ContentChange
       curator_proposal_path(activity.recordable)
-    when PhotoSuggestion
-      curator_photo_suggestion_path(activity.recordable) if respond_to?(:curator_photo_suggestion_path)
     end
   rescue ActionController::UrlGenerationError
     nil

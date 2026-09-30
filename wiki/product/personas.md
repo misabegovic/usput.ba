@@ -87,7 +87,7 @@ A curator reaches the `/curator` dashboard. Its base controller requires login a
 
 - **Propose content changes.** Creating, editing or deleting a location, experience, plan, audio tour or review does not write directly. It creates or joins the one pending `ContentChange` for that record (`app/controllers/curator/locations_controller.rb`, `create`, `update`, `destroy`; `app/models/content_change.rb`, `CHANGEABLE_CLASSES`). Several curators can contribute to one proposal (`ContentChangeContribution`).
 - **Review proposals.** Curators add a comment and a recommendation to a proposal (`config/routes.rb`, `proposals#add_review`; `CuratorReview` in [domain](domain.md)).
-- **Suggest photos.** Up to 10 photos per suggestion, or a URL, for a location (`app/models/photo_suggestion.rb`). A "needs photos" list sorts places by photo count (`curator/locations_controller.rb`, `needs_photos`).
+- **Add photos.** Curators upload photos on the place in the admin at `/admin`; photo suggestions were removed on 2026-09-30. A "needs photos" list sorts places by photo count (`curator/locations_controller.rb`, `needs_photos`).
 - **Archive and restore places.** Archiving is reversible, so it lands directly instead of through a proposal (`curator/locations_controller.rb`, comment above `archive`).
 - **Moderate moments.** The moderation queue lets a curator approve or reject moments that travellers chose to publish (`app/controllers/curator/moments_controller.rb`).
 - **Limits.** A curator is blocked for 24 hours after 50 actions in an hour or 200 in a day (`app/models/user.rb`, `MAX_ACTIVITIES_PER_HOUR`, `MAX_ACTIVITIES_PER_DAY`, `SPAM_BLOCK_DURATION`). Edit, delete and new buttons on some list and show pages sit behind the Flipper flag `curator_edit_delete` (`app/views/curator/locations/index.html.erb`; https://github.com/misabegovic/usput.ba/pull/149).
@@ -96,7 +96,7 @@ A curator reaches the `/curator` dashboard. Its base controller requires login a
 
 An admin has every curator ability plus the `curator/admin` namespace, which requires the admin role (`app/controllers/curator/admin/base_controller.rb`).
 
-- Approve or reject content changes and photo suggestions (`config/routes.rb`, `namespace :admin`).
+- Approve or reject content changes (`config/routes.rb`, `namespace :admin`).
 - Change roles, block and unblock in the new admin at `/admin` ([Avo admin and roles](../initiatives/avo-admin-and-roles.md)).
 - List, view and edit users, and lift a spam block (`config/routes.rb`, `admin/users#unblock`; `app/models/user.rb`, `admin_unblock!`).
 - Check in from anywhere. The geofence is disabled for admins so a walk can be reviewed from a desk (`app/helpers/application_helper.rb`, `geofence_disabled?`; https://github.com/misabegovic/usput.ba/pull/164).

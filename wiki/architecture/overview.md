@@ -216,7 +216,7 @@ Services in `app/services/` hold the logic the controllers call:
 Models in `app/models/` centre on `Location`, `Experience` and `Plan` with
 join models (`ExperienceLocation`, `PlanExperience`, `PlanLocation`),
 translations in a polymorphic `Translation` table, `AudioTour`, `Review`,
-`Moment`, `Like`, `PlanVisit`, `PhotoSuggestion`, `ContentChange`,
+`Moment`, `Like`, `PlanVisit`, `ContentChange`,
 `CuratorActivity`, `Browse`, `AiGeneration`,
 `MineCheckAudit`, `Setting` and `User`. `Location` validates every
 coordinate change against the mine checker (`must_pass_mine_check`).

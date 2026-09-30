@@ -16,8 +16,6 @@ class CuratorActivity < ApplicationRecord
     photo_suggested
     resource_viewed
     login
-    approve_photo_suggestion
-    reject_photo_suggestion
     update_user
     unblock_user
     approve_content_change
@@ -121,8 +119,6 @@ class CuratorActivity < ApplicationRecord
       "Audio Tour: #{recordable.location&.name} (#{recordable.locale})"
     when ContentChange
       recordable.description
-    when PhotoSuggestion
-      "Photo for #{recordable.location&.name}"
     else
       recordable.class.name
     end

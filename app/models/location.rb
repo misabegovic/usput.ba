@@ -31,7 +31,6 @@ class Location < ApplicationRecord
   has_many :location_experience_types, dependent: :destroy
   has_many :experience_types, through: :location_experience_types
   has_many :audio_tours, dependent: :destroy
-  has_many :photo_suggestions, dependent: :destroy
   # A traveller's record of having been somewhere, and of what they photographed
   # there, is theirs — no cascade takes it. Retiring a place is the ordinary way
   # out of the catalogue and keeps these; destroying one is refused unless the
