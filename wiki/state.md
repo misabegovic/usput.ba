@@ -2,11 +2,12 @@
 title: Product state
 kind: reference
 status: living
-updated: 2026-09-29
+updated: 2026-09-30
 repos:
 - usput.ba
 confidence: medium
 sources:
+- sources/conversations/2026-09-30--usput--platform-direction.md
 - sources/planning/README.md
 - sources/planning/IMPLEMENTATION.md
 - sources/planning/VISION.md
@@ -87,8 +88,7 @@ What the planning documents in `sources/planning/` still say, and where it no lo
 
 Next 90 days (to about 2026-12-28), drawn from the open initiatives and issues. None of this is committed yet.
 
-- **Land accessibility and close its gaps**: re-sync moment Browse rows when a place's accessibility changes, and fill accessibility data for existing places ([location accessibility](initiatives/location-accessibility.md)).
-- **Moderate reviews** as written in the approval plan ([review approval system](initiatives/review-approval-system.md)).
-- **Take what is worth taking from #151**, starting with audio tour generation from the dashboard, and decide whether `ContentChange` is retired or fixed ([curator dashboard v2 salvage](initiatives/curator-dashboard-v2-salvage.md)).
-- **Work the open issue list** ([open issues](initiatives/open-issues.md)): video URLs (#80), a Geoapify replacement (#135), duration and price rules (#139, #85), cycling (#153), seasons (#30), stale data (#27).
+- **Rebuild usput from scratch** (decided 2026-09-30): in place on a long-lived branch, no backwards compatibility, an empty database, the old site up until launch. Version 1 is places and explore, plans and walking, reviews with Jev, and the AI content pipeline with Langfuse; admin in Avo, the curator area left out. The order and the open questions are on [initiatives](initiatives/index.md).
+- **Earn from audio tours** (decided 2026-09-30): a subscription through Stripe, everything else free ([paid audio tours](initiatives/paid-audio-tours.md)).
+- **Keep `roundhouse check` clean from the rebuild's first commit**, so compiling stays possible later ([Roundhouse](initiatives/roundhouse-analysis-and-compile.md)).
 - **Bring the planning documents in line with the code**, so the Perceived list above shrinks: the brain pages under `wiki/` are meant to replace `.claude/planning/` as the working description.

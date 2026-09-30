@@ -1,11 +1,12 @@
 ---
 title: Curator dashboard v2 (RFC-0001)
 kind: decision
-status: proposed
-updated: 2026-09-29
+status: superseded
+updated: 2026-09-30
 repos:
 - usput.ba
 confidence: medium
+superseded_by: decisions/admin-through-avo.md
 sources:
 - sources/planning/pr-151/rfcs/0001-curator-dashboard-v2.md
 - https://github.com/misabegovic/usput.ba/pull/151
@@ -16,15 +17,20 @@ sources:
 enola_intent:
   page:
     type: decision
-    status: proposed
+    status: superseded
     scope:
     - usput.ba
     origin:
     - other
     - repo
     - web
+    relations:
+    - rel: superseded-by
+      to: wiki/decisions/admin-through-avo.md
 ---
 # Curator dashboard v2 (RFC-0001)
+
+> Superseded on 2026-09-30: the curator area is removed and admin work moves to Avo ([decision](admin-through-avo.md)).
 
 ## Context
 

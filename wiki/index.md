@@ -46,6 +46,7 @@ Bosnian plans the pages are built from are kept, unedited, under
 
 ## What changed recently
 
+- 2026-09-30: usput will be rebuilt from scratch in place. Admin moves to Avo, reviews are flagged by Jev, and the plan is in [initiatives](initiatives/index.md).
 - 2026-09-29: this brain was started. Location accessibility, contributed by
   Delaida Muminovic, shipped through #168. The review approval plan (#152)
   was merged as a proposal.

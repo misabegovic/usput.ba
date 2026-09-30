@@ -1,11 +1,12 @@
 ---
 title: Curator dashboard v2 salvage
 kind: initiative
-status: proposed
-updated: 2026-09-29
+status: superseded
+updated: 2026-09-30
 repos:
 - usput.ba
 confidence: medium
+superseded_by: decisions/admin-through-avo.md
 sources:
 - sources/planning/pr-151/README.md
 - sources/planning/pr-151/rfcs/0001-curator-dashboard-v2.md
@@ -30,7 +31,7 @@ depends_on:
 enola_intent:
   page:
     type: initiative
-    status: proposed
+    status: superseded
     scope:
     - usput.ba
     origin:
@@ -42,8 +43,12 @@ enola_intent:
       to: wiki/state.md
     - rel: depends-on
       to: wiki/initiatives/review-approval-system.md
+    - rel: superseded-by
+      to: wiki/decisions/admin-through-avo.md
 ---
 # Curator dashboard v2 salvage
+
+> Superseded on 2026-09-30: the curator area is removed rather than salvaged ([decision](../decisions/admin-through-avo.md)). Audio tour generation and multiple videos, the two pieces worth keeping, carry over as Avo actions and fields.
 
 ## Objective
 

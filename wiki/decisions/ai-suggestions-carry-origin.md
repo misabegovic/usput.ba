@@ -1,13 +1,14 @@
 ---
 title: AI changes arrive as suggestions marked with their origin
 kind: decision
-status: proposed
-updated: 2026-09-29
+status: superseded
+updated: 2026-09-30
 repos:
 - usput.ba
 confidence: medium
 depends_on:
 - decisions/per-resource-suggestion-models.md
+superseded_by: decisions/admin-through-avo.md
 sources:
 - sources/planning/pr-151/decisions/2026-02-05-ai-vs-human-suggestion-origin.md
 - https://github.com/misabegovic/usput.ba/pull/151
@@ -16,7 +17,7 @@ sources:
 enola_intent:
   page:
     type: decision
-    status: proposed
+    status: superseded
     scope:
     - usput.ba
     origin:
@@ -26,8 +27,12 @@ enola_intent:
     relations:
     - rel: depends-on
       to: wiki/decisions/per-resource-suggestion-models.md
+    - rel: superseded-by
+      to: wiki/decisions/admin-through-avo.md
 ---
 # AI changes arrive as suggestions marked with their origin
+
+> Superseded on 2026-09-30: it depended on suggestion models that will not be built ([decision](admin-through-avo.md)).
 
 ## Context
 
