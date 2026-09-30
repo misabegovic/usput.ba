@@ -100,7 +100,7 @@ The operator chose Avo for the admin, a curator role inside it, the free Communi
 
 What the rebuilt app has:
 
-- Avo Community mounted at one path, reachable only by a signed-in curator or admin, checked against `Current.user` from [secure sessions](secure-sessions.md) in a route constraint and again in Avo's base controller, so a missing check in one place does not open the admin.
+- Avo Community mounted at one path, reachable only by a signed-in curator or admin, checked against Devise's `current_user` from [secure sessions](secure-sessions.md) in a route constraint and again in Avo's base controller, so a missing check in one place does not open the admin.
 - Role rules in usput's own code: one policy object per resource answering "may this role see, create, edit, delete, run this action", read by Avo's resource and action hooks, with tests at the policy level.
 - Proposed rules: curators create, edit, archive and restore places, experiences and plans, and approve or reject moments and clear or remove flagged reviews; only admins delete anything, manage users and roles, and block or unblock.
 - Resources: `Location`, `Experience`, `Plan`, `Moment`, `Review`, `User`, and `PlanVisit` read-only for support. `AudioTour` if in version 1.
@@ -110,7 +110,7 @@ What the rebuilt app has:
 
 Slices, in order on the rebuild branch, each with its tests:
 
-1. Install Avo, mount it behind the role gate. Request tests: guest, `basic`, blocked user refused; curator and admin admitted.
+1. **Done 2026-09-30.** Install Avo, mount it behind the role gate. Request tests: guest, `basic`, blocked user refused; curator and admin admitted.
 2. The policy layer and the `User` resource (admin only), with role change and block actions. Policy unit tests per role; a request test that a curator cannot open users.
 3. `Location` with filters, the archive and restore actions and photo uploads. Tests that the mine check blocks a bad coordinate through Avo and that a curator cannot delete.
 4. `Experience` and `Plan`, including a plan's stops by day. Policy and request tests.
@@ -143,3 +143,24 @@ Medium: seven slices, one to two days of work each for someone who knows Avo. A 
 - **The activity trail.** Keep a small `AdminEvent` trail written by Avo actions (proposed), or rely on logs and drop it.
 - **Audio tours in version 1.** The operator's version 1 list names places, explore, plans, walking, reviews and the AI pipeline, not audio tours.
 - **Becoming a curator.** With applications dropped, an admin promotes a user by hand. Confirm there is no public "become a curator" page.
+
+## Build notes
+
+Slice 1 landed on 2026-09-30.
+
+- **Avo 4.2.11 Community**, no licence key. Per-resource authorization (Pundit
+  policies) is a paid add-on in Avo 4, as are dashboards and dynamic filters;
+  actions, basic filters, custom tools and `authenticate_with` are free
+  (docs.avohq.io/4.0 authorization, licensing, authentication and custom-tools
+  pages, read 2026-09-30). The policy layer in slice 2 is therefore usput's own.
+- **Two gates.** Devise's `authenticate :user, ->(user) { user.can_curate? }`
+  wraps `mount_avo` at `/admin`: a guest is sent to sign in and a traveller
+  gets a 404, since the route does not exist for them. Avo's
+  `authenticate_with` repeats the role check inside, and a test runs that block
+  on its own so it cannot silently become a no-op.
+- **A blocked curator is signed out at the door**, because Devise's
+  `active_for_authentication?` runs in the route constraint.
+- **The admin opens on a welcome tool page** (`/admin/welcome`) that states the
+  visitor's role, because Avo's home redirects to the first resource and there
+  is none until slice 2.
+

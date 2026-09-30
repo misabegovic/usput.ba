@@ -803,6 +803,14 @@ en:
       created: Experience was successfully created
       updated: Experience was successfully updated
       deleted: Experience was successfully deleted
+  admin:
+    welcome:
+      title: Welcome
+      greeting: Hello, %{name}
+      role_curator: You are a curator. You create and edit places, experiences, plans and audio tours, and look after moments and reviews.
+      role_admin: You are an admin. You can do everything a curator can, and you also delete records and manage users and roles.
+      role_basic: This account has no admin role.
+      coming: The admin is being built piece by piece; each kind of record appears here as it is ready.
   auth:
     register_title: Register - Usput
     register_heading: Create account

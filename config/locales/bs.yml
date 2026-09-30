@@ -607,6 +607,14 @@ bs:
       destroyed: Uspomena obrisana
       published: Uspomena podijeljena — curator će je pregledati prije nego postane javna
       unpublished: Uspomena je ponovo privatna
+  admin:
+    welcome:
+      title: Dobrodošli
+      greeting: Zdravo, %{name}
+      role_curator: Ti si kurator. Kreiraš i uređuješ mjesta, iskustva, planove i audio ture, i brineš o uspomenama i recenzijama.
+      role_admin: Ti si administrator. Možeš sve što i kurator, a uz to brišeš zapise i upravljaš korisnicima i ulogama.
+      role_basic: Ovaj nalog nema administratorsku ulogu.
+      coming: Administracija se gradi dio po dio; svaka vrsta zapisa pojavit će se ovdje kad bude spremna.
   auth:
     register_title: Registracija - Usput
     register_heading: Kreiraj nalog

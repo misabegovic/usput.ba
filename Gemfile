@@ -28,6 +28,9 @@ gem "devise", "~> 5.0"
 gem "omniauth-google-oauth2"
 gem "omniauth-rails_csrf_protection"
 
+# Admin for curators and admins, Community edition [https://docs.avohq.io]
+gem "avo", "~> 4.2"
+
 # Transactional mail in production [https://github.com/ActiveCampaign/postmark-rails]
 gem "postmark-rails"
 

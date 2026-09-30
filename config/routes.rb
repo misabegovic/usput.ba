@@ -38,6 +38,14 @@ Rails.application.routes.draw do
     path_names: { sign_in: "login", sign_out: "logout", sign_up: "register", registration: "account" },
     controllers: { sessions: "users/sessions", registrations: "users/registrations", passwords: "users/passwords", confirmations: "users/confirmations", omniauth_callbacks: "users/omniauth_callbacks" }
   delete "account/other_sessions", to: "users/other_sessions#destroy", as: :other_sessions
+
+  # The admin (Avo) at /admin: a guest is sent to sign in, anyone who is not a
+  # curator or admin finds no such page. Avo checks the role again inside.
+  authenticate :user, ->(user) { user.can_curate? } do
+    mount_avo do
+      get "welcome", to: "tools#welcome", as: :welcome
+    end
+  end
   mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 
   # User avatar
