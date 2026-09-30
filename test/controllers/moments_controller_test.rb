@@ -228,7 +228,10 @@ class MomentsControllerTest < ActionDispatch::IntegrationTest
     moment
   end
 
+  # Devise keeps a signed-in browser signed in as whoever it already is, so a
+  # test that switches traveller signs the first one out.
   def login_as(user)
+    delete destroy_user_session_path
     post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 

@@ -3,6 +3,8 @@
 require "test_helper"
 
 class UserTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   setup do
     @valid_params = {
       username: "testuser",
