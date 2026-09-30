@@ -811,6 +811,29 @@ en:
       role_admin: You are an admin. You can do everything a curator can, and you also delete records and manage users and roles.
       role_basic: This account has no admin role.
       coming: The admin is being built piece by piece; each kind of record appears here as it is ready.
+    users:
+      role: Role
+      roles:
+        basic: Traveller
+        curator: Curator
+        admin: Admin
+      blocked_filter: Blocked
+      blocked_only: Only blocked accounts
+      change_role: Change role
+      unknown_role: Choose one of the roles.
+      role_changed:
+        one: Role changed for one account.
+        other: Role changed for %{count} accounts.
+      block: Block
+      block_message: A blocked account is signed out everywhere and cannot sign in until it is unblocked.
+      blocked:
+        one: One account blocked.
+        other: "%{count} accounts blocked."
+      unblock: Unblock
+      unblocked:
+        one: One account unblocked.
+        other: "%{count} accounts unblocked."
+      refused: "Left unchanged: %{names}. An admin cannot act on their own account, and only blocked accounts can be unblocked."
   auth:
     register_title: Register - Usput
     register_heading: Create account

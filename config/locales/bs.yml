@@ -615,6 +615,29 @@ bs:
       role_admin: Ti si administrator. Možeš sve što i kurator, a uz to brišeš zapise i upravljaš korisnicima i ulogama.
       role_basic: Ovaj nalog nema administratorsku ulogu.
       coming: Administracija se gradi dio po dio; svaka vrsta zapisa pojavit će se ovdje kad bude spremna.
+    users:
+      role: Uloga
+      roles:
+        basic: Putnik
+        curator: Kurator
+        admin: Administrator
+      blocked_filter: Blokirani
+      blocked_only: Samo blokirani nalozi
+      change_role: Promijeni ulogu
+      unknown_role: Odaberi jednu od uloga.
+      role_changed:
+        one: Uloga je promijenjena za jedan nalog.
+        other: "Uloga je promijenjena za %{count} naloga."
+      block: Blokiraj
+      block_message: Blokirani nalog se odjavljuje sa svih uređaja i ne može se prijaviti dok se ne odblokira.
+      blocked:
+        one: Jedan nalog je blokiran.
+        other: "Blokirano naloga: %{count}."
+      unblock: Odblokiraj
+      unblocked:
+        one: Jedan nalog je odblokiran.
+        other: "Odblokirano naloga: %{count}."
+      refused: "Nije promijenjeno: %{names}. Administrator ne može mijenjati svoj nalog, a odblokirati se mogu samo blokirani nalozi."
   auth:
     register_title: Registracija - Usput
     register_heading: Kreiraj nalog
