@@ -44,7 +44,7 @@
                     class: "rounded-md px-3 py-2 text-sm font-medium text-emerald-100 dark:text-gray-300 hover:bg-emerald-600 dark:hover:bg-gray-700" %>
 
                 <%# Workflow dropdown: Reviews, Moments %>
-                <% workflow_active = [curator_reviews_path, curator_moments_path].any? { |p| request.path.start_with?(p) } %>
+                <% workflow_active = [curator_reviews_path].any? { |p| request.path.start_with?(p) } %>
                 <div data-controller="dropdown" class="relative">
                   <button data-action="click->dropdown#toggle" type="button"
                       class="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium <%= workflow_active ? 'bg-emerald-800 dark:bg-gray-900 text-white' : 'text-emerald-100 dark:text-gray-300 hover:bg-emerald-600 dark:hover:bg-gray-700' %>">
@@ -54,8 +54,8 @@
                   <div data-dropdown-target="menu" class="hidden absolute left-0 z-10 mt-1 w-48 origin-top-left rounded-md bg-white dark:bg-gray-800 py-1 shadow-lg ring-1 ring-black/5 dark:ring-gray-700">
                     <%= link_to t("curator.nav.reviews"), curator_reviews_path,
                         class: "block px-4 py-2 text-sm #{request.path.start_with?(curator_reviews_path) ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}" %>
-                    <%= link_to t("curator.nav.moments"), curator_moments_path,
-                        class: "block px-4 py-2 text-sm #{request.path.start_with?(curator_moments_path) ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}" %>
+                    <%= link_to t("curator.nav.moments"), avo.resources_moments_path,
+                        class: "block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" %>
                   </div>
                 </div>
 
@@ -135,8 +135,8 @@
               <p class="px-3 text-xs font-semibold uppercase tracking-wider text-emerald-300 dark:text-gray-500"><%= t("curator.nav.workflow") %></p>
               <%= link_to t("curator.nav.reviews"), curator_reviews_path,
                   class: "block rounded-md px-3 py-2 text-base font-medium #{request.path.start_with?(curator_reviews_path) ? 'bg-emerald-800 dark:bg-gray-900 text-white' : 'text-emerald-100 dark:text-gray-300 hover:bg-emerald-600 dark:hover:bg-gray-700'}" %>
-              <%= link_to t("curator.nav.moments"), curator_moments_path,
-                  class: "block rounded-md px-3 py-2 text-base font-medium #{request.path.start_with?(curator_moments_path) ? 'bg-emerald-800 dark:bg-gray-900 text-white' : 'text-emerald-100 dark:text-gray-300 hover:bg-emerald-600 dark:hover:bg-gray-700'}" %>
+              <%= link_to t("curator.nav.moments"), avo.resources_moments_path,
+                  class: "block rounded-md px-3 py-2 text-base font-medium text-emerald-100 dark:text-gray-300 hover:bg-emerald-600 dark:hover:bg-gray-700" %>
             </div>
 
             <%# Admin section - only for admin users %>

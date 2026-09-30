@@ -21,7 +21,7 @@ class Curator::NavTest < ActionDispatch::IntegrationTest
     assert_response :success
     nav = response.body[/<nav\b.*?<\/nav>/m]
 
-    [ curator_reviews_path, curator_moments_path, "/admin/" ].each do |path|
+    [ curator_reviews_path, "/admin/resources/moments", "/admin/" ].each do |path|
       count = nav.scan(/href="#{Regexp.escape(path)}"/).size
       assert_equal 2, count, "#{path} should be in the desktop nav and the mobile nav, found #{count}"
     end

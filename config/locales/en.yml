@@ -879,6 +879,26 @@ en:
       ownerships:
         curated: Usput
         travellers: Travellers (public)
+    moments:
+      photo: Photo
+      status: Status
+      note: Note
+      author: Shared by
+      place: Place
+      shared_at: Shared
+      approve: Approve
+      reject: Reject
+      approved:
+        one: One moment approved.
+        other: "%{count} moments approved."
+      rejected:
+        one: One moment rejected.
+        other: "%{count} moments rejected."
+      statuses:
+        pending: Waiting
+        approved: Approved
+        rejected: Rejected
+        all: All
     audio_tours:
       place: Place
       language: Language
@@ -1258,20 +1278,6 @@ en:
       workflow: Workflow
       reviews: Reviews
       moments: Moments
-    moments:
-      title: Shared moments
-      subtitle: Travellers' photos awaiting review before they appear publicly
-      empty: No moments to review.
-      by: by %{user}
-      approve: Approve
-      reject: Reject
-      status:
-        pending: Pending
-        approved: Approved
-        rejected: Rejected
-      flash:
-        approved: Moment approved
-        rejected: Moment rejected
     dashboard:
       welcome: Welcome, %{username}!
       total_locations: Total Locations

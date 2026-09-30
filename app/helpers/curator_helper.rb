@@ -10,6 +10,7 @@ module CuratorHelper
     when Experience then avo.resources_experience_path(activity.recordable)
     when Plan then avo.resources_plan_path(activity.recordable)
     when AudioTour then avo.resources_audio_tour_path(activity.recordable)
+    when Moment then avo.resources_moment_path(activity.recordable) if activity.recordable.visibility_public_moment?
     end
   rescue ActionController::UrlGenerationError
     nil
