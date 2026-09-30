@@ -11,7 +11,7 @@
     <%= photos_count %>
   </span>
 
-  <%= link_to new_curator_location_photo_suggestion_path(location),
+  <%= link_to avo.edit_resources_location_path(location),
       class: "flex-shrink-0 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500" do %>
     + <%= t("curator.locations.needs_photos.add_photo") %>
   <% end %>

@@ -25,7 +25,6 @@ sources:
 - app/models/concerns/browsable.rb
 - app/models/concerns/translatable.rb
 - app/models/audio_tour.rb
-- app/models/photo_suggestion.rb
 - app/models/content_change.rb
 - app/models/content_change_contribution.rb
 - app/models/curator_review.rb
@@ -63,7 +62,7 @@ A place in BiH: a sight, restaurant, trail, guide or business. It has a name, ci
 - **Accessibility.** A JSON hash with `wheelchair_access` (`full`, `partial`, `none`, `unknown`), five feature flags (`wheelchair_parking`, `wheelchair_toilet`, `flat_terrain`, `elevator`, `ramp`) and free notes. A place counts as wheelchair accessible at `full` or `partial` (`location.rb`, accessibility helpers).
 - **Archived.** `archived_at` retires a place from the traveller catalogue while its check-ins and moments survive. It is not a default scope, so curators can still see and restore it. The traveller entry points use `places`, `not_archived` and `Browse.syncable?` (`location.rb`, comment on `archived`). A location cannot be destroyed while travellers hold records on it, except through `destroy_with_traveller_records!` (`location.rb`).
 - **Mine check.** Any coordinate change must pass the mine check, which fails closed (`location.rb`, `must_pass_mine_check`).
-- **Relations.** Has many `experiences` (through `ExperienceLocation`), `audio_tours`, `photo_suggestions`, `moments`, `plan_visits` and polymorphic `reviews`. It also carries `ai_generated`, `needs_ai_regeneration`, `average_rating` and `reviews_count`.
+- **Relations.** Has many `experiences` (through `ExperienceLocation`), `audio_tours`, `moments`, `plan_visits` and polymorphic `reviews`. It also carries `ai_generated`, `needs_ai_regeneration`, `average_rating` and `reviews_count`.
 
 ### Experience
 
@@ -111,10 +110,6 @@ The denormalised search index. One row per public Location, Experience, Plan or 
 
 A narrated script and audio file for one location in one language (`app/models/audio_tour.rb`). One tour per location per locale. Supported locales include bs, en, de, hr, sr, fr, it, es, nl, pl, cs, sl, tr and ar. It records the TTS provider, voice, word count and duration.
 
-### PhotoSuggestion
-
-A curator's proposal of up to 10 photos (each at most 10 MB, JPEG, PNG, GIF or WebP) or a photo URL for a location, with a description (`app/models/photo_suggestion.rb`). Status is `pending`, `approved` or `rejected`, set by an admin who is recorded as `reviewed_by`.
-
 ## Curation
 
 ### ContentChange (proposal)
@@ -127,7 +122,7 @@ A curator's comment (10 to 2000 characters) on a proposal with a recommendation 
 
 ### CuratorActivity
 
-The audit trail of curator and admin actions: proposals, reviews, photo suggestions, logins, moderation of moments, approvals, user changes, and archiving or restoring a location (`app/models/curator_activity.rb`, `ACTIONS`). It stores IP and user agent, and it feeds the spam limits on `User`.
+The audit trail of curator and admin actions: proposals, reviews, logins, moderation of moments, approvals, user changes, and archiving or restoring a location (`app/models/curator_activity.rb`, `ACTIONS`). It stores IP and user agent, and it feeds the spam limits on `User`.
 
 ### User
 

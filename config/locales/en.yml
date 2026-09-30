@@ -1229,7 +1229,6 @@ en:
   curator:
     title: Curator Dashboard
     nav:
-      admin_photo_suggestions: Photos
       dashboard: Dashboard
       content: Content
       media: Media
@@ -1238,7 +1237,6 @@ en:
       experiences: Experiences
       plans: Plans
       audio_tours: Audio Tours
-      photo_suggestions: Photos
       reviews: Reviews
       proposals: Proposals
       moments: Moments
@@ -1294,30 +1292,6 @@ en:
     activities:
       recent_activity: Recent Activity
       no_activities: No recent activity yet
-    photo_suggestions:
-      my_suggestions: My Photo Suggestions
-      new_title: Suggest a Photo
-      for_location: For location
-      photo_source: Photo Source
-      upload_photo: Upload a Photo
-      upload_hint: JPG, PNG, WebP up to 10MB
-      or_paste_url: Or paste a URL
-      description: Description
-      description_hint: Describe the photo or where it was taken...
-      submit: Submit Suggestion
-      submitted: Your photo suggestion has been submitted for review
-      submitted_on: Submitted on %{date}
-      admin_feedback: Admin feedback
-      details: Photo Suggestion Details
-      no_photo: No photo available
-      source_url: Source URL
-      reviewed_on: Reviewed on %{date}
-      no_suggestions: No photo suggestions yet
-      no_suggestions_hint: Visit a location page to suggest photos
-      status:
-        pending: Pending Review
-        approved: Approved
-        rejected: Rejected
     locations:
       title: Locations
       new: New Location
@@ -1365,7 +1339,6 @@ en:
       restored: Location restored — travellers can find it again
       show_archived: Archived
       show_live: Live
-      suggest_photo: Suggest Photo
       tags: Tags
       tags_placeholder: e.g. nature, historic, family-friendly
       tags_hint: Separate tags with commas
@@ -1641,41 +1614,8 @@ en:
         delete_content: Delete
     admin:
       nav:
-        photo_suggestions: Photo Approvals
         users: User Management
         content_changes: Content Approvals
-      photo_suggestions:
-        title: Photo Suggestions
-        suggestion_details: Photo Suggestion Details
-        back_to_list: Back to List
-        approved: Photo suggestion approved successfully
-        rejected: Photo suggestion rejected successfully
-        approval_failed: Failed to approve photo suggestion
-        rejection_failed: Failed to reject photo suggestion
-        already_reviewed: This photo suggestion has already been reviewed
-        admin_notes: Admin Notes
-        rejection_reason: Rejection Reason
-        status_label: Status
-        source: Source
-        uploaded_file: Uploaded File
-        external_url: External URL
-        approve: Approve
-        reject: Reject
-        approve_btn: Approve Photo
-        reject_btn: Reject Photo
-        confirm_approve: Are you sure you want to approve this photo?
-        confirm_reject: Are you sure you want to reject this photo?
-        pending_review: Pending Review
-        no_pending: No pending photo suggestions
-        reviewed_by: Reviewed by %{user} on %{date}
-        suggested_by: Suggested by
-        submitted: Submitted
-        for_location: For Location
-        photo_url: Photo URL
-        stats:
-          pending: Pending
-          approved: Approved
-          rejected: Rejected
       users:
         title: User Management
         updated: User updated successfully

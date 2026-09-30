@@ -2,7 +2,7 @@
 title: Frontend
 kind: reference
 status: living
-updated: 2026-09-29
+updated: 2026-09-30
 repos:
 - usput.ba
 confidence: medium
@@ -187,8 +187,7 @@ server, `CameraPhoto.as_jpeg` converts HEIC and HEIF uploads to JPEG with
 libvips before they are attached, because moments accept only JPEG, PNG,
 GIF and WebP (#167). Moment photos are streamed by the app's own action
 after a session check, never by a signed storage URL, and only in a fixed
-list of sizes (#164). `multi_photo_upload_controller.js` handles curator
-photo suggestions (up to 10 files).
+list of sizes (#164). Curator photos are uploaded in the admin (Avo).
 
 ## PWA and offline
 

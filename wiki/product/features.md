@@ -136,10 +136,10 @@ Anyone can rate a location, experience or plan from 1 to 5 with an optional comm
 
 - **Dashboard.** `/curator` shows counts, review and audio coverage statistics, recent items and recent curator activity (`app/controllers/curator/dashboard_controller.rb`). Card layout, load-more and dark mode arrived in [#147](https://github.com/misabegovic/usput.ba/pull/147).
 - **Proposals.** Curators change locations, experiences, plans, audio tours and reviews only through proposals that admins approve or reject. Several curators can contribute to one proposal and add reviews to it (`README.md`, Curator Dashboard; see [domain](domain.md#contentchange-proposal)). Present before 2026-01-15.
-- **Photo suggestions** with up to 10 uploads each ([#143](https://github.com/misabegovic/usput.ba/pull/143)), and a "needs photos" list (`curator/locations_controller.rb`).
+- **Photos** are uploaded on the place in the admin at `/admin`, where a filter lists places with no photos or fewer than three; the photo suggestions of [#143](https://github.com/misabegovic/usput.ba/pull/143) were removed on 2026-09-30. The old "needs photos" list links to the admin (`curator/locations_controller.rb`).
 - **Moment moderation queue** with pending, approved and rejected counts ([#164](https://github.com/misabegovic/usput.ba/pull/164); `app/controllers/curator/moments_controller.rb`). It is linked from the mobile menu since [#167](https://github.com/misabegovic/usput.ba/pull/167).
 - **Archiving.** A place is archived instead of deleted, so check-ins and moments survive, and it can be restored. Delete states what it would cost first. Archiving is recorded in the curator activity trail ([#167](https://github.com/misabegovic/usput.ba/pull/167)).
-- **Admin tools.** Approve or reject content changes and photo suggestions, and manage and unblock users (`config/routes.rb`, `curator/admin`). Curator applications were removed on 2026-09-30; roles change in the new admin at `/admin`.
+- **Admin tools.** Approve or reject content changes, and manage and unblock users (`config/routes.rb`, `curator/admin`). Curator applications were removed on 2026-09-30; roles change in the new admin at `/admin`.
 
 ## Accessibility
 

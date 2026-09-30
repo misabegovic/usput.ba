@@ -1170,13 +1170,11 @@ bs:
   curator:
     title: Kurator Panel
     nav:
-      admin_photo_suggestions: Fotografije
       dashboard: Pregled
       locations: Lokacije
       experiences: Iskustva
       plans: Planovi
       audio_tours: Audio ture
-      photo_suggestions: Fotografije
       reviews: Recenzije
       proposals: Prijedlozi
       moments: Uspomene
@@ -1227,30 +1225,6 @@ bs:
         one: Postoji 1 prijedlog na čekanju
         other: Postoji %{count} prijedloga na čekanju
       review_proposals: Pregledaj prijedloge
-    photo_suggestions:
-      my_suggestions: Moji prijedlozi fotografija
-      new_title: Predloži fotografiju
-      for_location: Za lokaciju
-      photo_source: Izvor fotografije
-      upload_photo: Učitaj fotografiju
-      upload_hint: JPG, PNG, WebP do 10MB
-      or_paste_url: Ili zalijepite URL
-      description: Opis
-      description_hint: Opišite fotografiju ili gdje je snimljena...
-      submit: Pošalji prijedlog
-      submitted: Vaš prijedlog fotografije je poslan na pregled
-      submitted_on: Podneseno %{date}
-      admin_feedback: Povratna informacija admina
-      details: Detalji prijedloga fotografije
-      no_photo: Nema dostupne fotografije
-      source_url: Izvorni URL
-      reviewed_on: Pregledano %{date}
-      no_suggestions: Još nema prijedloga fotografija
-      no_suggestions_hint: Posjetite stranicu lokacije da predložite fotografije
-      status:
-        pending: Na čekanju
-        approved: Odobreno
-        rejected: Odbijeno
     locations:
       title: Lokacije
       new: Nova lokacija
@@ -1402,41 +1376,8 @@ bs:
         challenging: Zahtjevno
     admin:
       nav:
-        photo_suggestions: Odobrenje fotografija
         users: Upravljanje korisnicima
         content_changes: Odobrenje sadržaja
-      photo_suggestions:
-        title: Prijedlozi fotografija
-        suggestion_details: Detalji prijedloga fotografije
-        back_to_list: Nazad na listu
-        approved: Prijedlog fotografije uspješno odobren
-        rejected: Prijedlog fotografije uspješno odbijen
-        approval_failed: Nije uspjelo odobrenje prijedloga fotografije
-        rejection_failed: Nije uspjelo odbijanje prijedloga fotografije
-        already_reviewed: Ovaj prijedlog fotografije je već pregledan
-        admin_notes: Bilješke admina
-        rejection_reason: Razlog odbijanja
-        status_label: Status
-        source: Izvor
-        uploaded_file: Učitana datoteka
-        external_url: Vanjski URL
-        approve: Odobri
-        reject: Odbij
-        approve_btn: Odobri fotografiju
-        reject_btn: Odbij fotografiju
-        confirm_approve: Jeste li sigurni da želite odobriti ovu fotografiju?
-        confirm_reject: Jeste li sigurni da želite odbiti ovu fotografiju?
-        pending_review: Na čekanju
-        no_pending: Nema prijedloga na čekanju
-        reviewed_by: Pregledao/la %{user} dana %{date}
-        suggested_by: Predložio/la
-        submitted: Podneseno
-        for_location: Za lokaciju
-        photo_url: URL fotografije
-        stats:
-          pending: Na čekanju
-          approved: Odobreno
-          rejected: Odbijeno
       users:
         title: Upravljanje korisnicima
         updated: Korisnik uspješno ažuriran
