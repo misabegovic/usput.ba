@@ -1,13 +1,14 @@
 ---
 title: Post-moderated reviews with curator flagging
 kind: decision
-status: proposed
-updated: 2026-09-29
+status: superseded
+updated: 2026-09-30
 repos:
 - usput.ba
 confidence: medium
 depends_on:
 - decisions/curator-dashboard-v2.md
+superseded_by: decisions/jev-flags-reviews.md
 sources:
 - sources/planning/pr-151/decisions/2026-02-05-reviews-management-system.md
 - sources/planning/REVIEW_APPROVAL_SYSTEM.md
@@ -30,6 +31,8 @@ enola_intent:
       to: wiki/decisions/curator-dashboard-v2.md
 ---
 # Post-moderated reviews with curator flagging
+
+> Superseded on 2026-09-30 by [Jev flags reviews](jev-flags-reviews.md).
 
 ## Context
 

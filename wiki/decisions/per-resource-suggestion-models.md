@@ -1,13 +1,14 @@
 ---
 title: Replace ContentChange with per-resource suggestion models
 kind: decision
-status: proposed
-updated: 2026-09-29
+status: superseded
+updated: 2026-09-30
 repos:
 - usput.ba
 confidence: medium
 depends_on:
 - decisions/curator-dashboard-v2.md
+superseded_by: decisions/admin-through-avo.md
 sources:
 - sources/planning/pr-151/decisions/2026-02-05-per-resource-suggestion-models.md
 - https://github.com/misabegovic/usput.ba/pull/151
@@ -29,6 +30,8 @@ enola_intent:
       to: wiki/decisions/curator-dashboard-v2.md
 ---
 # Replace ContentChange with per-resource suggestion models
+
+> Superseded on 2026-09-30: the proposals flow is removed with the curator area ([decision](admin-through-avo.md)).
 
 ## Context
 

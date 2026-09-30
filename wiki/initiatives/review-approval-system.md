@@ -1,11 +1,12 @@
 ---
 title: Review approval system
 kind: initiative
-status: proposed
-updated: 2026-09-29
+status: superseded
+updated: 2026-09-30
 repos:
 - usput.ba
 confidence: medium
+superseded_by: initiatives/jev-review-flagging.md
 sources:
 - sources/planning/REVIEW_APPROVAL_SYSTEM.md
 - sources/planning/pr-151/decisions/2026-02-05-reviews-management-system.md
@@ -34,6 +35,8 @@ enola_intent:
       to: wiki/state.md
 ---
 # Review approval system
+
+> Superseded on 2026-09-30 by the operator's decision that [Jev flags reviews](../decisions/jev-flags-reviews.md): reviews stay live and only flagged ones wait for an admin.
 
 ## Objective
 
