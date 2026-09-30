@@ -203,45 +203,15 @@ module Platform
         synthesize_audio_command | estimate_audio_command
       end
 
-      # Approval commands
-      # proposals { status: "pending" } | list
-      # proposals { id: 123 } | show
-      rule(:proposals_command) do
-        str("proposals").as(:command_type) >> space? >> filters.maybe >> space? >> operations.maybe
-      end
-
-      # approve proposal { id: 123 }
-      # approve proposal { id: 123 } notes "..."
-      rule(:approval_notes_clause) do
-        space >> str("notes") >> space >> string.as(:approval_notes)
-      end
-
-      rule(:approve_command) do
-        str("approve").as(:approval_cmd) >> space >>
-        str("proposal").as(:approval_type) >> space? >> filters >>
-        approval_notes_clause.maybe
-      end
-
-      # reject proposal { id: 123 } reason "..."
-      rule(:rejection_reason_clause) do
-        space >> str("reason") >> space >> string.as(:rejection_reason)
-      end
-
-      rule(:reject_command) do
-        str("reject").as(:approval_cmd) >> space >>
-        str("proposal").as(:approval_type) >> space? >> filters >>
-        rejection_reason_clause
-      end
-
-      rule(:approval_command) do
-        approve_command | reject_command
-      end
-
       # Curator management commands
       # curators { status: "active" } | list
       # curators { id: 123 } | activity
       rule(:curators_command) do
         str("curators").as(:command_type) >> space? >> filters.maybe >> space? >> operations.maybe
+      end
+
+      rule(:rejection_reason_clause) do
+        space >> str("reason") >> space >> string.as(:rejection_reason)
       end
 
       # block curator { id: 123 } reason "spam"
@@ -326,7 +296,7 @@ module Platform
       end
 
       rule(:query) do
-        space? >> (schema_command | external_command | proposals_command | curators_command | code_command | logs_command | infrastructure_command | quality_command | validation_command | approval_command | curator_management_command | create_command | update_command | delete_command | generation_command | audio_command | table_query).as(:query) >> space?
+        space? >> (schema_command | external_command | curators_command | code_command | logs_command | infrastructure_command | quality_command | validation_command | curator_management_command | create_command | update_command | delete_command | generation_command | audio_command | table_query).as(:query) >> space?
       end
 
       root(:query)

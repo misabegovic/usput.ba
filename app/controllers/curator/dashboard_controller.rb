@@ -30,9 +30,6 @@ module Curator
       @recent_activities = CuratorActivity.includes(:user, :recordable)
         .recent
         .limit(10)
-
-      # Pending proposals count for the badge
-      @pending_proposals_count = ContentChange.pending.count
     end
 
     private

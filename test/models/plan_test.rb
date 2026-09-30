@@ -543,58 +543,10 @@ class PlanTest < ActiveSupport::TestCase
     plan.destroy
   end
 
-  test "location_days= sets standalone locations by day (curator path)" do
-    plan = Plan.create!(@valid_params)
-    plan.location_days = { "1" => [ @location.uuid ], "2" => [ @location.uuid ] }
-
-    assert_equal [ @location ], plan.locations_for_day(1)
-    assert_equal [ @location ], plan.locations_for_day(2)
-    assert_equal({ "1" => [ @location.uuid ], "2" => [ @location.uuid ] }, plan.location_days)
-    plan.destroy
-  end
-
-  test "location_days= replaces existing standalone locations" do
-    plan = Plan.create!(@valid_params)
-    plan.location_days = { "1" => [ @location.uuid ] }
-    plan.location_days = { "2" => [ @location.uuid ] }
-
-    assert_empty plan.locations_for_day(1)
-    assert_equal [ @location ], plan.locations_for_day(2)
-    plan.destroy
-  end
-
   # Bullet is blind to a find_by-in-method N+1, so the guard is a query count.
-  test "location_days= resolves every uuid in one locations query" do
-    plan = Plan.create!(@valid_params)
-    extra = 4.times.map do |i|
-      Location.create!(name: "Batch #{i}", city: "Sarajevo", lat: 43.9 + (i / 1000.0), lng: 18.5)
-    end
-    uuids = ([ @location ] + extra).map(&:uuid)
-
-    selects = count_location_selects do
-      plan.location_days = { "1" => uuids.first(3), "2" => uuids.last(2) }
-    end
-
-    assert_equal 5, plan.location_days.values.flatten.size
-    assert_equal 1, selects, "expected one batched SELECT on locations, got #{selects}"
-  ensure
-    # The plan owns the join rows; the locations cannot go until it does.
-    plan&.destroy
-    extra&.each(&:destroy)
-  end
 
   # An unresolvable uuid is skipped rather than raised on, so one bad entry in a
   # curator proposal cannot roll back the locations that did resolve.
-  test "location_days= skips a uuid that matches no location" do
-    plan = Plan.create!(@valid_params)
-
-    plan.location_days = { "1" => [ @location.uuid, "no-such-uuid" ] }
-
-    assert_equal [ @location ], plan.locations_for_day(1)
-    assert_equal({ "1" => [ @location.uuid ] }, plan.location_days)
-  ensure
-    plan&.destroy
-  end
 
   # The sign-in door imports plans from a JSON string, which never passes through
   # strong parameters, so the marker is filtered at the model instead.

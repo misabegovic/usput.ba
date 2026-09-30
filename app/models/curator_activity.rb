@@ -117,8 +117,6 @@ class CuratorActivity < ApplicationRecord
       "Plan: #{recordable.title}"
     when AudioTour
       "Audio Tour: #{recordable.location&.name} (#{recordable.locale})"
-    when ContentChange
-      recordable.description
     else
       recordable.class.name
     end

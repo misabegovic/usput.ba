@@ -142,24 +142,7 @@ Rails.application.routes.draw do
 
   # Curator dashboard - for curators and admins
   namespace :curator do
-    resources :locations do
-      collection do
-        get :needs_photos
-      end
-      member do
-        patch :archive
-        patch :restore
-      end
-    end
-    resources :experiences
     resources :reviews, only: [ :index, :show, :destroy ]
-    resources :audio_tours
-    resources :plans
-    resources :proposals, only: [ :index, :show ] do
-      member do
-        post :add_review
-      end
-    end
     resources :moments, only: [ :index ] do
       member do
         get :photo
@@ -173,12 +156,6 @@ Rails.application.routes.draw do
       resources :users, only: [ :index, :show, :edit, :update ] do
         member do
           post :unblock
-        end
-      end
-      resources :content_changes, only: [ :index, :show ] do
-        member do
-          post :approve
-          post :reject
         end
       end
     end

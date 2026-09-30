@@ -315,43 +315,6 @@ module Platform
         }
       end
 
-      # Approval commands
-      # approve proposal { id: 123 }
-      rule(query: { approval_cmd: simple(:cmd), approval_type: simple(:at), filters: subtree(:f) }) do |dict|
-        {
-          type: :approval,
-          action: dict[:cmd].to_s.to_sym,
-          approval_type: dict[:at].to_s.to_sym,
-          filters: Transform.convert_filters(dict[:f]),
-          notes: nil,
-          reason: nil
-        }
-      end
-
-      # approve proposal { id: 123 } notes "..."
-      rule(query: { approval_cmd: simple(:cmd), approval_type: simple(:at), filters: subtree(:f), approval_notes: subtree(:n) }) do |dict|
-        {
-          type: :approval,
-          action: dict[:cmd].to_s.to_sym,
-          approval_type: dict[:at].to_s.to_sym,
-          filters: Transform.convert_filters(dict[:f]),
-          notes: dict[:n]&.to_s,
-          reason: nil
-        }
-      end
-
-      # reject proposal { id: 123 } reason "..."
-      rule(query: { approval_cmd: simple(:cmd), approval_type: simple(:at), filters: subtree(:f), rejection_reason: subtree(:r) }) do |dict|
-        {
-          type: :approval,
-          action: dict[:cmd].to_s.to_sym,
-          approval_type: dict[:at].to_s.to_sym,
-          filters: Transform.convert_filters(dict[:f]),
-          notes: nil,
-          reason: dict[:r]&.to_s
-        }
-      end
-
       # Curator management commands
       # block curator { id: 123 } reason "spam"
       rule(query: { curator_cmd: simple(:cmd), curator_action: simple(:ca), filters: subtree(:f), rejection_reason: subtree(:r) }) do |dict|

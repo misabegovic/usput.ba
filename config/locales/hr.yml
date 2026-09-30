@@ -830,14 +830,8 @@ hr:
     nav:
       dashboard: Kontrolna Ploča
       content: Sadržaj
-      media: Mediji
       workflow: Tok Rada
-      locations: Lokacije
-      experiences: Iskustva
-      plans: Planovi
-      audio_tours: Audio Ture
       reviews: Recenzije
-      proposals: Prijedlozi
     dashboard:
       welcome: Dobrodošao, %{username}!
       total_locations: Ukupno Lokacija
@@ -850,75 +844,13 @@ hr:
       recent_experiences: Nedavna Iskustva
       no_locations: Još nema lokacija
       no_experiences: Još nema iskustava
-    locations:
-      title: Lokacije
-      new: Nova Lokacija
-      edit: Uredi
-      view: Pogledaj
-      delete: Obriši
-      edit_title: 'Uredi: %{name}'
-      back_to_list: Natrag na listu
-      name: Naziv
-      city: Mjesto
-      type: Vrsta
-      budget: Budžet
-      address: Adresa
-      description: Opis
-      latitude: Geografska širina
-      longitude: Geografska dužina
-      coordinates: Koordinate
-      phone: Telefon
-      email: E-pošta
-      website: Web stranica
-      opening_hours: Radno Vrijeme
-      created_at: Kreirano
-      actions: Akcije
-      select_city: Odaberi mjesto...
-      no_locations: Nema pronađenih lokacija
-      created: Lokacija uspješno kreirana
-      updated: Lokacija uspješno ažurirana
-      deleted: Lokacija uspješno obrisana
-      confirm_delete: Jesi li siguran da želiš obrisati %{name}?
-      filter:
-        all_cities: Sva mjesta
     experiences:
-      title: Iskustva
-      new: Novo Iskustvo
-      edit: Uredi
-      view: Pogledaj
-      delete: Obriši
-      edit_title: 'Uredi: %{name}'
-      back_to_list: Natrag na listu
-      name: Naziv
-      city: Mjesto
-      category: Kategorija
-      duration: Trajanje
-      best_season: Najbolja Sezona
-      difficulty: Težina
-      description: Opis
-      created_at: Kreirano
-      actions: Akcije
-      select_city: Odaberi mjesto...
-      select_category: Odaberi kategoriju...
-      no_experiences: Nema pronađenih iskustava
-      created: Iskustvo uspješno kreirano
-      updated: Iskustvo uspješno ažurirano
-      deleted: Iskustvo uspješno obrisano
-      confirm_delete: Jesi li siguran da želiš obrisati %{name}?
-      filter:
-        all_cities: Sva mjesta
-      best_seasons: Najbolje sezone
-      seasons_hint: Ostavite neoznačeno za doživljaje tijekom cijele godine
       seasons:
         all_year: Cijela godina
         spring: Proljeće
         summer: Ljeto
         fall: Jesen
         winter: Zima
-      difficulties:
-        easy: Lako
-        moderate: Umjereno
-        challenging: Zahtjevno
   travel_profile:
     checking_location: Provjeravamo vašu lokaciju...
     visit_recorded: Posjet uspješno zabilježen!

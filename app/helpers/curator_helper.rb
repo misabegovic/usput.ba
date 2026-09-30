@@ -6,16 +6,10 @@ module CuratorHelper
     return nil unless activity.recordable.present?
 
     case activity.recordable
-    when Location
-      curator_location_path(activity.recordable)
-    when Experience
-      curator_experience_path(activity.recordable)
-    when Plan
-      curator_plan_path(activity.recordable)
-    when AudioTour
-      curator_audio_tour_path(activity.recordable)
-    when ContentChange
-      curator_proposal_path(activity.recordable)
+    when Location then avo.resources_location_path(activity.recordable)
+    when Experience then avo.resources_experience_path(activity.recordable)
+    when Plan then avo.resources_plan_path(activity.recordable)
+    when AudioTour then avo.resources_audio_tour_path(activity.recordable)
     end
   rescue ActionController::UrlGenerationError
     nil

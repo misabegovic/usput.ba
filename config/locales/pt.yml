@@ -927,8 +927,6 @@ pt:
     title: Painel do Curador
     nav:
       dashboard: Painel
-      locations: Locais
-      experiences: Experiências
     dashboard:
       welcome: Bem-vindo, %{username}!
       total_locations: Total de Locais
@@ -941,75 +939,13 @@ pt:
       recent_experiences: Experiências Recentes
       no_locations: Ainda não há locais
       no_experiences: Ainda não há experiências
-    locations:
-      title: Locais
-      new: Novo Local
-      edit: Editar
-      view: Ver
-      delete: Excluir
-      edit_title: 'Editar: %{name}'
-      back_to_list: Voltar à lista
-      name: Nome
-      city: Cidade
-      type: Tipo
-      budget: Orçamento
-      address: Endereço
-      description: Descrição
-      latitude: Latitude
-      longitude: Longitude
-      coordinates: Coordenadas
-      phone: Telefone
-      email: E-mail
-      website: Site
-      opening_hours: Horário de Funcionamento
-      created_at: Criado
-      actions: Ações
-      select_city: Selecione a cidade...
-      no_locations: Nenhum local encontrado
-      created: Local criado com sucesso
-      updated: Local atualizado com sucesso
-      deleted: Local excluído com sucesso
-      confirm_delete: Tem certeza de que deseja excluir %{name}?
-      filter:
-        all_cities: Todas as cidades
     experiences:
-      title: Experiências
-      new: Nova Experiência
-      edit: Editar
-      view: Ver
-      delete: Excluir
-      edit_title: 'Editar: %{name}'
-      back_to_list: Voltar à lista
-      name: Nome
-      city: Cidade
-      category: Categoria
-      duration: Duração
-      best_season: Melhor Época
-      difficulty: Dificuldade
-      description: Descrição
-      created_at: Criado
-      actions: Ações
-      select_city: Selecione a cidade...
-      select_category: Selecione a categoria...
-      no_experiences: Nenhuma experiência encontrada
-      created: Experiência criada com sucesso
-      updated: Experiência atualizada com sucesso
-      deleted: Experiência excluída com sucesso
-      confirm_delete: Tem certeza de que deseja excluir %{name}?
-      filter:
-        all_cities: Todas as cidades
-      best_seasons: Melhores estações
-      seasons_hint: Deixe desmarcado para experiências durante todo o ano
       seasons:
         all_year: Ano todo
         spring: Primavera
         summer: Verão
         fall: Outono
         winter: Inverno
-      difficulties:
-        easy: Fácil
-        moderate: Moderado
-        challenging: Desafiador
   minesweeper:
     title: Campo minado
     subtitle: "Um jogo educativo sobre mapas reais — as minas estão onde os dados reais registam áreas suspeitas."

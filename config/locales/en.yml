@@ -804,6 +804,8 @@ en:
       updated: Experience was successfully updated
       deleted: Experience was successfully deleted
   admin:
+    open_in_admin: Open in the admin
+    edit_label: Edit
     fields:
       name: Name
       title: Title
@@ -877,6 +879,11 @@ en:
       ownerships:
         curated: Usput
         travellers: Travellers (public)
+    audio_tours:
+      place: Place
+      language: Language
+      audio: Audio file
+      script: Script
   auth:
     register_title: Register - Usput
     register_heading: Create account
@@ -1248,14 +1255,8 @@ en:
     nav:
       dashboard: Dashboard
       content: Content
-      media: Media
       workflow: Workflow
-      locations: Locations
-      experiences: Experiences
-      plans: Plans
-      audio_tours: Audio Tours
       reviews: Reviews
-      proposals: Proposals
       moments: Moments
     moments:
       title: Shared moments
@@ -1300,166 +1301,21 @@ en:
       no_reviews: No reviews yet
       no_plans: No public plans yet
       recent_activity: Recent Curator Activity
-      pending_proposals_alert:
-        one: There is 1 pending proposal awaiting review
-        other: There are %{count} pending proposals awaiting review
-      review_proposals: Review Proposals
     spam_blocked: Your account has been temporarily blocked due to high activity. Please try again after
       %{until}.
     activities:
       recent_activity: Recent Activity
       no_activities: No recent activity yet
-    locations:
-      title: Locations
-      new: New Location
-      edit: Edit
-      view: View
-      delete: Delete
-      edit_title: 'Edit: %{name}'
-      back_to_list: Back to list
-      name: Name
-      city: Place
-      type: Type
-      budget: Budget
-      address: Address
-      description: Description
-      historical_context: Historical Context
-      historical_context_hint: Historical background and significance of this location
-      latitude: Latitude
-      longitude: Longitude
-      coordinates: Coordinates
-      view_on_map: View on map
-      phone: Phone
-      email: Email
-      website: Website
-      video_url: Video URL
-      video_url_hint: YouTube or other video link about this location
-      opening_hours: Opening Hours
-      created_at: Created
-      updated_at: Updated
-      average_rating: Average Rating
-      reviews_count: Reviews
-      actions: Actions
-      select_city: Select place...
-      no_locations: No locations found
-      created: Location created successfully
-      updated: Location updated successfully
-      deleted: Location deleted successfully
-      confirm_delete: Are you sure you want to delete %{name}?
-      confirm_delete_with_memories:
-        one: "Delete %{name}? A traveller has 1 visit or moment recorded here and it will be deleted too. This cannot be undone — archive instead to keep it."
-        other: "Delete %{name}? Travellers have %{count} visits and moments recorded here and they will all be deleted. This cannot be undone — archive instead to keep them."
-      archive: Archive
-      restore: Restore
-      confirm_archive: "Archive %{name}? It stops being offered to travellers; everything they recorded there is kept."
-      archived: Location archived — travellers no longer see it, and their memories are kept
-      restored: Location restored — travellers can find it again
-      show_archived: Archived
-      show_live: Live
-      tags: Tags
-      tags_placeholder: e.g. nature, historic, family-friendly
-      tags_hint: Separate tags with commas
-      experiences_hint: Select what types of experiences this location is suitable for
-      current_photos: Current photos
-      add_photos: Add Photos
-      photos_hint: 'You can select multiple photos. Supported formats: JPG, PNG, WebP'
-      remove_photos_hint: Click the trash icon to mark photos for removal
-      current_audio: Current audio recording
-      upload_audio: Upload Audio Recording
-      audio_hint: 'Supported formats: MP3, WAV, OGG. Max size: 50MB'
-      remove_audio: Remove
-      audio_not_supported: Your browser does not support audio playback.
-      sections:
-        basic_info: Basic Information
-        location: Location & Coordinates
-        contact: Contact Information
-        social: Social Media
-        experiences: Suitable Experience Types
-        tags: Tags
-        photos: Photos
-        audio: Audio Recording
-        metadata: Metadata
-        accessibility: Accessibility
-      filter:
-        all_cities: All places
-      needs_photos:
-        title: Locations Needing Photos
-        description: Locations sorted by photo count (least first). Help improve our content by adding
-          photos!
-        photo_count: Photos
-        photos: photos
-        max_photos: Max Photos
-        add_photo: Add Photo
-        no_results: No locations found
-        no_results_hint: Try adjusting your filters
-      accessibility_hint: Wheelchair and disability access information for this location
     experiences:
-      title: Experiences
-      new: New Experience
-      edit: Edit
-      view: View
-      delete: Delete
-      edit_title: 'Edit: %{name}'
-      back_to_list: Back to list
-      name: Name
-      city: Place
-      category: Category
-      duration: Duration
-      duration_placeholder: Duration in minutes
-      duration_hint: Enter duration in minutes
-      best_season: Best Season
-      difficulty: Difficulty
-      description: Description
-      created_at: Created
-      updated_at: Updated
-      average_rating: Average Rating
-      reviews_count: Reviews
-      locations_count: Locations
-      actions: Actions
-      select_city: Select place...
-      select_category: Select category...
-      no_experiences: No experiences found
-      created: Experience created successfully
-      updated: Experience updated successfully
-      deleted: Experience deleted successfully
-      confirm_delete: Are you sure you want to delete %{name}?
-      current_cover: Current cover photo
-      upload_cover: Upload Cover Photo
-      cover_photo_hint: 'Recommended size: 1200x800px. Supported formats: JPG, PNG, WebP'
-      remove_cover_hint: Click the trash icon to remove the current cover photo
-      contact_hint: Contact details for booking or inquiries about this experience
-      contact_name: Contact Name
-      contact_name_placeholder: e.g. John Doe
-      contact_email: Contact Email
-      contact_phone: Contact Phone
-      contact_website: Contact Website
-      locations_hint: Select locations that are part of this experience. The order matters - drag to reorder.
-      selected_locations: Selected Locations
-      add_location: Add Location
-      search_location: Search and select a location...
-      no_locations_selected: No locations selected yet
-      sections:
-        basic_info: Basic Information
-        cover_photo: Cover Photo
-        contact: Contact Information
-        locations: Locations
-        metadata: Metadata
-      filter:
-        all_cities: All places
-      best_seasons: Best Seasons
-      seasons_hint: Leave unchecked for year-round experiences
       seasons:
         all_year: All year
         spring: Spring
         summer: Summer
         fall: Autumn
         winter: Winter
-      difficulties:
-        easy: Easy
-        moderate: Moderate
-        challenging: Challenging
     reviews:
       title: Reviews
+      removed: Review removed.
       show_title: Review Details
       back_to_list: Back to list
       total: Total Reviews
@@ -1480,155 +1336,8 @@ en:
       delete: Delete
       deleted: Review deleted successfully
       confirm_delete: Are you sure you want to delete this review?
-    audio_tours:
-      title: Audio Tours
-      show_title: Audio Tour Details
-      new: New Audio Tour
-      edit: Edit
-      edit_title: 'Edit: %{location}'
-      view: View
-      delete: Delete
-      back_to_list: Back to list
-      total: Total
-      with_audio: With Audio
-      locations_with_tours: Locations Coverage
-      by_locale: By Language
-      search_placeholder: Search by location name...
-      all_locales: All languages
-      location: Location
-      locale: Language
-      audio_status: Status
-      duration: Duration
-      word_count: Word Count
-      script: Script
-      script_hint: The text that will be converted to audio
-      created_at: Created
-      actions: Actions
-      ready: Ready
-      pending: Pending
-      no_audio_tours: No audio tours found
-      select_location: Select a location...
-      select_locale: Select a language...
-      current_audio: Current Audio
-      upload_audio: Upload Audio File
-      audio_hint: 'Supported formats: MP3, WAV, OGG'
-      remove_audio: Remove audio file
-      audio_not_supported: Your browser does not support audio playback.
-      audio_player: Audio Player
-      created: Audio tour created successfully
-      updated: Audio tour updated successfully
-      deleted: Audio tour deleted successfully
-      confirm_delete: Are you sure you want to delete this audio tour?
-      ai_generation_title: AI Audio Generation
-      ai_generation_hint: Audio files are automatically generated by AI based on the script text you provide.
-        Enter your script above and it will be converted to audio after admin approval.
-      sections:
-        basic_info: Basic Information
-        audio_file: Audio File
     plans:
-      title: Plans
-      show_title: Plan Details
-      new: New Plan
-      edit: Edit
-      edit_title: 'Edit: %{title}'
-      view: View
-      delete: Delete
-      back_to_list: Back to list
-      total: Total Plans
-      public: Public
-      private: Private
-      with_experiences: With Experiences
-      all_visibility: All visibility
-      all_cities: All places
-      search_placeholder: Search by title...
-      plan_title: Title
-      city: Place
-      author: Author
       no_author: No author
-      visibility: Visibility
-      visibility_hint: Public plans are visible to all users
-      experiences: Experiences
-      locations: locations
-      duration: Duration
-      dates: Dates
-      start_date: Start Date
-      end_date: End Date
-      notes: Notes
-      notes_hint: Additional notes about this plan
-      created_at: Created
-      actions: Actions
-      no_plans: No plans found
-      select_city: Select a place...
-      no_experiences_yet: No experiences added yet
-      experiences_hint: Experiences can be added after creating the plan
-      created: Plan created successfully
-      updated: Plan updated successfully
-      deleted: Plan deleted successfully
-      confirm_delete: Are you sure you want to delete plan '%{title}'?
-      sections:
-        basic_info: Basic Information
-        experiences: Experiences
-        locations: Locations
-      locations_management_hint: Optionally add standalone locations to visit on each day, alongside the
-        experiences.
-      select_locations: Select locations for this day...
-    proposals:
-      title: Content Proposals
-      subtitle: Review proposals from all curators
-      submitted_for_review: Your changes have been submitted for admin review
-      delete_submitted_for_review: Your deletion request has been submitted for admin review
-      failed_to_submit: Failed to submit your changes. Please try again.
-      pending_title: Pending Proposals
-      no_pending: No pending proposals
-      no_proposals: No pending proposals
-      no_proposals_hint: All proposals have been reviewed or no proposals exist yet.
-      pending_for_resource: Pending Proposal
-      pending_proposal_info: '%{type} proposal by %{user} on %{date}'
-      contributors_count:
-        one: '%{count} other curator has contributed'
-        other: '%{count} other curators have contributed'
-      view_proposal: View Proposal
-      contributors: contributors
-      proposal_details: Proposal Details
-      proposed_changes: Proposed Changes
-      changes_diff: Changes
-      new_content: New Content Data
-      empty_value: (empty)
-      deletion_request: Deletion Request
-      deletion_warning: This proposal requests the deletion of the resource and all associated data.
-      contributors_title: Contributors
-      view_contribution: View changes
-      reviews_title: Curator Reviews
-      no_reviews_yet: No reviews yet. Be the first to review this proposal.
-      add_your_review: Add Your Review
-      your_recommendation: Your Recommendation
-      your_comment: Comment
-      comment_placeholder: Share your thoughts on this proposal...
-      comment_hint: Minimum 10 characters. Be constructive and specific.
-      submit_review: Submit Review
-      review_added: Your review has been added
-      already_reviewed: You have already reviewed this proposal
-      recommend_approve: Approve
-      recommend_reject: Reject
-      neutral: Neutral
-      info: Proposal Information
-      proposed_by: Proposed by
-      content_type: Content Type
-      submitted_at: Submitted
-      target_resource: Target Resource
-      pending_note: This proposal is awaiting admin review. Only administrators can approve or reject
-        proposals.
-      filter:
-        all_types: All change types
-        all_content_types: All content types
-      status:
-        pending: Pending Review
-        approved: Approved
-        rejected: Rejected
-      types:
-        create_content: Create
-        update_content: Update
-        delete_content: Delete
     admin:
       nav:
         users: User Management
@@ -1638,13 +1347,6 @@ en:
         updated: User updated successfully
         unblocked: User unblocked successfully
         not_blocked: This user is not blocked
-      content_changes:
-        title: Content Changes
-        approved: Content change approved and applied successfully
-        rejected: Content change rejected successfully
-        approval_failed: Failed to apply content change
-        rejection_failed: Failed to reject content change
-        already_reviewed: This content change has already been reviewed
   travel_profile:
     checking_location: Checking your location...
     visit_recorded: Visit recorded successfully!

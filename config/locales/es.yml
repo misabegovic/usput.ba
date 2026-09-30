@@ -965,8 +965,6 @@ es:
     title: Panel de Curador
     nav:
       dashboard: Panel
-      locations: Lugares
-      experiences: Experiencias
     dashboard:
       welcome: "¡Bienvenido, %{username}!"
       total_locations: Total de Lugares
@@ -979,75 +977,13 @@ es:
       recent_experiences: Experiencias Recientes
       no_locations: Aún no hay lugares
       no_experiences: Aún no hay experiencias
-    locations:
-      title: Lugares
-      new: Nuevo Lugar
-      edit: Editar
-      view: Ver
-      delete: Eliminar
-      edit_title: 'Editar: %{name}'
-      back_to_list: Volver a la lista
-      name: Nombre
-      city: Ciudad
-      type: Tipo
-      budget: Presupuesto
-      address: Dirección
-      description: Descripción
-      latitude: Latitud
-      longitude: Longitud
-      coordinates: Coordenadas
-      phone: Teléfono
-      email: Correo electrónico
-      website: Sitio web
-      opening_hours: Horario de Apertura
-      created_at: Creado
-      actions: Acciones
-      select_city: Seleccionar ciudad...
-      no_locations: No se encontraron lugares
-      created: Lugar creado exitosamente
-      updated: Lugar actualizado exitosamente
-      deleted: Lugar eliminado exitosamente
-      confirm_delete: "¿Estás seguro de que deseas eliminar %{name}?"
-      filter:
-        all_cities: Todas las ciudades
     experiences:
-      title: Experiencias
-      new: Nueva Experiencia
-      edit: Editar
-      view: Ver
-      delete: Eliminar
-      edit_title: 'Editar: %{name}'
-      back_to_list: Volver a la lista
-      name: Nombre
-      city: Ciudad
-      category: Categoría
-      duration: Duración
-      best_season: Mejor Temporada
-      difficulty: Dificultad
-      description: Descripción
-      created_at: Creado
-      actions: Acciones
-      select_city: Seleccionar ciudad...
-      select_category: Seleccionar categoría...
-      no_experiences: No se encontraron experiencias
-      created: Experiencia creada exitosamente
-      updated: Experiencia actualizada exitosamente
-      deleted: Experiencia eliminada exitosamente
-      confirm_delete: "¿Estás seguro de que deseas eliminar %{name}?"
-      filter:
-        all_cities: Todas las ciudades
-      best_seasons: Mejores temporadas
-      seasons_hint: Déjalo sin marcar para experiencias durante todo el año
       seasons:
         all_year: Todo el año
         spring: Primavera
         summer: Verano
         fall: Otoño
         winter: Invierno
-      difficulties:
-        easy: Fácil
-        moderate: Moderado
-        challenging: Desafiante
   travel_profile:
     checking_location: Verificando tu ubicación...
     visit_recorded: "¡Visita registrada con éxito!"

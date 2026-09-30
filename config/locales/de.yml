@@ -980,8 +980,6 @@ de:
     title: Kurator-Dashboard
     nav:
       dashboard: Übersicht
-      locations: Orte
-      experiences: Erlebnisse
     dashboard:
       welcome: Willkommen, %{username}!
       total_locations: Orte gesamt
@@ -994,75 +992,13 @@ de:
       recent_experiences: Neueste Erlebnisse
       no_locations: Noch keine Orte
       no_experiences: Noch keine Erlebnisse
-    locations:
-      title: Orte
-      new: Neuer Ort
-      edit: Bearbeiten
-      view: Ansehen
-      delete: Löschen
-      edit_title: 'Bearbeiten: %{name}'
-      back_to_list: Zurück zur Liste
-      name: Name
-      city: Ort
-      type: Typ
-      budget: Budget
-      address: Adresse
-      description: Beschreibung
-      latitude: Breitengrad
-      longitude: Längengrad
-      coordinates: Koordinaten
-      phone: Telefon
-      email: E-Mail
-      website: Webseite
-      opening_hours: Öffnungszeiten
-      created_at: Erstellt
-      actions: Aktionen
-      select_city: Ort auswählen...
-      no_locations: Keine Orte gefunden
-      created: Ort erfolgreich erstellt
-      updated: Ort erfolgreich aktualisiert
-      deleted: Ort erfolgreich gelöscht
-      confirm_delete: Möchten Sie %{name} wirklich löschen?
-      filter:
-        all_cities: Alle Orte
     experiences:
-      title: Erlebnisse
-      new: Neues Erlebnis
-      edit: Bearbeiten
-      view: Ansehen
-      delete: Löschen
-      edit_title: 'Bearbeiten: %{name}'
-      back_to_list: Zurück zur Liste
-      name: Name
-      city: Ort
-      category: Kategorie
-      duration: Dauer
-      best_season: Beste Jahreszeit
-      difficulty: Schwierigkeit
-      description: Beschreibung
-      created_at: Erstellt
-      actions: Aktionen
-      select_city: Ort auswählen...
-      select_category: Kategorie auswählen...
-      no_experiences: Keine Erlebnisse gefunden
-      created: Erlebnis erfolgreich erstellt
-      updated: Erlebnis erfolgreich aktualisiert
-      deleted: Erlebnis erfolgreich gelöscht
-      confirm_delete: Möchten Sie %{name} wirklich löschen?
-      filter:
-        all_cities: Alle Orte
-      best_seasons: Beste Jahreszeiten
-      seasons_hint: Für ganzjährige Erlebnisse nichts auswählen
       seasons:
         all_year: Ganzjährig
         spring: Frühling
         summer: Sommer
         fall: Herbst
         winter: Winter
-      difficulties:
-        easy: Einfach
-        moderate: Mittel
-        challenging: Anspruchsvoll
   minesweeper:
     title: Minesweeper
     subtitle: "Ein Lernspiel auf echten Karten — Minen liegen dort, wo echte Daten minenverdächtige Gebiete verzeichnen."

@@ -872,8 +872,6 @@ sl:
     title: Nadzorna Plošča Kustosa
     nav:
       dashboard: Nadzorna Plošča
-      locations: Lokacije
-      experiences: Doživetja
     dashboard:
       welcome: Dobrodošli, %{username}!
       total_locations: Skupaj Lokacij
@@ -886,75 +884,13 @@ sl:
       recent_experiences: Nedavna Doživetja
       no_locations: Še ni lokacij
       no_experiences: Še ni doživetij
-    locations:
-      title: Lokacije
-      new: Nova Lokacija
-      edit: Uredi
-      view: Poglej
-      delete: Izbriši
-      edit_title: 'Uredi: %{name}'
-      back_to_list: Nazaj na seznam
-      name: Ime
-      city: Mesto
-      type: Vrsta
-      budget: Proračun
-      address: Naslov
-      description: Opis
-      latitude: Geografska širina
-      longitude: Geografska dolžina
-      coordinates: Koordinate
-      phone: Telefon
-      email: E-pošta
-      website: Spletna stran
-      opening_hours: Delovni Čas
-      created_at: Ustvarjeno
-      actions: Akcije
-      select_city: Izberite mesto...
-      no_locations: Ni najdenih lokacij
-      created: Lokacija uspešno ustvarjena
-      updated: Lokacija uspešno posodobljena
-      deleted: Lokacija uspešno izbrisana
-      confirm_delete: Ali ste prepričani, da želite izbrisati %{name}?
-      filter:
-        all_cities: Vsa mesta
     experiences:
-      title: Doživetja
-      new: Novo Doživetje
-      edit: Uredi
-      view: Poglej
-      delete: Izbriši
-      edit_title: 'Uredi: %{name}'
-      back_to_list: Nazaj na seznam
-      name: Ime
-      city: Mesto
-      category: Kategorija
-      duration: Trajanje
-      best_season: Najboljša Sezona
-      difficulty: Težavnost
-      description: Opis
-      created_at: Ustvarjeno
-      actions: Akcije
-      select_city: Izberite mesto...
-      select_category: Izberite kategorijo...
-      no_experiences: Ni najdenih doživetij
-      created: Doživetje uspešno ustvarjeno
-      updated: Doživetje uspešno posodobljeno
-      deleted: Doživetje uspešno izbrisano
-      confirm_delete: Ali ste prepričani, da želite izbrisati %{name}?
-      filter:
-        all_cities: Vsa mesta
-      best_seasons: Najboljši letni časi
-      seasons_hint: Pustite neoznačeno za doživetja skozi vse leto
       seasons:
         all_year: Vse leto
         spring: Pomlad
         summer: Poletje
         fall: Jesen
         winter: Zima
-      difficulties:
-        easy: Lahko
-        moderate: Zmerno
-        challenging: Zahtevno
   minesweeper:
     title: Minolovec
     subtitle: "Izobraževalna igra na resničnih zemljevidih — mine so tam, kjer resnični podatki beležijo območja, sumljiva zaradi min."

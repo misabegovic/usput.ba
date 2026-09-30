@@ -4,7 +4,8 @@ require_relative "../../support/static_artifacts"
 # The static engine against synthetic artifacts with exactly known truth.
 class MineChecker::StaticIndexTest < ActiveSupport::TestCase
   setup do
-    @dir = Rails.root.join("tmp/static_index_test").to_s
+    # One directory per test worker: tests of one class run in several processes.
+    @dir = Rails.root.join("tmp/static_index_test-#{Process.pid}").to_s
     @points = StaticArtifacts.install!(dir: @dir)
     @area = StaticArtifacts::TEST_AREA
     @index = MineChecker::StaticIndex.instance

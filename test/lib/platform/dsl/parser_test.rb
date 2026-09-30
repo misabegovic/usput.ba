@@ -125,27 +125,6 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
   end
 
   # Approval queries
-  test "parses approve proposal command" do
-    ast = Platform::DSL::Parser.parse("approve proposal { id: 123 }")
-    assert_equal :approval, ast[:type]
-    assert_equal :approve, ast[:action]
-    assert_equal :proposal, ast[:approval_type]
-    assert_equal 123, ast[:filters][:id]
-  end
-
-  test "parses reject proposal with reason" do
-    ast = Platform::DSL::Parser.parse('reject proposal { id: 123 } reason "Not accurate"')
-    assert_equal :approval, ast[:type]
-    assert_equal :reject, ast[:action]
-    assert_equal "Not accurate", ast[:reason]
-  end
-
-  test "parses approve with notes" do
-    ast = Platform::DSL::Parser.parse('approve proposal { id: 123 } notes "LGTM"')
-    assert_equal :approval, ast[:type]
-    assert_equal :approve, ast[:action]
-    assert_equal "LGTM", ast[:notes]
-  end
 
   # Curator management commands
   test "parses block curator command" do
@@ -292,10 +271,6 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
   end
 
   # Proposals queries
-  test "parses proposals query" do
-    ast = Platform::DSL::Parser.parse('proposals { status: "pending" } | list')
-    assert_equal :proposals_query, ast[:type]
-  end
 
   # Curators query
   test "parses curators query" do
@@ -518,11 +493,6 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
   end
 
   # Test proposals operations
-  test "parses proposals count" do
-    ast = Platform::DSL::Parser.parse("proposals | count")
-    assert_equal :proposals_query, ast[:type]
-    assert_equal :count, ast[:operations].first[:name]
-  end
 
   # Test curators operations
   test "parses curators with activity" do

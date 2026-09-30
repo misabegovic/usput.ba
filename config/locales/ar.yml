@@ -858,10 +858,6 @@ ar:
     title: لوحة تحكم أمين المحتوى
     nav:
       dashboard: لوحة التحكم
-      locations: الأماكن
-      experiences: التجارب
-      plans: الخطط
-      audio_tours: الجولات الصوتية
       reviews: المراجعات
     dashboard:
       welcome: مرحباً، %{username}!
@@ -890,134 +886,13 @@ ar:
       no_experiences: لا توجد تجارب بعد
       no_reviews: لا توجد مراجعات بعد
       no_plans: لا توجد خطط عامة بعد
-    locations:
-      title: الأماكن
-      new: مكان جديد
-      edit: تعديل
-      view: عرض
-      delete: حذف
-      edit_title: 'تعديل: %{name}'
-      back_to_list: العودة للقائمة
-      name: الاسم
-      city: المدينة
-      type: النوع
-      budget: الميزانية
-      address: العنوان
-      description: الوصف
-      historical_context: السياق التاريخي
-      historical_context_hint: الخلفية التاريخية وأهمية هذا المكان
-      latitude: خط العرض
-      longitude: خط الطول
-      coordinates: الإحداثيات
-      view_on_map: عرض على الخريطة
-      phone: الهاتف
-      email: البريد الإلكتروني
-      website: الموقع الإلكتروني
-      video_url: رابط الفيديو
-      video_url_hint: رابط يوتيوب أو فيديو آخر عن هذا المكان
-      opening_hours: ساعات العمل
-      created_at: تاريخ الإنشاء
-      updated_at: تاريخ التحديث
-      average_rating: متوسط التقييم
-      reviews_count: المراجعات
-      actions: الإجراءات
-      select_city: اختر مدينة...
-      no_locations: لم يتم العثور على أماكن
-      created: تم إنشاء المكان بنجاح
-      updated: تم تحديث المكان بنجاح
-      deleted: تم حذف المكان بنجاح
-      confirm_delete: هل أنت متأكد من حذف %{name}؟
-      tags: العلامات
-      tags_placeholder: 'مثال: طبيعة، تاريخي، مناسب للعائلات'
-      tags_hint: افصل العلامات بفاصلة
-      experiences_hint: اختر أنواع التجارب المناسبة لهذا المكان
-      current_photos: الصور الحالية
-      add_photos: إضافة صور
-      photos_hint: 'يمكنك اختيار عدة صور. الصيغ المدعومة: JPG, PNG, WebP'
-      remove_photos_hint: اضغط على أيقونة سلة المهملات لتحديد الصور للإزالة
-      current_audio: التسجيل الصوتي الحالي
-      upload_audio: رفع تسجيل صوتي
-      audio_hint: 'الصيغ المدعومة: MP3, WAV, OGG. الحجم الأقصى: 50MB'
-      remove_audio: إزالة
-      audio_not_supported: متصفحك لا يدعم تشغيل الصوت.
-      sections:
-        basic_info: معلومات أساسية
-        location: الموقع والإحداثيات
-        contact: معلومات التواصل
-        social: وسائل التواصل الاجتماعي
-        experiences: أنواع التجارب المناسبة
-        tags: العلامات
-        photos: الصور
-        audio: التسجيل الصوتي
-        metadata: البيانات الوصفية
-      filter:
-        all_cities: جميع المدن
     experiences:
-      title: التجارب
-      new: تجربة جديدة
-      edit: تعديل
-      view: عرض
-      delete: حذف
-      edit_title: 'تعديل: %{name}'
-      back_to_list: العودة للقائمة
-      name: الاسم
-      city: المدينة
-      category: الفئة
-      duration: المدة
-      duration_placeholder: المدة بالدقائق
-      duration_hint: أدخل المدة بالدقائق
-      best_season: أفضل موسم
-      difficulty: الصعوبة
-      description: الوصف
-      created_at: تاريخ الإنشاء
-      updated_at: تاريخ التحديث
-      average_rating: متوسط التقييم
-      reviews_count: المراجعات
-      locations_count: الأماكن
-      actions: الإجراءات
-      select_city: اختر مدينة...
-      select_category: اختر فئة...
-      no_experiences: لم يتم العثور على تجارب
-      created: تم إنشاء التجربة بنجاح
-      updated: تم تحديث التجربة بنجاح
-      deleted: تم حذف التجربة بنجاح
-      confirm_delete: هل أنت متأكد من حذف %{name}؟
-      current_cover: صورة الغلاف الحالية
-      upload_cover: رفع صورة الغلاف
-      cover_photo_hint: 'الحجم الموصى به: 1200x800px. الصيغ المدعومة: JPG, PNG, WebP'
-      remove_cover_hint: اضغط على أيقونة سلة المهملات لإزالة صورة الغلاف الحالية
-      contact_hint: تفاصيل التواصل للحجز أو الاستفسارات عن هذه التجربة
-      contact_name: اسم جهة الاتصال
-      contact_name_placeholder: 'مثال: أحمد محمد'
-      contact_email: البريد الإلكتروني للتواصل
-      contact_phone: هاتف التواصل
-      contact_website: موقع التواصل
-      locations_hint: اختر الأماكن التي هي جزء من هذه التجربة. الترتيب مهم - اسحب
-        لإعادة الترتيب.
-      selected_locations: الأماكن المختارة
-      add_location: إضافة مكان
-      search_location: ابحث واختر مكاناً...
-      no_locations_selected: لم يتم اختيار أماكن بعد
-      sections:
-        basic_info: معلومات أساسية
-        cover_photo: صورة الغلاف
-        contact: معلومات التواصل
-        locations: الأماكن
-        metadata: البيانات الوصفية
-      filter:
-        all_cities: جميع المدن
-      best_seasons: أفضل المواسم
-      seasons_hint: اتركه دون تحديد للتجارب المتاحة طوال السنة
       seasons:
         all_year: طوال السنة
         spring: الربيع
         summer: الصيف
         fall: الخريف
         winter: الشتاء
-      difficulties:
-        easy: سهل
-        moderate: متوسط
-        challenging: صعب
     reviews:
       title: المراجعات
       show_title: تفاصيل المراجعة
@@ -1040,91 +915,8 @@ ar:
       delete: حذف
       deleted: تم حذف المراجعة بنجاح
       confirm_delete: هل أنت متأكد من حذف هذه المراجعة؟
-    audio_tours:
-      title: الجولات الصوتية
-      show_title: تفاصيل الجولة الصوتية
-      new: جولة صوتية جديدة
-      edit: تعديل
-      edit_title: 'تعديل: %{location}'
-      view: عرض
-      delete: حذف
-      back_to_list: العودة للقائمة
-      total: الإجمالي
-      with_audio: مع صوت
-      locations_with_tours: تغطية الأماكن
-      by_locale: حسب اللغة
-      search_placeholder: ابحث باسم المكان...
-      all_locales: جميع اللغات
-      location: المكان
-      locale: اللغة
-      audio_status: الحالة
-      duration: المدة
-      word_count: عدد الكلمات
-      script: النص
-      script_hint: النص الذي سيتم تحويله إلى صوت
-      created_at: تاريخ الإنشاء
-      actions: الإجراءات
-      ready: جاهز
-      pending: قيد الانتظار
-      no_audio_tours: لم يتم العثور على جولات صوتية
-      select_location: اختر مكاناً...
-      select_locale: اختر لغة...
-      current_audio: الصوت الحالي
-      upload_audio: رفع ملف صوتي
-      audio_hint: 'الصيغ المدعومة: MP3, WAV, OGG'
-      remove_audio: إزالة الملف الصوتي
-      audio_not_supported: متصفحك لا يدعم تشغيل الصوت.
-      audio_player: مشغل الصوت
-      created: تم إنشاء الجولة الصوتية بنجاح
-      updated: تم تحديث الجولة الصوتية بنجاح
-      deleted: تم حذف الجولة الصوتية بنجاح
-      confirm_delete: هل أنت متأكد من حذف هذه الجولة الصوتية؟
-      sections:
-        basic_info: معلومات أساسية
-        audio_file: الملف الصوتي
     plans:
-      title: الخطط
-      show_title: تفاصيل الخطة
-      new: خطة جديدة
-      edit: تعديل
-      edit_title: 'تعديل: %{title}'
-      view: عرض
-      delete: حذف
-      back_to_list: العودة للقائمة
-      total: إجمالي الخطط
-      public: عام
-      private: خاص
-      with_experiences: مع تجارب
-      all_visibility: جميع حالات الظهور
-      all_cities: جميع المدن
-      search_placeholder: ابحث بالعنوان...
-      plan_title: العنوان
-      city: المدينة
-      author: الكاتب
       no_author: بدون كاتب
-      visibility: الظهور
-      visibility_hint: الخطط العامة مرئية لجميع المستخدمين
-      experiences: التجارب
-      locations: أماكن
-      duration: المدة
-      dates: التواريخ
-      start_date: تاريخ البداية
-      end_date: تاريخ النهاية
-      notes: ملاحظات
-      notes_hint: ملاحظات إضافية عن هذه الخطة
-      created_at: تاريخ الإنشاء
-      actions: الإجراءات
-      no_plans: لم يتم العثور على خطط
-      select_city: اختر مدينة...
-      no_experiences_yet: لم تتم إضافة تجارب بعد
-      experiences_hint: يمكن إضافة التجارب بعد إنشاء الخطة
-      created: تم إنشاء الخطة بنجاح
-      updated: تم تحديث الخطة بنجاح
-      deleted: تم حذف الخطة بنجاح
-      confirm_delete: هل أنت متأكد من حذف خطة '%{title}'؟
-      sections:
-        basic_info: معلومات أساسية
-        experiences: التجارب
   travel_profile:
     checking_location: جاري التحقق من موقعك...
     visit_recorded: تم تسجيل الزيارة بنجاح!

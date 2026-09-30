@@ -872,8 +872,6 @@ cs:
     title: Panel Kurátora
     nav:
       dashboard: Panel
-      locations: Místa
-      experiences: Zážitky
     dashboard:
       welcome: Vítejte, %{username}!
       total_locations: Celkový Počet Míst
@@ -886,75 +884,13 @@ cs:
       recent_experiences: Nedávné Zážitky
       no_locations: Zatím žádná místa
       no_experiences: Zatím žádné zážitky
-    locations:
-      title: Místa
-      new: Nové Místo
-      edit: Upravit
-      view: Zobrazit
-      delete: Smazat
-      edit_title: 'Úprava: %{name}'
-      back_to_list: Zpět na seznam
-      name: Název
-      city: Město
-      type: Typ
-      budget: Rozpočet
-      address: Adresa
-      description: Popis
-      latitude: Zeměpisná šířka
-      longitude: Zeměpisná délka
-      coordinates: Souřadnice
-      phone: Telefon
-      email: E-mail
-      website: Webová stránka
-      opening_hours: Otevírací doba
-      created_at: Vytvořeno
-      actions: Akce
-      select_city: Vyberte město...
-      no_locations: Nebyla nalezena žádná místa
-      created: Místo bylo úspěšně vytvořeno
-      updated: Místo bylo úspěšně aktualizováno
-      deleted: Místo bylo úspěšně smazáno
-      confirm_delete: Jste si jisti, že chcete smazat %{name}?
-      filter:
-        all_cities: Všechna města
     experiences:
-      title: Zážitky
-      new: Nový Zážitek
-      edit: Upravit
-      view: Zobrazit
-      delete: Smazat
-      edit_title: 'Úprava: %{name}'
-      back_to_list: Zpět na seznam
-      name: Název
-      city: Město
-      category: Kategorie
-      duration: Délka
-      best_season: Nejlepší Sezóna
-      difficulty: Obtížnost
-      description: Popis
-      created_at: Vytvořeno
-      actions: Akce
-      select_city: Vyberte město...
-      select_category: Vyberte kategorii...
-      no_experiences: Nebyly nalezeny žádné zážitky
-      created: Zážitek byl úspěšně vytvořen
-      updated: Zážitek byl úspěšně aktualizován
-      deleted: Zážitek byl úspěšně smazán
-      confirm_delete: Jste si jisti, že chcete smazat %{name}?
-      filter:
-        all_cities: Všechna města
-      best_seasons: Nejlepší roční období
-      seasons_hint: Nechte nezaškrtnuté pro celoroční zážitky
       seasons:
         all_year: Celý rok
         spring: Jaro
         summer: Léto
         fall: Podzim
         winter: Zima
-      difficulties:
-        easy: Snadné
-        moderate: Středně náročné
-        challenging: Náročné
   minesweeper:
     title: Miny
     subtitle: "Vzdělávací hra na skutečných mapách — miny jsou tam, kde skutečná data zaznamenávají oblasti podezřelé z výskytu min."

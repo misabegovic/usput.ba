@@ -3,49 +3,14 @@
 module Platform
   module DSL
     module Executors
-      # Curator executor - handles proposals, approval, and curator management
+      # Curator executor - handles curator management
       #
       # Query types:
-      # - proposals_query: list/show content change proposals
-      # - approval: approve/reject proposals
       # - curators_query: list/show curators
       # - curator_management: block/unblock curators
       #
       module Curator
         class << self
-          # Execute proposals query
-          def execute_proposals_query(ast)
-            filters = ast[:filters] || {}
-            operation = ast[:operations]&.first
-
-            case operation&.dig(:name)
-            when :list, nil
-              list_proposals(filters)
-            when :show
-              show_proposal(filters)
-            when :count
-              count_proposals(filters)
-            else
-              list_proposals(filters)
-            end
-          end
-
-          # Execute approval action
-          def execute_approval(ast)
-            action = ast[:action]
-            type = ast[:approval_type]
-            filters = ast[:filters]
-
-            case action
-            when :approve
-              approve_proposal(filters, ast[:notes])
-            when :reject
-              reject_proposal(filters, ast[:reason])
-            else
-              raise ExecutionError, "Nepoznata approval akcija: #{action}"
-            end
-          end
-
           # Execute curators query
           def execute_curators_query(ast)
             filters = ast[:filters] || {}
@@ -85,157 +50,6 @@ module Platform
           end
 
           private
-
-          # ===================
-          # Proposals methods
-          # ===================
-
-          def list_proposals(filters)
-            scope = ContentChange.all
-
-            if filters[:status]
-              status = filters[:status].to_s
-              scope = scope.where(status: status) if ContentChange.statuses.key?(status)
-            else
-              scope = scope.pending
-            end
-
-            if filters[:change_type] || filters[:type]
-              change_type = (filters[:change_type] || filters[:type]).to_s
-              scope = scope.where(change_type: change_type) if ContentChange.change_types.key?(change_type)
-            end
-
-            if filters[:content_type]
-              scope = scope.where(changeable_type: filters[:content_type].to_s.classify)
-            end
-
-            proposals = scope.order(created_at: :desc).limit(50)
-
-            {
-              action: :list_proposals,
-              count: proposals.size,
-              total_pending: ContentChange.pending.count,
-              proposals: proposals.map { |p| format_proposal(p) }
-            }
-          end
-
-          def show_proposal(filters)
-            proposal = find_proposal(filters)
-
-            {
-              action: :show_proposal,
-              id: proposal.id,
-              status: proposal.status,
-              change_type: proposal.change_type,
-              changeable_type: proposal.changeable_type || proposal.changeable_class,
-              changeable_id: proposal.changeable_id,
-              description: proposal.description,
-              proposed_data: proposal.proposed_data,
-              original_data: proposal.original_data,
-              changes_diff: proposal.changes_diff,
-              proposer: {
-                id: proposal.user_id,
-                username: proposal.user.username
-              },
-              contributors: proposal.all_contributors.map { |u| { id: u.id, username: u.username } },
-              reviews: proposal.curator_reviews.map do |r|
-                {
-                  user: r.user.username,
-                  recommendation: r.recommendation,
-                  comment: r.comment.truncate(100)
-                }
-              end,
-              recommendation_summary: proposal.recommendation_summary,
-              created_at: proposal.created_at.iso8601,
-              reviewed_at: proposal.reviewed_at&.iso8601,
-              reviewed_by: proposal.reviewed_by&.username
-            }
-          end
-
-          def count_proposals(filters)
-            {
-              pending: ContentChange.pending.count,
-              approved: ContentChange.approved.count,
-              rejected: ContentChange.rejected.count,
-              total: ContentChange.count,
-              by_type: ContentChange.group(:change_type).count,
-              by_content_type: ContentChange.group(:changeable_type).count
-            }
-          end
-
-          def find_proposal(filters)
-            raise ExecutionError, "Potreban filter: id" unless filters[:id]
-
-            proposal = ContentChange.find_by(id: filters[:id])
-            raise ExecutionError, "Proposal sa id=#{filters[:id]} nije pronađen" unless proposal
-
-            proposal
-          end
-
-          def format_proposal(proposal)
-            {
-              id: proposal.id,
-              status: proposal.status,
-              change_type: proposal.change_type,
-              description: proposal.description,
-              content_type: proposal.changeable_type || proposal.changeable_class,
-              proposer: proposal.user.username,
-              contributors_count: proposal.all_contributors.size,
-              reviews_count: proposal.curator_reviews.count,
-              recommendation_summary: proposal.recommendation_summary,
-              created_at: proposal.created_at.iso8601
-            }
-          end
-
-          # ===================
-          # Approval methods
-          # ===================
-
-          def approve_proposal(filters, notes)
-            proposal = find_proposal(filters)
-
-            unless proposal.pending?
-              raise ExecutionError, "Proposal nije u pending statusu (trenutni status: #{proposal.status})"
-            end
-
-            admin = platform_admin_user
-            success = proposal.approve!(admin, notes: notes)
-
-            unless success
-              raise ExecutionError, "Odobravanje prijedloga nije uspjelo"
-            end
-
-            {
-              success: true,
-              action: :approve_proposal,
-              proposal_id: proposal.id,
-              change_type: proposal.change_type,
-              content_type: proposal.changeable_type || proposal.changeable_class,
-              notes: notes,
-              message: "Prijedlog je odobren i promjene su primijenjene"
-            }
-          end
-
-          def reject_proposal(filters, reason)
-            proposal = find_proposal(filters)
-
-            unless proposal.pending?
-              raise ExecutionError, "Proposal nije u pending statusu (trenutni status: #{proposal.status})"
-            end
-
-            raise ExecutionError, "Potreban razlog za odbijanje" if reason.blank?
-
-            admin = platform_admin_user
-            proposal.reject!(admin, notes: reason)
-
-            {
-              success: true,
-              action: :reject_proposal,
-              proposal_id: proposal.id,
-              reason: reason,
-              message: "Prijedlog je odbijen"
-            }
-          end
 
           def platform_admin_user
             User.find_by(user_type: :admin) || User.find_by(username: "platform_system") || create_platform_user
@@ -299,9 +113,7 @@ module Platform
               spam_block_reason: curator.spam_block_reason,
               spam_blocked_until: curator.spam_blocked_until&.iso8601,
               activity_count_today: curator.activity_count_today,
-              total_activities: curator.curator_activities.count,
-              proposals_count: curator.content_changes.count,
-              reviews_count: curator.curator_reviews.count
+              total_activities: curator.curator_activities.count
             }
           end
 

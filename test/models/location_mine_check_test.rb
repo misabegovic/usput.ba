@@ -5,7 +5,8 @@ require_relative "../support/static_artifacts"
 # must never reveal geometry or internal details.
 class LocationMineCheckTest < ActiveSupport::TestCase
   setup do
-    @dir = Rails.root.join("tmp/location_mine_test").to_s
+    # One directory per test worker: tests of one class run in several processes.
+    @dir = Rails.root.join("tmp/location_mine_test-#{Process.pid}").to_s
     @points = StaticArtifacts.install!(dir: @dir)
   end
 
