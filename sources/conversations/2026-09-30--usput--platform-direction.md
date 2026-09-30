@@ -52,3 +52,19 @@ Choices made when asked:
 - First step: "Shape it all in the brain", as one pull request to approve
   before any code.
 - Installs: allowed in the agent's container for exploration.
+
+## Third message
+
+> You don't have to think about backwards compatibility. We'll do Usput and
+> all of its content from scratch.
+
+Choices made when asked:
+
+- Where: "Same repo, rewrite in place". The Rails skeleton stays; domain,
+  admin and UI are rewritten piece by piece, deleting as we go.
+- Compile: "No, Avo and Postgres first". `roundhouse check` as analysis only.
+- Version 1 scope: places and explore (with pgvector search), plans and
+  walking (check-ins, moments), reviews with Jev, and the AI content pipeline
+  with Langfuse from day one.
+- Content: "New content, old site stays up". The current production app runs
+  until the rebuild launches; the rebuilt app starts with an empty database.
