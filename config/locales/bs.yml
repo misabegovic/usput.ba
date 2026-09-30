@@ -641,6 +641,11 @@ bs:
     back_to_login: Nazad na prijavu
     new_password: Nova lozinka
     other_sessions_ended: Odjavljen si sa svih drugih uređaja.
+    google:
+      or: ili
+      button: Nastavi preko Googlea
+      refused: Google nije potvrdio ovaj email, ili je već povezan s drugim Google nalogom. Prijavi se lozinkom.
+      linked: Ovaj nalog je povezan s Googleom. Ako nikad nisi postavio lozinku, odaberi je preko "Zaboravio si lozinku?" na stranici za prijavu.
     reset:
       title: Nova lozinka - Usput
       heading: Zaboravljena lozinka
@@ -1640,6 +1645,9 @@ bs:
         subject: Tvoj Usput email se mijenja
       password_change:
         subject: Tvoja Usput lozinka je promijenjena
+    omniauth_callbacks:
+      failure: Prijava preko Googlea nije uspjela. Pokušaj ponovo.
+      success: Prijavljen si preko Googlea.
     passwords:
       no_token: Ova stranica se otvara samo preko linka iz emaila za novu lozinku. Iskoristi cijeli link iz emaila.
       send_instructions: Poslali smo ti link za novu lozinku.

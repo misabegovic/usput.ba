@@ -24,6 +24,10 @@ gem "bcrypt", "~> 3.1.7"
 # Accounts: sign-in, confirmation and password reset [https://github.com/heartcombo/devise]
 gem "devise", "~> 5.0"
 
+# Sign in with Google [https://github.com/zquestz/omniauth-google-oauth2]
+gem "omniauth-google-oauth2"
+gem "omniauth-rails_csrf_protection"
+
 # Transactional mail in production [https://github.com/ActiveCampaign/postmark-rails]
 gem "postmark-rails"
 

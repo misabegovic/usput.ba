@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_130100) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -317,6 +317,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_130100) do
     t.datetime "updated_at", null: false
     t.text "value"
     t.index ["feature_key", "key", "value"], name: "index_flipper_gates_on_feature_key_and_key_and_value", unique: true
+  end
+
+  create_table "identities", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "provider", null: false
+    t.string "uid", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["provider", "uid"], name: "index_identities_on_provider_and_uid", unique: true
+    t.index ["user_id", "provider"], name: "index_identities_on_user_id_and_provider", unique: true
+    t.index ["user_id"], name: "index_identities_on_user_id"
   end
 
   create_table "likes", force: :cascade do |t|
@@ -646,6 +657,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_130100) do
   add_foreign_key "experience_locations", "experiences"
   add_foreign_key "experience_locations", "locations"
   add_foreign_key "experiences", "experience_categories"
+  add_foreign_key "identities", "users"
   add_foreign_key "likes", "users"
   add_foreign_key "location_category_assignments", "location_categories"
   add_foreign_key "location_category_assignments", "locations"
