@@ -12,6 +12,7 @@ depends_on:
 - decisions/jev-flags-reviews.md
 - decisions/archive-places-not-delete.md
 sources:
+- sources/conversations/2026-09-30--usput--place-translations-in-avo.md
 - sources/conversations/2026-09-30--usput--platform-direction.md
 - config/routes.rb
 - app/controllers/curator/base_controller.rb
@@ -112,7 +113,7 @@ Slices, in order on the rebuild branch, each with its tests:
 
 1. **Done 2026-09-30.** Install Avo, mount it behind the role gate. Request tests: guest, `basic`, blocked user refused; curator and admin admitted.
 2. **Done 2026-09-30.** The policy layer and the `User` resource (admin only), with role change and block actions. Policy unit tests per role; a request test that a curator cannot open users.
-3. `Location` with filters, the archive and restore actions and photo uploads. Tests that the mine check blocks a bad coordinate through Avo and that a curator cannot delete.
+3. **Done 2026-09-30.** `Location` with filters, the archive and restore actions and photo uploads. Tests that the mine check blocks a bad coordinate through Avo and that a curator cannot delete.
 4. `Experience` and `Plan`, including a plan's stops by day. Policy and request tests.
 5. `Moment` queue with approve and reject. Tests that an approved public moment becomes visible and a rejected one does not.
 6. `Review` queue with clear and remove, once the flag exists ([Jev review flagging](jev-review-flagging.md)). Tests for both actions and for the rating recount.
@@ -129,7 +130,7 @@ Slices, in order on the rebuild branch, each with its tests:
 
 - **Avo is an engine.** Roundhouse cannot compile an app that mounts an engine other than Active Storage ([Avo now, compile later](../decisions/avo-now-compile-later.md)). Keep admin logic in plain models and policies so it can move if the compile path ever needs it.
 - **Callbacks versus admin forms.** The mine check and the destroy guard raise validation errors; Avo must show them rather than swallow them.
-- **Translations.** Content has translations in several locales; editing them in Avo needs a shape decided with the content pipeline, not per resource.
+- **Translations.** Decided on 2026-09-30 ([answers](../../sources/conversations/2026-09-30--usput--place-translations-in-avo.md)): curators edit all 16 languages by hand, and a later AI retranslation asks before overwriting a hand-edited one.
 
 ## Appetite
 
@@ -173,7 +174,7 @@ Slice 2 landed on 2026-09-30.
   (people sign up themselves, and account deletion is undecided), and an admin
   never changes the role of, or blocks, their own account, so the last admin
   cannot lock everyone out.
-- **Every Avo resource controller includes `AdminPolicyGate`**, a
+- **Every Avo resource controller includes `AdminResource`** (named `AdminPolicyGate` in slice 2), a
   `before_action` that runs after Avo loads the record and raises Avo's own
   not-authorized error when the policy says no. Avo's authorization service is
   a null object in Community (`Avo::Services::AuthorizationService`, 4.2.11), so
@@ -190,4 +191,26 @@ Slice 2 landed on 2026-09-30.
 - **Roles change through an action, not the edit form**, so a role change is
   always a deliberate step that the policy can refuse, and later writes an admin
   event.
+
+Slice 3 landed on 2026-09-30.
+
+- **Places in Avo**: search by name or city; filters for city, status (active
+  by default, archived, all) and photos (none, fewer than three); Archive and
+  Restore actions calling `archive!` and `restore!`; photos uploaded on the
+  record; only admins delete, and the model still refuses to delete a place
+  travellers hold records for.
+- **All 16 languages on the form**, one tab per language, as the operator
+  chose. The per-language accessors (`name_de`) now read and write exactly one
+  language with no fallback, so an empty German field never shows, and then
+  saves, the English text. Writes are staged on the record and saved with it
+  (`has_many :translations, autosave: true`), so a place the mine check
+  refuses leaves its translations untouched; a blank field removes that
+  language; an unchanged value is left alone.
+- **Hand edits are marked.** A translation changed in the admin gets
+  `human_edited_at`, set because `AdminResource` records the signed-in user as
+  `Current.editor` before Avo copies the form onto the record. The AI pipeline's
+  own writes are not marked. The retranslate action that asks before
+  overwriting marked languages comes with the content pipeline.
+- **The mine check shows on the form**: a coordinate inside a suspected area
+  comes back as the form with the error, and nothing is saved.
 

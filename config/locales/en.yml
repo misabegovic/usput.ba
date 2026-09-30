@@ -834,6 +834,32 @@ en:
         one: One account unblocked.
         other: "%{count} accounts unblocked."
       refused: "Left unchanged: %{names}. An admin cannot act on their own account, and only blocked accounts can be unblocked."
+    locations:
+      photos: Photos
+      photo_count: Photos
+      coordinates_help: Latitude and longitude. A place inside a mine-suspected area cannot be saved.
+      fields:
+        name: Name
+        description: Description
+        historical_context: Historical context
+      city: City
+      status: Status
+      statuses:
+        active: Active
+        archived: Archived
+        all: All
+      photo_buckets:
+        none: No photos
+        few: Fewer than three photos
+      archive: Archive
+      archive_message: An archived place leaves the site and search, but travellers keep their check-ins and moments. It can be restored.
+      archived:
+        one: One place archived.
+        other: "%{count} places archived."
+      restore: Restore
+      restored:
+        one: One place restored.
+        other: "%{count} places restored."
   auth:
     register_title: Register - Usput
     register_heading: Create account

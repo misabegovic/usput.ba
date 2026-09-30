@@ -12,7 +12,7 @@
 #   location.set_translation(:name, "Stari Most", :hr)
 #   location.translate(:name, :hr)  # => "Stari Most"
 #   location.name_hr                # => "Stari Most"
-#   location.name_hr = "Stari Most" # Sets translation
+#   location.name_hr = "Stari Most" # Staged; saved with location.save
 #
 module Translatable
   extend ActiveSupport::Concern
@@ -34,7 +34,7 @@ module Translatable
   end
 
   included do
-    has_many :translations, as: :translatable, dependent: :destroy
+    has_many :translations, as: :translatable, dependent: :destroy, autosave: true
 
     # Preloading `translations` pulls every locale of every field — sixteen
     # locales' worth to render one card. This one holds only what the current
@@ -54,17 +54,17 @@ module Translatable
       self.translatable_fields = fields.map(&:to_sym)
 
       fields.each do |field|
-        # Define getter methods for each locale
-        # e.g., name_hr, name_de, etc.
+        # Per-language accessors (name_hr, name_de, ...) read and write exactly
+        # one language, with no fallback, which is what an edit form needs: an
+        # empty German field must not show the English text and then save it
+        # as German. Reading with fallbacks is what `translate` is for.
         Translation::SUPPORTED_LOCALES.each do |locale|
-          # Getter: location.name_hr
           define_method("#{field}_#{locale}") do
-            translate(field, locale)
+            stored_translation(field, locale)&.value
           end
 
-          # Setter: location.name_hr = "value"
           define_method("#{field}_#{locale}=") do |value|
-            set_translation(field, value, locale)
+            write_translation(field, locale, value)
           end
         end
       end
@@ -129,6 +129,34 @@ module Translatable
     translation.value = value
     translation.save!
     translation
+  end
+
+  # Stages one language of one field on the record, saved with it (autosave),
+  # so a record that fails validation leaves its translations untouched too.
+  # An unchanged value is left alone, a blank one removes the translation, and a
+  # change made by a person in the admin (Current.editor) is marked as theirs.
+  def write_translation(field, locale, value)
+    field = field.to_s
+    locale = locale.to_s
+    existing = stored_translation(field, locale)
+
+    if value.blank?
+      existing&.mark_for_destruction
+      return
+    end
+    return if existing && existing.value == value
+
+    translation = existing || translations.build(field_name: field, locale: locale)
+    translation.value = value
+    translation.human_edited_at = Time.current if Current.editor
+  end
+
+  def stored_translation(field, locale)
+    field = field.to_s
+    locale = locale.to_s
+    translations.detect do |translation|
+      translation.field_name == field && translation.locale == locale && !translation.marked_for_destruction?
+    end
   end
 
   # Set multiple translations at once
