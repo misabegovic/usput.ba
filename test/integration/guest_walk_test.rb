@@ -36,7 +36,7 @@ class GuestWalkTest < ActionDispatch::IntegrationTest
     get location_moments_path(@location.uuid)
 
     assert_response :success
-    assert_select "a[href*=?]", login_path, true, "the upload tile should invite sign-in"
+    assert_select "a[href*=?]", new_user_session_path, true, "the upload tile should invite sign-in"
     assert_select "input[type='file']", count: 0, message: "a guest gets no upload field"
   end
 
@@ -47,18 +47,15 @@ class GuestWalkTest < ActionDispatch::IntegrationTest
       post plan_moments_path(plan), params: { moment: { location_id: @location.uuid } }
     end
 
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   ensure
     plan&.destroy
   end
 
   test "signing in turns the device's check-ins into visits on the explore plan" do
-    user = User.create!(username: "arriving", password: "password123")
+    user = User.create!(username: "arriving", email: "arriving@example.com", password: "password123")
 
-    post login_path, params: {
-      username: user.username, password: "password123",
-      travel_profile_data: { "visited" => [ { "id" => @location.uuid, "type" => "location" } ] }.to_json
-    }
+    post user_session_path, params: { user: { email: user.email, password: "password123" }, travel_profile_data: { "visited" => [ { "id" => @location.uuid, "type" => "location" } ] }.to_json }
 
     plan = Plan.explore_bosnia_for(user)
     assert_equal [ @location.id ], user.plan_visits.where(plan: plan).pluck(:location_id)
@@ -68,7 +65,7 @@ class GuestWalkTest < ActionDispatch::IntegrationTest
 
   test "signing up carries the walk across too" do
     assert_difference "PlanVisit.count", 1 do
-      post register_path, params: {
+      post user_registration_path, params: {
         user: { username: "fresh", email: "fresh@example.test", password: "password123", password_confirmation: "password123" },
         travel_profile_data: { "visited" => [ { "id" => @location.uuid, "type" => "location" } ] }.to_json
       }
@@ -83,12 +80,9 @@ class GuestWalkTest < ActionDispatch::IntegrationTest
   # The importer writes its rows with a bulk insert, so it never went near the
   # counters. It no longer has to: they are read from the rows it wrote.
   test "a walk carried in at the door is counted" do
-    user = User.create!(username: "counted", password: "password123")
+    user = User.create!(username: "counted", email: "counted@example.com", password: "password123")
 
-    post login_path, params: {
-      username: user.username, password: "password123",
-      travel_profile_data: { "visited" => [ { "id" => @location.uuid, "type" => "location" } ] }.to_json
-    }
+    post user_session_path, params: { user: { email: user.email, password: "password123" }, travel_profile_data: { "visited" => [ { "id" => @location.uuid, "type" => "location" } ] }.to_json }
 
     stats = user.reload.travel_profile_data["stats"]
     assert_equal 1, stats["totalVisits"]
@@ -98,13 +92,10 @@ class GuestWalkTest < ActionDispatch::IntegrationTest
   end
 
   test "signing in from a browser holding no profile leaves the account's favourites" do
-    user = User.create!(username: "favouriting", password: "password123")
+    user = User.create!(username: "favouriting", email: "favouriting@example.com", password: "password123")
     user.merge_travel_profile({ "favorites" => [ { "id" => @location.uuid, "type" => "location" } ] })
 
-    post login_path, params: {
-      username: user.username, password: "password123",
-      travel_profile_data: { "visited" => [], "favorites" => [] }.to_json
-    }
+    post user_session_path, params: { user: { email: user.email, password: "password123" }, travel_profile_data: { "visited" => [], "favorites" => [] }.to_json }
 
     assert_equal [ @location.uuid ], user.reload.travel_profile_data["favorites"].map { |item| item["id"] }
   ensure
@@ -112,31 +103,28 @@ class GuestWalkTest < ActionDispatch::IntegrationTest
   end
 
   test "signing in carries a plan built without an account" do
-    user = User.create!(username: "planner", password: "password123")
+    user = User.create!(username: "planner", email: "planner@example.com", password: "password123")
 
     assert_difference "user.plans.count", 1 do
-      post login_path, params: {
-        username: user.username, password: "password123",
-        plans_data: [ { "city_name" => "Sarajevo", "duration_days" => 2 } ].to_json
-      }
+      post user_session_path, params: { user: { email: user.email, password: "password123" }, plans_data: [ { "city_name" => "Sarajevo", "duration_days" => 2 } ].to_json }
     end
   ensure
     user&.destroy
   end
 
   test "signing in with nothing held on the device changes nothing" do
-    user = User.create!(username: "empty_handed", password: "password123")
+    user = User.create!(username: "empty_handed", email: "empty_handed@example.com", password: "password123")
 
     assert_no_difference "PlanVisit.count" do
-      post login_path, params: { username: user.username, password: "password123" }
+      post user_session_path, params: { user: { email: user.email, password: "password123" } }
     end
   ensure
     user&.destroy
   end
 
   test "the profile sync cannot add a visit once the traveller is signed in" do
-    user = User.create!(username: "already_in", password: "password123")
-    post login_path, params: { username: user.username, password: "password123" }
+    user = User.create!(username: "already_in", email: "already_in@example.com", password: "password123")
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
 
     assert_no_difference "PlanVisit.count" do
       post sync_travel_profile_path, params: {
@@ -151,19 +139,16 @@ class GuestWalkTest < ActionDispatch::IntegrationTest
   # gate, so it is spent once. Replaying it every sign-in would let a traveller
   # mark the whole country visited by signing out and back in.
   test "a second sign-in cannot replay the device's list" do
-    user = User.create!(username: "replaying", password: "password123")
+    user = User.create!(username: "replaying", email: "replaying@example.com", password: "password123")
     second = Location.create!(name: "Second Fort", city: "Mostar", lat: 43.34, lng: 17.81,
                               suitable_experiences: [ @history.key ])
     walk = { "visited" => [ { "id" => @location.uuid, "type" => "location" } ] }.to_json
 
-    post login_path, params: { username: user.username, password: "password123", travel_profile_data: walk }
-    delete logout_path
+    post user_session_path, params: { user: { email: user.email, password: "password123" }, travel_profile_data: walk }
+    delete destroy_user_session_path
 
     assert_no_difference "PlanVisit.count" do
-      post login_path, params: {
-        username: user.username, password: "password123",
-        travel_profile_data: { "visited" => [ { "id" => second.uuid, "type" => "location" } ] }.to_json
-      }
+      post user_session_path, params: { user: { email: user.email, password: "password123" }, travel_profile_data: { "visited" => [ { "id" => second.uuid, "type" => "location" } ] }.to_json }
     end
 
     assert_equal [ @location.id ], user.plan_visits.pluck(:location_id)
@@ -173,16 +158,13 @@ class GuestWalkTest < ActionDispatch::IntegrationTest
   end
 
   test "a traveller who already checked in is not importable from the device" do
-    user = User.create!(username: "established", password: "password123")
+    user = User.create!(username: "established", email: "established@example.com", password: "password123")
     user.plan_visits.create!(plan: Plan.explore_bosnia_for(user), location: @location)
     other = Location.create!(name: "Far Fort", city: "Bihać", lat: 44.81, lng: 15.87,
                              suitable_experiences: [ @history.key ])
 
     assert_no_difference "PlanVisit.count" do
-      post login_path, params: {
-        username: user.username, password: "password123",
-        travel_profile_data: { "visited" => [ { "id" => other.uuid, "type" => "location" } ] }.to_json
-      }
+      post user_session_path, params: { user: { email: user.email, password: "password123" }, travel_profile_data: { "visited" => [ { "id" => other.uuid, "type" => "location" } ] }.to_json }
     end
   ensure
     other&.destroy
@@ -190,21 +172,18 @@ class GuestWalkTest < ActionDispatch::IntegrationTest
   end
 
   test "a bad password imports nothing, even with visits attached" do
-    user = User.create!(username: "wrong_key", password: "password123")
+    user = User.create!(username: "wrong_key", email: "wrong_key@example.com", password: "password123")
 
     assert_no_difference "PlanVisit.count" do
-      post login_path, params: {
-        username: user.username, password: "not-the-password",
-        travel_profile_data: { "visited" => [ { "id" => @location.uuid, "type" => "location" } ] }.to_json
-      }
+      post user_session_path, params: { user: { email: user.email, password: "not-the-password" }, travel_profile_data: { "visited" => [ { "id" => @location.uuid, "type" => "location" } ] }.to_json }
     end
   ensure
     user&.destroy
   end
 
   test "a signed-in traveller reading a place outside a plan can still upload" do
-    user = User.create!(username: "browsing", password: "password123")
-    post login_path, params: { username: user.username, password: "password123" }
+    user = User.create!(username: "browsing", email: "browsing@example.com", password: "password123")
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
 
     get location_moments_path(@location.uuid)
 

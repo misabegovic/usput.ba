@@ -6,11 +6,13 @@ class CuratorReviewTest < ActiveSupport::TestCase
   setup do
     @curator = User.create!(
       username: "test_curator_review",
+      email: "test_curator_review@example.com",
       password: "password123",
       user_type: :curator
     )
     @proposer = User.create!(
       username: "proposer",
+      email: "proposer@example.com",
       password: "password123",
       user_type: :curator
     )
@@ -141,7 +143,7 @@ class CuratorReviewTest < ActiveSupport::TestCase
   end
 
   test "recent scope orders by created_at desc" do
-    reviewer2 = User.create!(username: "reviewer2", password: "password123", user_type: :curator)
+    reviewer2 = User.create!(username: "reviewer2", email: "reviewer2@example.com", password: "password123", user_type: :curator)
 
     first_review = CuratorReview.create!(
       content_change: @content_change,

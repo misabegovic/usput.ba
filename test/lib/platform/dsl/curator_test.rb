@@ -6,12 +6,14 @@ class Platform::DSL::CuratorTest < ActiveSupport::TestCase
   setup do
     @curator = User.create!(
       username: "test_curator_#{SecureRandom.hex(4)}",
+      email: "test_curator_#{SecureRandom.hex(4)}@example.com",
       user_type: :curator,
       password: "securepassword123"
     )
 
     @curator2 = User.create!(
       username: "curator2_#{SecureRandom.hex(4)}",
+      email: "curator2_#{SecureRandom.hex(4)}@example.com",
       user_type: :curator,
       password: "securepassword123"
     )
@@ -241,6 +243,7 @@ class Platform::DSL::CuratorTest < ActiveSupport::TestCase
   test "rejects non-curator user" do
     basic_user = User.create!(
       username: "basic_user_#{SecureRandom.hex(4)}",
+      email: "basic_user_#{SecureRandom.hex(4)}@example.com",
       user_type: :basic,
       password: "securepassword123"
     )
@@ -260,6 +263,7 @@ class Platform::Services::SpamDetectorTest < ActiveSupport::TestCase
   setup do
     @curator = User.create!(
       username: "spam_test_curator_#{SecureRandom.hex(4)}",
+      email: "spam_test_curator_#{SecureRandom.hex(4)}@example.com",
       user_type: :curator,
       password: "securepassword123"
     )

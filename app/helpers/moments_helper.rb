@@ -49,7 +49,7 @@ module MomentsHelper
   # sessions#new keeps return_to, and both signing in and registering honour it.
   def guest_like_data(moment)
     {
-      moment_like_url: login_path(return_to: request.fullpath),
+      moment_like_url: new_user_session_path(return_to: request.fullpath),
       moment_like_guest: "true",
       moment_liked: "false",
       moment_likes_count: moment.likes_count

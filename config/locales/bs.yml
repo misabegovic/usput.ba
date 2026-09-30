@@ -630,17 +630,53 @@ bs:
     profile_sync_info: Tvoj trenutni travel profil (posjećena mjesta, favoriti, badges) će biti sačuvan
       na tvom nalogu.
     profile_merge_info: Ako imaš lokalni profil, biće spojen sa tvojim sačuvanim profilom.
-    registration_success: Uspješno si kreirao nalog! Tvoj travel profil je sada trajno sačuvan.
-    login_success: Uspješno si se prijavio!
-    logout_success: Uspješno si se odjavio.
     login_required: Moraš biti prijavljen da pristupiš ovoj stranici.
-    invalid_credentials: Pogrešno korisničko ime ili lozinka.
     curator_required: Potrebne su ti kuratorske privilegije da pristupiš ovoj stranici.
     admin_required: Potrebne su ti administratorske privilegije da pristupiš ovoj stranici.
     email: Email
     email_placeholder: npr. ime@primjer.ba
     email_hint: Koristimo ga samo za tvoj nalog, npr. za novu lozinku.
     too_many_attempts: Previše pokušaja. Sačekaj malo pa pokušaj ponovo.
+    forgot_password: Zaboravio si lozinku?
+    back_to_login: Nazad na prijavu
+    new_password: Nova lozinka
+    other_sessions_ended: Odjavljen si sa svih drugih uređaja.
+    reset:
+      title: Nova lozinka - Usput
+      heading: Zaboravljena lozinka
+      subheading: Upiši svoj email i poslat ćemo ti link za novu lozinku.
+      send_button: Pošalji link
+      new_heading: Odaberi novu lozinku
+      save_button: Sačuvaj lozinku
+    confirm:
+      title: Potvrda emaila - Usput
+      heading: Nije stigao email?
+      subheading: Ponovo ćemo ti poslati link za potvrdu.
+      send_button: Pošalji ponovo
+      resend_link: Pošalji link ponovo
+    account:
+      link: Postavke naloga
+      title: Nalog - Usput
+      heading: Tvoj nalog
+      unconfirmed: Potvrdi svoj email preko linka koji smo ti poslali.
+      pending_email: Poslali smo link za potvrdu na %{email}. Email se mijenja kad ga otvoriš.
+      password_blank_hint: Ostavi prazno ako ne mijenjaš lozinku.
+      current_password: Trenutna lozinka
+      current_password_hint: Potrebna je za svaku promjenu.
+      save_button: Sačuvaj promjene
+      other_sessions_hint: Ostao si prijavljen negdje drugo? Ovo te odjavljuje svuda osim ovdje.
+      other_sessions_button: Odjavi se sa svih drugih uređaja
+    mail:
+      greeting: Zdravo %{name},
+      confirm_body: Hvala što si se pridružio Usputu. Potvrdi svoju email adresu preko linka ispod.
+      confirm_link: Potvrdi email
+      confirm_grace: Usput možeš koristiti odmah. Potvrdi email u roku od tri dana da bi se i dalje mogao prijavljivati.
+      reset_body: Neko je zatražio novu lozinku za tvoj Usput nalog. Odaberi novu preko linka ispod.
+      reset_link: Odaberi novu lozinku
+      reset_ignore: Ako to nisi bio ti, zanemari ovaj email. Lozinka ostaje ista, a link važi šest sati.
+      email_changed_body: Email na tvom Usput nalogu mijenja se u %{email}.
+      password_changed_body: Lozinka za tvoj Usput nalog je upravo promijenjena.
+      not_you: Ako ovo nisi uradio ti, odmah postavi novu lozinku.
   profile:
     my_moments:
       title: Tvoje uspomene
@@ -1576,3 +1612,48 @@ bs:
       flat_terrain: Ravan teren
       wheelchair_parking: Parking
       wheelchair_toilet: Pristupačan WC
+  errors:
+    messages:
+      already_confirmed: je već potvrđen, prijavi se
+      confirmation_period_expired: treba biti potvrđen u roku od %{period}, zatraži novi link
+      expired: je istekao, zatraži novi link
+  devise:
+    confirmations:
+      confirmed: Tvoj email je potvrđen. Hvala!
+      send_instructions: Poslali smo ti novi link za potvrdu. Trebao bi stići za nekoliko minuta.
+      send_paranoid_instructions: Ako taj email ima nalog, link za potvrdu je na putu.
+    failure:
+      already_authenticated: Već si prijavljen.
+      blocked: Ovaj nalog je blokiran. Javi nam se ako misliš da je greška.
+      inactive: Ovaj nalog nije aktivan.
+      invalid: Pogrešan email ili lozinka.
+      not_found_in_database: Pogrešan email ili lozinka.
+      timeout: Sesija je istekla. Prijavi se ponovo.
+      unauthenticated: Moraš biti prijavljen da pristupiš ovoj stranici.
+      unconfirmed: Potvrdi svoj email da bi se i dalje mogao prijavljivati. Link ti možemo poslati ponovo.
+    mailer:
+      confirmation_instructions:
+        subject: Potvrdi svoj email za Usput
+      reset_password_instructions:
+        subject: Odaberi novu lozinku za Usput
+      email_changed:
+        subject: Tvoj Usput email se mijenja
+      password_change:
+        subject: Tvoja Usput lozinka je promijenjena
+    passwords:
+      no_token: Ova stranica se otvara samo preko linka iz emaila za novu lozinku. Iskoristi cijeli link iz emaila.
+      send_instructions: Poslali smo ti link za novu lozinku.
+      send_paranoid_instructions: Ako taj email ima nalog, link za novu lozinku je na putu.
+      updated: Lozinka je promijenjena i prijavljen si.
+      updated_not_active: Lozinka je promijenjena.
+    registrations:
+      signed_up: Nalog je kreiran! Tvoj travel profil je sačuvan, a poslali smo ti i link da potvrdiš email.
+      signed_up_but_inactive: Nalog je kreiran, ali još nije aktivan.
+      signed_up_but_unconfirmed: Nalog je kreiran. Potvrdi email preko linka koji smo ti poslali da bi se prijavio.
+      update_needs_confirmation: Sačuvano. Poslali smo link na tvoj novi email; mijenja se kad ga otvoriš.
+      updated: Tvoj nalog je sačuvan.
+      updated_but_not_signed_in: Tvoj nalog je sačuvan. Prijavi se ponovo novom lozinkom.
+    sessions:
+      signed_in: Uspješno si se prijavio!
+      signed_out: Uspješno si se odjavio.
+      already_signed_out: Uspješno si se odjavio.

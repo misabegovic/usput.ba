@@ -702,7 +702,7 @@
                 <%= t("common.cancel", default: "Odustani") %>
               </button>
               <!-- Login button (shown when not logged in) -->
-              <%= link_to login_path,
+              <%= link_to new_user_session_path,
                         class: "hidden flex-1 px-4 py-3 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors text-center",
                         data: { plan_viewer_target: "visibilityLoginButton" } do %>
                 <%= t("auth.login_link", default: "Prijavi se") %>

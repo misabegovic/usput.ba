@@ -6,7 +6,7 @@
     <% liked = !guest && liked_moment?(moment) %>
     <%# A guest's heart is an ordinary link into sign-in, which returns here. %>
     <% href = if guest
-                 login_path(return_to: request.fullpath)
+                 new_user_session_path(return_to: request.fullpath)
                else
                  moment_like_path(moment, context: scope, gallery_context: local_assigns[:gallery_context])
                end %>

@@ -6,7 +6,7 @@ require "application_system_test_case"
 # because the trigger only ever existed in the browser.
 class VisitBadgesTest < ApplicationSystemTestCase
   setup do
-    @user = User.create!(username: "sys_walker", password: "password123")
+    @user = User.create!(username: "sys_walker", email: "sys_walker@example.com", password: "password123")
     @type = ExperienceType.create!(key: "history", name: "Sys History", active: true)
     @location = Location.create!(name: "Sys Bridge", city: "Mostar", lat: 43.337, lng: 17.815,
                                  suitable_experiences: [ @type.key ])

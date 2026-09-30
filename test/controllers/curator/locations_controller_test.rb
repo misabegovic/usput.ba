@@ -6,21 +6,25 @@ class Curator::LocationsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @curator = User.create!(
       username: "test_curator_#{SecureRandom.hex(4)}",
+      email: "test_curator_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :curator
     )
     @other_curator = User.create!(
       username: "other_curator_#{SecureRandom.hex(4)}",
+      email: "other_curator_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :curator
     )
     @basic_user = User.create!(
       username: "basic_user_#{SecureRandom.hex(4)}",
+      email: "basic_user_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :basic
     )
     @admin = User.create!(
       username: "admin_user_#{SecureRandom.hex(4)}",
+      email: "admin_user_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :admin
     )
@@ -80,37 +84,37 @@ class Curator::LocationsControllerTest < ActionDispatch::IntegrationTest
 
   test "index requires login" do
     get curator_locations_path
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "show requires login" do
     get curator_location_path(@location)
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "new requires login" do
     get new_curator_location_path
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "create requires login" do
     post curator_locations_path, params: { location: { name: "New Location" } }
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "edit requires login" do
     get edit_curator_location_path(@location)
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "update requires login" do
     patch curator_location_path(@location), params: { location: { name: "Updated Name" } }
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "destroy requires login" do
     delete curator_location_path(@location)
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   # ==========================================================================
@@ -818,7 +822,7 @@ class Curator::LocationsControllerTest < ActionDispatch::IntegrationTest
 
   test "the delete confirmation names the memories it will destroy" do
     Flipper.enable(:curator_edit_delete)
-    traveller = User.create!(username: "held_#{SecureRandom.hex(4)}", password: "password123")
+    traveller = User.create!(username: "held_#{SecureRandom.hex(4)}", email: "held_#{SecureRandom.hex(4)}@example.com", password: "password123")
     plan = Plan.explore_bosnia_for(traveller)
     traveller.plan_visits.create!(plan: plan, location: @location)
     moment = traveller.moments.build(plan: plan, location: @location, note: "here")
@@ -867,9 +871,6 @@ class Curator::LocationsControllerTest < ActionDispatch::IntegrationTest
   private
 
   def login_as(user)
-    post login_path, params: {
-      username: user.username,
-      password: "password123"
-    }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 end

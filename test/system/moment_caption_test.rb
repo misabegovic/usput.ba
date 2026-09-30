@@ -5,8 +5,8 @@ require "application_system_test_case"
 # fills and a heart wired to nothing — so each one is clicked.
 class MomentCaptionTest < ApplicationSystemTestCase
   setup do
-    @author = User.create!(username: "cap_author", password: "password123")
-    @reader = User.create!(username: "cap_reader", password: "password123")
+    @author = User.create!(username: "cap_author", email: "cap_author@example.com", password: "password123")
+    @reader = User.create!(username: "cap_reader", email: "cap_reader@example.com", password: "password123")
     @location = Location.create!(name: "Caption Falls", city: "Jajce", lat: 44.34, lng: 17.27)
     @plan = Plan.create!(title: "Caption Plan", city_name: "Jajce", visibility: :private_plan, user: @author)
     @moments = 2.times.map { |i| public_moment("worth the walk #{i}") }
@@ -74,11 +74,11 @@ class MomentCaptionTest < ApplicationSystemTestCase
       first("a[aria-label='#{I18n.t("explore.moment_like_sign_in")}']", wait: 10).click
     end
 
-    assert_current_path(/#{Regexp.escape(login_path)}/)
+    assert_current_path(/#{Regexp.escape(new_user_session_path)}/)
 
     within "form" do
-      fill_in "username", with: "cap_reader"
-      fill_in "password", with: "password123"
+      fill_in "user_email", with: User.find_by!(username: "cap_reader").email
+      fill_in "user_password", with: "password123"
       click_button
     end
 

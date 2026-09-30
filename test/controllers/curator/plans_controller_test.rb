@@ -6,21 +6,25 @@ class Curator::PlansControllerTest < ActionDispatch::IntegrationTest
   setup do
     @admin = User.create!(
       username: "test_admin_#{SecureRandom.hex(4)}",
+      email: "test_admin_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :admin
     )
     @curator = User.create!(
       username: "test_curator_#{SecureRandom.hex(4)}",
+      email: "test_curator_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :curator
     )
     @other_curator = User.create!(
       username: "other_curator_#{SecureRandom.hex(4)}",
+      email: "other_curator_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :curator
     )
     @basic_user = User.create!(
       username: "basic_user_#{SecureRandom.hex(4)}",
+      email: "basic_user_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :basic
     )
@@ -72,7 +76,7 @@ class Curator::PlansControllerTest < ActionDispatch::IntegrationTest
 
   test "index requires login" do
     get curator_plans_path
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "index requires curator role" do
@@ -83,7 +87,7 @@ class Curator::PlansControllerTest < ActionDispatch::IntegrationTest
 
   test "show requires login" do
     get curator_plan_path(@plan)
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "show requires curator role" do
@@ -94,7 +98,7 @@ class Curator::PlansControllerTest < ActionDispatch::IntegrationTest
 
   test "new requires login" do
     get new_curator_plan_path
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "new requires curator role" do
@@ -105,7 +109,7 @@ class Curator::PlansControllerTest < ActionDispatch::IntegrationTest
 
   test "create requires login" do
     post curator_plans_path, params: { plan: { title: "New Plan" } }
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "create requires curator role" do
@@ -116,7 +120,7 @@ class Curator::PlansControllerTest < ActionDispatch::IntegrationTest
 
   test "edit requires login" do
     get edit_curator_plan_path(@plan)
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "edit requires curator role" do
@@ -127,7 +131,7 @@ class Curator::PlansControllerTest < ActionDispatch::IntegrationTest
 
   test "update requires login" do
     patch curator_plan_path(@plan), params: { plan: { title: "Updated" } }
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "update requires curator role" do
@@ -138,7 +142,7 @@ class Curator::PlansControllerTest < ActionDispatch::IntegrationTest
 
   test "destroy requires login" do
     delete curator_plan_path(@plan)
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "destroy requires curator role" do
@@ -508,9 +512,6 @@ class Curator::PlansControllerTest < ActionDispatch::IntegrationTest
   private
 
   def login_as(user)
-    post login_path, params: {
-      username: user.username,
-      password: "password123"
-    }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 end

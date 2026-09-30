@@ -1,0 +1,50 @@
+<% content_for(:title) { t("auth.account.title") } %>
+<% field = "w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors" %>
+<% label = "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+
+<%= render layout: "users/card", locals: { heading: t("auth.account.heading"), subheading: resource.email } do %>
+  <% unless resource.confirmed? %>
+    <div class="mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-sm text-amber-800 dark:text-amber-300">
+      <%= t("auth.account.unconfirmed") %>
+      <%= link_to t("auth.confirm.resend_link"), new_user_confirmation_path, class: "font-medium underline" %>
+    </div>
+  <% end %>
+  <% if resource.pending_reconfirmation? %>
+    <div class="mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-sm text-amber-800 dark:text-amber-300">
+      <%= t("auth.account.pending_email", email: resource.unconfirmed_email) %>
+    </div>
+  <% end %>
+
+  <%= form_with model: resource, scope: resource_name, url: user_registration_path, method: :put, class: "space-y-6" do |f| %>
+    <%= render "users/errors" %>
+    <div>
+      <%= f.label :username, t("auth.username"), class: label %>
+      <%= f.text_field :username, autocomplete: "nickname", required: true, class: field %>
+    </div>
+    <div>
+      <%= f.label :email, t("auth.email"), class: label %>
+      <%= f.email_field :email, autocomplete: "email", required: true, class: field %>
+    </div>
+    <div>
+      <%= f.label :password, t("auth.new_password"), class: label %>
+      <%= f.password_field :password, autocomplete: "new-password", class: field %>
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400"><%= t("auth.account.password_blank_hint") %></p>
+    </div>
+    <div>
+      <%= f.label :password_confirmation, t("auth.password_confirmation"), class: label %>
+      <%= f.password_field :password_confirmation, autocomplete: "new-password", class: field %>
+    </div>
+    <div>
+      <%= f.label :current_password, t("auth.account.current_password"), class: label %>
+      <%= f.password_field :current_password, autocomplete: "current-password", required: true, class: field %>
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400"><%= t("auth.account.current_password_hint") %></p>
+    </div>
+    <%= f.submit t("auth.account.save_button"), class: "w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 px-6 rounded-lg font-medium hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg cursor-pointer" %>
+  <% end %>
+
+  <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 space-y-3">
+    <p class="text-sm text-gray-600 dark:text-gray-400"><%= t("auth.account.other_sessions_hint") %></p>
+    <%= button_to t("auth.account.other_sessions_button"), other_sessions_path, method: :delete,
+          class: "w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium transition-colors cursor-pointer" %>
+  </div>
+<% end %>

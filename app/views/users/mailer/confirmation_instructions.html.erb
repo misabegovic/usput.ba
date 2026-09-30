@@ -1,0 +1,4 @@
+<p><%= t("auth.mail.greeting", name: @resource.username) %></p>
+<p><%= t("auth.mail.confirm_body") %></p>
+<p><%= link_to t("auth.mail.confirm_link"), confirmation_url(@resource, confirmation_token: @token) %></p>
+<p><%= t("auth.mail.confirm_grace") %></p>

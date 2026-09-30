@@ -13,6 +13,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
 
     @user = User.create!(
       username: "curator_test_user_#{SecureRandom.hex(4)}",
+      email: "curator_test_user_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       password_confirmation: "password123",
       user_type: :basic
@@ -20,6 +21,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
 
     @curator = User.create!(
       username: "curator_#{SecureRandom.hex(4)}",
+      email: "curator_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       password_confirmation: "password123",
       user_type: :curator
@@ -27,6 +29,7 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
 
     @admin = User.create!(
       username: "admin_#{SecureRandom.hex(4)}",
+      email: "admin_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       password_confirmation: "password123",
       user_type: :admin

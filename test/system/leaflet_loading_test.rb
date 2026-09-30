@@ -22,7 +22,7 @@ class LeafletLoadingTest < ApplicationSystemTestCase
   end
 
   test "the sign-in page never loads the mapping library" do
-    visit login_path
+    visit new_user_session_path
     assert_selector "form"
 
     assert_equal "undefined", page.evaluate_script("typeof window.L"),

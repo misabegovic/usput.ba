@@ -193,7 +193,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "explore returns approved public moments under the moment type" do
-    user = User.create!(username: "explorer_sharer", password: "password123")
+    user = User.create!(username: "explorer_sharer", email: "explorer_sharer@example.com", password: "password123")
     moment = user.moments.build(plan: @plan, location: @location)
     moment.photo.attach(io: File.open(file_fixture("real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
     moment.save!
@@ -210,8 +210,8 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "relevance ranks a moment by its own likes, not the rating of its place" do
-    user = User.create!(username: "likes_ranker", password: "password123")
-    liker = User.create!(username: "likes_giver", password: "password123")
+    user = User.create!(username: "likes_ranker", email: "likes_ranker@example.com", password: "password123")
+    liker = User.create!(username: "likes_giver", email: "likes_giver@example.com", password: "password123")
     # Own places: relevance leads with the rating, so the liked moment has to
     # sit at the weaker of the two for the likes to be what moves it.
     weaker = Location.create!(name: "Ranker Weaker", city: "Tuzla", lat: 44.53, lng: 18.67,
@@ -240,7 +240,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "explore does not surface a pending or private moment" do
-    user = User.create!(username: "private_sharer", password: "password123")
+    user = User.create!(username: "private_sharer", email: "private_sharer@example.com", password: "password123")
     moment = user.moments.build(plan: @plan, location: @mostar_location)
     moment.photo.attach(io: File.open(file_fixture("real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
     moment.save!
@@ -256,7 +256,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a traveller's own moments arrive three at a time, like the public ones beside them" do
-    user = User.create!(username: "band_pager", password: "password123")
+    user = User.create!(username: "band_pager", email: "band_pager@example.com", password: "password123")
     5.times { own_moment_for(user, @location) }
     login_as(user)
 
@@ -272,7 +272,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the next page of own moments comes back without a rendered position" do
-    user = User.create!(username: "band_page_two", password: "password123")
+    user = User.create!(username: "band_page_two", email: "band_page_two@example.com", password: "password123")
     5.times { own_moment_for(user, @location) }
     login_as(user)
 
@@ -291,7 +291,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   # Asking each moment whether it is liked is the N+1 this guards: the cost is
   # one query for the whole page, so more moments must not mean more queries.
   test "the moment band's query count does not grow with the number of moments" do
-    user = User.create!(username: "band_counter", password: "password123")
+    user = User.create!(username: "band_counter", email: "band_counter@example.com", password: "password123")
     3.times { own_moment_for(user, @location) }
     login_as(user)
     get explore_path, params: { types: [ "moment" ] } # warm the caches
@@ -312,7 +312,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "explore shows a traveller their own private moment, which the public grid never gets" do
-    user = User.create!(username: "band_owner", password: "password123")
+    user = User.create!(username: "band_owner", email: "band_owner@example.com", password: "password123")
     moment = own_moment_for(user, @location)
     login_as(user)
 
@@ -339,7 +339,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   # travel_profile_path is the JSON endpoint: linking there printed the raw
   # profile payload on screen instead of opening the profile.
   test "see-all-your-moments goes to the profile page, not the JSON endpoint" do
-    user = User.create!(username: "band_all_link", password: "password123")
+    user = User.create!(username: "band_all_link", email: "band_all_link@example.com", password: "password123")
     Moment::PAGE_SIZE.times { own_moment_for(user, @location) }
     login_as(user)
 
@@ -354,7 +354,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the band card links through to the moment's location" do
-    user = User.create!(username: "band_linker", password: "password123")
+    user = User.create!(username: "band_linker", email: "band_linker@example.com", password: "password123")
     own_moment_for(user, @location)
     login_as(user)
 
@@ -368,7 +368,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a logged-out visitor gets no own-moments band" do
-    user = User.create!(username: "band_absent", password: "password123")
+    user = User.create!(username: "band_absent", email: "band_absent@example.com", password: "password123")
     own_moment_for(user, @location)
 
     get explore_path, params: { types: [ "moment" ] }
@@ -381,8 +381,8 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "another traveller's private moment stays out of your band" do
-    mine = User.create!(username: "band_mine", password: "password123")
-    theirs = User.create!(username: "band_theirs", password: "password123")
+    mine = User.create!(username: "band_mine", email: "band_mine@example.com", password: "password123")
+    theirs = User.create!(username: "band_theirs", email: "band_theirs@example.com", password: "password123")
     hidden = own_moment_for(theirs, @mostar_location)
     login_as(mine)
 
@@ -398,7 +398,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a public moment expands like your own instead of navigating away" do
-    sharer = User.create!(username: "band_public", password: "password123")
+    sharer = User.create!(username: "band_public", email: "band_public@example.com", password: "password123")
     shared = own_moment_for(sharer, @location)
     # Publishing re-enters moderation, so approval is a second step.
     shared.update!(visibility: :public_moment)
@@ -703,7 +703,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a moment's own address opens the viewer on it, in the moments view" do
-    user = User.create!(username: "addressed", password: "password123")
+    user = User.create!(username: "addressed", email: "addressed@example.com", password: "password123")
     named = publish_moment(user, @location)
     sync_browse_records
 
@@ -719,7 +719,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a moment's address is the moments view, paged exactly as it is at /explore" do
-    user = User.create!(username: "pager", password: "password123")
+    user = User.create!(username: "pager", email: "pager@example.com", password: "password123")
     5.times { publish_moment(user, @location) }
     named = publish_moment(user, @location)
     sync_browse_records
@@ -736,8 +736,8 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "someone else's private moment sends you to the moments view instead" do
-    owner = User.create!(username: "addr_owner", password: "password123")
-    stranger = User.create!(username: "addr_stranger", password: "password123")
+    owner = User.create!(username: "addr_owner", email: "addr_owner@example.com", password: "password123")
+    stranger = User.create!(username: "addr_stranger", email: "addr_stranger@example.com", password: "password123")
     hidden = own_moment_for(owner, @location)
     visible = publish_moment(owner, @location)
     sync_browse_records
@@ -754,7 +754,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "an id that never existed answers exactly as a private moment does" do
-    user = User.create!(username: "addr_ghost", password: "password123")
+    user = User.create!(username: "addr_ghost", email: "addr_ghost@example.com", password: "password123")
     visible = publish_moment(user, @location)
     sync_browse_records
 
@@ -768,7 +768,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a moment's address previews as the moment, not as the search page" do
-    user = User.create!(username: "addr_preview", password: "password123")
+    user = User.create!(username: "addr_preview", email: "addr_preview@example.com", password: "password123")
     named = publish_moment(user, @location)
     named.update!(note: "The bridge at dusk")
     sync_browse_records
@@ -800,7 +800,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   def login_as(user)
-    post login_path, params: { username: user.username, password: "password123" }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 
   # Helper to sync Browse records for search functionality

@@ -1,0 +1,18 @@
+<%# The frame every account page shares: logo, heading, and a card for the form. %>
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <div class="text-center">
+      <a href="<%= root_path %>" class="inline-block hover:opacity-80 transition-opacity">
+        <img src="/usput-logo.png" alt="Usput" class="h-12 w-auto">
+      </a>
+      <h2 class="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white"><%= heading %></h2>
+      <% if local_assigns[:subheading] %>
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400"><%= subheading %></p>
+      <% end %>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+      <%= render "users/flash" %>
+      <%= yield %>
+    </div>
+  </div>
+</div>

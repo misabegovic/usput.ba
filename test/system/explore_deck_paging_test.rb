@@ -4,7 +4,7 @@ require "application_system_test_case"
 # a full page has to deal the next one and, once the places run out, end.
 class ExploreDeckPagingTest < ApplicationSystemTestCase
   setup do
-    @user = User.create!(username: "sys_pager", password: "password123")
+    @user = User.create!(username: "sys_pager", email: "sys_pager@example.com", password: "password123")
     @type = ExperienceType.create!(key: "history", name: "Sys History", active: true)
     @locations = 12.times.map do |i|
       Location.create!(name: "Pager Spot #{i}", city: "Sarajevo",

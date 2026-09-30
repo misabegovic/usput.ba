@@ -6,21 +6,25 @@ class Curator::Admin::UsersControllerTest < ActionDispatch::IntegrationTest
   setup do
     @admin = User.create!(
       username: "test_admin_#{SecureRandom.hex(4)}",
+      email: "test_admin_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :admin
     )
     @curator = User.create!(
       username: "test_curator_#{SecureRandom.hex(4)}",
+      email: "test_curator_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :curator
     )
     @basic_user = User.create!(
       username: "basic_user_#{SecureRandom.hex(4)}",
+      email: "basic_user_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :basic
     )
     @blocked_user = User.create!(
       username: "blocked_user_#{SecureRandom.hex(4)}",
+      email: "blocked_user_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :curator,
       spam_blocked_at: Time.current,
@@ -187,9 +191,6 @@ class Curator::Admin::UsersControllerTest < ActionDispatch::IntegrationTest
   private
 
   def login_as(user)
-    post login_path, params: {
-      username: user.username,
-      password: "password123"
-    }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 end

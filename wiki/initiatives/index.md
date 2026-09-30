@@ -24,7 +24,7 @@ Work in flight and work proposed. A proposed initiative is a question still open
 
 On 2026-09-30 the operator decided to rebuild usput from scratch, in place, with no backwards compatibility and an empty database, while the old site stays up until launch ([direction](../../sources/conversations/2026-09-30--usput--platform-direction.md)). Version 1 covers places and explore, plans and walking, reviews with Jev, and the AI content pipeline. The pages below are proposed, listed in the order they would be built.
 
-1. [Secure sessions](secure-sessions.md): a server-side session record, rate limits that fire, sign-out that works, the guest walk kept.
+1. [Secure sessions](secure-sessions.md): accounts through Devise by email, confirmation and reset through Postmark, sign-out everywhere, Google sign-in, the guest walk kept.
 2. [Avo admin and roles](avo-admin-and-roles.md): every admin and curator task in Avo Community, role rules in our own code.
 3. [What the rebuild leaves out: the curator dashboard](remove-curator-dashboard.md): the curator area, proposals, photo suggestions and applications, and why.
 4. [RubyLLM 2 in the rebuild](rubyllm-2-upgrade.md): one LLM seam, structured output, prompts only from files, jobs.

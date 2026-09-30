@@ -8,8 +8,8 @@ require "test_helper"
 # so these tests pin the affordance, not just the mechanism.
 class CuratorExperienceDeleteTest < ActionDispatch::IntegrationTest
   setup do
-    @curator = User.create!(username: "del_curator", password: "password123", user_type: :curator)
-    @admin = User.create!(username: "del_admin", password: "password123", user_type: :admin)
+    @curator = User.create!(username: "del_curator", email: "del_curator@example.com", password: "password123", user_type: :curator)
+    @admin = User.create!(username: "del_admin", email: "del_admin@example.com", password: "password123", user_type: :admin)
     @experience = Experience.create!(title: "Doomed Experience", description: "d")
     Flipper.enable(:curator_edit_delete)
   end
@@ -59,7 +59,7 @@ class CuratorExperienceDeleteTest < ActionDispatch::IntegrationTest
     login_as(@curator)
     delete curator_experience_path(@experience)
     proposal = ContentChange.find_by(changeable: @experience, change_type: :delete_content)
-    delete logout_path
+    delete destroy_user_session_path
 
     login_as(@admin)
 
@@ -73,6 +73,6 @@ class CuratorExperienceDeleteTest < ActionDispatch::IntegrationTest
   private
 
   def login_as(user)
-    post login_path, params: { username: user.username, password: "password123" }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 end

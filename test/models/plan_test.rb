@@ -19,6 +19,7 @@ class PlanTest < ActiveSupport::TestCase
 
     @user = User.create!(
       username: "plantest",
+      email: "plantest@example.com",
       password: "password123",
       password_confirmation: "password123"
     )
@@ -752,7 +753,7 @@ class PlanTest < ActiveSupport::TestCase
   private
 
   def create_traveller
-    User.create!(username: "walker_#{SecureRandom.hex(4)}", password: "password123")
+    User.create!(username: "walker_#{SecureRandom.hex(4)}", email: "walker_#{SecureRandom.hex(4)}@example.com", password: "password123")
   end
 
   def count_location_selects

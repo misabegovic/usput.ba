@@ -1,0 +1,5 @@
+<%= t("auth.mail.greeting", name: @resource.username) %>
+
+<%= t("auth.mail.email_changed_body", email: @resource.try(:unconfirmed_email).presence || @resource.email) %>
+
+<%= t("auth.mail.not_you") %>

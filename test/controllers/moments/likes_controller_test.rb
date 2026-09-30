@@ -4,8 +4,8 @@ require "test_helper"
 
 class Moments::LikesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @owner = User.create!(username: "heart_owner", password: "password123")
-    @reader = User.create!(username: "heart_reader", password: "password123")
+    @owner = User.create!(username: "heart_owner", email: "heart_owner@example.com", password: "password123")
+    @reader = User.create!(username: "heart_reader", email: "heart_reader@example.com", password: "password123")
     @location = Location.create!(name: "Heart Location", city: "Trebinje", lat: 42.71, lng: 18.34)
     @plan = Plan.create!(title: "Heart Plan", city_name: "Trebinje", visibility: :private_plan, user: @owner)
     @moment = moment_for(visibility: :public_moment, moderation: :approved)
@@ -57,7 +57,7 @@ class Moments::LikesControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :see_other
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "a private moment cannot be liked" do
@@ -85,7 +85,7 @@ class Moments::LikesControllerTest < ActionDispatch::IntegrationTest
   private
 
   def login_as(user)
-    post login_path, params: { username: user.username, password: "password123" }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 
   def moment_for(visibility:, moderation:)

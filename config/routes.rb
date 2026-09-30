@@ -31,12 +31,14 @@ Rails.application.routes.draw do
   # "all" is the unfiltered entry; several at once ride in the query string.
   get "explore-bosnia/:category", to: "explore_bosnia#experience", as: :explore_bosnia_experience
 
-  # Authentication routes
-  get "register", to: "users#new", as: :register
-  post "register", to: "users#create"
-  get "login", to: "sessions#new", as: :login
-  post "login", to: "sessions#create"
-  delete "logout", to: "sessions#destroy", as: :logout
+  # Accounts (Devise): /login, /logout, /account/register, /account/edit,
+  # /password/new and /confirmation/new
+  devise_for :users,
+    path: "",
+    path_names: { sign_in: "login", sign_out: "logout", sign_up: "register", registration: "account" },
+    controllers: { sessions: "users/sessions", registrations: "users/registrations", passwords: "users/passwords", confirmations: "users/confirmations" }
+  delete "account/other_sessions", to: "users/other_sessions#destroy", as: :other_sessions
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 
   # User avatar
   patch "profile/avatar", to: "users#update_avatar", as: :update_avatar

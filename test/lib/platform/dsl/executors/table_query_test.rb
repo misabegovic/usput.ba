@@ -371,6 +371,7 @@ class Platform::DSL::Executors::TableQueryTest < ActiveSupport::TestCase
   test "format_record for User" do
     user = User.create!(
       username: "test_format_user_#{SecureRandom.hex(4)}",
+      email: "test_format_user_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :curator
     )
@@ -387,6 +388,7 @@ class Platform::DSL::Executors::TableQueryTest < ActiveSupport::TestCase
     # Use Review as a generic record type
     user = User.create!(
       username: "reviewer_#{SecureRandom.hex(4)}",
+      email: "reviewer_#{SecureRandom.hex(4)}@example.com",
       password: "password123"
     )
     location = Location.create!(name: "Review Location", city: "Tuzla", lat: 44.5, lng: 18.6)

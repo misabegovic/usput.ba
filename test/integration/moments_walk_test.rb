@@ -6,7 +6,7 @@ require "test_helper"
 # plan page, and the walk offers publish/unpublish.
 class MomentsWalkTest < ActionDispatch::IntegrationTest
   setup do
-    @user = User.create!(username: "walker", password: "password123")
+    @user = User.create!(username: "walker", email: "walker@example.com", password: "password123")
     @location = Location.create!(name: "Walk Loc", city: "Sarajevo", lat: 43.85, lng: 18.41)
     @experience = Experience.create!(title: "Walk Exp", description: "desc")
     @experience.locations << @location
@@ -126,7 +126,7 @@ class MomentsWalkTest < ActionDispatch::IntegrationTest
   private
 
   def login_as(user)
-    post login_path, params: { username: user.username, password: "password123" }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 
   def add_moment(note: nil)

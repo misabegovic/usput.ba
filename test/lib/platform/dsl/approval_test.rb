@@ -6,18 +6,21 @@ class Platform::DSL::ApprovalTest < ActiveSupport::TestCase
   setup do
     @admin = User.create!(
       username: "test_admin_#{SecureRandom.hex(4)}",
+      email: "test_admin_#{SecureRandom.hex(4)}@example.com",
       user_type: :admin,
       password: "securepassword123"
     )
 
     @curator = User.create!(
       username: "test_curator_#{SecureRandom.hex(4)}",
+      email: "test_curator_#{SecureRandom.hex(4)}@example.com",
       user_type: :curator,
       password: "securepassword123"
     )
 
     @regular_user = User.create!(
       username: "test_user_#{SecureRandom.hex(4)}",
+      email: "test_user_#{SecureRandom.hex(4)}@example.com",
       user_type: :basic,
       password: "securepassword123"
     )

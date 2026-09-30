@@ -7,7 +7,7 @@ require "test_helper"
 # phone and nothing failed.
 class Curator::NavTest < ActionDispatch::IntegrationTest
   setup do
-    @curator = User.create!(username: "nav_curator", password: "password123", user_type: :curator)
+    @curator = User.create!(username: "nav_curator", email: "nav_curator@example.com", password: "password123", user_type: :curator)
   end
 
   teardown do
@@ -30,6 +30,6 @@ class Curator::NavTest < ActionDispatch::IntegrationTest
   private
 
   def login_as(user)
-    post login_path, params: { username: user.username, password: "password123" }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 end

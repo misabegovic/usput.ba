@@ -20,6 +20,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     # Create a test user for content changes
     @test_user = User.create!(
       username: "test_user_#{SecureRandom.hex(4)}",
+      email: "test_user_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       password_confirmation: "password123"
     )
@@ -248,7 +249,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
   end
 
   test "format_record for User" do
-    user = User.create!(username: "testuser_#{SecureRandom.hex(4)}", password: "password123")
+    user = User.create!(username: "testuser_#{SecureRandom.hex(4)}", email: "testuser_#{SecureRandom.hex(4)}@example.com", password: "password123")
 
     result = Platform::DSL::Executor.send(:format_record, user)
 
@@ -481,7 +482,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
   # Format record edge cases
   test "format_record for Review falls back to attributes" do
-    user = User.create!(username: "review_test_#{SecureRandom.hex(4)}", password: "password123")
+    user = User.create!(username: "review_test_#{SecureRandom.hex(4)}", email: "review_test_#{SecureRandom.hex(4)}@example.com", password: "password123")
     review = Review.create!(
       reviewable: @sarajevo_location,
       user: user,
@@ -585,6 +586,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
   test "execute_curator_management block command" do
     curator = User.create!(
       username: "block_test_#{SecureRandom.hex(4)}",
+      email: "block_test_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :curator
     )
@@ -599,6 +601,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
   test "execute_curator_management unblock command" do
     curator = User.create!(
       username: "unblock_test_#{SecureRandom.hex(4)}",
+      email: "unblock_test_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :curator
     )
@@ -1176,6 +1179,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
   test "curators show returns curator details" do
     curator = User.create!(
       username: "curator_test_#{SecureRandom.hex(4)}",
+      email: "curator_test_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       password_confirmation: "password123",
       user_type: :curator
@@ -1323,6 +1327,7 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
   test "list_curators returns curators list" do
     User.create!(
       username: "curator_list_test_#{SecureRandom.hex(4)}",
+      email: "curator_list_test_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       password_confirmation: "password123",
       user_type: :curator

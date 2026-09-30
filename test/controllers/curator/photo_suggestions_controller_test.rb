@@ -6,16 +6,19 @@ class Curator::PhotoSuggestionsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @curator = User.create!(
       username: "test_curator_#{SecureRandom.hex(4)}",
+      email: "test_curator_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :curator
     )
     @other_curator = User.create!(
       username: "other_curator_#{SecureRandom.hex(4)}",
+      email: "other_curator_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :curator
     )
     @basic_user = User.create!(
       username: "basic_user_#{SecureRandom.hex(4)}",
+      email: "basic_user_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :basic
     )
@@ -46,7 +49,7 @@ class Curator::PhotoSuggestionsControllerTest < ActionDispatch::IntegrationTest
   # Authentication tests
   test "index requires login" do
     get curator_photo_suggestions_path
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "index requires curator role" do
@@ -85,7 +88,7 @@ class Curator::PhotoSuggestionsControllerTest < ActionDispatch::IntegrationTest
   # New action tests
   test "new requires login" do
     get new_curator_location_photo_suggestion_path(@location)
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "new shows form" do
@@ -99,7 +102,7 @@ class Curator::PhotoSuggestionsControllerTest < ActionDispatch::IntegrationTest
     post curator_location_photo_suggestions_path(@location), params: {
       photo_suggestion: { photo_url: "https://example.com/new.jpg" }
     }
-    assert_redirected_to login_path
+    assert_redirected_to new_user_session_path
   end
 
   test "create with valid photo_url creates suggestion" do
@@ -171,9 +174,6 @@ class Curator::PhotoSuggestionsControllerTest < ActionDispatch::IntegrationTest
   private
 
   def login_as(user)
-    post login_path, params: {
-      username: user.username,
-      password: "password123"
-    }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 end

@@ -6,16 +6,19 @@ class Curator::Admin::CuratorApplicationsControllerTest < ActionDispatch::Integr
   setup do
     @admin = User.create!(
       username: "test_admin_#{SecureRandom.hex(4)}",
+      email: "test_admin_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :admin
     )
     @curator = User.create!(
       username: "test_curator_#{SecureRandom.hex(4)}",
+      email: "test_curator_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :curator
     )
     @applicant = User.create!(
       username: "applicant_#{SecureRandom.hex(4)}",
+      email: "applicant_#{SecureRandom.hex(4)}@example.com",
       password: "password123",
       user_type: :basic
     )
@@ -145,9 +148,6 @@ class Curator::Admin::CuratorApplicationsControllerTest < ActionDispatch::Integr
   private
 
   def login_as(user)
-    post login_path, params: {
-      username: user.username,
-      password: "password123"
-    }
+    post user_session_path, params: { user: { email: user.email, password: "password123" } }
   end
 end

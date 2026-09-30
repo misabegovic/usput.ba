@@ -6,11 +6,13 @@ class ContentChangeTest < ActiveSupport::TestCase
   setup do
     @curator = User.create!(
       username: "test_curator",
+      email: "test_curator@example.com",
       password: "password123",
       user_type: :curator
     )
     @admin = User.create!(
       username: "test_admin",
+      email: "test_admin@example.com",
       password: "password123",
       user_type: :curator
     )
@@ -294,6 +296,7 @@ class ContentChangeTest < ActiveSupport::TestCase
     # Second curator adds to same proposal
     second_curator = User.create!(
       username: "second_curator",
+      email: "second_curator@example.com",
       password: "password123",
       user_type: :curator
     )
@@ -360,9 +363,9 @@ class ContentChangeTest < ActiveSupport::TestCase
       proposed_data: { "name" => "Test Location" }
     )
 
-    reviewer1 = User.create!(username: "reviewer1", password: "password123", user_type: :curator)
-    reviewer2 = User.create!(username: "reviewer2", password: "password123", user_type: :curator)
-    reviewer3 = User.create!(username: "reviewer3", password: "password123", user_type: :curator)
+    reviewer1 = User.create!(username: "reviewer1", email: "reviewer1@example.com", password: "password123", user_type: :curator)
+    reviewer2 = User.create!(username: "reviewer2", email: "reviewer2@example.com", password: "password123", user_type: :curator)
+    reviewer3 = User.create!(username: "reviewer3", email: "reviewer3@example.com", password: "password123", user_type: :curator)
 
     CuratorReview.create!(content_change: change, user: reviewer1, comment: "Looks good to me", recommendation: :recommend_approve)
     CuratorReview.create!(content_change: change, user: reviewer2, comment: "I have concerns about this", recommendation: :recommend_reject)
@@ -387,7 +390,7 @@ class ContentChangeTest < ActiveSupport::TestCase
       proposed_data: { "name" => "Updated" }
     )
 
-    contributor = User.create!(username: "contributor", password: "password123", user_type: :curator)
+    contributor = User.create!(username: "contributor", email: "contributor@example.com", password: "password123", user_type: :curator)
     change.add_contribution(user: contributor, proposed_data: { "description" => "New description" })
 
     all = change.all_contributors
