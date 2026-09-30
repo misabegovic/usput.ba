@@ -1,7 +1,7 @@
 ---
 title: Secure sessions for the rebuilt app
 kind: initiative
-status: proposed
+status: living
 updated: 2026-09-30
 repos:
 - usput.ba
@@ -29,7 +29,7 @@ sources:
 enola_intent:
   page:
     type: initiative
-    status: proposed
+    status: living
     scope:
     - usput.ba
     origin:
@@ -89,18 +89,18 @@ What the rebuilt app has:
 
 Slices, in order on the rebuild branch, each a small pull request with its tests:
 
-1. `Session` and `Current`, the authentication concern, sign-in and sign-out with reset. Model tests for `Session`; controller tests for sign-in, a failed sign-in, sign-out and a request after sign-out.
-2. Registration through the same door, and `rate_limit` on both doors with a shared cache store. Tests that the eleventh attempt in the window is refused (with a cache store enabled in that test).
+1. **Done 2026-09-30.** `Session` and `Current`, the authentication concern, sign-in and sign-out with reset. Model tests for `Session`; controller tests for sign-in, a failed sign-in, sign-out and a request after sign-out.
+2. **Done 2026-09-30**, with email required at registration. Registration through the same door, and `rate_limit` on both doors with a shared cache store. Tests that the eleventh attempt in the window is refused (with a cache store enabled in that test).
 3. The guest door: walk and profile replay at both doors. Tests carried over as behaviours from today's `test/controllers/sessions_controller_test.rb` and `test/services/guest_visits_importer_test.rb`: replay once, cap, malformed payloads, second device.
 4. Blocks and role changes end sessions; a blocked user cannot resume anywhere. Model tests for the callbacks, a controller test that a blocked user is signed out on the next request.
-5. Password change for a signed-in user, ending other sessions. Controller tests for the change and for the other session dying.
+5. Password change for a signed-in user and password reset by email, each ending the user's other sessions. Controller tests for both and for the other session dying.
 6. "Your devices": a user lists their sessions and ends one or all. Controller tests.
 7. Rack::Attack kept only for what `rate_limit` does not cover (exploit probes, the mine check, route lookups), with every throttle pointed at a path that exists. A test per remaining throttle path.
 
 ## No-gos
 
 - No compatibility with today's `_usput_session` cookie or accounts; the rebuild starts with an empty database.
-- No email, password reset by email, OAuth or two-factor sign-in in version 1.
+- No OAuth or two-factor sign-in in version 1. (Email and reset by email were a no-go until the operator decided on 2026-09-30 that accounts require an email.)
 - No guest account rows: a guest stays device-held until they sign in (see Decision needed).
 - No second replay path: the walk is replayed at the door and nowhere else.
 
@@ -123,3 +123,25 @@ Small to medium: seven slices, most of them one controller and one model with te
 - **Email on accounts.** Without an email there is no self-service reset; a forgotten password needs an admin. Keep username-only for version 1, or add email now.
 - **A server-side guest identity.** A signed guest token cookie would let a guest's review be shown to its author ([Jev review flagging](jev-review-flagging.md)). Adopt it here, as part of sessions, or leave guests device-only and require sign-in to review.
 - **Who can be blocked.** Today only curators are spam-counted (`User#check_spam_activity!`). Decide whether a block applies to any user and who sets it (admin only, in Avo).
+
+## Build notes
+
+Slices 1 and 2 landed together on 2026-09-30.
+
+- **Email is required at registration, not yet in the database.** The model
+  validates presence in a `registration` validation context, and format and
+  case-insensitive uniqueness whenever an email is present. Two hundred lines
+  of the old test suite create users without one; the `NOT NULL` constraint
+  lands when those tests are rewritten with the rest of the rebuild.
+- **Rate limits count in Solid Cache**, kept in the primary database so no new
+  database is needed on Railway. `rate_limit` is handed `RateLimitStore`, which
+  forwards to `Rails.cache` at request time, because `rate_limit` otherwise
+  keeps the store it saw when the class loaded and a test could never turn it
+  on. The cost: Roundhouse models `rate_limit` without a `store:` option, so
+  both calls show as survey gaps (recorded on
+  [Roundhouse](roundhouse-analysis-and-compile.md)).
+- **The session cookie lasts two weeks from sign-in**, fixed rather than
+  sliding; `last_seen_at` is written at most once an hour. Sliding sessions
+  stay an open question below.
+- **`reset_session` runs at sign-in and sign-out**, carrying only the
+  return-to path and the locale across.

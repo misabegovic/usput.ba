@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_01_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_120200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -561,6 +561,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_120000) do
     t.index ["uuid"], name: "index_reviews_on_uuid", unique: true
   end
 
+  create_table "sessions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.datetime "last_seen_at"
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
   create_table "settings", force: :cascade do |t|
     t.string "category", default: "general"
     t.datetime "created_at", null: false
@@ -571,6 +581,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_120000) do
     t.string "value_type", default: "string"
     t.index ["category"], name: "index_settings_on_category"
     t.index ["key"], name: "index_settings_on_key", unique: true
+  end
+
+  create_table "solid_cache_entries", force: :cascade do |t|
+    t.integer "byte_size", null: false
+    t.datetime "created_at", null: false
+    t.binary "key", null: false
+    t.bigint "key_hash", null: false
+    t.binary "value", null: false
+    t.index ["byte_size"], name: "index_solid_cache_entries_on_byte_size"
+    t.index ["key_hash", "byte_size"], name: "index_solid_cache_entries_on_key_hash_and_byte_size"
+    t.index ["key_hash"], name: "index_solid_cache_entries_on_key_hash", unique: true
   end
 
   create_table "translations", force: :cascade do |t|
@@ -591,6 +612,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_120000) do
     t.datetime "activity_count_reset_at"
     t.integer "activity_count_today", default: 0
     t.datetime "created_at", null: false
+    t.string "email"
     t.string "password_digest", null: false
     t.string "spam_block_reason"
     t.datetime "spam_blocked_at"
@@ -600,6 +622,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_120000) do
     t.integer "user_type", default: 0, null: false
     t.string "username", null: false
     t.string "uuid", limit: 36, null: false
+    t.index "lower((email)::text)", name: "index_users_on_lower_email", unique: true
     t.index ["user_type"], name: "index_users_on_user_type"
     t.index ["username"], name: "index_users_on_username", unique: true
     t.index ["uuid"], name: "index_users_on_uuid", unique: true
@@ -643,4 +666,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_120000) do
   add_foreign_key "plan_visits", "users"
   add_foreign_key "plans", "users"
   add_foreign_key "reviews", "users"
+  add_foreign_key "sessions", "users"
 end

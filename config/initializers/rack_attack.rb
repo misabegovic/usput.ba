@@ -23,43 +23,8 @@ class Rack::Attack
     req.ip unless req.path.start_with?("/assets", "/packs")
   end
 
-  # ----------------------------------------------------------------------------
-  # Throttle: Login/Authentication endpoints (stricter)
-  # ----------------------------------------------------------------------------
-  # Limit login attempts to 5 per 20 seconds per IP
-  throttle("logins/ip", limit: 5, period: 20.seconds) do |req|
-    if req.path == "/session" && req.post?
-      req.ip
-    end
-  end
-
-  # Limit login attempts to 5 per minute per email
-  throttle("logins/email", limit: 5, period: 1.minute) do |req|
-    if req.path == "/session" && req.post?
-      # Normalize email to prevent case-based bypass
-      req.params.dig("session", "email")&.downcase&.strip
-    end
-  end
-
-  # ----------------------------------------------------------------------------
-  # Throttle: Registration endpoint
-  # ----------------------------------------------------------------------------
-  # Limit signup attempts to 3 per minute per IP
-  throttle("signups/ip", limit: 3, period: 1.minute) do |req|
-    if req.path == "/users" && req.post?
-      req.ip
-    end
-  end
-
-  # ----------------------------------------------------------------------------
-  # Throttle: Password reset requests
-  # ----------------------------------------------------------------------------
-  # Limit password reset requests to 3 per 15 minutes per IP
-  throttle("password_reset/ip", limit: 3, period: 15.minutes) do |req|
-    if req.path == "/password_resets" && req.post?
-      req.ip
-    end
-  end
+  # Sign-in and registration are limited in their controllers with
+  # `rate_limit`, which counts in the shared Solid Cache store.
 
   # ----------------------------------------------------------------------------
   # Throttle: API endpoints (if any)

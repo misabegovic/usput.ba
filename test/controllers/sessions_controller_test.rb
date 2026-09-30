@@ -72,14 +72,14 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to root_path
     assert_equal I18n.t("auth.login_success"), flash[:notice]
-    assert session[:user_id].present?
+    assert cookies[:session_id].present?
   end
 
   test "create handles case-insensitive username" do
     post login_path, params: { username: @user.username.upcase, password: "password123" }
 
     assert_redirected_to root_path
-    assert session[:user_id].present?
+    assert cookies[:session_id].present?
   end
 
   test "create fails with invalid password" do
@@ -87,21 +87,21 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
     assert_equal I18n.t("auth.invalid_credentials"), flash.now[:alert]
-    assert_nil session[:user_id]
+    assert cookies[:session_id].blank?
   end
 
   test "create fails with non-existent username" do
     post login_path, params: { username: "nonexistent", password: "password123" }
 
     assert_response :unprocessable_entity
-    assert_nil session[:user_id]
+    assert cookies[:session_id].blank?
   end
 
   test "create fails with empty credentials" do
     post login_path, params: { username: "", password: "" }
 
     assert_response :unprocessable_entity
-    assert_nil session[:user_id]
+    assert cookies[:session_id].blank?
   end
 
   test "create merges travel profile from localStorage but never its visited claims" do
@@ -168,13 +168,13 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
   test "destroy logs out user" do
     post login_path, params: { username: @user.username, password: "password123" }
-    assert session[:user_id].present?
+    assert cookies[:session_id].present?
 
     delete logout_path
 
     assert_redirected_to root_path
     assert_equal I18n.t("auth.logout_success"), flash[:notice]
-    assert_nil session[:user_id]
+    assert cookies[:session_id].blank?
   end
 
   test "destroy succeeds even when not logged in" do
@@ -204,7 +204,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     }
 
     assert_response :unprocessable_entity
-    assert_nil session[:user_id]
+    assert cookies[:session_id].blank?
   end
 
   test "session is regenerated on login" do
@@ -224,7 +224,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
     delete logout_path
 
-    assert_nil session[:user_id]
+    assert cookies[:session_id].blank?
   end
 
   # === Edge cases ===
@@ -247,5 +247,77 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     post login_path, params: { username: @user.username, password: nil }
 
     assert_response :unprocessable_entity
+  end
+
+  # === Server-side sessions ===
+
+  test "signing in records a session for the browser" do
+    assert_difference -> { @user.sessions.count }, 1 do
+      post login_path, params: { username: @user.username, password: "password123" },
+                       headers: { "User-Agent" => "UsputTest/1.0" }
+    end
+
+    record = @user.sessions.last
+    assert_equal "UsputTest/1.0", record.user_agent
+    assert record.ip_address.present?
+  end
+
+  test "signing out deletes the session record" do
+    post login_path, params: { username: @user.username, password: "password123" }
+
+    assert_difference -> { @user.sessions.count }, -1 do
+      delete logout_path
+    end
+  end
+
+  test "a request after signing out is not signed in" do
+    post login_path, params: { username: @user.username, password: "password123" }
+    delete logout_path
+
+    get user_plans_path, as: :json
+
+    assert_response :unauthorized
+  end
+
+  test "a session deleted on the server stops working in the browser" do
+    post login_path, params: { username: @user.username, password: "password123" }
+    get user_plans_path, as: :json
+    assert_response :success
+
+    @user.sessions.destroy_all
+    get user_plans_path, as: :json
+
+    assert_response :unauthorized
+  end
+
+  test "signing in starts a fresh Rails session but keeps the return path" do
+    get login_path, headers: { "HTTP_REFERER" => explore_path }
+    before = session.id
+
+    post login_path, params: { username: @user.username, password: "password123" }
+
+    assert_not_equal before.to_s, session.id.to_s
+    assert_redirected_to explore_path
+  end
+
+  test "the eleventh sign-in attempt in the window is refused" do
+    with_real_cache do
+      10.times { post login_path, params: { username: @user.username, password: "wrong" } }
+      post login_path, params: { username: @user.username, password: "password123" }
+    end
+
+    assert_redirected_to login_path
+    assert_equal I18n.t("auth.too_many_attempts"), flash[:alert]
+    assert_equal 0, @user.sessions.count
+  end
+
+  private
+
+  def with_real_cache
+    original = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+    yield
+  ensure
+    Rails.cache = original
   end
 end

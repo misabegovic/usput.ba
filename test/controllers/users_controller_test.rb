@@ -29,6 +29,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     post register_path, params: {
       user: {
         username: "returning_user",
+        email: "returning_user@example.test",
         password: "password123",
         password_confirmation: "password123"
       }
@@ -53,6 +54,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
       post register_path, params: {
         user: {
           username: "newuser123",
+          email: "newuser123@example.test",
           password: "password123",
           password_confirmation: "password123"
         }
@@ -61,7 +63,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to root_path
     assert_equal I18n.t("auth.registration_success"), flash[:notice]
-    assert session[:user_id].present?
+    assert cookies[:session_id].present?
   end
 
   test "create fails with duplicate username" do
@@ -97,6 +99,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
       post register_path, params: {
         user: {
           username: "ab",
+          email: "ab@example.test",
           password: "password123",
           password_confirmation: "password123"
         }
@@ -125,6 +128,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
       post register_path, params: {
         user: {
           username: "user@name",
+          email: "user@name@example.test",
           password: "password123",
           password_confirmation: "password123"
         }
@@ -139,6 +143,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
       post register_path, params: {
         user: {
           username: "validuser",
+          email: "validuser@example.test",
           password: "short",
           password_confirmation: "short"
         }
@@ -153,6 +158,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
       post register_path, params: {
         user: {
           username: "validuser",
+          email: "validuser@example.test",
           password: "password123",
           password_confirmation: "different123"
         }
@@ -171,6 +177,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     post register_path, params: {
       user: {
         username: "newuser_profile",
+        email: "newuser_profile@example.test",
         password: "password123",
         password_confirmation: "password123"
       },
@@ -190,6 +197,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     post register_path, params: {
       user: {
         username: "newuser_invalid",
+        email: "newuser_invalid@example.test",
         password: "password123",
         password_confirmation: "password123"
       },
@@ -235,6 +243,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     post register_path, params: {
       user: {
         username: "newuser_plans",
+        email: "newuser_plans@example.test",
         password: "password123",
         password_confirmation: "password123"
       },
@@ -255,6 +264,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     post register_path, params: {
       user: {
         username: "newuser_badplans",
+        email: "newuser_badplans@example.test",
         password: "password123",
         password_confirmation: "password123"
       },
@@ -272,6 +282,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     post register_path, params: {
       user: {
         username: "json_user",
+        email: "json_user@example.test",
         password: "password123",
         password_confirmation: "password123"
       }
@@ -290,6 +301,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     post register_path, params: {
       user: {
         username: "ab",
+        email: "ab@example.test",
         password: "short",
         password_confirmation: "short"
       }
@@ -406,6 +418,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     post register_path, params: {
       user: {
         username: "'; DROP TABLE users; --",
+        email: "'; DROP TABLE users; --@example.test",
         password: "password123",
         password_confirmation: "password123"
       }
@@ -419,6 +432,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     post register_path, params: {
       user: {
         username: "<script>alert('xss')</script>",
+        email: "<script>alert('xss')</script>@example.test",
         password: "password123",
         password_confirmation: "password123"
       }
@@ -434,6 +448,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     post register_path, params: {
       user: {
         username: "valid_user_name",
+        email: "valid_user_name@example.test",
         password: "password123",
         password_confirmation: "password123"
       }
@@ -448,6 +463,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     post register_path, params: {
       user: {
         username: "user123",
+        email: "user123@example.test",
         password: "password123",
         password_confirmation: "password123"
       }
@@ -462,6 +478,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     post register_path, params: {
       user: {
         username: "MixedCaseUser",
+        email: "MixedCaseUser@example.test",
         password: "password123",
         password_confirmation: "password123"
       }
@@ -472,5 +489,62 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     user = User.find_by(username: "mixedcaseuser")
     assert user.present?
     user.destroy
+  end
+
+  # === Email at registration ===
+
+  test "registration requires an email" do
+    assert_no_difference "User.count" do
+      post register_path, params: { user: { username: "noemail", password: "password123", password_confirmation: "password123" } }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "registration refuses an email that is not an address" do
+    assert_no_difference "User.count" do
+      post register_path, params: { user: { username: "bademail", email: "not-an-address", password: "password123", password_confirmation: "password123" } }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "registration stores the email trimmed and in lower case" do
+    post register_path, params: { user: { username: "mixedcase", email: "  Ime.Prezime@Example.TEST ", password: "password123", password_confirmation: "password123" } }
+
+    assert_equal "ime.prezime@example.test", User.find_by(username: "mixedcase").email
+  end
+
+  test "an email already in use in another case is refused" do
+    User.create!(username: "firstowner", email: "shared@example.test", password: "password123")
+
+    assert_no_difference "User.count" do
+      post register_path, params: { user: { username: "secondowner", email: "Shared@Example.test", password: "password123", password_confirmation: "password123" } }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "registering signs the new traveller in with a session record" do
+    post register_path, params: { user: { username: "freshsession", email: "fresh@example.test", password: "password123", password_confirmation: "password123" } }
+
+    assert_equal 1, User.find_by(username: "freshsession").sessions.count
+    assert cookies[:session_id].present?
+  end
+
+  test "the eleventh registration from one address in an hour is refused" do
+    original = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+    10.times do |i|
+      post register_path, params: { user: { username: "burst#{i}", email: "burst#{i}@example.test", password: "password123", password_confirmation: "password123" } }
+      delete logout_path
+    end
+
+    assert_no_difference "User.count" do
+      post register_path, params: { user: { username: "burst10", email: "burst10@example.test", password: "password123", password_confirmation: "password123" } }
+    end
+    assert_redirected_to register_path
+  ensure
+    Rails.cache = original
   end
 end

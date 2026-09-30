@@ -7,8 +7,26 @@ module Authenticatable
 
   private
 
+  SESSION_COOKIE = :session_id
+  SESSION_LIFETIME = 2.weeks
+  # Kept across the reset at sign-in and sign-out; everything else the
+  # session held belonged to whoever used the browser before.
+  CARRIED_SESSION_KEYS = %w[return_to locale].freeze
+
   def current_user
-    @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
+    resume_session&.user
+  end
+
+  def resume_session
+    return Current.session if @session_resumed
+
+    @session_resumed = true
+    Current.session = find_session_by_cookie&.tap(&:touch_seen!)
+  end
+
+  def find_session_by_cookie
+    id = cookies.signed[SESSION_COOKIE]
+    Session.includes(:user).find_by(id: id) if id
   end
 
   def logged_in?
@@ -57,12 +75,37 @@ module Authenticatable
   end
 
   def log_in(user)
-    session[:user_id] = user.id
+    reset_session_keeping_carried_keys
+    new_session = user.sessions.create!(user_agent: request.user_agent.to_s[0, 255], ip_address: request.remote_ip)
+    cookies.signed[SESSION_COOKIE] = {
+      value: new_session.id,
+      expires: SESSION_LIFETIME.from_now,
+      httponly: true,
+      same_site: :lax,
+      secure: Rails.env.production?
+    }
+    Current.session = new_session
+    @session_resumed = true
   end
 
   def log_out
-    session.delete(:user_id)
-    @current_user = nil
+    resume_session&.destroy
+    cookies.delete(SESSION_COOKIE)
+    reset_session_keeping_carried_keys
+    Current.session = nil
+  end
+
+  def refuse_too_many_attempts
+    respond_to do |format|
+      format.html { redirect_to request.path, alert: t("auth.too_many_attempts"), status: :see_other }
+      format.json { render json: { success: false, error: t("auth.too_many_attempts") }, status: :too_many_requests }
+    end
+  end
+
+  def reset_session_keeping_carried_keys
+    carried = CARRIED_SESSION_KEYS.to_h { |key| [ key, session[key] ] }.compact
+    reset_session
+    carried.each { |key, value| session[key] = value }
   end
 
   # Permission helpers

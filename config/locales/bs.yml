@@ -637,6 +637,10 @@ bs:
     invalid_credentials: Pogrešno korisničko ime ili lozinka.
     curator_required: Potrebne su ti kuratorske privilegije da pristupiš ovoj stranici.
     admin_required: Potrebne su ti administratorske privilegije da pristupiš ovoj stranici.
+    email: Email
+    email_placeholder: npr. ime@primjer.ba
+    email_hint: Koristimo ga samo za tvoj nalog, npr. za novu lozinku.
+    too_many_attempts: Previše pokušaja. Sačekaj malo pa pokušaj ponovo.
   profile:
     my_moments:
       title: Tvoje uspomene
