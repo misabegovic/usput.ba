@@ -4,32 +4,50 @@ kind: initiative
 status: proposed
 updated: 2026-09-30
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 depends_on:
-  - decisions/jev-flags-reviews.md
-  - decisions/admin-through-avo.md
-  - initiatives/avo-admin-and-roles.md
-  - initiatives/secure-sessions.md
+- decisions/jev-flags-reviews.md
+- decisions/admin-through-avo.md
+- initiatives/avo-admin-and-roles.md
+- initiatives/secure-sessions.md
 sources:
-  - sources/conversations/2026-09-30--usput--platform-direction.md
-  - app/models/review.rb
-  - app/models/concerns/reviewable.rb
-  - app/models/moment.rb
-  - app/controllers/reviews_controller.rb
-  - app/controllers/new_design_controller.rb
-  - app/controllers/locations_controller.rb
-  - app/controllers/experiences_controller.rb
-  - app/controllers/plans_controller.rb
-  - app/controllers/curator/reviews_controller.rb
-  - app/views/reviews/_form.html.erb
-  - app/views/reviews/_review_card.html.erb
-  - app/views/pages/privacy.html.erb
-  - app/services/browse_adapter.rb
-  - app/services/mine_checker/config.rb
-  - app/jobs/application_job.rb
-  - config/environments/production.rb
-  - db/schema.rb
+- sources/conversations/2026-09-30--usput--platform-direction.md
+- app/models/review.rb
+- app/models/concerns/reviewable.rb
+- app/models/moment.rb
+- app/controllers/reviews_controller.rb
+- app/controllers/new_design_controller.rb
+- app/controllers/locations_controller.rb
+- app/controllers/experiences_controller.rb
+- app/controllers/plans_controller.rb
+- app/controllers/curator/reviews_controller.rb
+- app/views/reviews/_form.html.erb
+- app/views/reviews/_review_card.html.erb
+- app/views/pages/privacy.html.erb
+- app/services/browse_adapter.rb
+- app/services/mine_checker/config.rb
+- app/jobs/application_job.rb
+- config/environments/production.rb
+- db/schema.rb
+enola_intent:
+  page:
+    type: initiative
+    status: proposed
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    relations:
+    - rel: depends-on
+      to: wiki/decisions/jev-flags-reviews.md
+    - rel: depends-on
+      to: wiki/decisions/admin-through-avo.md
+    - rel: depends-on
+      to: wiki/initiatives/avo-admin-and-roles.md
+    - rel: depends-on
+      to: wiki/initiatives/secure-sessions.md
 ---
 # Jev review flagging
 

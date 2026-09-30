@@ -4,14 +4,26 @@ kind: decision
 status: accepted
 updated: 2026-09-30
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 supersedes: decisions/curator-dashboard-v2.md
 sources:
-  - sources/conversations/2026-09-30--usput--platform-direction.md
-  - app/controllers/concerns/authenticatable.rb
-  - app/models/user.rb
-  - config/routes.rb
+- sources/conversations/2026-09-30--usput--platform-direction.md
+- app/controllers/concerns/authenticatable.rb
+- app/models/user.rb
+- config/routes.rb
+enola_intent:
+  page:
+    type: decision
+    status: accepted
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    relations:
+    - rel: supersedes
+      to: wiki/decisions/curator-dashboard-v2.md
 ---
 # Admin work moves to Avo; the curator area is removed
 
@@ -52,8 +64,8 @@ has no built-in authorization (unverified, 2026-09-30).
 - Curators lose the proposal flow: a curator edits directly within what their
   role allows, or not at all. Which one is decided in
   [Avo admin and roles](../initiatives/avo-admin-and-roles.md).
-- Tables that only the curator area uses can be dropped, after any data worth
-  keeping is exported. See
+- The rebuild starts from an empty database (the operator's direction of
+  2026-09-30), so nothing from the curator area is migrated or exported. See
   [remove the curator dashboard](../initiatives/remove-curator-dashboard.md).
 - The redesign in [curator dashboard v2](curator-dashboard-v2.md), the
   [per-resource suggestion models](per-resource-suggestion-models.md), the

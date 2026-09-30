@@ -4,28 +4,41 @@ kind: initiative
 status: proposed
 updated: 2026-09-30
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 depends_on:
-  - decisions/admin-through-avo.md
+- decisions/admin-through-avo.md
 sources:
-  - sources/conversations/2026-09-30--usput--platform-direction.md
-  - app/controllers/concerns/authenticatable.rb
-  - app/controllers/concerns/syncs_local_data.rb
-  - app/controllers/sessions_controller.rb
-  - app/controllers/users_controller.rb
-  - app/controllers/curator/base_controller.rb
-  - app/controllers/curator/admin/users_controller.rb
-  - app/services/guest_visits_importer.rb
-  - app/models/user.rb
-  - app/views/sessions/new.html.erb
-  - config/initializers/session_store.rb
-  - config/initializers/rack_attack.rb
-  - config/environments/production.rb
-  - config/routes.rb
-  - db/schema.rb
-  - https://github.com/misabegovic/usput.ba/pull/166
-  - https://github.com/rails/rails/tree/v8.1.3.1/railties/lib/rails/generators/rails/authentication
+- sources/conversations/2026-09-30--usput--platform-direction.md
+- app/controllers/concerns/authenticatable.rb
+- app/controllers/concerns/syncs_local_data.rb
+- app/controllers/sessions_controller.rb
+- app/controllers/users_controller.rb
+- app/controllers/curator/base_controller.rb
+- app/controllers/curator/admin/users_controller.rb
+- app/services/guest_visits_importer.rb
+- app/models/user.rb
+- app/views/sessions/new.html.erb
+- config/initializers/session_store.rb
+- config/initializers/rack_attack.rb
+- config/environments/production.rb
+- config/routes.rb
+- db/schema.rb
+- https://github.com/misabegovic/usput.ba/pull/166
+- https://github.com/rails/rails/tree/v8.1.3.1/railties/lib/rails/generators/rails/authentication
+enola_intent:
+  page:
+    type: initiative
+    status: proposed
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    - web
+    relations:
+    - rel: depends-on
+      to: wiki/decisions/admin-through-avo.md
 ---
 # Secure sessions for the rebuilt app
 

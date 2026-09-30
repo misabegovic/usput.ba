@@ -23,7 +23,7 @@ depends_on:
 enola_intent:
   page:
     type: initiative
-    status: proposed
+    status: superseded
     scope:
     - usput.ba
     origin:
@@ -33,6 +33,8 @@ enola_intent:
     relations:
     - rel: depends-on
       to: wiki/state.md
+    - rel: superseded-by
+      to: wiki/initiatives/jev-review-flagging.md
 ---
 # Review approval system
 

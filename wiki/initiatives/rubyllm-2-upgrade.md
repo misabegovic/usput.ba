@@ -26,6 +26,21 @@ sources:
 - https://rubyllm.com/upgrading-to-1-7/
 - https://rubygems.org/gems/ruby_llm/versions/2.0.0
 - https://github.com/crmne/ruby_llm
+enola_intent:
+  page:
+    type: initiative
+    status: proposed
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    - web
+    relations:
+    - rel: depends-on
+      to: wiki/architecture/ai-content-pipeline.md
+    - rel: depends-on
+      to: wiki/decisions/avo-now-compile-later.md
 ---
 # RubyLLM 2 in the rebuild
 

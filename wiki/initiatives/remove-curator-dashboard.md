@@ -4,35 +4,49 @@ kind: initiative
 status: proposed
 updated: 2026-09-30
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 depends_on:
-  - decisions/admin-through-avo.md
-  - initiatives/avo-admin-and-roles.md
+- decisions/admin-through-avo.md
+- initiatives/avo-admin-and-roles.md
 sources:
-  - sources/conversations/2026-09-30--usput--platform-direction.md
-  - config/routes.rb
-  - db/schema.rb
-  - app/controllers/curator/base_controller.rb
-  - app/controllers/curator_applications_controller.rb
-  - app/controllers/concerns/authenticatable.rb
-  - app/models/content_change.rb
-  - app/models/content_change_contribution.rb
-  - app/models/curator_review.rb
-  - app/models/curator_activity.rb
-  - app/models/photo_suggestion.rb
-  - app/models/curator_application.rb
-  - app/models/user.rb
-  - app/models/location.rb
-  - app/helpers/curator_helper.rb
-  - app/views/layouts/curator.html.erb
-  - app/views/travel_profiles/page.html.erb
-  - app/views/new_design/_footer.html.erb
-  - lib/platform/dsl/executors/curator.rb
-  - lib/platform/services/spam_detector.rb
-  - lib/platform/dsl/grammar.rb
-  - config/initializers/flipper.rb
-  - Gemfile
+- sources/conversations/2026-09-30--usput--platform-direction.md
+- config/routes.rb
+- db/schema.rb
+- app/controllers/curator/base_controller.rb
+- app/controllers/curator_applications_controller.rb
+- app/controllers/concerns/authenticatable.rb
+- app/models/content_change.rb
+- app/models/content_change_contribution.rb
+- app/models/curator_review.rb
+- app/models/curator_activity.rb
+- app/models/photo_suggestion.rb
+- app/models/curator_application.rb
+- app/models/user.rb
+- app/models/location.rb
+- app/helpers/curator_helper.rb
+- app/views/layouts/curator.html.erb
+- app/views/travel_profiles/page.html.erb
+- app/views/new_design/_footer.html.erb
+- lib/platform/dsl/executors/curator.rb
+- lib/platform/services/spam_detector.rb
+- lib/platform/dsl/grammar.rb
+- config/initializers/flipper.rb
+- Gemfile
+enola_intent:
+  page:
+    type: initiative
+    status: proposed
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    relations:
+    - rel: depends-on
+      to: wiki/decisions/admin-through-avo.md
+    - rel: depends-on
+      to: wiki/initiatives/avo-admin-and-roles.md
 ---
 # What the rebuild leaves out, the curator dashboard
 

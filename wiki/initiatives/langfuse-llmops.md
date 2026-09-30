@@ -25,6 +25,23 @@ sources:
 - https://github.com/thoughtbot/opentelemetry-instrumentation-ruby_llm
 - https://github.com/simplepractice/langfuse-rb
 - https://github.com/ai-firstly/langfuse-ruby
+enola_intent:
+  page:
+    type: initiative
+    status: proposed
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    - web
+    relations:
+    - rel: depends-on
+      to: wiki/initiatives/rubyllm-2-upgrade.md
+    - rel: depends-on
+      to: wiki/architecture/ai-content-pipeline.md
+    - rel: depends-on
+      to: wiki/decisions/jev-flags-reviews.md
 ---
 # Langfuse for LLMOps
 

@@ -26,6 +26,23 @@ sources:
 - https://github.com/misabegovic/usput.ba/pull/126
 - https://github.com/ankane/neighbor
 - https://github.com/pgvector/pgvector
+enola_intent:
+  page:
+    type: initiative
+    status: proposed
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    - web
+    relations:
+    - rel: depends-on
+      to: wiki/decisions/remove-platform-database.md
+    - rel: depends-on
+      to: wiki/decisions/avo-now-compile-later.md
+    - rel: depends-on
+      to: wiki/initiatives/rubyllm-2-upgrade.md
 ---
 # pgvector semantic search
 

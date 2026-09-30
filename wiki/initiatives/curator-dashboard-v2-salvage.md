@@ -31,7 +31,7 @@ depends_on:
 enola_intent:
   page:
     type: initiative
-    status: proposed
+    status: superseded
     scope:
     - usput.ba
     origin:
@@ -43,6 +43,8 @@ enola_intent:
       to: wiki/state.md
     - rel: depends-on
       to: wiki/initiatives/review-approval-system.md
+    - rel: superseded-by
+      to: wiki/decisions/admin-through-avo.md
 ---
 # Curator dashboard v2 salvage
 

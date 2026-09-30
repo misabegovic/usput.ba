@@ -4,15 +4,28 @@ kind: decision
 status: accepted
 updated: 2026-09-30
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 depends_on:
-  - decisions/admin-through-avo.md
+- decisions/admin-through-avo.md
 sources:
-  - sources/conversations/2026-09-30--usput--platform-direction.md
-  - https://github.com/rubys/roundhouse
-  - https://github.com/matz/spinel
-  - Gemfile
+- sources/conversations/2026-09-30--usput--platform-direction.md
+- https://github.com/rubys/roundhouse
+- https://github.com/matz/spinel
+- Gemfile
+enola_intent:
+  page:
+    type: decision
+    status: accepted
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    - web
+    relations:
+    - rel: depends-on
+      to: wiki/decisions/admin-through-avo.md
 ---
 # Avo now; compiling with Roundhouse and Spinel later
 

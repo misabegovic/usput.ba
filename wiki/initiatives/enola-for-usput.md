@@ -27,6 +27,23 @@ sources:
 - app/services/mine_checker/point_check.rb
 - app/controllers/mine_check_public_controller.rb
 - https://github.com/enola-labs/enola
+enola_intent:
+  page:
+    type: initiative
+    status: proposed
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    - web
+    relations:
+    - rel: depends-on
+      to: wiki/architecture/overview.md
+    - rel: depends-on
+      to: wiki/decisions/admin-through-avo.md
+    - rel: depends-on
+      to: wiki/decisions/avo-now-compile-later.md
 ---
 # Enola for usput
 

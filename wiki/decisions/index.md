@@ -22,6 +22,9 @@ Architecture decision records, one choice per page. Accepted pages describe the 
 
 ## Accepted
 
+- [Jev flags reviews; flagged reviews wait for an admin](jev-flags-reviews.md)
+- [Admin work moves to Avo; the curator area is removed](admin-through-avo.md)
+- [Avo now; compiling with Roundhouse and Spinel later](avo-now-compile-later.md)
 - [DSL-first architecture for the Platform](dsl-first-platform-architecture.md)
 - [Platform implementation choices](platform-implementation-choices.md)
 - [Introspection and self-improvement in P0](introspection-in-p0.md)
@@ -33,15 +36,15 @@ Architecture decision records, one choice per page. Accepted pages describe the 
 ## Proposed
 
 - [Migrate the AI services into DSL executors](ai-services-into-dsl.md)
-- [Curator dashboard v2 (RFC-0001)](curator-dashboard-v2.md)
-- [Replace ContentChange with per-resource suggestion models](per-resource-suggestion-models.md)
-- [Post-moderated reviews with curator flagging](post-moderated-reviews.md)
 - [Admin-only audio tour generation from the dashboard](admin-audio-tour-generation.md)
 - [Several video links per place and a cover photo for plans](multiple-videos-and-plan-covers.md)
-- [AI changes arrive as suggestions marked with their origin](ai-suggestions-carry-origin.md)
 
 ## Superseded
 
+- [AI changes arrive as suggestions marked with their origin](ai-suggestions-carry-origin.md)
+- [Post-moderated reviews with curator flagging](post-moderated-reviews.md)
+- [Replace ContentChange with per-resource suggestion models](per-resource-suggestion-models.md)
+- [Curator dashboard v2 (RFC-0001)](curator-dashboard-v2.md)
 - [Simplify the DSL executor by archiving unused query types](executor-simplification.md)
 
 ## Log

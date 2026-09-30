@@ -4,39 +4,57 @@ kind: initiative
 status: proposed
 updated: 2026-09-30
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 depends_on:
-  - decisions/admin-through-avo.md
-  - decisions/avo-now-compile-later.md
-  - decisions/jev-flags-reviews.md
-  - decisions/archive-places-not-delete.md
+- decisions/admin-through-avo.md
+- decisions/avo-now-compile-later.md
+- decisions/jev-flags-reviews.md
+- decisions/archive-places-not-delete.md
 sources:
-  - sources/conversations/2026-09-30--usput--platform-direction.md
-  - config/routes.rb
-  - app/controllers/curator/base_controller.rb
-  - app/controllers/curator/dashboard_controller.rb
-  - app/controllers/curator/locations_controller.rb
-  - app/controllers/curator/experiences_controller.rb
-  - app/controllers/curator/plans_controller.rb
-  - app/controllers/curator/audio_tours_controller.rb
-  - app/controllers/curator/reviews_controller.rb
-  - app/controllers/curator/moments_controller.rb
-  - app/controllers/curator/proposals_controller.rb
-  - app/controllers/curator/photo_suggestions_controller.rb
-  - app/controllers/curator/admin/base_controller.rb
-  - app/controllers/curator/admin/users_controller.rb
-  - app/controllers/curator/admin/content_changes_controller.rb
-  - app/controllers/curator/admin/photo_suggestions_controller.rb
-  - app/controllers/curator/admin/curator_applications_controller.rb
-  - app/controllers/curator_applications_controller.rb
-  - app/controllers/concerns/authenticatable.rb
-  - app/models/user.rb
-  - app/models/curator_activity.rb
-  - app/models/location.rb
-  - app/models/moment.rb
-  - app/views/curator/locations/index.html.erb
-  - Gemfile
+- sources/conversations/2026-09-30--usput--platform-direction.md
+- config/routes.rb
+- app/controllers/curator/base_controller.rb
+- app/controllers/curator/dashboard_controller.rb
+- app/controllers/curator/locations_controller.rb
+- app/controllers/curator/experiences_controller.rb
+- app/controllers/curator/plans_controller.rb
+- app/controllers/curator/audio_tours_controller.rb
+- app/controllers/curator/reviews_controller.rb
+- app/controllers/curator/moments_controller.rb
+- app/controllers/curator/proposals_controller.rb
+- app/controllers/curator/photo_suggestions_controller.rb
+- app/controllers/curator/admin/base_controller.rb
+- app/controllers/curator/admin/users_controller.rb
+- app/controllers/curator/admin/content_changes_controller.rb
+- app/controllers/curator/admin/photo_suggestions_controller.rb
+- app/controllers/curator/admin/curator_applications_controller.rb
+- app/controllers/curator_applications_controller.rb
+- app/controllers/concerns/authenticatable.rb
+- app/models/user.rb
+- app/models/curator_activity.rb
+- app/models/location.rb
+- app/models/moment.rb
+- app/views/curator/locations/index.html.erb
+- Gemfile
+enola_intent:
+  page:
+    type: initiative
+    status: proposed
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    relations:
+    - rel: depends-on
+      to: wiki/decisions/admin-through-avo.md
+    - rel: depends-on
+      to: wiki/decisions/avo-now-compile-later.md
+    - rel: depends-on
+      to: wiki/decisions/jev-flags-reviews.md
+    - rel: depends-on
+      to: wiki/decisions/archive-places-not-delete.md
 ---
 # Avo admin and roles
 

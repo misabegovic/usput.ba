@@ -19,7 +19,7 @@ sources:
 enola_intent:
   page:
     type: decision
-    status: proposed
+    status: superseded
     scope:
     - usput.ba
     origin:
@@ -29,6 +29,8 @@ enola_intent:
     relations:
     - rel: depends-on
       to: wiki/decisions/curator-dashboard-v2.md
+    - rel: superseded-by
+      to: wiki/decisions/jev-flags-reviews.md
 ---
 # Post-moderated reviews with curator flagging
 

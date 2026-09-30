@@ -4,14 +4,26 @@ kind: decision
 status: accepted
 updated: 2026-09-30
 repos:
-  - usput.ba
+- usput.ba
 confidence: medium
 supersedes: decisions/post-moderated-reviews.md
 sources:
-  - sources/conversations/2026-09-30--usput--platform-direction.md
-  - app/models/review.rb
-  - app/controllers/reviews_controller.rb
-  - sources/planning/REVIEW_APPROVAL_SYSTEM.md
+- sources/conversations/2026-09-30--usput--platform-direction.md
+- app/models/review.rb
+- app/controllers/reviews_controller.rb
+- sources/planning/REVIEW_APPROVAL_SYSTEM.md
+enola_intent:
+  page:
+    type: decision
+    status: accepted
+    scope:
+    - usput.ba
+    origin:
+    - other
+    - repo
+    relations:
+    - rel: supersedes
+      to: wiki/decisions/post-moderated-reviews.md
 ---
 # Jev flags reviews; flagged reviews wait for an admin
 

@@ -17,13 +17,16 @@ sources:
 enola_intent:
   page:
     type: decision
-    status: proposed
+    status: superseded
     scope:
     - usput.ba
     origin:
     - other
     - repo
     - web
+    relations:
+    - rel: superseded-by
+      to: wiki/decisions/admin-through-avo.md
 ---
 # Curator dashboard v2 (RFC-0001)
 

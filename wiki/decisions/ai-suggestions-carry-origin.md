@@ -17,7 +17,7 @@ sources:
 enola_intent:
   page:
     type: decision
-    status: proposed
+    status: superseded
     scope:
     - usput.ba
     origin:
@@ -27,6 +27,8 @@ enola_intent:
     relations:
     - rel: depends-on
       to: wiki/decisions/per-resource-suggestion-models.md
+    - rel: superseded-by
+      to: wiki/decisions/admin-through-avo.md
 ---
 # AI changes arrive as suggestions marked with their origin
 

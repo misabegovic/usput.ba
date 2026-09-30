@@ -18,7 +18,7 @@ sources:
 enola_intent:
   page:
     type: decision
-    status: proposed
+    status: superseded
     scope:
     - usput.ba
     origin:
@@ -28,6 +28,8 @@ enola_intent:
     relations:
     - rel: depends-on
       to: wiki/decisions/curator-dashboard-v2.md
+    - rel: superseded-by
+      to: wiki/decisions/admin-through-avo.md
 ---
 # Replace ContentChange with per-resource suggestion models
 
