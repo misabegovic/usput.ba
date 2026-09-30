@@ -91,3 +91,24 @@ Google.
   security fixes, one of them in email confirmation.
 - The mail sender needs a Postmark server token in the app's credentials and a
   verified sending domain before production sends anything.
+
+## Amendments
+
+**2026-09-30: Google sign-in.** The omniauthable module now carries Google
+through OmniAuth, with the direction unchanged. A Google account is linked in
+an `identities` table (provider and Google's id), so a traveller can have both
+a password and Google. The rules, in order:
+
+- A Google id already linked signs in its account, whatever email Google now
+  reports.
+- Otherwise a Google email that Google reports verified links to the usput
+  account with that email, confirming it, or creates a new confirmed account
+  with a username taken from the email. An unverified email links to nothing,
+  because anyone can type one.
+- An account already linked to one Google account is not linked to a second.
+- A blocked account is refused like any other sign-in.
+
+The guest walk crosses the trip to Google in the cache, under a token in the
+session, because it can be larger than the session cookie. The button only
+shows where the Google credentials exist.
+

@@ -1,7 +1,8 @@
 class User < ApplicationRecord
   include Identifiable
 
-  devise :database_authenticatable, :registerable, :recoverable, :validatable, :confirmable
+  devise :database_authenticatable, :registerable, :recoverable, :validatable, :confirmable,
+         :omniauthable, omniauth_providers: [ :google_oauth2 ]
   has_secure_token :session_token
   has_one_attached :avatar do |attachable|
     attachable.variant :thumb, resize_to_limit: [ 100, 100 ]
@@ -17,6 +18,7 @@ class User < ApplicationRecord
   has_many :moments, dependent: :destroy
   has_many :plan_visits, dependent: :destroy
   has_many :likes, dependent: :destroy
+  has_many :identities, dependent: :destroy
 
   # The profile blob is written straight from whatever the device sends, so each
   # list it holds is bounded rather than left to grow a row without limit.

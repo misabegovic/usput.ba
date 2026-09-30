@@ -96,7 +96,7 @@ Slices, each a small pull request with its tests:
 1. **Done 2026-09-30 (#171), replaced by slice 3.** Server-side session rows, sign-in and sign-out with a session reset.
 2. **Done 2026-09-30 (#171).** Email required at registration; `rate_limit` on both doors with a shared cache store.
 3. Devise: email sign-in and registration with the guest door kept, confirmation with grace, password reset and change, the account page, blocks, the session token and its button, Postmark. Replaces slice 1's tables.
-4. Google sign-in.
+4. **Done 2026-09-30.** Google sign-in.
 5. Rack::Attack kept only for what `rate_limit` does not cover (exploit probes, the mine check, route lookups), with every throttle pointed at a path that exists. A test per remaining throttle path.
 
 ## No-gos
@@ -181,4 +181,21 @@ Slice 3, the move to Devise, landed on 2026-09-30.
   [Avo now, compile later](../decisions/avo-now-compile-later.md).
 - **The schema was edited by hand** alongside the two migrations, because the
   database was unreachable from the build container; CI loads it.
+
+Slice 4, Google sign-in, landed on 2026-09-30.
+
+- **Identities, not columns on users.** One row per outside account keeps
+  room for another provider and lets a traveller keep a password beside Google.
+- **Linking follows the decision's rules**
+  ([amendment](../decisions/accounts-through-devise.md)): linked id first, then
+  a verified email, never an unverified one, never a second Google account.
+- **The guest walk rides the cache.** OmniAuth's `before_request_phase` hook
+  stores the device's payload in `Rails.cache` for fifteen minutes under a
+  token kept in the session (`GuestPayloadStash`); the callback takes it once
+  and replays it with the same `SyncsLocalData` rules as the other doors.
+- **A Google-only traveller has a random password** and sets a real one
+  through the reset link; the account page says so.
+- **The button is a plain form post with Turbo off**, because the next stop is
+  Google's page, and OmniAuth 2 accepts only a POST with a valid CSRF token
+  (`omniauth-rails_csrf_protection`).
 

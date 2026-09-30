@@ -837,6 +837,11 @@ en:
     back_to_login: Back to sign in
     new_password: New password
     other_sessions_ended: You are signed out on every other device.
+    google:
+      or: or
+      button: Continue with Google
+      refused: Google did not confirm this email, or it is already linked to another Google account. Sign in with your password instead.
+      linked: This account is linked to Google. If you have never set a password, choose one with "Forgot your password?" on the sign-in page.
     reset:
       title: New password - Usput
       heading: Forgot your password?
@@ -1869,6 +1874,9 @@ en:
         subject: Your Usput email is changing
       password_change:
         subject: Your Usput password was changed
+    omniauth_callbacks:
+      failure: Could not sign you in with %{kind}. Please try again.
+      success: Signed in with %{kind}.
     passwords:
       no_token: This page only opens from the link in a password email. Use the full link from the email.
       send_instructions: We sent you a link to choose a new password.

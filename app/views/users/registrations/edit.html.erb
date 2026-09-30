@@ -42,6 +42,10 @@
     <%= f.submit t("auth.account.save_button"), class: "w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 px-6 rounded-lg font-medium hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg cursor-pointer" %>
   <% end %>
 
+  <% if resource.identities.exists?(provider: GoogleAccount::PROVIDER) %>
+    <p class="mt-6 text-sm text-gray-600 dark:text-gray-400"><%= t("auth.google.linked") %></p>
+  <% end %>
+
   <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 space-y-3">
     <p class="text-sm text-gray-600 dark:text-gray-400"><%= t("auth.account.other_sessions_hint") %></p>
     <%= button_to t("auth.account.other_sessions_button"), other_sessions_path, method: :delete,
