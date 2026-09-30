@@ -97,7 +97,7 @@ Slices, each a small pull request with its tests:
 2. **Done 2026-09-30 (#171).** Email required at registration; `rate_limit` on both doors with a shared cache store.
 3. Devise: email sign-in and registration with the guest door kept, confirmation with grace, password reset and change, the account page, blocks, the session token and its button, Postmark. Replaces slice 1's tables.
 4. **Done 2026-09-30.** Google sign-in.
-5. Rack::Attack kept only for what `rate_limit` does not cover (exploit probes, the mine check, route lookups), with every throttle pointed at a path that exists. A test per remaining throttle path.
+5. **Done 2026-09-30.** Rack::Attack kept only for what `rate_limit` does not cover (exploit probes, the mine check, route lookups), with every throttle pointed at a path that exists. A test per remaining throttle path.
 
 ## No-gos
 
@@ -198,4 +198,17 @@ Slice 4, Google sign-in, landed on 2026-09-30.
 - **The button is a plain form post with Turbo off**, because the next stop is
   Google's page, and OmniAuth 2 accepts only a POST with a valid CSRF token
   (`omniauth-rails_csrf_protection`).
+
+Slice 5, Rack::Attack, landed on 2026-09-30.
+
+- **Three throttles pointed at nothing and were removed**: `/api/`,
+  `/admin` and `/admin/ai/status`, none of which the app routes. Avo's own
+  path gets a throttle when it is mounted, if it needs one.
+- **The search throttle matched any path containing `/search` or `/cities`**;
+  it now names the one route that is a search, `/plans/search_cities`.
+  Explore search falls under the general limit.
+- **Every throttle is held to a routed path by a test**
+  (`test/integration/rack_attack_test.rb`), which also fails if a throttle is
+  added without being listed there, and checks the 429, the localhost
+  safelist and the exploit blocklist end to end.
 

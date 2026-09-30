@@ -23,38 +23,10 @@ class Rack::Attack
     req.ip unless req.path.start_with?("/assets", "/packs")
   end
 
-  # Sign-in and registration are limited in their controllers with
-  # `rate_limit`, which counts in the shared Solid Cache store.
-
-  # ----------------------------------------------------------------------------
-  # Throttle: API endpoints (if any)
-  # ----------------------------------------------------------------------------
-  # Limit API requests to 60 per minute per IP
-  throttle("api/ip", limit: 60, period: 1.minute) do |req|
-    if req.path.start_with?("/api/")
-      req.ip
-    end
-  end
-
-  # ----------------------------------------------------------------------------
-  # Throttle: Admin endpoints
-  # ----------------------------------------------------------------------------
-  # Limit admin requests to 100 per minute per IP
-  throttle("admin/ip", limit: 100, period: 1.minute) do |req|
-    if req.path.start_with?("/admin")
-      req.ip
-    end
-  end
-
-  # ----------------------------------------------------------------------------
-  # Throttle: AI generation status polling
-  # ----------------------------------------------------------------------------
-  # Limit status checks to 30 per minute (allows 2 second polling interval)
-  throttle("ai_status/ip", limit: 30, period: 1.minute) do |req|
-    if req.path == "/admin/ai/status"
-      req.ip
-    end
-  end
+  # Sign-in, registration, password reset and confirmation requests are
+  # limited in their controllers with `rate_limit`, which counts in the shared
+  # Solid Cache store. Every throttle below names a path the app routes; the
+  # test in test/integration/rack_attack_test.rb holds them to that.
 
   # ----------------------------------------------------------------------------
   # Throttle: Plan sync endpoint
@@ -69,9 +41,10 @@ class Rack::Attack
   # ----------------------------------------------------------------------------
   # Throttle: Search endpoints
   # ----------------------------------------------------------------------------
-  # Limit search requests to 30 per minute per IP
+  # Limit the city lookup behind the plan wizard to 30 per minute per IP. Explore
+  # search is covered by the general limit.
   throttle("search/ip", limit: 30, period: 1.minute) do |req|
-    if req.path.include?("/search") || req.path.include?("/cities")
+    if req.path == "/plans/search_cities"
       req.ip
     end
   end
