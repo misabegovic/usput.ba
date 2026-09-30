@@ -111,7 +111,7 @@ What the rebuilt app has:
 Slices, in order on the rebuild branch, each with its tests:
 
 1. **Done 2026-09-30.** Install Avo, mount it behind the role gate. Request tests: guest, `basic`, blocked user refused; curator and admin admitted.
-2. The policy layer and the `User` resource (admin only), with role change and block actions. Policy unit tests per role; a request test that a curator cannot open users.
+2. **Done 2026-09-30.** The policy layer and the `User` resource (admin only), with role change and block actions. Policy unit tests per role; a request test that a curator cannot open users.
 3. `Location` with filters, the archive and restore actions and photo uploads. Tests that the mine check blocks a bad coordinate through Avo and that a curator cannot delete.
 4. `Experience` and `Plan`, including a plan's stops by day. Policy and request tests.
 5. `Moment` queue with approve and reject. Tests that an approved public moment becomes visible and a rejected one does not.
@@ -163,4 +163,31 @@ Slice 1 landed on 2026-09-30.
 - **The admin opens on a welcome tool page** (`/admin/welcome`) that states the
   visitor's role, because Avo's home redirects to the first resource and there
   is none until slice 2.
+
+Slice 2 landed on 2026-09-30.
+
+- **The policy layer is plain Ruby.** `AdminPolicy` (`app/policies/`) holds the
+  default: curators and admins see, create and edit, only admins delete.
+  `AdminPolicy.for(model)` picks a resource's own policy when one exists.
+  `UserPolicy` makes users the admin's alone: nobody is created or deleted there
+  (people sign up themselves, and account deletion is undecided), and an admin
+  never changes the role of, or blocks, their own account, so the last admin
+  cannot lock everyone out.
+- **Every Avo resource controller includes `AdminPolicyGate`**, a
+  `before_action` that runs after Avo loads the record and raises Avo's own
+  not-authorized error when the policy says no. Avo's authorization service is
+  a null object in Community (`Avo::Services::AuthorizationService`, 4.2.11), so
+  without the gate every resource would be open to every curator.
+- **Actions check twice**: Avo's `authorize` hook refuses the whole action to
+  anyone who is not an admin, and each record is checked again in `handle`, so a
+  batch that includes the admin's own account changes the others and names the
+  one left alone.
+- **The sidebar hides users from curators** by overriding the resource's
+  `visible_on_sidebar` reader with the policy; the menu editor that would do it
+  declaratively is a paid add-on.
+- **Records are found by uuid**, the public id every usput URL uses
+  (`find_record_method`); Avo's default looks up the database id.
+- **Roles change through an action, not the edit form**, so a role change is
+  always a deliberate step that the policy can refuse, and later writes an admin
+  event.
 
