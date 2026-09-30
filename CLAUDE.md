@@ -5,7 +5,7 @@
 
 ## Tech Stack
 - Ruby 3.3+ / Rails 8
-- PostgreSQL + pgvector
+- PostgreSQL (pgvector uklonjen u #147; PostGIS samo offline za Mine Checker artefakte)
 - Tailwind CSS
 - Hotwire (Turbo + Stimulus)
 
@@ -43,13 +43,17 @@ lib/
 
 .claude/
 ├── agents/              # Agent persone
-├── planning/            # Planovi i dokumentacija
+├── commands/            # Slash komande
 └── CLAUDE.md           # Detaljne instrukcije
+
+wiki/                    # Brain: sinteza na engleskom (tabula)
+sources/                 # Nepromjenjivi originali (planning/ na bosanskom)
+brain.config.yml         # Konfiguracija braina
 ```
 
 ## Agenti
 
-Pogledaj `AGENTS.md` za listu dostupnih agenata.
+Pogledaj `AGENTS.md`: pravila braina (tabula) i lista dostupnih agenata.
 
 ## Dokumentacija
 
@@ -57,8 +61,12 @@ Pogledaj `AGENTS.md` za listu dostupnih agenata.
 |----------|----------|
 | Detaljne instrukcije | `.claude/CLAUDE.md` |
 | Agent persone | `.claude/agents/` |
-| Planovi | `.claude/planning/` |
-| Vizija | `.claude/planning/VISION.md` |
+| Brain (pravila, engleski) | `AGENTS.md` |
+| Wiki (početna) | `wiki/index.md` |
+| Stanje proizvoda | `wiki/state.md` |
+| Odluke (ADR) | `wiki/decisions/` |
+| Originalni planovi | `sources/planning/` |
+| Vizija (original) | `sources/planning/VISION.md` |
 
 ## Pravila
 

@@ -41,7 +41,7 @@ Pitaj:
 
 ### 4. Kreiraj RFC
 
-Lokacija: `.claude/planning/rfcs/NNNN-[slug].md`
+Lokacija: `wiki/initiatives/<slug>.md` (engleski). RFC je inicijativa u prijedlogu: `tabula new initiative initiatives/<slug>.md`, sekcije Objective, Background, Affected personas, Scope, No-gos, Rabbit holes, Appetite, Decision needed. Status `proposed`.
 
 ```markdown
 # RFC-NNNN: [Naslov]
@@ -87,7 +87,7 @@ Koje druge opcije smo razmatrali?
 ## Output
 
 ```
-Kreiran RFC: .claude/planning/rfcs/NNNN-[slug].md
+Kreiran RFC: wiki/initiatives/<slug>.md
 
 ## RFC-NNNN: [Naslov]
 

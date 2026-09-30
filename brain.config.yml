@@ -1,0 +1,21 @@
+# usput: configuration for this brain. Read by `tabula`.
+
+org: "usput"
+
+# Repositories this brain tracks, by tier. Names here are valid in a page's
+# `repos:` and `affects:`. Empty lists leave the set open.
+active_repos: [usput.ba]
+reference_repos: []
+frozen_repos: []
+archived_repos: []
+
+# Ref prefixes of workspaces closed to this brain; `tabula in` refuses a ref or URL under one.
+closed_workspaces: []
+
+# What a valid page is. A profile (strict, open) plus any rule overridden:
+# required_fields, kinds, statuses, confidences, updated_is_a_date,
+# sources_required, index_lists_every_page, sections_by_kind,
+# validate_root_index, relations_resolve, and sections (a kind mapped
+# to the headings its pages carry).
+contract:
+  profile: strict

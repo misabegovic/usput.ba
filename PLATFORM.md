@@ -1,13 +1,14 @@
 # Platform
 
-Dokumentacija za Platform je premještena u `.claude/planning/` folder.
+Dokumentacija za Platform živi u brainu ovog repozitorija.
 
 ## Aktivna dokumentacija
 
-- **Vizija:** [.claude/planning/VISION.md](.claude/planning/VISION.md)
-- **Implementacija:** [.claude/planning/IMPLEMENTATION.md](.claude/planning/IMPLEMENTATION.md)
-- **ADR odluke:** [.claude/planning/decisions/](.claude/planning/decisions/)
+- **Platform DSL (engleski):** [wiki/architecture/platform-dsl.md](wiki/architecture/platform-dsl.md)
+- **Odluke (ADR):** [wiki/decisions/](wiki/decisions/)
+- **Originali (bosanski, nepromjenjivi):** [sources/planning/](sources/planning/)
+  - [VISION.md](sources/planning/VISION.md), [IMPLEMENTATION.md](sources/planning/IMPLEMENTATION.md)
 
 ## Arhiva
 
-- **Stara verzija (V1):** [.claude/planning/archive/PLATFORM_V1.md](.claude/planning/archive/PLATFORM_V1.md)
+- **Stara verzija (V1):** [sources/planning/archive/PLATFORM_V1.md](sources/planning/archive/PLATFORM_V1.md)

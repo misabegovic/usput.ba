@@ -30,7 +30,7 @@ Za svaku opciju:
 
 ### 3. Kreiraj ADR
 
-Lokacija: `.claude/planning/decisions/NNNN-[slug].md`
+Lokacija: `wiki/decisions/<slug>.md` (engleski, kebab-case, bez broja). Kreiraj sa `tabula new decision decisions/<slug>.md`, pa popuni sekcije Context, Decision, Alternatives, Consequences. Bez code blokova u ADR-u.
 
 ```markdown
 # ADR-NNNN: [Naslov]
@@ -72,7 +72,7 @@ Zašto ova odluka mora biti donesena?
 
 ### 4. Ažuriraj index
 
-Dodaj u `.claude/planning/decisions/README.md`:
+Dodaj red u `wiki/decisions/log.md` i link u `wiki/decisions/index.md`, pa pokreni `tabula validate`:
 ```markdown
 | NNNN | [Naslov] | [Status] | [Datum] |
 ```
@@ -86,7 +86,7 @@ Dodaj u `.claude/planning/decisions/README.md`:
 ## Output
 
 ```
-Kreiran ADR: .claude/planning/decisions/NNNN-[slug].md
+Kreiran ADR: wiki/decisions/<slug>.md
 
 ## ADR-NNNN: [Naslov]
 Status: Proposed
