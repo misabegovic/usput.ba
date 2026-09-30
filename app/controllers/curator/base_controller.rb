@@ -37,16 +37,5 @@ module Curator
       current_user.increment_activity_count!
       current_user.check_spam_activity!
     end
-
-    # Find pending proposal for a resource (for display on show/edit pages)
-    def pending_proposal_for(resource)
-      return nil unless resource.present?
-
-      ContentChange.pending.find_by(
-        changeable_type: resource.class.name,
-        changeable_id: resource.id
-      )
-    end
-    helper_method :pending_proposal_for
   end
 end

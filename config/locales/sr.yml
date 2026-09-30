@@ -960,8 +960,6 @@ sr:
     title: Куратор Панел
     nav:
       dashboard: Преглед
-      locations: Локације
-      experiences: Искуства
     dashboard:
       welcome: Добродошли, %{username}!
       total_locations: Укупно локација
@@ -974,75 +972,13 @@ sr:
       recent_experiences: Недавна искуства
       no_locations: Још нема локација
       no_experiences: Још нема искустава
-    locations:
-      title: Локације
-      new: Нова локација
-      edit: Измени
-      view: Прегледај
-      delete: Обриши
-      edit_title: 'Измени: %{name}'
-      back_to_list: Назад на листу
-      name: Назив
-      city: Место
-      type: Тип
-      budget: Буџет
-      address: Адреса
-      description: Опис
-      latitude: Географска ширина
-      longitude: Географска дужина
-      coordinates: Координате
-      phone: Телефон
-      email: Е-пошта
-      website: Веб страница
-      opening_hours: Радно време
-      created_at: Креирано
-      actions: Акције
-      select_city: Изаберите место...
-      no_locations: Нема пронађених локација
-      created: Локација успешно креирана
-      updated: Локација успешно ажурирана
-      deleted: Локација успешно обрисана
-      confirm_delete: Да ли сте сигурни да желите да обришете %{name}?
-      filter:
-        all_cities: Сва места
     experiences:
-      title: Искуства
-      new: Ново искуство
-      edit: Измени
-      view: Прегледај
-      delete: Обриши
-      edit_title: 'Измени: %{name}'
-      back_to_list: Назад на листу
-      name: Назив
-      city: Место
-      category: Категорија
-      duration: Трајање
-      best_season: Најбоља сезона
-      difficulty: Тежина
-      description: Опис
-      created_at: Креирано
-      actions: Акције
-      select_city: Изаберите место...
-      select_category: Изаберите категорију...
-      no_experiences: Нема пронађених искустава
-      created: Искуство успешно креирано
-      updated: Искуство успешно ажурирано
-      deleted: Искуство успешно обрисано
-      confirm_delete: Да ли сте сигурни да желите да обришете %{name}?
-      filter:
-        all_cities: Сва места
-      best_seasons: Најбоље сезоне
-      seasons_hint: Оставите неозначено за доживљаје током целе године
       seasons:
         all_year: Цела година
         spring: Пролеће
         summer: Лето
         fall: Јесен
         winter: Зима
-      difficulties:
-        easy: Лако
-        moderate: Умерено
-        challenging: Захтевно
   minesweeper:
     title: Миноловац
     subtitle: "Едукативна игра на стварним картама — мине су тамо где стварни подаци бележе минско сумњива подручја."

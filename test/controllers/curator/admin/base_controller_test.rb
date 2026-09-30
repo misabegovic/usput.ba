@@ -32,25 +32,25 @@ class Curator::Admin::BaseControllerTest < ActionDispatch::IntegrationTest
 
   # Test that admin routes require admin role
   test "admin routes require login" do
-    get curator_admin_content_changes_path
+    get curator_admin_users_path
     assert_redirected_to new_user_session_path
   end
 
   test "admin routes require curator role first" do
     login_as(@basic_user)
-    get curator_admin_content_changes_path
+    get curator_admin_users_path
     assert_redirected_to root_path
   end
 
   test "admin routes require admin role" do
     login_as(@curator)
-    get curator_admin_content_changes_path
+    get curator_admin_users_path
     assert_redirected_to curator_root_path
   end
 
   test "admin routes accessible by admin users" do
     login_as(@admin)
-    get curator_admin_content_changes_path
+    get curator_admin_users_path
     assert_response :success
   end
 

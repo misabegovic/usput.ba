@@ -172,12 +172,12 @@ records `ai_generated: true` as well. `Location`, `Experience`, `Plan` and
 `Browse` all carry an `ai_generated` boolean with `ai_generated` and
 `human_made` scopes, and explore cards show a small "AI" badge when it is
 set (`app/views/new_design/explore/_location_card.html.erb`). Curators see
-the result as ordinary content in the dashboard and can change it through
-the normal proposal flow.
+the result as ordinary content in the admin and edit it there directly.
 
-Curators themselves never trigger generation: their audio tour form
-creates a `ContentChange` proposal and notes that audio files cannot ride in
-a proposal (`app/controllers/curator/audio_tours_controller.rb`).
+Curators themselves never trigger generation: in the admin they write or
+edit a tour's script and upload its audio file by hand
+(`app/avo/resources/audio_tour.rb`). Until 2026-09-30 their audio tour form
+filed a `ContentChange` proposal, which could not carry the audio file.
 
 The unmerged planning of pull request #151 names this as the core problem:
 AI output is live the moment it is written, with no review or approval, so a

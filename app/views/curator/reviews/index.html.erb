@@ -3,9 +3,6 @@
     <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white"><%= t("curator.reviews.title") %></h1>
   </div>
 
-  <!-- Pending Proposals -->
-  <%= render "curator/shared/pending_proposals", pending_proposals: @pending_proposals %>
-
   <!-- Stats Overview -->
   <div class="grid grid-cols-2 gap-3 sm:gap-5 sm:grid-cols-4">
     <div class="overflow-hidden rounded-lg bg-white dark:bg-gray-800 px-4 py-4 shadow">
@@ -109,11 +106,13 @@
             <%= link_to curator_review_path(review), class: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 text-sm" do %>
               <%= t("common.view_all") %>
             <% end %>
-            <%= button_to curator_review_path(review),
-                method: :delete,
-                class: "text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-sm",
-                data: { turbo_confirm: t("curator.reviews.confirm_delete") } do %>
-              <%= t("common.delete") %>
+            <% if current_user.admin? %>
+              <%= button_to curator_review_path(review),
+                  method: :delete,
+                  class: "text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-sm",
+                  data: { turbo_confirm: t("curator.reviews.confirm_delete") } do %>
+                <%= t("common.delete") %>
+              <% end %>
             <% end %>
           </div>
         </div>

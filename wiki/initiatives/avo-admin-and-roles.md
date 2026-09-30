@@ -237,3 +237,9 @@ Slice 4 landed on 2026-09-30.
   parent's policy: seeing the list needs `show?`, linking or unlinking needs
   `update?`, so nothing can be attached to a traveller's plan.
 
+Audio tours came to the admin on 2026-09-30 with the removal of proposals,
+which had been their only write path: search by place, the language chosen
+from the tour languages, script, audio file, voice and provider, one tour per
+place and language as the model already required. Curators create and edit;
+only admins delete, by the default policy.
+

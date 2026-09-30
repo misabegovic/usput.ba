@@ -183,11 +183,10 @@ The request side has three audiences, all in `app/controllers/`:
 - **Curator dashboard** (`/curator`, `app/controllers/curator/`). Every
   controller inherits `Curator::BaseController`, which requires login,
   a curator role and a spam-block check, and renders the `curator` layout.
-  `Curator::Admin::BaseController` adds an admin requirement for photo
-  suggestion approval, users and content change
-  approval. Curators change content through `ContentChange` proposals that
-  admins approve (`app/models/content_change.rb`). Edit and delete actions
-  hide behind the `curator_edit_delete` Flipper flag (#149).
+  `Curator::Admin::BaseController` adds an admin requirement for the users
+  pages. What is left there is the start page, moments, reviews and users;
+  content is edited directly in Avo at `/admin`, and the `ContentChange`
+  proposals were removed on 2026-09-30.
 - **Mine safety.** `MineCheckPublicController` (`/mine-check`) and
   `MinesweeperController` (`/minesweeper`) read the static mine engine; see
   [Mine Checker](mine-checker.md).
@@ -216,7 +215,7 @@ Services in `app/services/` hold the logic the controllers call:
 Models in `app/models/` centre on `Location`, `Experience` and `Plan` with
 join models (`ExperienceLocation`, `PlanExperience`, `PlanLocation`),
 translations in a polymorphic `Translation` table, `AudioTour`, `Review`,
-`Moment`, `Like`, `PlanVisit`, `ContentChange`,
+`Moment`, `Like`, `PlanVisit`,
 `CuratorActivity`, `Browse`, `AiGeneration`,
 `MineCheckAudit`, `Setting` and `User`. `Location` validates every
 coordinate change against the mine checker (`must_pass_mine_check`).

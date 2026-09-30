@@ -982,8 +982,6 @@ fr:
     title: Tableau de Bord Curateur
     nav:
       dashboard: Tableau de Bord
-      locations: Lieux
-      experiences: Expériences
     dashboard:
       welcome: Bienvenue, %{username} !
       total_locations: Total des Lieux
@@ -996,75 +994,13 @@ fr:
       recent_experiences: Expériences Récentes
       no_locations: Pas encore de lieux
       no_experiences: Pas encore d'expériences
-    locations:
-      title: Lieux
-      new: Nouveau Lieu
-      edit: Modifier
-      view: Voir
-      delete: Supprimer
-      edit_title: 'Modifier : %{name}'
-      back_to_list: Retour à la liste
-      name: Nom
-      city: Ville
-      type: Type
-      budget: Budget
-      address: Adresse
-      description: Description
-      latitude: Latitude
-      longitude: Longitude
-      coordinates: Coordonnées
-      phone: Téléphone
-      email: E-mail
-      website: Site web
-      opening_hours: Heures d'Ouverture
-      created_at: Créé
-      actions: Actions
-      select_city: Sélectionner une ville...
-      no_locations: Aucun lieu trouvé
-      created: Lieu créé avec succès
-      updated: Lieu mis à jour avec succès
-      deleted: Lieu supprimé avec succès
-      confirm_delete: Êtes-vous sûr de vouloir supprimer %{name} ?
-      filter:
-        all_cities: Toutes les villes
     experiences:
-      title: Expériences
-      new: Nouvelle Expérience
-      edit: Modifier
-      view: Voir
-      delete: Supprimer
-      edit_title: 'Modifier : %{name}'
-      back_to_list: Retour à la liste
-      name: Nom
-      city: Ville
-      category: Catégorie
-      duration: Durée
-      best_season: Meilleure Saison
-      difficulty: Difficulté
-      description: Description
-      created_at: Créé
-      actions: Actions
-      select_city: Sélectionner une ville...
-      select_category: Sélectionner une catégorie...
-      no_experiences: Aucune expérience trouvée
-      created: Expérience créée avec succès
-      updated: Expérience mise à jour avec succès
-      deleted: Expérience supprimée avec succès
-      confirm_delete: Êtes-vous sûr de vouloir supprimer %{name} ?
-      filter:
-        all_cities: Toutes les villes
-      best_seasons: Meilleures saisons
-      seasons_hint: Laissez décoché pour les expériences toute l’année
       seasons:
         all_year: Toute l'année
         spring: Printemps
         summer: Été
         fall: Automne
         winter: Hiver
-      difficulties:
-        easy: Facile
-        moderate: Modéré
-        challenging: Difficile
   travel_profile:
     checking_location: Vérification de votre position...
     visit_recorded: Visite enregistrée avec succès !

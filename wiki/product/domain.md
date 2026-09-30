@@ -112,13 +112,9 @@ A narrated script and audio file for one location in one language (`app/models/a
 
 ## Curation
 
-### ContentChange (proposal)
+### Proposals (removed)
 
-A proposed create, update or delete of a Location, Experience, Plan, AudioTour or Review (`app/models/content_change.rb`). It stores `original_data` and `proposed_data`, a status of `pending`, `approved` or `rejected`, and the admin who reviewed it. There is at most one pending proposal per record; later curators join it as a **ContentChangeContribution** (one per user per proposal). Approving applies the change in a transaction with an attribute allow-list.
-
-### CuratorReview
-
-A curator's comment (10 to 2000 characters) on a proposal with a recommendation of `neutral`, `recommend_approve` or `recommend_reject` (`app/models/curator_review.rb`).
+Until 2026-09-30 curators changed content through a **ContentChange** (a proposed create, update or delete that an admin approved or rejected), with **ContentChangeContribution** rows for later curators and **CuratorReview** comments with a recommendation. All three and their tables were removed; curators now edit directly in the admin.
 
 ### CuratorActivity
 

@@ -34,186 +34,6 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
       password_confirmation: "password123",
       user_type: :admin
     )
-
-    @content_change = ContentChange.create!(
-      user: @user,
-      changeable: @location,
-      change_type: :update_content,
-      proposed_data: { name: "Updated Location" },
-      original_data: { name: @location.name },
-      status: :pending
-    )
-  end
-
-  # ===================
-  # Proposals Query Tests
-  # ===================
-
-  test "execute_proposals_query lists pending proposals by default" do
-    ast = { filters: {} }
-
-    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
-
-    assert_equal :list_proposals, result[:action]
-    assert result[:proposals].is_a?(Array)
-    assert result[:total_pending] >= 0
-  end
-
-  test "execute_proposals_query lists proposals with status filter" do
-    ast = { filters: { status: "pending" } }
-
-    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
-
-    assert_equal :list_proposals, result[:action]
-    assert result[:proposals].all? { |p| p[:status] == "pending" }
-  end
-
-  test "execute_proposals_query lists proposals with change_type filter" do
-    ast = { filters: { change_type: "update_content" } }
-
-    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
-
-    assert_equal :list_proposals, result[:action]
-  end
-
-  test "execute_proposals_query lists proposals with content_type filter" do
-    ast = { filters: { content_type: "location" } }
-
-    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
-
-    assert_equal :list_proposals, result[:action]
-  end
-
-  test "execute_proposals_query shows single proposal" do
-    ast = {
-      filters: { id: @content_change.id },
-      operations: [ { name: :show } ]
-    }
-
-    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
-
-    assert_equal :show_proposal, result[:action]
-    assert_equal @content_change.id, result[:id]
-    assert_equal "pending", result[:status]
-  end
-
-  test "execute_proposals_query raises for non-existent proposal" do
-    ast = {
-      filters: { id: 999999 },
-      operations: [ { name: :show } ]
-    }
-
-    error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL::Executors::Curator.execute_proposals_query(ast)
-    end
-
-    assert_match(/nije pronađen/i, error.message)
-  end
-
-  test "execute_proposals_query counts proposals" do
-    ast = {
-      filters: {},
-      operations: [ { name: :count } ]
-    }
-
-    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
-
-    assert result.key?(:pending)
-    assert result.key?(:approved)
-    assert result.key?(:rejected)
-    assert result.key?(:total)
-    assert result.key?(:by_type)
-    assert result.key?(:by_content_type)
-  end
-
-  # ===================
-  # Applications Query Tests
-  # ===================
-
-  # ===================
-  # Approval Tests
-  # ===================
-
-  test "execute_approval approves proposal" do
-    ast = {
-      action: :approve,
-      approval_type: :proposal,
-      filters: { id: @content_change.id },
-      notes: "Looks good"
-    }
-
-    result = Platform::DSL::Executors::Curator.execute_approval(ast)
-
-    assert result[:success]
-    assert_equal :approve_proposal, result[:action]
-    assert_equal @content_change.id, result[:proposal_id]
-
-    @content_change.reload
-    assert_equal "approved", @content_change.status
-  end
-
-  test "execute_approval rejects proposal" do
-    ast = {
-      action: :reject,
-      approval_type: :proposal,
-      filters: { id: @content_change.id },
-      reason: "Not accurate information"
-    }
-
-    result = Platform::DSL::Executors::Curator.execute_approval(ast)
-
-    assert result[:success]
-    assert_equal :reject_proposal, result[:action]
-    assert_equal @content_change.id, result[:proposal_id]
-
-    @content_change.reload
-    assert_equal "rejected", @content_change.status
-  end
-
-  test "execute_approval raises for rejection without reason" do
-    ast = {
-      action: :reject,
-      approval_type: :proposal,
-      filters: { id: @content_change.id },
-      reason: nil
-    }
-
-    error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL::Executors::Curator.execute_approval(ast)
-    end
-
-    assert_match(/razlog/i, error.message)
-  end
-
-  test "execute_approval raises for unknown action" do
-    ast = {
-      action: :unknown_action,
-      approval_type: :proposal,
-      filters: { id: @content_change.id }
-    }
-
-    error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL::Executors::Curator.execute_approval(ast)
-    end
-
-    assert_match(/Nepoznata approval akcija/i, error.message)
-  end
-
-  test "execute_approval raises for non-pending proposal" do
-    @content_change.update!(status: :approved)
-
-    ast = {
-      action: :approve,
-      approval_type: :proposal,
-      filters: { id: @content_change.id },
-      notes: "Trying again"
-    }
-
-    error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL::Executors::Curator.execute_approval(ast)
-    end
-
-    assert_match(/nije u pending statusu/i, error.message)
   end
 
   # ===================
@@ -469,14 +289,6 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   # Edge Cases and Helper Tests
   # ===================
 
-  test "find_proposal raises without id filter" do
-    error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL::Executors::Curator.send(:find_proposal, {})
-    end
-
-    assert_match(/Potreban filter: id/i, error.message)
-  end
-
   test "find_curator raises without id or username filter" do
     error = assert_raises(Platform::DSL::ExecutionError) do
       Platform::DSL::Executors::Curator.send(:find_curator, {})
@@ -491,14 +303,6 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
     assert admin.admin?
   end
 
-  test "format_proposal returns correct structure" do
-    result = Platform::DSL::Executors::Curator.send(:format_proposal, @content_change)
-
-    assert_equal @content_change.id, result[:id]
-    assert_equal "pending", result[:status]
-    assert_equal "update_content", result[:change_type]
-  end
-
   test "format_curator returns correct structure" do
     result = Platform::DSL::Executors::Curator.send(:format_curator, @curator)
 
@@ -508,17 +312,6 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   end
 
   # Additional branch coverage tests - else cases
-
-  test "execute_proposals_query with unknown operation falls back to list" do
-    ast = {
-      filters: {},
-      operations: [ { name: :unknown_operation } ]
-    }
-
-    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
-
-    assert_equal :list_proposals, result[:action]
-  end
 
   test "execute_curators_query with unknown operation falls back to list" do
     ast = {
@@ -532,68 +325,6 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
   end
 
   # Additional branch coverage tests for specific uncovered branches
-
-  test "list_proposals with invalid status filter ignores it" do
-    ast = { filters: { status: "invalid_status_xyz" } }
-
-    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
-
-    # Should still return results (invalid status is ignored)
-    assert_equal :list_proposals, result[:action]
-    assert result[:proposals].is_a?(Array)
-  end
-
-  test "show_proposal for reviewed proposal includes reviewed_at" do
-    @content_change.update!(status: :approved, reviewed_at: Time.current)
-
-    ast = {
-      filters: { id: @content_change.id },
-      operations: [ { name: :show } ]
-    }
-
-    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
-
-    assert_equal :show_proposal, result[:action]
-    assert result[:reviewed_at].present?
-  end
-
-  test "approve_proposal raises when approval fails" do
-    # Create a mock proposal that returns false for approve!
-    mock_proposal = @content_change
-    mock_proposal.define_singleton_method(:approve!) { |_admin, **_opts| false }
-
-    Platform::DSL::Executors::Curator.stub(:find_proposal, ->(_filters) { mock_proposal }) do
-      ast = {
-        action: :approve,
-        approval_type: :proposal,
-        filters: { id: @content_change.id },
-        notes: "Should fail"
-      }
-
-      error = assert_raises(Platform::DSL::ExecutionError) do
-        Platform::DSL::Executors::Curator.execute_approval(ast)
-      end
-
-      assert_match(/nije uspjelo/i, error.message)
-    end
-  end
-
-  test "reject_proposal raises for non-pending proposal" do
-    @content_change.update!(status: :approved)
-
-    ast = {
-      action: :reject,
-      approval_type: :proposal,
-      filters: { id: @content_change.id },
-      reason: "Some reason"
-    }
-
-    error = assert_raises(Platform::DSL::ExecutionError) do
-      Platform::DSL::Executors::Curator.execute_approval(ast)
-    end
-
-    assert_match(/nije u pending statusu/i, error.message)
-  end
 
   test "list_curators with high_activity filter" do
     # Set curator with high activity
@@ -634,26 +365,6 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
     end
   end
 
-  test "list_proposals with type alias filter" do
-    # Test the :type alias for :change_type
-    ast = { filters: { type: "update_content" } }
-
-    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
-
-    assert_equal :list_proposals, result[:action]
-  end
-
-  test "list_proposals with invalid change_type filter ignores it" do
-    # Test line 131: if ContentChange.change_types.key?(change_type) - false branch
-    ast = { filters: { change_type: "invalid_change_type_xyz" } }
-
-    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
-
-    # Should still return results (invalid change_type is ignored)
-    assert_equal :list_proposals, result[:action]
-    assert result[:proposals].is_a?(Array)
-  end
-
   test "create_platform_user creates new user when no admin exists" do
     # Test line 422-428: when User.admin.first returns nil
     # Remove all admins
@@ -664,20 +375,5 @@ class Platform::DSL::Executors::CuratorTest < ActiveSupport::TestCase
     # Should have created a new admin user
     assert result.admin?
     assert_equal "platform_system", result.username
-  end
-
-  test "show_proposal for unreviewed proposal has nil reviewed_at" do
-    # Test line 176: reviewed_at&.iso8601 when nil
-    @content_change.update_column(:reviewed_at, nil)
-
-    ast = {
-      filters: { id: @content_change.id },
-      operations: [ { name: :show } ]
-    }
-
-    result = Platform::DSL::Executors::Curator.execute_proposals_query(ast)
-
-    assert_equal :show_proposal, result[:action]
-    assert_nil result[:reviewed_at]
   end
 end

@@ -37,6 +37,10 @@ class AudioTour < ApplicationRecord
   scope :by_locale, ->(locale) { where(locale: locale) }
   scope :with_audio, -> { joins(:audio_file_attachment) }
 
+  def display_title
+    "#{location.name} (#{language_name})"
+  end
+
   # Get the language name for the current locale
   def language_name
     SUPPORTED_LOCALES[locale.to_sym] || locale.upcase

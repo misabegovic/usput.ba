@@ -608,6 +608,8 @@ bs:
       published: Uspomena podijeljena — curator će je pregledati prije nego postane javna
       unpublished: Uspomena je ponovo privatna
   admin:
+    open_in_admin: Otvori u adminu
+    edit_label: Uredi
     fields:
       name: Naziv
       title: Naslov
@@ -681,6 +683,11 @@ bs:
       ownerships:
         curated: Usput
         travellers: Putnici (javni)
+    audio_tours:
+      place: Mjesto
+      language: Jezik
+      audio: Audio fajl
+      script: Tekst
   auth:
     register_title: Registracija - Usput
     register_heading: Kreiraj nalog
@@ -1188,12 +1195,7 @@ bs:
     title: Kurator Panel
     nav:
       dashboard: Pregled
-      locations: Lokacije
-      experiences: Iskustva
-      plans: Planovi
-      audio_tours: Audio ture
       reviews: Recenzije
-      proposals: Prijedlozi
       moments: Uspomene
     moments:
       title: Podijeljene uspomene
@@ -1238,159 +1240,13 @@ bs:
       no_reviews: Još nema recenzija
       no_plans: Još nema javnih planova
       recent_activity: Nedavne aktivnosti kuratora
-      pending_proposals_alert:
-        one: Postoji 1 prijedlog na čekanju
-        other: Postoji %{count} prijedloga na čekanju
-      review_proposals: Pregledaj prijedloge
-    locations:
-      title: Lokacije
-      new: Nova lokacija
-      edit: Uredi
-      view: Pregledaj
-      delete: Obriši
-      edit_title: 'Uredi: %{name}'
-      back_to_list: Nazad na listu
-      name: Naziv
-      city: Mjesto
-      type: Tip
-      budget: Budžet
-      address: Adresa
-      description: Opis
-      historical_context: Istorijski kontekst
-      historical_context_hint: Istorijska pozadina i značaj ove lokacije
-      latitude: Geografska širina
-      longitude: Geografska dužina
-      coordinates: Koordinate
-      view_on_map: Pogledaj na mapi
-      phone: Telefon
-      email: E-mail
-      website: Web stranica
-      video_url: Video URL
-      video_url_hint: YouTube ili drugi video link o ovoj lokaciji
-      opening_hours: Radno vrijeme
-      created_at: Kreirano
-      updated_at: Ažurirano
-      average_rating: Prosječna ocjena
-      reviews_count: Recenzije
-      actions: Akcije
-      select_city: Odaberi mjesto...
-      no_locations: Nema pronađenih lokacija
-      created: Lokacija uspješno kreirana
-      updated: Lokacija uspješno ažurirana
-      deleted: Lokacija uspješno obrisana
-      confirm_delete: Jesi li siguran da želiš obrisati %{name}?
-      confirm_delete_with_memories:
-        one: "Obrisati %{name}? Putnik ovdje ima 1 zabilježenu posjetu ili trenutak koji će također biti obrisan. Ovo se ne može poništiti — arhiviraj umjesto toga da sačuvaš."
-        other: "Obrisati %{name}? Putnici ovdje imaju %{count} zabilježenih posjeta i trenutaka koji će svi biti obrisani. Ovo se ne može poništiti — arhiviraj umjesto toga da ih sačuvaš."
-      archive: Arhiviraj
-      restore: Vrati
-      confirm_archive: "Arhivirati %{name}? Prestaje se nuditi putnicima; sve što su ovdje zabilježili ostaje sačuvano."
-      archived: Lokacija arhivirana — putnici je više ne vide, a njihove uspomene su sačuvane
-      restored: Lokacija vraćena — putnici je ponovo mogu pronaći
-      show_archived: Arhivirane
-      show_live: Aktivne
-      tags: Oznake
-      tags_placeholder: npr. priroda, istorijsko, za porodice
-      tags_hint: Razdvoji oznake zarezom
-      experiences_hint: Odaberi za koje tipove iskustava je ova lokacija pogodna
-      current_photos: Trenutne fotografije
-      add_photos: Dodaj fotografije
-      photos_hint: 'Možeš odabrati više fotografija. Podržani formati: JPG, PNG, WebP'
-      remove_photos_hint: Klikni na ikonu kante za brisanje fotografije
-      current_audio: Trenutni audio zapis
-      upload_audio: Učitaj audio zapis
-      audio_hint: 'Podržani formati: MP3, WAV, OGG. Maksimalna veličina: 50MB'
-      remove_audio: Ukloni
-      audio_not_supported: Tvoj preglednik ne podržava reprodukciju zvuka.
-      sections:
-        basic_info: Osnovne informacije
-        location: Lokacija i koordinate
-        contact: Kontakt informacije
-        social: Društvene mreže
-        experiences: Pogodni tipovi iskustava
-        tags: Oznake
-        photos: Fotografije
-        audio: Audio zapis
-        metadata: Metapodaci
-        accessibility: Pristupačnost
-      filter:
-        all_cities: Sva mjesta
-      needs_photos:
-        title: Lokacije kojima trebaju fotografije
-        description: Lokacije sortirane po broju fotografija (najmanje prvo). Pomozite poboljšati naš
-          sadržaj dodavanjem fotografija!
-        photo_count: Fotografije
-        photos: fotografija
-        max_photos: Max fotografija
-        add_photo: Dodaj fotografiju
-        no_results: Nema pronađenih lokacija
-        no_results_hint: Pokušajte prilagoditi filtere
-      accessibility_hint: Informacije o pristupu za osobe u invalidskim kolicima i osobe s invaliditetom
     experiences:
-      title: Iskustva
-      new: Novo iskustvo
-      edit: Uredi
-      view: Pregledaj
-      delete: Obriši
-      edit_title: 'Uredi: %{name}'
-      back_to_list: Nazad na listu
-      name: Naziv
-      city: Mjesto
-      category: Kategorija
-      duration: Trajanje
-      duration_placeholder: Trajanje u minutama
-      duration_hint: Unesi trajanje u minutama
-      best_season: Najbolja sezona
-      difficulty: Težina
-      description: Opis
-      created_at: Kreirano
-      updated_at: Ažurirano
-      average_rating: Prosječna ocjena
-      reviews_count: Recenzije
-      locations_count: Lokacije
-      actions: Akcije
-      select_city: Odaberi mjesto...
-      select_category: Odaberi kategoriju...
-      no_experiences: Nema pronađenih iskustava
-      created: Iskustvo uspješno kreirano
-      updated: Iskustvo uspješno ažurirano
-      deleted: Iskustvo uspješno obrisano
-      confirm_delete: Jesi li siguran da želiš obrisati %{name}?
-      current_cover: Trenutna naslovna fotografija
-      upload_cover: Učitaj naslovnu fotografiju
-      cover_photo_hint: 'Preporučena veličina: 1200x800px. Podržani formati: JPG, PNG, WebP'
-      remove_cover_hint: Klikni na ikonu kante za uklanjanje trenutne naslovne fotografije
-      contact_hint: Kontakt podaci za rezervacije ili upite o ovom iskustvu
-      contact_name: Ime kontakta
-      contact_name_placeholder: npr. Marko Marković
-      contact_email: E-mail kontakta
-      contact_phone: Telefon kontakta
-      contact_website: Web stranica kontakta
-      locations_hint: Odaberi lokacije koje su dio ovog iskustva. Redoslijed je bitan - povuci za reorganizaciju.
-      selected_locations: Odabrane lokacije
-      add_location: Dodaj lokaciju
-      search_location: Pretraži i odaberi lokaciju...
-      no_locations_selected: Još nema odabranih lokacija
-      sections:
-        basic_info: Osnovne informacije
-        cover_photo: Naslovna fotografija
-        contact: Kontakt informacije
-        locations: Lokacije
-        metadata: Metapodaci
-      filter:
-        all_cities: Sva mjesta
-      best_seasons: Najbolje sezone
-      seasons_hint: Ostavite neoznačeno za doživljaje tokom cijele godine
       seasons:
         all_year: Cijela godina
         spring: Proljeće
         summer: Ljeto
         fall: Jesen
         winter: Zima
-      difficulties:
-        easy: Lako
-        moderate: Umjereno
-        challenging: Zahtjevno
     admin:
       nav:
         users: Upravljanje korisnicima
@@ -1400,13 +1256,6 @@ bs:
         updated: Korisnik uspješno ažuriran
         unblocked: Korisnik uspješno deblokiran
         not_blocked: Ovaj korisnik nije blokiran
-      content_changes:
-        title: Promjene sadržaja
-        approved: Promjena sadržaja odobrena i primijenjena uspješno
-        rejected: Promjena sadržaja uspješno odbijena
-        approval_failed: Nije uspjelo primjenjivanje promjene sadržaja
-        rejection_failed: Nije uspjelo odbijanje promjene sadržaja
-        already_reviewed: Ova promjena sadržaja je već pregledana
   pagination:
     aria_label: Paginacija
     previous_short: Nazad

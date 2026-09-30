@@ -877,10 +877,6 @@ tr:
     title: Küratör Paneli
     nav:
       dashboard: Panel
-      locations: Mekanlar
-      experiences: Deneyimler
-      plans: Planlar
-      audio_tours: Sesli Turlar
       reviews: Yorumlar
     dashboard:
       welcome: Hoş geldiniz, %{username}!
@@ -909,138 +905,13 @@ tr:
       no_experiences: Henüz deneyim yok
       no_reviews: Henüz yorum yok
       no_plans: Henüz herkese açık plan yok
-    locations:
-      title: Mekanlar
-      new: Yeni Mekan
-      edit: Düzenle
-      view: Görüntüle
-      delete: Sil
-      edit_title: 'Düzenle: %{name}'
-      back_to_list: Listeye dön
-      name: İsim
-      city: Şehir
-      type: Tür
-      budget: Bütçe
-      address: Adres
-      description: Açıklama
-      historical_context: Tarihsel Bağlam
-      historical_context_hint: Bu mekanın tarihsel arka planı ve önemi
-      latitude: Enlem
-      longitude: Boylam
-      coordinates: Koordinatlar
-      view_on_map: Haritada görüntüle
-      phone: Telefon
-      email: E-posta
-      website: Web sitesi
-      video_url: Video URL
-      video_url_hint: Bu mekan hakkında YouTube veya diğer video bağlantısı
-      opening_hours: Açılış Saatleri
-      created_at: Oluşturulma
-      updated_at: Güncellenme
-      average_rating: Ortalama Puan
-      reviews_count: Yorumlar
-      actions: İşlemler
-      select_city: Şehir seçin...
-      no_locations: Mekan bulunamadı
-      created: Mekan başarıyla oluşturuldu
-      updated: Mekan başarıyla güncellendi
-      deleted: Mekan başarıyla silindi
-      confirm_delete: "%{name} mekanını silmek istediğinizden emin misiniz?"
-      tags: Etiketler
-      tags_placeholder: örn. doğa, tarihi, aile dostu
-      tags_hint: Etiketleri virgülle ayırın
-      experiences_hint: Bu mekanın uygun olduğu deneyim türlerini seçin
-      current_photos: Mevcut fotoğraflar
-      add_photos: Fotoğraf Ekle
-      photos_hint: 'Birden fazla fotoğraf seçebilirsiniz. Desteklenen formatlar: JPG,
-        PNG, WebP'
-      remove_photos_hint: Kaldırılacak fotoğrafları işaretlemek için çöp kutusu simgesine
-        tıklayın
-      current_audio: Mevcut ses kaydı
-      upload_audio: Ses Kaydı Yükle
-      audio_hint: 'Desteklenen formatlar: MP3, WAV, OGG. Maksimum boyut: 50MB'
-      remove_audio: Kaldır
-      audio_not_supported: Tarayıcınız ses oynatmayı desteklemiyor.
-      sections:
-        basic_info: Temel Bilgiler
-        location: Konum ve Koordinatlar
-        contact: İletişim Bilgileri
-        social: Sosyal Medya
-        experiences: Uygun Deneyim Türleri
-        tags: Etiketler
-        photos: Fotoğraflar
-        audio: Ses Kaydı
-        metadata: Meta Veriler
-      filter:
-        all_cities: Tüm şehirler
     experiences:
-      title: Deneyimler
-      new: Yeni Deneyim
-      edit: Düzenle
-      view: Görüntüle
-      delete: Sil
-      edit_title: 'Düzenle: %{name}'
-      back_to_list: Listeye dön
-      name: İsim
-      city: Şehir
-      category: Kategori
-      duration: Süre
-      duration_placeholder: Dakika cinsinden süre
-      duration_hint: Süreyi dakika olarak girin
-      best_season: En İyi Mevsim
-      difficulty: Zorluk
-      description: Açıklama
-      created_at: Oluşturulma
-      updated_at: Güncellenme
-      average_rating: Ortalama Puan
-      reviews_count: Yorumlar
-      locations_count: Mekanlar
-      actions: İşlemler
-      select_city: Şehir seçin...
-      select_category: Kategori seçin...
-      no_experiences: Deneyim bulunamadı
-      created: Deneyim başarıyla oluşturuldu
-      updated: Deneyim başarıyla güncellendi
-      deleted: Deneyim başarıyla silindi
-      confirm_delete: "%{name} deneyimini silmek istediğinizden emin misiniz?"
-      current_cover: Mevcut kapak fotoğrafı
-      upload_cover: Kapak Fotoğrafı Yükle
-      cover_photo_hint: 'Önerilen boyut: 1200x800px. Desteklenen formatlar: JPG, PNG,
-        WebP'
-      remove_cover_hint: Mevcut kapak fotoğrafını kaldırmak için çöp kutusu simgesine
-        tıklayın
-      contact_hint: Bu deneyim için rezervasyon veya sorular için iletişim bilgileri
-      contact_name: İletişim Adı
-      contact_name_placeholder: örn. Ahmet Yılmaz
-      contact_email: İletişim E-postası
-      contact_phone: İletişim Telefonu
-      contact_website: İletişim Web Sitesi
-      locations_hint: Bu deneyimin parçası olan mekanları seçin. Sıralama önemlidir
-        - yeniden sıralamak için sürükleyin.
-      selected_locations: Seçili Mekanlar
-      add_location: Mekan Ekle
-      search_location: Mekan arayın ve seçin...
-      no_locations_selected: Henüz mekan seçilmedi
-      sections:
-        basic_info: Temel Bilgiler
-        cover_photo: Kapak Fotoğrafı
-        contact: İletişim Bilgileri
-        locations: Mekanlar
-        metadata: Meta Veriler
-      filter:
-        all_cities: Tüm şehirler
-      best_seasons: En iyi mevsimler
-      seasons_hint: Yıl boyu süren deneyimler için işaretlemeyin
       seasons:
         all_year: Tüm yıl
         spring: İlkbahar
         summer: Yaz
         fall: Sonbahar
         winter: Kış
-      difficulties:
-        easy: Kolay
-        moderate: Orta
-        challenging: Zorlu
     reviews:
       title: Yorumlar
       show_title: Yorum Detayları
@@ -1063,91 +934,8 @@ tr:
       delete: Sil
       deleted: Yorum başarıyla silindi
       confirm_delete: Bu yorumu silmek istediğinizden emin misiniz?
-    audio_tours:
-      title: Sesli Turlar
-      show_title: Sesli Tur Detayları
-      new: Yeni Sesli Tur
-      edit: Düzenle
-      edit_title: 'Düzenle: %{location}'
-      view: Görüntüle
-      delete: Sil
-      back_to_list: Listeye dön
-      total: Toplam
-      with_audio: Sesli
-      locations_with_tours: Mekan Kapsamı
-      by_locale: Dile Göre
-      search_placeholder: Mekan adına göre ara...
-      all_locales: Tüm diller
-      location: Mekan
-      locale: Dil
-      audio_status: Durum
-      duration: Süre
-      word_count: Kelime Sayısı
-      script: Metin
-      script_hint: Sese dönüştürülecek metin
-      created_at: Oluşturulma
-      actions: İşlemler
-      ready: Hazır
-      pending: Beklemede
-      no_audio_tours: Sesli tur bulunamadı
-      select_location: Bir mekan seçin...
-      select_locale: Bir dil seçin...
-      current_audio: Mevcut Ses
-      upload_audio: Ses Dosyası Yükle
-      audio_hint: 'Desteklenen formatlar: MP3, WAV, OGG'
-      remove_audio: Ses dosyasını kaldır
-      audio_not_supported: Tarayıcınız ses oynatmayı desteklemiyor.
-      audio_player: Ses Oynatıcı
-      created: Sesli tur başarıyla oluşturuldu
-      updated: Sesli tur başarıyla güncellendi
-      deleted: Sesli tur başarıyla silindi
-      confirm_delete: Bu sesli turu silmek istediğinizden emin misiniz?
-      sections:
-        basic_info: Temel Bilgiler
-        audio_file: Ses Dosyası
     plans:
-      title: Planlar
-      show_title: Plan Detayları
-      new: Yeni Plan
-      edit: Düzenle
-      edit_title: 'Düzenle: %{title}'
-      view: Görüntüle
-      delete: Sil
-      back_to_list: Listeye dön
-      total: Toplam Plan
-      public: Herkese Açık
-      private: Özel
-      with_experiences: Deneyimli
-      all_visibility: Tüm görünürlük
-      all_cities: Tüm şehirler
-      search_placeholder: Başlığa göre ara...
-      plan_title: Başlık
-      city: Şehir
-      author: Yazar
       no_author: Yazar yok
-      visibility: Görünürlük
-      visibility_hint: Herkese açık planlar tüm kullanıcılara görünür
-      experiences: Deneyimler
-      locations: mekan
-      duration: Süre
-      dates: Tarihler
-      start_date: Başlangıç Tarihi
-      end_date: Bitiş Tarihi
-      notes: Notlar
-      notes_hint: Bu plan hakkında ek notlar
-      created_at: Oluşturulma
-      actions: İşlemler
-      no_plans: Plan bulunamadı
-      select_city: Bir şehir seçin...
-      no_experiences_yet: Henüz deneyim eklenmedi
-      experiences_hint: Deneyimler plan oluşturulduktan sonra eklenebilir
-      created: Plan başarıyla oluşturuldu
-      updated: Plan başarıyla güncellendi
-      deleted: Plan başarıyla silindi
-      confirm_delete: "'%{title}' planını silmek istediğinizden emin misiniz?"
-      sections:
-        basic_info: Temel Bilgiler
-        experiences: Deneyimler
   travel_profile:
     checking_location: Konumunuz kontrol ediliyor...
     visit_recorded: Ziyaret başarıyla kaydedildi!

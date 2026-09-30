@@ -511,11 +511,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
   end
 
   # Execute type routing
-  test "execute routes proposals_query correctly" do
-    result = Platform::DSL.execute("proposals | count")
-
-    assert result.is_a?(Hash) || result.is_a?(Integer)
-  end
 
   test "execute routes curators_query correctly" do
     result = Platform::DSL.execute("curators | count")
@@ -530,34 +525,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
   end
 
   # Proposals query tests
-  test "execute_proposals_query with list operation" do
-    result = Platform::DSL.execute("proposals | list")
-
-    assert result.is_a?(Hash)
-    assert_equal :list_proposals, result[:action]
-  end
-
-  test "execute_proposals_query with show operation" do
-    proposal = ContentChange.create!(
-      user: @test_user,
-      change_type: :create_content,
-      changeable_class: "Location",
-      proposed_data: { name: "Test" },
-      status: :pending
-    )
-
-    result = Platform::DSL.execute("proposals { id: #{proposal.id} } | show")
-
-    assert result.is_a?(Hash)
-    assert_equal :show_proposal, result[:action]
-  end
-
-  test "execute_proposals_query with status filter" do
-    result = Platform::DSL.execute('proposals { status: "pending" } | list')
-
-    assert result.is_a?(Hash)
-    assert_equal :list_proposals, result[:action]
-  end
 
   # Curators query tests
   test "execute_curators_query with list" do
@@ -617,39 +584,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
 
   # Approval tests
-  test "execute_approval approve proposal" do
-    proposal = ContentChange.create!(
-      user: @test_user,
-      change_type: :update_content,
-      changeable_type: "Location",
-      changeable_id: @sarajevo_location.id,
-      proposed_data: { name: "Updated Name" },
-      status: :pending
-    )
-
-    result = Platform::DSL.execute("approve proposal { id: #{proposal.id} }")
-
-    assert result.is_a?(Hash)
-    assert result[:success]
-    assert_equal :approve_proposal, result[:action]
-  end
-
-  test "execute_approval reject proposal" do
-    proposal = ContentChange.create!(
-      user: @test_user,
-      change_type: :update_content,
-      changeable_type: "Location",
-      changeable_id: @sarajevo_location.id,
-      proposed_data: { name: "Updated Name" },
-      status: :pending
-    )
-
-    result = Platform::DSL.execute("reject proposal { id: #{proposal.id} } reason \"Invalid data\"")
-
-    assert result.is_a?(Hash)
-    assert result[:success]
-    assert_equal :reject_proposal, result[:action]
-  end
 
   # Geoapify service test
   test "geoapify_service returns service instance" do
@@ -939,12 +873,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert scope.is_a?(ActiveRecord::Relation)
   end
 
-  test "apply_filter with status filter" do
-    scope = Platform::DSL::Executor.send(:apply_filter, ContentChange.all, :status, "pending")
-
-    assert scope.is_a?(ActiveRecord::Relation)
-  end
-
   test "apply_filter with type filter" do
     scope = Platform::DSL::Executor.send(:apply_filter, Location.all, :type, "place")
 
@@ -1074,37 +1002,8 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
   end
 
   # Test format_proposal returns hash with required keys
-  test "format_proposal returns hash with keys" do
-    proposal = ContentChange.create!(
-      user: @test_user,
-      change_type: :create_content,
-      changeable_class: "Location",
-      proposed_data: { name: "Test" },
-      status: :pending
-    )
-
-    result = Platform::DSL::Executors::Curator.send(:format_proposal, proposal)
-
-    assert result.is_a?(Hash)
-    assert result.key?(:id)
-    assert result.key?(:status)
-  end
 
   # Test show_proposal includes reviews array
-  test "show_proposal includes reviews array" do
-    proposal = ContentChange.create!(
-      user: @test_user,
-      change_type: :create_content,
-      changeable_class: "Location",
-      proposed_data: { name: "Test Proposal" },
-      status: :pending
-    )
-
-    result = Platform::DSL::Executors::Curator.send(:show_proposal, { id: proposal.id })
-
-    assert result.is_a?(Hash)
-    assert result.key?(:reviews)
-  end
 
   # Test execute_schema_query with unknown operation
   test "execute_schema_query raises for unknown operation" do
@@ -1167,27 +1066,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
   end
 
   # Test show_proposal with curator reviews
-  test "show_proposal with curator reviews maps them correctly" do
-    proposal = ContentChange.create!(
-      user: @test_user,
-      change_type: :create_content,
-      changeable_class: "Location",
-      proposed_data: { name: "Test" },
-      status: :pending
-    )
-
-    CuratorReview.create!(
-      content_change: proposal,
-      user: @test_user,
-      recommendation: :recommend_approve,
-      comment: "Looks good"
-    )
-
-    result = Platform::DSL::Executors::Curator.send(:show_proposal, { id: proposal.id })
-
-    assert result[:reviews].is_a?(Array)
-    assert result[:reviews].any? { |r| r[:recommendation] == "recommend_approve" }
-  end
 
   # Test apply_filter with Range value
   test "apply_filter with range value" do
@@ -1283,21 +1161,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
   end
 
   # Test count_proposals returns statistics
-  test "count_proposals returns statistics hash" do
-    ContentChange.create!(
-      user: @test_user,
-      change_type: :create_content,
-      changeable_class: "Location",
-      proposed_data: { name: "Count Test" },
-      status: :pending
-    )
-
-    result = Platform::DSL::Executors::Curator.send(:count_proposals, {})
-
-    assert result.is_a?(Hash)
-    assert result.key?(:total)
-    assert result.key?(:pending)
-  end
 
   # Test list_curators returns curators with stats
   test "list_curators returns curators list" do

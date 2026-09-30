@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_170000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -112,42 +112,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_170000) do
     t.index ["wheelchair_accessible"], name: "index_browses_on_wheelchair_accessible"
   end
 
-  create_table "content_change_contributions", force: :cascade do |t|
-    t.bigint "content_change_id", null: false
-    t.datetime "created_at", null: false
-    t.text "notes"
-    t.jsonb "proposed_data", default: {}
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.index ["content_change_id", "user_id"], name: "idx_contributions_unique_user_per_change", unique: true
-    t.index ["content_change_id"], name: "index_content_change_contributions_on_content_change_id"
-    t.index ["user_id"], name: "index_content_change_contributions_on_user_id"
-  end
-
-  create_table "content_changes", force: :cascade do |t|
-    t.text "admin_notes"
-    t.integer "change_type", default: 0, null: false
-    t.string "changeable_class"
-    t.bigint "changeable_id"
-    t.string "changeable_type"
-    t.datetime "created_at", null: false
-    t.jsonb "original_data", default: {}
-    t.jsonb "proposed_data", default: {}
-    t.datetime "reviewed_at"
-    t.bigint "reviewed_by_id"
-    t.integer "status", default: 0, null: false
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.index ["change_type"], name: "index_content_changes_on_change_type"
-    t.index ["changeable_type", "changeable_id", "status"], name: "idx_content_changes_on_changeable_and_status"
-    t.index ["changeable_type", "changeable_id"], name: "idx_unique_pending_proposal_per_resource", unique: true, where: "((status = 0) AND (changeable_id IS NOT NULL))"
-    t.index ["changeable_type", "changeable_id"], name: "index_content_changes_on_changeable"
-    t.index ["reviewed_by_id"], name: "index_content_changes_on_reviewed_by_id"
-    t.index ["status"], name: "index_content_changes_on_status"
-    t.index ["user_id", "status"], name: "index_content_changes_on_user_id_and_status"
-    t.index ["user_id"], name: "index_content_changes_on_user_id"
-  end
-
   create_table "curator_activities", force: :cascade do |t|
     t.string "action", null: false
     t.datetime "created_at", null: false
@@ -163,18 +127,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_170000) do
     t.index ["recordable_type", "recordable_id"], name: "index_curator_activities_on_recordable"
     t.index ["user_id", "created_at"], name: "index_curator_activities_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_curator_activities_on_user_id"
-  end
-
-  create_table "curator_reviews", force: :cascade do |t|
-    t.text "comment", null: false
-    t.bigint "content_change_id", null: false
-    t.datetime "created_at", null: false
-    t.integer "recommendation", default: 0
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.index ["content_change_id", "created_at"], name: "index_curator_reviews_on_content_change_id_and_created_at"
-    t.index ["content_change_id"], name: "index_curator_reviews_on_content_change_id"
-    t.index ["user_id"], name: "index_curator_reviews_on_user_id"
   end
 
   create_table "events", force: :cascade do |t|
@@ -607,13 +559,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_170000) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "audio_tours", "locations"
-  add_foreign_key "content_change_contributions", "content_changes"
-  add_foreign_key "content_change_contributions", "users"
-  add_foreign_key "content_changes", "users"
-  add_foreign_key "content_changes", "users", column: "reviewed_by_id"
   add_foreign_key "curator_activities", "users"
-  add_foreign_key "curator_reviews", "content_changes"
-  add_foreign_key "curator_reviews", "users"
   add_foreign_key "events", "locations"
   add_foreign_key "experience_category_types", "experience_categories"
   add_foreign_key "experience_category_types", "experience_types"

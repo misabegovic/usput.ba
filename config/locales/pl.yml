@@ -881,8 +881,6 @@ pl:
     title: Panel Kuratora
     nav:
       dashboard: Panel
-      locations: Lokalizacje
-      experiences: Doświadczenia
     dashboard:
       welcome: Witaj, %{username}!
       total_locations: Łączna Liczba Lokalizacji
@@ -895,75 +893,13 @@ pl:
       recent_experiences: Ostatnie Doświadczenia
       no_locations: Brak jeszcze lokalizacji
       no_experiences: Brak jeszcze doświadczeń
-    locations:
-      title: Lokalizacje
-      new: Nowa Lokalizacja
-      edit: Edytuj
-      view: Zobacz
-      delete: Usuń
-      edit_title: 'Edycja: %{name}'
-      back_to_list: Powrót do listy
-      name: Nazwa
-      city: Miasto
-      type: Typ
-      budget: Budżet
-      address: Adres
-      description: Opis
-      latitude: Szerokość geograficzna
-      longitude: Długość geograficzna
-      coordinates: Współrzędne
-      phone: Telefon
-      email: E-mail
-      website: Strona internetowa
-      opening_hours: Godziny otwarcia
-      created_at: Utworzono
-      actions: Działania
-      select_city: Wybierz miasto...
-      no_locations: Nie znaleziono lokalizacji
-      created: Lokalizacja utworzona pomyślnie
-      updated: Lokalizacja zaktualizowana pomyślnie
-      deleted: Lokalizacja usunięta pomyślnie
-      confirm_delete: Czy na pewno chcesz usunąć %{name}?
-      filter:
-        all_cities: Wszystkie miasta
     experiences:
-      title: Doświadczenia
-      new: Nowe Doświadczenie
-      edit: Edytuj
-      view: Zobacz
-      delete: Usuń
-      edit_title: 'Edycja: %{name}'
-      back_to_list: Powrót do listy
-      name: Nazwa
-      city: Miasto
-      category: Kategoria
-      duration: Czas trwania
-      best_season: Najlepszy Sezon
-      difficulty: Trudność
-      description: Opis
-      created_at: Utworzono
-      actions: Działania
-      select_city: Wybierz miasto...
-      select_category: Wybierz kategorię...
-      no_experiences: Nie znaleziono doświadczeń
-      created: Doświadczenie utworzone pomyślnie
-      updated: Doświadczenie zaktualizowane pomyślnie
-      deleted: Doświadczenie usunięte pomyślnie
-      confirm_delete: Czy na pewno chcesz usunąć %{name}?
-      filter:
-        all_cities: Wszystkie miasta
-      best_seasons: Najlepsze pory roku
-      seasons_hint: Pozostaw niezaznaczone dla całorocznych atrakcji
       seasons:
         all_year: Cały rok
         spring: Wiosna
         summer: Lato
         fall: Jesień
         winter: Zima
-      difficulties:
-        easy: Łatwy
-        moderate: Umiarkowany
-        challenging: Wymagający
   minesweeper:
     title: Saper
     subtitle: "Gra edukacyjna na prawdziwych mapach — miny są tam, gdzie prawdziwe dane rejestrują obszary podejrzane o miny."

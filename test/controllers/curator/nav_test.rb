@@ -14,14 +14,14 @@ class Curator::NavTest < ActionDispatch::IntegrationTest
     @curator&.destroy
   end
 
-  test "workflow routes are linked from both navs" do
+  test "workflow routes and the admin are linked from both navs" do
     login_as(@curator)
     get curator_root_path
 
     assert_response :success
     nav = response.body[/<nav\b.*?<\/nav>/m]
 
-    [ curator_reviews_path, curator_proposals_path, curator_moments_path ].each do |path|
+    [ curator_reviews_path, curator_moments_path, "/admin/" ].each do |path|
       count = nav.scan(/href="#{Regexp.escape(path)}"/).size
       assert_equal 2, count, "#{path} should be in the desktop nav and the mobile nav, found #{count}"
     end

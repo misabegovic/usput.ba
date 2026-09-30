@@ -346,7 +346,7 @@ module Platform
           end
 
           def get_table_sizes
-            tables = %w[locations experiences plans users reviews content_changes knowledge_summaries]
+            tables = %w[locations experiences plans users reviews knowledge_summaries]
             tables.each_with_object({}) do |table, hash|
               begin
                 hash[table] = ActiveRecord::Base.connection.execute("SELECT COUNT(*) FROM #{table}").first["count"]

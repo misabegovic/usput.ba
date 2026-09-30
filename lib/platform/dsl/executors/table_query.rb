@@ -29,9 +29,7 @@ module Platform
           "review" => "Review",
           "translations" => "Translation",
           "translation" => "Translation",
-          "browse" => "Browse",
-          "content_changes" => "ContentChange",
-          "content_change" => "ContentChange"
+          "browse" => "Browse"
         }.freeze
 
         class << self

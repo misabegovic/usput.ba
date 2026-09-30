@@ -9,9 +9,6 @@ class User < ApplicationRecord
     attachable.variant :medium, resize_to_limit: [ 256, 256 ]
   end
   has_many :plans, dependent: :nullify
-  has_many :content_changes, dependent: :destroy
-  has_many :content_change_contributions, dependent: :destroy
-  has_many :curator_reviews, dependent: :destroy
   has_many :curator_activities, dependent: :destroy
   has_many :moments, dependent: :destroy
   has_many :plan_visits, dependent: :destroy

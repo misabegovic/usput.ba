@@ -137,8 +137,9 @@ requires `PROD_DATABASE_URL`, and runs `bin/platform` in development mode;
   ... to [...]`, `generate experience from locations [...]`;
 - audio: `synthesize audio for ...` with optional locale and voice,
   `estimate audio cost for ...`;
-- curator work: `proposals`, `applications`, `approve` and `reject` a
-  proposal or application, `curators`, `block curator`, `unblock curator`;
+- curator work: `curators`, `block curator`, `unblock curator` (the
+  `proposals`, `applications`, `approve` and `reject` commands were removed
+  on 2026-09-30 with what they acted on);
 - introspection: `code` (read_file, search, grep, structure, models,
   routes), `logs`, `infrastructure`;
 - quality: `quality`, `validate location`, `validate experience from

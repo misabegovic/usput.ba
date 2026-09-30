@@ -102,7 +102,7 @@ None of the traveller features (moments, plan visits, likes, Browse) depends on 
 
 On the rebuild branch, each deletion lands in the same pull request as, or right after, the Avo slice that replaces it, with the test suite green after each:
 
-1. **Proposals and curator reviews.** Delete `ContentChange`, `ContentChangeContribution`, `CuratorReview`, the proposals and content change controllers and views, their tests and locale keys. Lands with Avo's `Location`, `Experience` and `Plan` resources.
+1. **Done 2026-09-30.** **Proposals and curator reviews.** Delete `ContentChange`, `ContentChangeContribution`, `CuratorReview`, the proposals and content change controllers and views, their tests and locale keys. Lands with Avo's `Location`, `Experience` and `Plan` resources.
 2. **Done 2026-09-30.** **Photo suggestions.** Delete `PhotoSuggestion`, both photo suggestion controllers, `multi_photo_upload`, their tests. Lands with photo upload on the Avo `Location` resource.
 3. **Done 2026-09-30.** **Curator applications.** Delete `CuratorApplication`, the public and admin controllers and views, the footer and profile links, their locale keys. Lands with role changes in the Avo `User` resource.
 4. **Moments and reviews queues.** Delete `Curator::MomentsController` and `Curator::ReviewsController` with views and tests. Lands with the Avo `Moment` and `Review` queues.
@@ -164,4 +164,37 @@ gave curators direct photo uploads.
   place's edit form in Avo, so the old area keeps working until it is removed.
 - **Kept for now**: the `photo_suggested` activity type, which the spam
   detector's tests still count; it goes with the activity trail in slice 6.
+
+Slice 1, proposals, landed on 2026-09-30, after Avo's places, experiences and
+plans pages.
+
+- **Removed**: `ContentChange`, `ContentChangeContribution` and `CuratorReview`
+  with their three tables (one reversible migration), the proposals pages and
+  the admin approval pages. Every write on the old curator pages for places,
+  experiences, plans and audio tours went through a proposal, so those four
+  pages went too; their work is in the admin. `curator_filters_controller.js`,
+  listed for slice 5, went with the pages that used it.
+- **Audio tours moved to the admin in the same change**, since removing their
+  proposal form would otherwise have left curators no way to write one: place,
+  language, script, audio file and voice, created and edited by curators,
+  deleted by admins.
+- **Dead setters removed**: `Experience#location_uuids=`, `Plan#experience_days=`
+  and `Plan#location_days=` with their readers existed only for proposals and
+  the old forms.
+- **Reviews**: the old reviews page removed a review by filing a proposal. Until
+  the admin review queue (Avo slice 6), removal is direct and only an admin
+  may do it; curators see the list without the button.
+- **The curator menu and start page** point to the admin: one "Content" link
+  replaces the content and media menus, the quick actions open Avo's new
+  forms, "needs photos" opens the places list filtered to places with none,
+  and recent items open their admin pages. The "edit" buttons on public
+  place, experience and plan pages open the admin too, the plan one only for
+  plans the admin shows.
+- **The DSL loses** `proposals`, `approve proposal` and `reject proposal`;
+  `proposals | list` now fails as an unknown table.
+- **Kept for now**: the proposal activity types on `CuratorActivity`, which the
+  spam detector still counts; they go with the activity trail in slice 6.
+- **Mine Checker tests** now write their artifacts to a directory per test
+  process. Tests of one class ran in several local workers and truncated each
+  other's files; CI runs one worker and never saw it.
 

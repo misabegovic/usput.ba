@@ -881,8 +881,6 @@ nl:
     title: Curator Dashboard
     nav:
       dashboard: Dashboard
-      locations: Locaties
-      experiences: Ervaringen
     dashboard:
       welcome: Welkom, %{username}!
       total_locations: Totaal Locaties
@@ -895,75 +893,13 @@ nl:
       recent_experiences: Recente Ervaringen
       no_locations: Nog geen locaties
       no_experiences: Nog geen ervaringen
-    locations:
-      title: Locaties
-      new: Nieuwe Locatie
-      edit: Bewerken
-      view: Bekijken
-      delete: Verwijderen
-      edit_title: 'Bewerken: %{name}'
-      back_to_list: Terug naar lijst
-      name: Naam
-      city: Stad
-      type: Type
-      budget: Budget
-      address: Adres
-      description: Beschrijving
-      latitude: Breedtegraad
-      longitude: Lengtegraad
-      coordinates: Coördinaten
-      phone: Telefoon
-      email: E-mail
-      website: Website
-      opening_hours: Openingstijden
-      created_at: Aangemaakt
-      actions: Acties
-      select_city: Selecteer stad...
-      no_locations: Geen locaties gevonden
-      created: Locatie succesvol aangemaakt
-      updated: Locatie succesvol bijgewerkt
-      deleted: Locatie succesvol verwijderd
-      confirm_delete: Weet je zeker dat je %{name} wilt verwijderen?
-      filter:
-        all_cities: Alle steden
     experiences:
-      title: Ervaringen
-      new: Nieuwe Ervaring
-      edit: Bewerken
-      view: Bekijken
-      delete: Verwijderen
-      edit_title: 'Bewerken: %{name}'
-      back_to_list: Terug naar lijst
-      name: Naam
-      city: Stad
-      category: Categorie
-      duration: Duur
-      best_season: Beste Seizoen
-      difficulty: Moeilijkheidsgraad
-      description: Beschrijving
-      created_at: Aangemaakt
-      actions: Acties
-      select_city: Selecteer stad...
-      select_category: Selecteer categorie...
-      no_experiences: Geen ervaringen gevonden
-      created: Ervaring succesvol aangemaakt
-      updated: Ervaring succesvol bijgewerkt
-      deleted: Ervaring succesvol verwijderd
-      confirm_delete: Weet je zeker dat je %{name} wilt verwijderen?
-      filter:
-        all_cities: Alle steden
-      best_seasons: Beste seizoenen
-      seasons_hint: Laat leeg voor ervaringen het hele jaar door
       seasons:
         all_year: Het hele jaar
         spring: Lente
         summer: Zomer
         fall: Herfst
         winter: Winter
-      difficulties:
-        easy: Makkelijk
-        moderate: Gemiddeld
-        challenging: Uitdagend
   minesweeper:
     title: Mijnenveger
     subtitle: "Een educatief spel op echte kaarten — mijnen liggen waar echte gegevens mijnverdachte gebieden registreren."
