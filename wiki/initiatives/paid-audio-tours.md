@@ -55,8 +55,8 @@ rebuild keeps audio tours in version 1 and generates them from Avo.
 
 The operator chose a subscription over paying per tour: EUR 3 a week, EUR 6 a
 month, EUR 39 a year, every plan renewing, no trial, the first stop of every
-tour free. The seller will be a company abroad, not yet founded, selling
-through Stripe.
+tour free. The seller will be a company in Vienna, Austria, selling through
+Stripe in euros.
 
 ## Affected personas
 
@@ -108,9 +108,8 @@ through Stripe.
   and complaints follow. Worth watching in the first month.
 - **Offline listening.** Downloaded audio escapes the signed-link gate. Keep
   offline out of version 1 or accept the leak.
-- **Where the money lands.** Nothing can go live until the company exists and
-  its Stripe account is verified; the test-mode build must not assume a
-  currency or a country beyond EUR prices.
+- **Where the money lands.** Nothing can go live until the Vienna company
+  exists and its Stripe account is verified.
 - **Enough tours to be worth paying for.** A subscription sells a catalogue.
   If only a few places have tours at launch, few will pay.
 
@@ -122,8 +121,10 @@ source for how long that takes).
 
 ## Decision needed
 
-- **The company's country**, which decides the Stripe account, the payout
-  currency and the VAT registration. Until then, test mode only.
+- **The company's country** is decided: Vienna, Austria (2026-09-30). Still
+  open: its legal form and when its Stripe account is verified; until then,
+  test mode only. VAT registration and the One-Stop Shop, and whether the
+  small-business exemption applies at the start, are for its tax adviser.
 - **How many tours at launch** make the subscription worth offering, and
   which places get them first.
 - **Refund policy**: whether a weekly subscriber who forgot to cancel gets a

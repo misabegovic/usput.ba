@@ -36,11 +36,11 @@ play every audio tour. Anyone can play the first stop of any tour as a
 preview. There is no free trial and there are no codes. Everything that is
 not an audio tour stays free.
 
-The seller is a company abroad, in a country Stripe supports, not yet chosen.
+The seller is a company in Vienna, Austria, which Stripe supports.
 Payments go through Stripe: its hosted checkout, its customer portal for
 cancelling and changing plans, and its webhooks as the record of who is
-subscribed. Until the company exists, usput is built and tested against
-Stripe's test mode.
+subscribed. Prices and payouts are in euros. Until the company's Stripe account is
+verified, usput is built and tested against Stripe's test mode.
 
 ## Alternatives
 
@@ -65,10 +65,18 @@ Stripe's test mode.
 - Audio files must not be reachable by URL without an active subscription:
   every play goes through a short-lived signed link issued only to a
   subscriber, except the free first stop.
-- Selling to consumers in the EU brings VAT on digital services and a
-  right of withdrawal for digital content (unverified, 2026-09-30: how the
-  waiver on immediate access applies needs a source). Stripe Tax and
-  proper terms of sale are part of the work, not an afterthought.
+- An Austrian seller of digital services charges Austrian VAT to Austrian
+  consumers and the buyer's country's VAT to consumers elsewhere in the EU,
+  reported through the EU's One-Stop Shop; sales to consumers outside the
+  EU, Bosnia and Herzegovina included, generally carry no EU VAT (unverified,
+  2026-09-30: confirm with the company's tax adviser, including whether the
+  small-business exemption applies at the start). Stripe Tax records where
+  each buyer is.
+- EU consumers have a right of withdrawal for digital content, which the
+  checkout must handle (unverified, 2026-09-30: how the waiver on immediate
+  access applies needs a source). An Austrian company's website also needs
+  a legal notice (Impressum) naming the company. Terms of sale are part of
+  the work, not an afterthought.
 - Admins see subscriptions in Avo, read from Stripe; Stripe stays the source
   of truth for billing.
 - The work is shaped in [paid audio tours](../initiatives/paid-audio-tours.md).

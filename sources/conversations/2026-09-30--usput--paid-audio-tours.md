@@ -21,3 +21,7 @@ Answers, asked one by one:
 6. Prices: EUR 3 a week, EUR 6 a month, EUR 39 a year.
 7. Trials or codes: "None". Only the free first stop.
 8. Renewal: "All plans renew", weekly included.
+
+## Follow-up
+
+> For the city of the company, it's Vienna, Austria
