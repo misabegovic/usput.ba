@@ -6,7 +6,8 @@ require_relative "../support/static_artifacts"
 # recorded, fail-closed without artifacts.
 class MineCheckPublicControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @dir = Rails.root.join("tmp/mine_check_public_test").to_s
+    # One directory per test worker: tests of one class run in several processes.
+    @dir = Rails.root.join("tmp/mine_check_public_test-#{Process.pid}").to_s
     @points = StaticArtifacts.install!(dir: @dir)
   end
 

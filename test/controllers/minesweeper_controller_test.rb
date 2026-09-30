@@ -5,7 +5,8 @@ require_relative "../support/static_artifacts"
 # from the recorded areas, playable only where the data records something.
 class MinesweeperControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @dir = Rails.root.join("tmp/minesweeper_test").to_s
+    # One directory per test worker: tests of one class run in several processes.
+    @dir = Rails.root.join("tmp/minesweeper_test-#{Process.pid}").to_s
     @points = StaticArtifacts.install!(dir: @dir)
   end
 

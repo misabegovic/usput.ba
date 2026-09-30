@@ -5,7 +5,8 @@ require_relative "../../support/static_artifacts"
 # danger band blocks even when both endpoints are individually clear.
 class MineChecker::RouteCheckTest < ActiveSupport::TestCase
   setup do
-    @dir = Rails.root.join("tmp/route_check_test").to_s
+    # One directory per test worker: tests of one class run in several processes.
+    @dir = Rails.root.join("tmp/route_check_test-#{Process.pid}").to_s
     @points = StaticArtifacts.install!(dir: @dir)
     @area = StaticArtifacts::TEST_AREA
   end

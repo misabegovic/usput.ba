@@ -5,7 +5,8 @@ require_relative "../../support/static_artifacts"
 # artifacts whose truth is known exactly.
 class MineChecker::PointCheckTest < ActiveSupport::TestCase
   setup do
-    @dir = Rails.root.join("tmp/point_check_test").to_s
+    # One directory per test worker: tests of one class run in several processes.
+    @dir = Rails.root.join("tmp/point_check_test-#{Process.pid}").to_s
     @points = StaticArtifacts.install!(dir: @dir)
   end
 
