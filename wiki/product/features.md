@@ -85,7 +85,7 @@ This is what Usput.ba ships as of 2026-09-29, grouped by what a person does with
 | 2026-09-15 | Guest explore and check-in, replayed at sign-in | [#166](https://github.com/misabegovic/usput.ba/pull/166) |
 | 2026-09-15 | Archiving places, moments view, likes, moment links | [#167](https://github.com/misabegovic/usput.ba/pull/167) |
 | 2026-09-29 | Location accessibility merged onto main's work | [#154](https://github.com/misabegovic/usput.ba/pull/154) |
-| 2026-09-30 | Accounts through Devise: email sign-in, confirmation, reset, ending sessions | [#171](https://github.com/misabegovic/usput.ba/pull/171) and the Devise switch |
+| 2026-09-30 | Accounts through Devise: email sign-in, confirmation, reset, ending sessions | [#171](https://github.com/misabegovic/usput.ba/pull/171), [#172](https://github.com/misabegovic/usput.ba/pull/172) |
 
 ## Accounts
 
