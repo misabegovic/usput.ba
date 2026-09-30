@@ -13,6 +13,7 @@ depends_on:
 - decisions/archive-places-not-delete.md
 sources:
 - sources/conversations/2026-09-30--usput--place-translations-in-avo.md
+- sources/conversations/2026-09-30--usput--plans-in-avo.md
 - sources/conversations/2026-09-30--usput--platform-direction.md
 - config/routes.rb
 - app/controllers/curator/base_controller.rb
@@ -114,7 +115,7 @@ Slices, in order on the rebuild branch, each with its tests:
 1. **Done 2026-09-30.** Install Avo, mount it behind the role gate. Request tests: guest, `basic`, blocked user refused; curator and admin admitted.
 2. **Done 2026-09-30.** The policy layer and the `User` resource (admin only), with role change and block actions. Policy unit tests per role; a request test that a curator cannot open users.
 3. **Done 2026-09-30.** `Location` with filters, the archive and restore actions and photo uploads. Tests that the mine check blocks a bad coordinate through Avo and that a curator cannot delete.
-4. `Experience` and `Plan`, including a plan's stops by day. Policy and request tests.
+4. **Done 2026-09-30.** `Experience` and `Plan`, including a plan's stops by day. Policy and request tests.
 5. `Moment` queue with approve and reject. Tests that an approved public moment becomes visible and a rejected one does not.
 6. `Review` queue with clear and remove, once the flag exists ([Jev review flagging](jev-review-flagging.md)). Tests for both actions and for the rating recount.
 7. `AdminEvent` written by every action and role change, shown on each record. Model and action tests.
@@ -213,4 +214,26 @@ Slice 3 landed on 2026-09-30.
   overwriting marked languages comes with the content pipeline.
 - **The mine check shows on the form**: a coordinate inside a suspected area
   comes back as the form with the error, and nothing is saved.
+
+Slice 4 landed on 2026-09-30.
+
+- **Experiences in Avo**: title, category, duration, cover photo and contact
+  fields, the title and description in all 16 languages, and the places an
+  experience visits, attached with a position. The per-language tabs are one
+  helper (`Avo::TranslatedFields`) shared with places.
+- **Plans in Avo show curated plans and travellers' public plans**, as the
+  operator chose
+  ([answer](../../sources/conversations/2026-09-30--usput--plans-in-avo.md)).
+  `PlanPolicy.visible` scopes the list, the search and the record lookup, so a
+  private plan is not found even by its link. Curators create and edit curated
+  plans; a traveller's public plan is read-only; only admins delete, and only
+  curated plans. A filter splits curated from travellers' plans.
+- **A plan's stops by day**: experiences and places are attached to a plan
+  with a day number and a position, the same join rows the public planner
+  writes.
+- **Attaching and detaching are gated.** Avo links related records through its
+  own associations controller, which the per-resource gate did not reach.
+  `AdminAssociationGate`, included into that controller at boot, asks the
+  parent's policy: seeing the list needs `show?`, linking or unlinking needs
+  `update?`, so nothing can be attached to a traveller's plan.
 

@@ -1,4 +1,6 @@
 class Avo::Resources::Location < Avo::BaseResource
+  include Avo::TranslatedFields
+
   self.icon = "tabler/outline/map-pin"
   self.title = :name
   self.includes = [ :translations ]
@@ -9,12 +11,10 @@ class Avo::Resources::Location < Avo::BaseResource
     query: -> { query.where("locations.name ILIKE :q OR locations.city ILIKE :q", q: "%#{params[:q]}%") }
   }
 
-  TRANSLATED = %i[name description historical_context].freeze
-
   def fields
     main_panel
     field :photos, as: :files, is_image: true, hide_on: :index, name: I18n.t("admin.locations.photos")
-    translations_tabs
+    translation_tabs :name, :description, :historical_context, long: %i[description historical_context]
   end
 
   def filters
@@ -46,18 +46,5 @@ class Avo::Resources::Location < Avo::BaseResource
     field :archived_at, as: :date_time, readonly: true, hide_on: :forms
     field :ai_generated, as: :boolean, readonly: true, hide_on: :forms
     field :average_rating, as: :number, readonly: true, hide_on: :forms
-  end
-
-  def translations_tabs
-    tabs do
-      Translation::SUPPORTED_LOCALES.each do |locale|
-        tab title: locale.upcase do
-          TRANSLATED.each do |attribute|
-            field :"#{attribute}_#{locale}", as: (attribute == :name ? :text : :textarea),
-              name: "#{I18n.t("admin.locations.fields.#{attribute}")} (#{locale})", hide_on: :index
-          end
-        end
-      end
-    end
   end
 end

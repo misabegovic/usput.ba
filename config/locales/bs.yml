@@ -608,6 +608,12 @@ bs:
       published: Uspomena podijeljena — curator će je pregledati prije nego postane javna
       unpublished: Uspomena je ponovo privatna
   admin:
+    fields:
+      name: Naziv
+      title: Naslov
+      description: Opis
+      historical_context: Historijski kontekst
+      notes: Bilješke
     welcome:
       title: Dobrodošli
       greeting: Zdravo, %{name}
@@ -642,10 +648,6 @@ bs:
       photos: Fotografije
       photo_count: Fotografije
       coordinates_help: Geografska širina i dužina. Mjesto u području sumnjivom na mine ne može se sačuvati.
-      fields:
-        name: Naziv
-        description: Opis
-        historical_context: Historijski kontekst
       city: Grad
       status: Status
       statuses:
@@ -664,6 +666,21 @@ bs:
       restored:
         one: Jedno mjesto je vraćeno.
         other: "Vraćeno mjesta: %{count}."
+    experiences:
+      category: Kategorija
+      duration: Trajanje (minute)
+      places: Mjesta
+    plans:
+      city: Grad
+      owner: Vlasnik
+      curated: Uredio Usput
+      experiences: Iskustva
+      places: Mjesta
+      day: Dan
+      ownership: Autor
+      ownerships:
+        curated: Usput
+        travellers: Putnici (javni)
   auth:
     register_title: Registracija - Usput
     register_heading: Kreiraj nalog

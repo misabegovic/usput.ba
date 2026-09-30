@@ -804,6 +804,12 @@ en:
       updated: Experience was successfully updated
       deleted: Experience was successfully deleted
   admin:
+    fields:
+      name: Name
+      title: Title
+      description: Description
+      historical_context: Historical context
+      notes: Notes
     welcome:
       title: Welcome
       greeting: Hello, %{name}
@@ -838,10 +844,6 @@ en:
       photos: Photos
       photo_count: Photos
       coordinates_help: Latitude and longitude. A place inside a mine-suspected area cannot be saved.
-      fields:
-        name: Name
-        description: Description
-        historical_context: Historical context
       city: City
       status: Status
       statuses:
@@ -860,6 +862,21 @@ en:
       restored:
         one: One place restored.
         other: "%{count} places restored."
+    experiences:
+      category: Category
+      duration: Duration (minutes)
+      places: Places
+    plans:
+      city: City
+      owner: Owner
+      curated: Curated by usput
+      experiences: Experiences
+      places: Places
+      day: Day
+      ownership: Made by
+      ownerships:
+        curated: Usput
+        travellers: Travellers (public)
   auth:
     register_title: Register - Usput
     register_heading: Create account
