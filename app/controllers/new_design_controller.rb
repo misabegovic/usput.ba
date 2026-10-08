@@ -63,6 +63,7 @@ class NewDesignController < ApplicationController
     @duration = params[:duration]
     @min_rating = params[:min_rating]
     @city_name = params[:city_name]
+    @tag = params[:tag]
     @origin = params[:origin]
     @audio_support = params[:audio_support] == "true"
     @accessible = params[:accessible] == "true"
@@ -115,6 +116,13 @@ class NewDesignController < ApplicationController
                           .pluck(:city)
                           .sort
 
+    # Load tags for filter dropdown
+    @tags = Location.not_archived.where.not(tags: [ nil, [] ])
+                   .pluck(:tags)
+                   .flatten
+                   .uniq
+                   .sort
+
     # Load categories for filter dropdown
     @experience_categories = ExperienceCategory.active.ordered
 
@@ -146,6 +154,7 @@ class NewDesignController < ApplicationController
     # Build base Browse query with common filters
     base_browse = Browse.smart_search(@query)
     base_browse = base_browse.by_city_name(@city_name) if @city_name.present?
+    base_browse = base_browse.by_tag(@tag) if @tag.present?
     base_browse = base_browse.by_min_rating(@min_rating) if @min_rating.present?
     base_browse = base_browse.by_season(@season) if @season.present?
     base_browse = base_browse.by_budget(@budget) if @budget.present?
@@ -240,7 +249,7 @@ class NewDesignController < ApplicationController
   # asked for. id, partial and the *_page keys stay out — loadMore sets its own
   # page, and an id would re-name a moment on every fetch.
   def filter_params
-    params.permit(:q, :season, :budget, :duration, :min_rating, :city_name,
+    params.permit(:q, :season, :budget, :duration, :min_rating, :city_name, :tag,
                   :origin, :audio_support, :lat, :lng, :radius, :sort, types: [])
           .to_h.reject { |_, value| value.blank? }
   end
@@ -248,7 +257,7 @@ class NewDesignController < ApplicationController
   # Unfiltered, a traveller keeps seeing every moment they own, including ones
   # at places since retired that browse no longer indexes.
   def filters_active?
-    @query.present? || @city_name.present? || @season.present? || @budget.present? ||
+    @query.present? || @city_name.present? || @tag.present? || @season.present? || @budget.present? ||
       @min_rating.present? || @origin.present? || (@lat.present? && @lng.present?)
   end
 

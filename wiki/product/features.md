@@ -2,7 +2,7 @@
 title: Feature inventory
 kind: reference
 status: living
-updated: 2026-09-30
+updated: 2026-10-08
 repos:
 - usput.ba
 confidence: medium
@@ -99,7 +99,7 @@ This is what Usput.ba ships as of 2026-09-29, grouped by what a person does with
 ## Explore and search
 
 - **Home page.** Shows positive reviews (rating 3 or more), the newest approved public moments, and trending locations and experiences with a rating of at least 3.5 (`app/controllers/new_design_controller.rb`, `home`).
-- **Explore.** `/explore` searches one index, `Browse`, across locations, experiences, public plans and approved public moments. Filters: type, city, budget, minimum rating, season, duration, AI or human origin, audio support, accessibility and a nearby radius, with a sort order. Results page with load-more. A search that matches a single place expands to nearby items (`new_design_controller.rb`, `explore`, `build_browse_queries`; `app/models/browse.rb`). The most liked moments rank first ([#167](https://github.com/misabegovic/usput.ba/pull/167)).
+- **Explore.** `/explore` searches one index, `Browse`, across locations, experiences, public plans and approved public moments. Filters: type, city, budget, minimum rating, season, duration, tag, AI or human origin, audio support, accessibility and a nearby radius, with a sort order. Results page with load-more. A search that matches a single place expands to nearby items (`new_design_controller.rb`, `explore`, `build_browse_queries`; `app/models/browse.rb`). The most liked moments rank first ([#167](https://github.com/misabegovic/usput.ba/pull/167)).
 - **Explore Bosnia deck.** `/explore-bosnia` deals places as a deck of cards, nearest first. Position orders the deck but does not bound it, so a traveller anywhere gets the whole country. Paging uses a keyset cursor because a check-in removes a place from the set. Categories combine, and a filter turned off stays off. Places already reached drop out, and an empty deck says whether nothing is here or everything has been visited. Without a browser location the deck is ordered from the city the request's IP suggests ([#165](https://github.com/misabegovic/usput.ba/pull/165); `app/controllers/explore_bosnia_controller.rb`).
 - **Retired places stay hidden.** An archived location leaves Browse and the traveller-facing scopes ([#167](https://github.com/misabegovic/usput.ba/pull/167); `app/models/location.rb`, `places`).
 

@@ -451,6 +451,24 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "explore filters by tag" do
+    @location.update!(tags: [ "historic" ])
+    @mostar_location.update!(tags: [ "food" ])
+
+    get explore_path, params: { types: [ "location" ], tag: "historic" }
+
+    assert_response :success
+    assert_select "a[href=?]", location_path(@location), minimum: 1
+    assert_select "a[href=?]", location_path(@mostar_location), count: 0
+  end
+
+  test "explore with a tag nobody carries finds nothing" do
+    get explore_path, params: { types: [ "location" ], tag: "nonexistent" }
+
+    assert_response :success
+    assert_select "a[href=?]", location_path(@location), count: 0
+  end
+
   test "explore filters by origin ai" do
     get explore_path, params: { origin: "ai" }
 

@@ -502,6 +502,18 @@
                       { class: "rounded-full border-0 bg-white dark:bg-gray-700 py-2 pl-3 pr-8 text-sm text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-200 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:focus:ring-yellow-500",
                         data: { explore_target: "citySelect", action: "change->explore#onFilterChange" } } %>
                 </div>
+
+                <%# Tag Filter - Keep as select for curated tag sets %>
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5.586a1 1 0 01.707.293l7 7a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-7-7A1 1 0 017 8.586V4a1 1 0 011-1z"></path>
+                  </svg>
+                  <%= f.select :tag,
+                      options_for_select([[t("explore.tags.any"), ""]] + @tags.map { |tag| [tag, tag] }, @tag),
+                      {},
+                      { class: "rounded-full border-0 bg-white dark:bg-gray-700 py-2 pl-3 pr-8 text-sm text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-200 dark:ring-gray-600 focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:focus:ring-yellow-500",
+                        data: { explore_target: "tagSelect", action: "change->explore#onFilterChange" } } %>
+                </div>
               </div>
             </div>
           </div>
