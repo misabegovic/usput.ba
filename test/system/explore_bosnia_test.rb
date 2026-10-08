@@ -1,7 +1,8 @@
 require "application_system_test_case"
 
 # The explore browse deck in a real browser: the card's button checks in, tapping
-# the card opens the menu, and the moments panel opens for anyone.
+# the card opens the menu, and the moments panel opens for anyone. Capturing a
+# moment there is earned by checking in.
 class ExploreBosniaSystemTest < ApplicationSystemTestCase
   setup do
     @user = User.create!(username: "sys_explorer", email: "sys_explorer@example.com", password: "password123")
@@ -65,7 +66,7 @@ class ExploreBosniaSystemTest < ApplicationSystemTestCase
     assert @user.plan_visits.joins(:plan).exists?(location: @location)
   end
 
-  test "moments open from the menu without having visited the place" do
+  test "moments open from the menu before a visit, and capture opens with the check-in" do
     login
     visit_deck
 
@@ -74,16 +75,30 @@ class ExploreBosniaSystemTest < ApplicationSystemTestCase
     find("button", text: I18n.t("plans.start.shared_moments"), match: :first).click
 
     assert_selector "[data-card-menu-target='panel'][data-panel='moments']", visible: true
+    assert_selector "[data-card-menu-target='panel'][data-panel='moments'] turbo-frame[complete]"
+    assert_no_selector "label[aria-label='#{I18n.t('plans.moments.add')}']"
+
+    page.refresh
+    settle_deck
+    check_in
+    assert_text "Visited"
+
+    open_moments_panel
     assert_selector "label[aria-label='#{I18n.t('plans.moments.add')}']"
   end
 
+  # Another traveller's moments: a place with moments of your own is a place you
+  # have checked in at, and the deck no longer deals it.
   test "a card's moments wrap into rows and the panel scrolls through them" do
-    plan = Plan.explore_bosnia_for(@user)
+    other = User.create!(username: "sys_other", email: "sys_other@example.com", password: "password123")
+    plan = Plan.explore_bosnia_for(other)
+    other.plan_visits.create!(plan: plan, location: @location)
     7.times do
-      moment = @user.moments.new(plan: plan, location: @location, visibility: :private_moment)
+      moment = other.moments.new(plan: plan, location: @location, visibility: :public_moment)
       moment.photo.attach(io: File.open(Rails.root.join("test/fixtures/files/real_image.jpg")),
                           filename: "real_image.jpg", content_type: "image/jpeg")
       moment.save!
+      moment.update!(moderation_status: :approved)
     end
     login
     visit_deck
@@ -107,6 +122,8 @@ class ExploreBosniaSystemTest < ApplicationSystemTestCase
       })()
     JS
     assert_equal "auto", overflow, "the panel has to scroll once the rows outgrow the card"
+  ensure
+    other&.destroy
   end
 
   test "on a phone two filters can be pressed in a row without a page load" do

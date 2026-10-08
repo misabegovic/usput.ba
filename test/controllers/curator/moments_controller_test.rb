@@ -104,6 +104,7 @@ class Curator::MomentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   def build_public_pending_moment
+    @user.plan_visits.find_or_create_by!(plan: @plan, location: @location)
     moment = @user.moments.build(plan: @plan, location: @location)
     moment.photo.attach(
       io: File.open("test/fixtures/files/test_image.jpg"),

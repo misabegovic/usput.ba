@@ -130,6 +130,7 @@ class MomentsWalkTest < ActionDispatch::IntegrationTest
   end
 
   def add_moment(note: nil)
+    @user.plan_visits.find_or_create_by!(plan: @plan, location: @location)
     moment = @user.moments.build(plan: @plan, location: @location, note: note)
     moment.photo.attach(
       io: File.open("test/fixtures/files/test_image.jpg"),

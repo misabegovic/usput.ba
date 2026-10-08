@@ -426,6 +426,7 @@ class TravelProfilesControllerTest < ActionDispatch::IntegrationTest
   private
 
   def own_moment
+    @user.plan_visits.find_or_create_by!(plan: @plan, location: @location)
     moment = @user.moments.build(plan: @plan, location: @location)
     moment.photo.attach(io: File.open(file_fixture("test_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
     moment.save!

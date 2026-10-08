@@ -194,6 +194,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
 
   test "explore returns approved public moments under the moment type" do
     user = User.create!(username: "explorer_sharer", email: "explorer_sharer@example.com", password: "password123")
+    user.plan_visits.find_or_create_by!(plan: @plan, location: @location)
     moment = user.moments.build(plan: @plan, location: @location)
     moment.photo.attach(io: File.open(file_fixture("real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
     moment.save!
@@ -241,6 +242,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
 
   test "explore does not surface a pending or private moment" do
     user = User.create!(username: "private_sharer", email: "private_sharer@example.com", password: "password123")
+    user.plan_visits.find_or_create_by!(plan: @plan, location: @mostar_location)
     moment = user.moments.build(plan: @plan, location: @mostar_location)
     moment.photo.attach(io: File.open(file_fixture("real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
     moment.save!
@@ -800,6 +802,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   private
 
   def own_moment_for(user, location)
+    user.plan_visits.find_or_create_by!(plan: @plan, location: location)
     moment = user.moments.build(plan: @plan, location: location)
     moment.photo.attach(io: File.open(file_fixture("real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
     moment.save!
@@ -830,6 +833,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   def publish_moment(user, location)
+    user.plan_visits.find_or_create_by!(plan: @plan, location: location)
     moment = user.moments.build(plan: @plan, location: location)
     moment.photo.attach(io: File.open(file_fixture("real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
     moment.save!

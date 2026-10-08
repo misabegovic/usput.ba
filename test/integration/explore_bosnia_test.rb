@@ -527,10 +527,15 @@ class ExploreBosniaTest < ActionDispatch::IntegrationTest
     Location.where("name LIKE 'Spot %'").destroy_all
   end
 
+  # A place with a moment of your own is a place you have visited, so it is no
+  # longer dealt; the moment that can still ride along is another traveller's.
   test "the deck ships no moments until a panel is opened" do
-    moment = @user.moments.new(plan: Plan.explore_bosnia_for(@user), location: @near, visibility: :private_moment)
+    other = User.create!(username: "deck_wanderer", email: "deck_wanderer@example.com", password: "password123")
+    other.plan_visits.create!(plan: Plan.explore_bosnia_for(other), location: @near)
+    moment = other.moments.new(plan: Plan.explore_bosnia_for(other), location: @near, visibility: :public_moment)
     moment.photo.attach(io: File.open(Rails.root.join("test/fixtures/files/real_image.jpg")), filename: "real_image.jpg", content_type: "image/jpeg")
     moment.save!
+    moment.update!(moderation_status: :approved)
     login_as(@user)
 
     get explore_bosnia_experience_path("history", **SARAJEVO)
@@ -538,10 +543,13 @@ class ExploreBosniaTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "turbo-frame[id=?][loading='lazy']",
                   ActionView::RecordIdentifier.dom_id(@near, :moments_frame), count: 1
-    refute_includes response.body, photo_plan_moment_path(moment.plan, moment, size: "thumb")
+    refute_includes response.body, moment.photo.blob.signed_id
+  ensure
+    other&.destroy
   end
 
   test "the moments frame renders the gallery for its location" do
+    @user.plan_visits.find_or_create_by!(plan: Plan.explore_bosnia_for(@user), location: @near)
     moment = @user.moments.new(plan: Plan.explore_bosnia_for(@user), location: @near, visibility: :private_moment)
     moment.photo.attach(io: File.open(Rails.root.join("test/fixtures/files/real_image.jpg")), filename: "real_image.jpg", content_type: "image/jpeg")
     moment.save!
@@ -560,6 +568,7 @@ class ExploreBosniaTest < ActionDispatch::IntegrationTest
   test "the gallery shows every moment in rows of three, not a sideways strip" do
     plan = Plan.explore_bosnia_for(@user)
     moments = 5.times.map do
+      @user.plan_visits.find_or_create_by!(plan: plan, location: @near)
       moment = @user.moments.new(plan: plan, location: @near, visibility: :private_moment)
       moment.photo.attach(io: File.open(Rails.root.join("test/fixtures/files/real_image.jpg")),
                           filename: "real_image.jpg", content_type: "image/jpeg")
@@ -630,7 +639,19 @@ class ExploreBosniaTest < ActionDispatch::IntegrationTest
     assert_select "form[action=?]", publish_plan_moment_path(moment.plan, moment), count: 1
   end
 
-  test "the moments panel offers the upload tile without a visit" do
+  test "the moments panel offers no upload tile before a visit" do
+    login_as(@user)
+
+    get plan_moments_path(Plan.explore_bosnia_for(@user), location_id: @near.uuid, context: "explore"),
+        headers: { "Turbo-Frame" => ActionView::RecordIdentifier.dom_id(@near, :moments_frame) }
+
+    assert_response :success
+    assert_select "label[aria-label=?]", I18n.t("plans.moments.add"), count: 0
+  end
+
+  test "the moments panel offers the upload tile once the place is visited on any plan" do
+    other_plan = Plan.create!(title: "Trip", visibility: :private_plan, user: @user)
+    @user.plan_visits.create!(plan: other_plan, location: @near)
     login_as(@user)
 
     get plan_moments_path(Plan.explore_bosnia_for(@user), location_id: @near.uuid, context: "explore"),
@@ -642,6 +663,7 @@ class ExploreBosniaTest < ActionDispatch::IntegrationTest
 
   test "the moments panel shows another traveller's approved public moment" do
     other = User.create!(username: "other_wanderer", email: "other_wanderer@example.com", password: "password123")
+    other.plan_visits.find_or_create_by!(plan: Plan.explore_bosnia_for(other), location: @near)
     moment = other.moments.new(plan: Plan.explore_bosnia_for(other), location: @near, visibility: :public_moment)
     moment.photo.attach(io: File.open(Rails.root.join("test/fixtures/files/real_image.jpg")), filename: "real_image.jpg", content_type: "image/jpeg")
     moment.save!
@@ -658,6 +680,7 @@ class ExploreBosniaTest < ActionDispatch::IntegrationTest
   end
 
   test "an own approved public moment removes the be-first invitation" do
+    @user.plan_visits.find_or_create_by!(plan: Plan.explore_bosnia_for(@user), location: @near)
     moment = @user.moments.new(plan: Plan.explore_bosnia_for(@user), location: @near,
                                visibility: :public_moment)
     moment.photo.attach(io: File.open(Rails.root.join("test/fixtures/files/real_image.jpg")), filename: "real_image.jpg", content_type: "image/jpeg")
@@ -677,6 +700,7 @@ class ExploreBosniaTest < ActionDispatch::IntegrationTest
   end
 
   test "publishing from the story actually publishes and streams the carousel back" do
+    @user.plan_visits.find_or_create_by!(plan: Plan.explore_bosnia_for(@user), location: @near)
     moment = @user.moments.new(plan: Plan.explore_bosnia_for(@user), location: @near, visibility: :private_moment)
     moment.photo.attach(io: File.open(Rails.root.join("test/fixtures/files/real_image.jpg")), filename: "real_image.jpg", content_type: "image/jpeg")
     moment.save!
@@ -694,6 +718,7 @@ class ExploreBosniaTest < ActionDispatch::IntegrationTest
   end
 
   test "deleting a moment from the story destroys it and its photo everywhere" do
+    @user.plan_visits.find_or_create_by!(plan: Plan.explore_bosnia_for(@user), location: @near)
     moment = @user.moments.new(plan: Plan.explore_bosnia_for(@user), location: @near, visibility: :private_moment)
     moment.photo.attach(io: File.open(Rails.root.join("test/fixtures/files/real_image.jpg")), filename: "real_image.jpg", content_type: "image/jpeg")
     moment.save!

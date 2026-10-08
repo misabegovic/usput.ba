@@ -9,6 +9,7 @@ class MomentCaptionTest < ApplicationSystemTestCase
     @reader = User.create!(username: "cap_reader", email: "cap_reader@example.com", password: "password123")
     @location = Location.create!(name: "Caption Falls", city: "Jajce", lat: 44.34, lng: 17.27)
     @plan = Plan.create!(title: "Caption Plan", city_name: "Jajce", visibility: :private_plan, user: @author)
+    @author.plan_visits.create!(plan: @plan, location: @location)
     @moments = 2.times.map { |i| public_moment("worth the walk #{i}") }
     @moments.each { |m| Browse.sync_record(m) }
   end
@@ -455,6 +456,7 @@ class MomentCaptionTest < ApplicationSystemTestCase
   test "the profile opens its moments in the same viewer, with the owner's controls" do
     login_as("cap_author")
     visit profile_page_path
+    dismiss_badge_celebration
     load_profile_moments
 
     find("#my-moments-frame [data-photo-gallery-target='thumbnail']", match: :first).click
