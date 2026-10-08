@@ -123,6 +123,7 @@ bs:
       audio_support: Audio ture
       accessible: "♿ Pristupačno"
       origin: Porijeklo
+      tag: Oznaka
       accessible_aria: Prikaži samo lokacije pristupačne za invalidska kolica
     origins:
       ai: AI Generirano
@@ -150,6 +151,8 @@ bs:
       name: Naziv
     cities:
       any: Sva mjesta
+    tags:
+      any: Sve oznake
     loading: Učitavanje...
     load_more: Učitaj više
     results_count: Pronađeno %{count} rezultata

@@ -125,6 +125,7 @@ en:
       audio_support: Audio tours
       accessible: "♿ Accessible"
       origin: Origin
+      tag: Tag
       accessible_aria: Show only wheelchair accessible places
     origins:
       ai: AI Generated
@@ -152,6 +153,8 @@ en:
       name: Name
     cities:
       any: All places
+    tags:
+      any: All tags
     loading: Loading...
     load_more: Load More
     results_count: '%{count} results found'
