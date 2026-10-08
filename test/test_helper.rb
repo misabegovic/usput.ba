@@ -1,5 +1,7 @@
-# SimpleCov must be loaded BEFORE application code
-if ENV["COVERAGE"] || ENV["CI"]
+# SimpleCov must be loaded BEFORE application code.
+# Asked for by COVERAGE alone: CI sets CI for every step, and the system tests
+# on their own cover far less than the threshold the unit suite is held to.
+if ENV["COVERAGE"]
   require "simplecov"
   require "simplecov-lcov"
 
