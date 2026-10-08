@@ -723,6 +723,7 @@ class PlanTest < ActiveSupport::TestCase
   end
 
   def build_moment(traveller, plan)
+    traveller.plan_visits.find_or_create_by!(plan: plan, location: @location)
     moment = traveller.moments.build(plan: plan, location: @location)
     moment.photo.attach(
       io: File.open("test/fixtures/files/test_image.jpg"),

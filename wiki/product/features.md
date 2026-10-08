@@ -2,7 +2,7 @@
 title: Feature inventory
 kind: reference
 status: living
-updated: 2026-09-30
+updated: 2026-10-08
 repos:
 - usput.ba
 confidence: medium
@@ -114,7 +114,7 @@ This is what Usput.ba ships as of 2026-09-29, grouped by what a person does with
 - **Walk.** `/plans/:id/start` walks a plan as a stack of cards, nearest first. Each card carries a map, the audio tour and the check-in ([#164](https://github.com/misabegovic/usput.ba/pull/164)).
 - **Check-in.** Browser and server ask the same question: is the traveller within 100 m? The distance is one constant, `MAX_VISIT_DISTANCE_KM`, used by every surface (`app/controllers/concerns/records_visits.rb`). A warm and cold hint under the button tracks the distance. Admins check in from anywhere. The PR notes that 100 m is a testing value meant to drop to about 10 m ([#164](https://github.com/misabegovic/usput.ba/pull/164)).
 - **Guest walk.** A visitor explores, walks and checks in without an account. The walk stays on the device and is replayed into ordinary rows once, at sign-in or sign-up. The replay cannot be re-verified on the server: the 100 m gate ran in the browser ([#166](https://github.com/misabegovic/usput.ba/pull/166); `app/services/guest_visits_importer.rb`, `MAX_VISITS = 500`).
-- **Moments.** At a place already reached, a traveller captures a photo and a note. A moment is private; publishing sends it to a curator, and only an approved public moment is visible to others or searchable. Photos are served by the app's own action after a session check, never by a signed storage URL ([#164](https://github.com/misabegovic/usput.ba/pull/164)). Photos can be taken in the app, and iPhone photos are converted before upload ([#167](https://github.com/misabegovic/usput.ba/pull/167)).
+- **Moments.** At a place already reached, a traveller captures a photo and a note. Reached means checked in, on any plan: the server refuses a moment anywhere else, and the upload tile appears only after the check-in ([decision](../decisions/capture-needs-a-check-in.md); `app/models/moment.rb`). A moment is private; publishing sends it to a curator, and only an approved public moment is visible to others or searchable. Photos are served by the app's own action after a session check, never by a signed storage URL ([#164](https://github.com/misabegovic/usput.ba/pull/164)). Photos can be taken in the app, and iPhone photos are converted before upload ([#167](https://github.com/misabegovic/usput.ba/pull/167)).
 - **Moments view and likes.** A moment opens in a full view with who took it, where, the note, a download and a like. A like is its own record and needs a login. Each moment has its own URL (`/moments/:id`) with a link preview. A place's page has a shelf of its moments, loaded as the traveller scrolls ([#167](https://github.com/misabegovic/usput.ba/pull/167); `config/routes.rb`).
 - **Travel profile.** `/profile` shows plans, moments and visited places. Visited places and counts come from check-in rows, not from the device copy (`app/controllers/travel_profiles_controller.rb`).
 

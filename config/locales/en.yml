@@ -451,6 +451,7 @@ en:
       note_save: Save note
       note_saved: Note saved
       note_failed: That note could not be saved
+      not_visited: Mark your visit here first. A moment is captured at a place you have reached.
       public: Public
       pending: Awaiting review
       add_for_plan: Add moments

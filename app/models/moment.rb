@@ -24,6 +24,7 @@ class Moment < ApplicationRecord
   validates :note, length: { maximum: 1000 }
   validate :photo_present
   validate :acceptable_photo
+  validate :captured_at_a_visited_place, on: :create
 
   # A moment is never visible on publish alone — going public re-enters
   # moderation, so a curator must approve it before anyone else can see it.
@@ -83,6 +84,15 @@ class Moment < ApplicationRecord
 
   def require_moderation_when_published
     self.moderation_status = :pending if visibility_public_moment? && visibility_changed?
+  end
+
+  # Capture is earned by being there: a check-in at this place on any of the
+  # traveller's plans. Asked on create only, so a moment outlives its check-in.
+  def captured_at_a_visited_place
+    return if user.nil? || location.nil?
+    return if user.plan_visits.exists?(location_id: location_id)
+
+    errors.add(:base, I18n.t("plans.moments.not_visited"))
   end
 
   def photo_present

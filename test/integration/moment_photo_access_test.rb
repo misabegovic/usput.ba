@@ -92,6 +92,7 @@ class MomentPhotoAccessTest < ActionDispatch::IntegrationTest
   end
 
   test "a blob whose bytes are not an image is refused rather than 500ing" do
+    @owner.plan_visits.find_or_create_by!(plan: @plan, location: @location)
     junk = @owner.moments.build(plan: @plan, location: @location)
     junk.photo.attach(io: StringIO.new("not an image"), filename: "junk.jpg", content_type: "image/jpeg")
     junk.save!
@@ -109,6 +110,7 @@ class MomentPhotoAccessTest < ActionDispatch::IntegrationTest
   end
 
   def build_moment
+    @owner.plan_visits.find_or_create_by!(plan: @plan, location: @location)
     moment = @owner.moments.build(plan: @plan, location: @location, note: "private moment")
     moment.photo.attach(
       io: File.open("test/fixtures/files/real_image.jpg"),

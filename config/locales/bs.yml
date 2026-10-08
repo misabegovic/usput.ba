@@ -448,6 +448,7 @@ bs:
       note_save: Sačuvaj bilješku
       note_saved: Bilješka sačuvana
       note_failed: Bilješka nije sačuvana
+      not_visited: Prvo ovdje označi posjetu. Uspomena se bilježi na mjestu do kojeg si stigao/la.
       public: Javno
       pending: Čeka pregled
       add_for_plan: Dodaj uspomene

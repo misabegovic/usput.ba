@@ -2,7 +2,7 @@
 title: Domain vocabulary
 kind: reference
 status: living
-updated: 2026-09-30
+updated: 2026-10-08
 repos:
 - usput.ba
 confidence: medium
@@ -87,7 +87,7 @@ The product word is check-in; the table is `plan_visits`. A row records that a u
 
 ### Moment
 
-A photo and an optional note (up to 1000 characters) that a user takes at a location on a plan (`app/models/moment.rb`). The photo is required: JPEG, PNG, GIF or WebP, at most 10 MB.
+A photo and an optional note (up to 1000 characters) that a user takes at a location on a plan (`app/models/moment.rb`). The photo is required: JPEG, PNG, GIF or WebP, at most 10 MB. A moment is created only where its user has a check-in at the location, on any plan; the check is made on create, so a moment outlives its check-in ([decision](../decisions/capture-needs-a-check-in.md)).
 
 - **Visibility.** `private_moment` (default) or `public_moment`.
 - **Moderation.** `pending`, `approved`, `rejected`. Making a moment public resets it to `pending`, so a curator must approve it before others see it. Only public and approved moments are `publicly_visible`, likeable, shareable and indexed in Browse.

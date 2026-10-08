@@ -79,6 +79,7 @@ class PlanStartTest < ActionDispatch::IntegrationTest
   end
 
   test "capturing a photo on the walk adds it and shows it on the step" do
+    @user.plan_visits.create!(plan: @plan, location: @location)
     login_as(@user)
 
     post plan_moments_path(@plan), params: {
@@ -165,6 +166,7 @@ class PlanStartTest < ActionDispatch::IntegrationTest
 
   test "another traveller's private moment never surfaces as a shared moment on the walk" do
     stranger = User.create!(username: "stranger", email: "stranger@example.com", password: "password123")
+    stranger.plan_visits.create!(plan: @plan, location: @location)
     hidden = Moment.create!(user: stranger, plan: @plan, location: @location,
                             photo: fixture_file_upload("test/fixtures/files/real_image.jpg", "image/jpeg"))
     login_as(@user)
