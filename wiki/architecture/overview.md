@@ -2,7 +2,7 @@
 title: Architecture overview
 kind: reference
 status: living
-updated: 2026-09-30
+updated: 2026-10-08
 repos:
 - usput.ba
 confidence: medium
@@ -24,6 +24,8 @@ sources:
 - config/initializers/rack_attack.rb
 - config/ci.rb
 - .github/workflows/ci.yml
+- test/test_helper.rb
+- test/application_system_test_case.rb
 - README.md
 - CLAUDE.md
 - sources/planning/DEVELOPER_ONBOARDING.md
@@ -152,14 +154,22 @@ schema, then runs in order:
 1. `bundle exec rubocop --parallel`
 2. `bundle exec erb_lint --lint-all`
 3. `bin/rails test` with `COVERAGE=true` (SimpleCov with an LCOV formatter)
-4. `bundle exec undercover --compare origin/<base>` on pull requests only,
+4. `bin/rails test:system`, the 68 browser tests in `test/system/`, in
+   headless Chrome through Selenium (`test/application_system_test_case.rb`,
+   using the Chrome the runner image ships). `bin/rails test` skips
+   `test/system/`, so before this step they ran only by hand. When the step
+   fails, the screenshots in `tmp/screenshots` are kept as an artifact.
+   SimpleCov starts only when `COVERAGE` is set (`test/test_helper.rb`), so
+   this step is not held to the coverage threshold of the unit suite, which
+   the browser tests alone fall far below.
+5. `bundle exec undercover --compare origin/<base>` on pull requests only,
    with `continue-on-error: true` and a note to remove that once older
    coverage gaps are fixed.
 
 `bin/ci` with `config/ci.rb` is a separate local pipeline: setup, rubocop,
 bundler-audit, importmap audit, Brakeman, unit tests, system tests and a
-seed replant. Brakeman, bundler-audit and system tests run only there, not
-in GitHub Actions.
+seed replant. Brakeman and bundler-audit run only there, not in GitHub
+Actions.
 
 ## The main parts and how they depend on each other
 
