@@ -2,7 +2,7 @@
 title: Product state
 kind: reference
 status: living
-updated: 2026-09-30
+updated: 2026-10-08
 repos:
 - usput.ba
 confidence: medium
@@ -62,7 +62,7 @@ Where Usput.ba has been, what is true in the code today, what the older planning
 ## Now
 
 - **Stack.** Rails 8.1 on PostgreSQL (PostGIS only offline, to build the Mine Checker's static artifacts, per `docs/mine_checker/README.md`), Hotwire, Tailwind, Solid Queue; two databases (`db/schema.rb`, `sources/planning/decisions/2026-02-03-remove-platform-database.md`).
-- **Public product.** Home, explore (the Browse-backed search with filters for type, season, budget, duration, rating, city, origin, audio and accessibility), Explore Bosnia (a deck of places, nearest first), location, experience and plan pages, the plan wizard, walking a plan with check-ins, moments with likes, a travel profile that works without an account, reviews, `/mine-check` and the minesweeper game (`config/routes.rb`).
+- **Public product.** Home, explore (the Browse-backed search with filters for type, season, budget, duration, rating, city, tag, origin, audio and accessibility), Explore Bosnia (a deck of places, nearest first), location, experience and plan pages, the plan wizard, walking a plan with check-ins, moments with likes, a travel profile that works without an account, reviews, `/mine-check` and the minesweeper game (`config/routes.rb`).
 - **Accounts.** Devise with sign-in by email, confirmation within three days, reset by email through Postmark, an account page, and one token that ends every session on a password change, a block or a button; #171's session rows are gone ([decision](decisions/accounts-through-devise.md)). A database holding accounts without an email cannot migrate, by design: the rebuild starts empty.
 - **Admin.** Avo 4 Community at `/admin`, open only to curators and admins, checked in the route and again inside Avo; users page for admins, with role changes and blocks, places, experiences and plans with all 16 languages editable, plans limited to curated ones and travellers' public ones, and audio tours ([Avo admin and roles](initiatives/avo-admin-and-roles.md)). Curators create and edit there directly; there are no proposals. What is left of the old curator dashboard runs beside it until each Avo slice replaces a part.
 - **Curator dashboard.** What remains at `/curator` is the start page with counts and recent activity, whose links now open the admin, the moments queue (`Moment` enum `moderation_status`), the reviews list, where only an admin removes a review, and the old users pages. Proposals (`ContentChange`, its contributions and curator reviews) and the curator pages for places, experiences, plans and audio tours were removed on 2026-09-30 ([removal plan](initiatives/remove-curator-dashboard.md)).
