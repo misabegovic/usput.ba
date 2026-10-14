@@ -19,6 +19,9 @@ CI.run do
 
   step "Brain: tabula validate", "sh -c 'command -v tabula >/dev/null && tabula validate || echo \"tabula: not asked (not installed)\"'"
 
+  # Rebuilt from the schema first: the seed step below leaves rows in the
+  # test database, and transactional tests do not clear rows already there.
+  step "Tests: Database", "bin/rails db:test:prepare"
   step "Tests: Rails", "env COVERAGE=true bin/rails test"
   step "Tests: System", "bin/rails test:system"
   step "Tests: Seeds", "env RAILS_ENV=test bin/rails db:seed:replant"
