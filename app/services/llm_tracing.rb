@@ -11,7 +11,7 @@ require "base64"
 # With no Langfuse keys nothing is configured: the OpenTelemetry API stays a
 # no-op, `trace` just runs its block, and no request waits on Langfuse.
 # Prompts and replies are not sent; RubyLLM's spans carry no message content.
-module LlmTracing
+module LLMTracing
   TRACES_PATH = "/api/public/otel/v1/traces"
   SETTINGS = %i[public_key secret_key host].freeze
 
@@ -109,7 +109,7 @@ module LlmTracing
       cost = RubyLLM::Cost.new(tokens: tokens, model: model).total
       OpenTelemetry::Trace.current_span.set_attribute("gen_ai.usage.cost", cost.to_f) if cost
     rescue StandardError => e
-      Rails.logger.debug "[LlmTracing] cost not recorded: #{e.class}"
+      Rails.logger.debug "[LLMTracing] cost not recorded: #{e.class}"
     end
   end
 end

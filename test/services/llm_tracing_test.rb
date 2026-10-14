@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class LlmTracingTest < ActiveSupport::TestCase
+class LLMTracingTest < ActiveSupport::TestCase
   KEYS = %w[LANGFUSE_PUBLIC_KEY LANGFUSE_SECRET_KEY LANGFUSE_HOST].freeze
 
   setup do
@@ -10,15 +10,15 @@ class LlmTracingTest < ActiveSupport::TestCase
   end
 
   teardown do
-    LlmTracing.reset! if LlmTracing.configured?
+    LLMTracing.reset! if LLMTracing.configured?
     @saved_env.each { |key, value| value.nil? ? ENV.delete(key) : ENV[key] = value }
   end
 
   test "with no Langfuse keys tracing stays off and a trace still runs its block" do
-    assert_not LlmTracing.enabled?
-    assert_not LlmTracing.configure!
+    assert_not LLMTracing.enabled?
+    assert_not LLMTracing.configure!
 
-    assert_equal 42, LlmTracing.trace("Describer") { 42 }
+    assert_equal 42, LLMTracing.trace("Describer") { 42 }
   end
 
   test "spans go to the Langfuse host's OTLP endpoint with the key pair" do
@@ -26,17 +26,17 @@ class LlmTracingTest < ActiveSupport::TestCase
     ENV["LANGFUSE_SECRET_KEY"] = "sk-lf-test"
     ENV["LANGFUSE_HOST"] = "https://langfuse.example.railway.app/"
 
-    assert LlmTracing.enabled?
-    assert_equal "https://langfuse.example.railway.app/api/public/otel/v1/traces", LlmTracing.endpoint
-    assert_equal "Basic #{Base64.strict_encode64("pk-lf-test:sk-lf-test")}", LlmTracing.headers["Authorization"]
+    assert LLMTracing.enabled?
+    assert_equal "https://langfuse.example.railway.app/api/public/otel/v1/traces", LLMTracing.endpoint
+    assert_equal "Basic #{Base64.strict_encode64("pk-lf-test:sk-lf-test")}", LLMTracing.headers["Authorization"]
   end
 
   test "a model call is a span with its model, tokens and cost inside the service's trace" do
     exporter = OpenTelemetry::SDK::Trace::Export::InMemorySpanExporter.new
-    LlmTracing.configure!(exporter: exporter)
+    LLMTracing.configure!(exporter: exporter)
     model = RubyLLM.models.find("gpt-6-luna")
 
-    LlmTracing.trace("Describer", location: "abc") do
+    LLMTracing.trace("Describer", location: "abc") do
       # The event RubyLLM::Chat raises around each completion
       RubyLLM.instrument("chat.ruby_llm", { provider: "openai", model: model.id, model_info: model }) do |event|
         event[:response_tokens] = RubyLLM::Tokens.new(input: 100_000, output: 100_000)
@@ -57,7 +57,7 @@ class LlmTracingTest < ActiveSupport::TestCase
   end
 
   test "tracing keeps Rails' own instrumenter in the chain" do
-    LlmTracing.configure!(exporter: OpenTelemetry::SDK::Trace::Export::InMemorySpanExporter.new)
+    LLMTracing.configure!(exporter: OpenTelemetry::SDK::Trace::Export::InMemorySpanExporter.new)
     events = []
     subscriber = ActiveSupport::Notifications.subscribe("chat.ruby_llm") { |*args| events << args }
 

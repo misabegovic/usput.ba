@@ -61,7 +61,7 @@ module Ai
       # @param context [String] Context for logging (e.g., "MyService")
       # @return [Hash, String, nil] Parsed response or nil on failure
       def request(prompt:, schema: nil, context: "OpenaiQueue")
-        LlmTracing.trace(context) do
+        LLMTracing.trace(context) do
           new.execute_request(prompt: prompt, schema: schema, context: context)
         end
       end

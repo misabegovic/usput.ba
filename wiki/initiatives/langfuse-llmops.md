@@ -2,7 +2,7 @@
 title: Langfuse for LLMOps
 kind: initiative
 status: proposed
-updated: 2026-09-30
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
@@ -11,6 +11,10 @@ depends_on:
 - architecture/ai-content-pipeline.md
 - decisions/jev-flags-reviews.md
 sources:
+- sources/conversations/2026-10-14--usput--tooling-models-langfuse-jev.md
+- app/services/llm_tracing.rb
+- config/initializers/llm_tracing.rb
+- https://langfuse.com/integrations/native/opentelemetry
 - sources/conversations/2026-09-30--usput--platform-direction.md
 - app/helpers/prompt_helper.rb
 - app/prompts/README.md
@@ -47,7 +51,7 @@ enola_intent:
 
 ## Objective
 
-Every model call the rebuilt usput makes is traced in hosted Langfuse from day one: which prompt and version, which model, the tokens, the cost, the latency and the outcome. Prompt versions can be compared in production (A/B), and generated content can be scored. The operator chose hosted Langfuse for prompt measurement, A/B testing and LLMOps, and put "the AI content pipeline with Langfuse from day one" in version 1 (`sources/conversations/2026-09-30--usput--platform-direction.md`).
+Every model call the rebuilt usput makes is traced in Langfuse, self-hosted on Railway, from day one: which prompt and version, which model, the tokens, the cost, the latency and the outcome. Prompt versions can be compared in production (A/B), and generated content can be scored. The operator chose hosted Langfuse for prompt measurement, A/B testing and LLMOps, and put "the AI content pipeline with Langfuse from day one" in version 1 (`sources/conversations/2026-09-30--usput--platform-direction.md`).
 
 ## Background
 
@@ -86,8 +90,8 @@ Variables differ in either shape: Langfuse templates use double-brace variables,
 
 Slices, each a small pull request with its tests, starting with the seam's first slice:
 
-1. **Credentials and skip-when-absent.** Langfuse public and secret keys and the host (EU) in Rails credentials, the way `MineChecker::Config` reads its secrets (`app/services/mine_checker/config.rb`), with environment variables as the override. No key means no tracing and no fetching, never an error. Test: with no key the seam runs and nothing is exported.
-2. **Traces for every call.** The seam opens one OpenTelemetry span per call with the GenAI attributes (model, prompt name and version, input and output tokens, cost, latency, outcome), exported to the EU OTLP endpoint in a background exporter. Content capture off by default. Tests with an in-memory exporter.
+1. **Credentials and skip-when-absent.** Langfuse public and secret keys and the host (the Railway instance's URL) in Rails credentials, the way `MineChecker::Config` reads its secrets (`app/services/mine_checker/config.rb`), with environment variables as the override. No key means no tracing and no fetching, never an error. Test: with no key the seam runs and nothing is exported.
+2. **Traces for every call.** The seam opens one OpenTelemetry span per call with the GenAI attributes (model, prompt name and version, input and output tokens, cost, latency, outcome), exported to the instance's OTLP endpoint in a background exporter. Content capture off by default. Tests with an in-memory exporter.
 3. **Run grouping.** A generation job's calls share one trace, named for the job and the record, so one place's enrichment is one trace with its steps. Tests on span parentage.
 4. **Prompt versions.** The chosen source-of-truth shape: either fetch by label with cache and file fallback, or sync files to Langfuse on deploy. Every trace carries the version it used. Tests with a stubbed prompt API.
 5. **A/B by label.** Two labelled versions of one prompt, a deterministic split per record (so a re-run uses the same arm), the arm on the trace. Tests on the split.
@@ -96,7 +100,7 @@ Slices, each a small pull request with its tests, starting with the seam's first
 
 ## No-gos
 
-- No self-hosted Langfuse in version 1; the operator chose hosted.
+- No Langfuse Cloud: the operator chose a self-hosted instance on Railway (2026-09-30, confirmed 2026-10-14). (Amended 2026-10-14; this line said the opposite, against the answer above.)
 - No user text in traces unless content capture is decided on.
 - No request path waits on Langfuse: export is asynchronous and fetching is cached with a file fallback.
 - No A/B test on text a traveller cannot tell apart from an error (for example, the safety wording of place descriptions).
@@ -116,8 +120,19 @@ Medium: slices 1 to 3 ship with the first generation job of the rebuild; 4 and 5
 
 **Decided on 2026-09-30** ([answers](../../sources/conversations/2026-09-30--usput--platform-direction.md)): The master copy of every prompt stays in `app/prompts/` and is synced to Langfuse. Langfuse is self-hosted on Railway, beside usput. The questions below that these answers settle are closed; the rest stay open.
 
-- **Region and plan.** EU (`cloud.langfuse.com`) is the natural choice for a Bosnian product with European travellers; which plan, and its trace and retention limits, is (unknown, needs source).
+- **Region and plan.** Settled by self-hosting: the traces stay on the Railway instance, whose region and retention are the operator's to set. The instance needs Langfuse 3.22 or later, the first release with the OpenTelemetry endpoint (langfuse.com OpenTelemetry docs, read 2026-10-14).
 - **Prompt source of truth**: Langfuse with file fallback, or files synced to Langfuse.
 - **Content capture**: whether prompts and replies are stored in Langfuse, and whether that includes moment notes or reviews if they ever reach a model.
 - **Whether Jev calls are traced** in Langfuse as well.
 - **Integration route**: our own spans plus a thin prompt client, a community gem, or the thoughtbot instrumentation once it supports 2.0.
+
+## Build notes
+
+Slices 1 and 2, and the grouping half of slice 3, landed on 2026-10-14 on the current code, not the rebuild branch, since `Ai::OpenaiQueue` is already the one seam:
+
+- **One module, `LLMTracing`** (`app/services/llm_tracing.rb`), configured at boot outside tests (`config/initializers/llm_tracing.rb`). It is on only when `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY` and `LANGFUSE_HOST` are set, or `langfuse: { public_key:, secret_key:, host: }` in Rails credentials; with none of them the OpenTelemetry API stays a no-op and nothing waits on Langfuse.
+- **RubyLLM 2.1's own spans.** `RubyLLM::OpenTelemetry.enable` opens one span per call with the GenAI attributes (model, provider, tokens, cached tokens). No prompt or reply text is in them, so content capture is off by construction. They go to `<host>/api/public/otel/v1/traces` over OTLP HTTP, with Basic auth from the key pair and `x-langfuse-ingestion-version: 4`, through a batch processor.
+- **Cost on the generation.** Langfuse prices calls from its own table, which may not know `gpt-6-luna`; a small wrapper around RubyLLM's instrumenter (ActiveSupport::Notifications in Rails, kept in the chain) puts RubyLLM's registry price on each call's span as `gen_ai.usage.cost`.
+- **A trace per service call.** `Ai::OpenaiQueue.request` opens a parent span named for its `context` (`langfuse.trace.name`), so a call shows as `LocationEnricher` or `AudioTourGenerator`, not as an anonymous chat.
+- **Not yet:** a trace spanning a whole job's calls, prompt versions synced from `app/prompts/` (slice 4), A/B by label, scores, and tracing Jev's calls. The Railway instance itself, its URL and keys are the operator's to provision (unknown, needs source).
+
