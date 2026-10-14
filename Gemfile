@@ -67,6 +67,9 @@ gem "rubyzip", require: "zip"
 # AI/LLM integration for experience generation [https://github.com/crmne/ruby_llm]
 gem "ruby_llm", "~> 2.1"
 
+# Domain events: what happened, to which record, in order [https://railseventstore.org]
+gem "rails_event_store", "~> 3.2"
+
 # Traces every model call to Langfuse over OpenTelemetry (see LlmTracing)
 gem "opentelemetry-sdk", "~> 1.13"
 gem "opentelemetry-exporter-otlp", "~> 0.37"

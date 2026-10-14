@@ -4,7 +4,12 @@ class Avo::Actions::UnblockUser < Avo::BaseAction
 
   def handle(query:, current_user:, **)
     unblocked, refused = query.partition { |user| UserPolicy.new(current_user, user).unblock? }
-    unblocked.each(&:unblock!)
+    unblocked.each do |user|
+      ActiveRecord::Base.transaction do
+        user.unblock!
+        DecisionLog.publish(UserUnblocked, user, by: current_user)
+      end
+    end
     succeed I18n.t("admin.users.unblocked", count: unblocked.size) if unblocked.any?
     warn I18n.t("admin.users.refused", names: refused.map(&:username).to_sentence) if refused.any?
   end

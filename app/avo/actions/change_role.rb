@@ -11,7 +11,13 @@ class Avo::Actions::ChangeRole < Avo::BaseAction
     return error(I18n.t("admin.users.unknown_role")) unless User.user_types.key?(role)
 
     changed, refused = query.partition { |user| UserPolicy.new(current_user, user).change_role? }
-    changed.each { |user| user.update!(user_type: role) }
+    changed.each do |user|
+      from = user.user_type
+      ActiveRecord::Base.transaction do
+        user.update!(user_type: role)
+        DecisionLog.publish(UserRoleChanged, user, by: current_user, from: from, to: role)
+      end
+    end
     succeed I18n.t("admin.users.role_changed", count: changed.size) if changed.any?
     warn I18n.t("admin.users.refused", names: refused.map(&:username).to_sentence) if refused.any?
   end

@@ -2,7 +2,7 @@
 title: Avo admin and roles
 kind: initiative
 status: proposed
-updated: 2026-09-30
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
@@ -118,7 +118,7 @@ Slices, in order on the rebuild branch, each with its tests:
 4. **Done 2026-09-30.** `Experience` and `Plan`, including a plan's stops by day. Policy and request tests.
 5. **Done 2026-09-30.** `Moment` queue with approve and reject. Tests that an approved public moment becomes visible and a rejected one does not.
 6. `Review` queue with clear and remove, once the flag exists ([Jev review flagging](jev-review-flagging.md)). Tests for both actions and for the rating recount.
-7. `AdminEvent` written by every action and role change, shown on each record. Model and action tests.
+7. **Done 2026-10-14, as Rails Event Store streams instead of an `AdminEvent` table** ([decision](../decisions/rails-event-store.md)): every action publishes its decision into the record's stream with who took it; admins read them at `/event-store`.
 
 ## No-gos
 

@@ -41,6 +41,12 @@ Rails.application.routes.draw do
 
   # The admin (Avo) at /admin: a guest is sent to sign in, anyone who is not a
   # curator or admin finds no such page. Avo checks the role again inside.
+  # Rails Event Store's browser: every decision recorded in its record's
+  # stream. Admins only; a curator or traveller finds no route at all.
+  authenticate :user, ->(user) { user.admin? } do
+    mount RailsEventStore::Browser => "/event-store"
+  end
+
   authenticate :user, ->(user) { user.can_curate? } do
     get "admin/moment_photos/:id", to: "admin/moment_photos#show", as: :admin_moment_photo
     mount_avo do
