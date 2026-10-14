@@ -183,6 +183,7 @@ class GuestWalkTest < ActionDispatch::IntegrationTest
 
   test "a signed-in traveller reading a place outside a plan can still upload" do
     user = User.create!(username: "browsing", email: "browsing@example.com", password: "password123")
+    user.plan_visits.create!(plan: Plan.explore_bosnia_for(user), location: @location)
     post user_session_path, params: { user: { email: user.email, password: "password123" } }
 
     get location_moments_path(@location.uuid)

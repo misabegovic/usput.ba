@@ -10,6 +10,7 @@ class MomentTest < ActiveSupport::TestCase
     @other_user = User.create!(username: "moment_stranger", email: "moment_stranger@example.com", password: "password123")
     @location = Location.create!(name: "Moment Location", city: "Mostar", lat: 43.34, lng: 17.81)
     @plan = Plan.create!(title: "Moment Plan", city_name: "Mostar", visibility: :private_plan, user: @user)
+    @user.plan_visits.create!(plan: @plan, location: @location)
   end
 
   teardown do
@@ -38,6 +39,36 @@ class MomentTest < ActiveSupport::TestCase
 
     assert_not moment.valid?
     assert_includes moment.errors[:photo], "must be JPEG, PNG, GIF, or WebP"
+  end
+
+  test "is refused at a place the traveller has not checked in at" do
+    @user.plan_visits.destroy_all
+    moment = build_moment
+
+    assert_not moment.valid?
+    assert_includes moment.errors[:base], I18n.t("plans.moments.not_visited")
+  end
+
+  test "a moment with no place is refused for the place, not for the check-in" do
+    moment = build_moment
+    moment.location = nil
+
+    assert_not moment.valid?
+    assert_not_includes moment.errors[:base], I18n.t("plans.moments.not_visited")
+  end
+
+  test "a check-in on any plan earns the capture" do
+    explore = Plan.explore_bosnia_for(@user)
+
+    assert build_moment(plan: explore).valid?
+  end
+
+  test "an existing moment still saves after its check-in is gone" do
+    moment = build_moment
+    moment.save!
+    @user.plan_visits.destroy_all
+
+    assert moment.update(note: "Still mine")
   end
 
   test "rejects a note longer than 1000 characters" do

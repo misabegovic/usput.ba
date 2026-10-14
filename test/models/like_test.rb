@@ -91,6 +91,7 @@ class LikeTest < ActiveSupport::TestCase
   private
 
   def public_moment
+    @owner.plan_visits.find_or_create_by!(plan: @plan, location: @location)
     moment = @owner.moments.build(plan: @plan, location: @location)
     moment.photo.attach(io: StringIO.new("fake image data"), filename: "like.jpg", content_type: "image/jpeg")
     moment.save!

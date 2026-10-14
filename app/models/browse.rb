@@ -107,6 +107,55 @@ class Browse < ApplicationRecord
     where("category_keys @> ?", [ category_key ].to_json)
   }
 
+  # Filter by tag - only locations carry tags, so a tag's experiences, plans
+  # and moments are the ones that reach a tagged location (mirrors by_city_name)
+  scope :by_tag, ->(tag) {
+    return all if tag.blank?
+
+    tagged_location_ids = Location
+      .where("EXISTS (SELECT 1 FROM jsonb_array_elements_text(tags) AS tag WHERE lower(tag) = lower(?))", tag.to_s.strip)
+      .pluck(:id)
+    return none if tagged_location_ids.empty?
+
+    experience_ids = ExperienceLocation
+      .where(location_id: tagged_location_ids)
+      .pluck(:experience_id)
+      .uniq
+
+    plan_ids = PlanExperience
+      .joins(experience: :experience_locations)
+      .where(experience_locations: { location_id: tagged_location_ids })
+      .pluck(:plan_id)
+      .uniq
+
+    moment_ids = Moment
+      .where(location_id: tagged_location_ids)
+      .pluck(:id)
+
+    conditions = []
+    values = []
+
+    conditions << "(browsable_type = 'Location' AND browsable_id IN (?))"
+    values << tagged_location_ids
+
+    if experience_ids.any?
+      conditions << "(browsable_type = 'Experience' AND browsable_id IN (?))"
+      values << experience_ids
+    end
+
+    if plan_ids.any?
+      conditions << "(browsable_type = 'Plan' AND browsable_id IN (?))"
+      values << plan_ids
+    end
+
+    if moment_ids.any?
+      conditions << "(browsable_type = 'Moment' AND browsable_id IN (?))"
+      values << moment_ids
+    end
+
+    where(conditions.join(" OR "), *values)
+  }
+
   # Filter by AI generated / Human made
   scope :ai_generated, -> { where(ai_generated: true) }
   scope :human_made, -> { where(ai_generated: false) }

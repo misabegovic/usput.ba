@@ -194,6 +194,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
 
   test "explore returns approved public moments under the moment type" do
     user = User.create!(username: "explorer_sharer", email: "explorer_sharer@example.com", password: "password123")
+    user.plan_visits.find_or_create_by!(plan: @plan, location: @location)
     moment = user.moments.build(plan: @plan, location: @location)
     moment.photo.attach(io: File.open(file_fixture("real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
     moment.save!
@@ -241,6 +242,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
 
   test "explore does not surface a pending or private moment" do
     user = User.create!(username: "private_sharer", email: "private_sharer@example.com", password: "password123")
+    user.plan_visits.find_or_create_by!(plan: @plan, location: @mostar_location)
     moment = user.moments.build(plan: @plan, location: @mostar_location)
     moment.photo.attach(io: File.open(file_fixture("real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
     moment.save!
@@ -449,6 +451,24 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
     get explore_path, params: { city_name: "Sarajevo" }
 
     assert_response :success
+  end
+
+  test "explore filters by tag" do
+    @location.update!(tags: [ "historic" ])
+    @mostar_location.update!(tags: [ "food" ])
+
+    get explore_path, params: { types: [ "location" ], tag: "historic" }
+
+    assert_response :success
+    assert_select "a[href=?]", location_path(@location), minimum: 1
+    assert_select "a[href=?]", location_path(@mostar_location), count: 0
+  end
+
+  test "explore with a tag nobody carries finds nothing" do
+    get explore_path, params: { types: [ "location" ], tag: "nonexistent" }
+
+    assert_response :success
+    assert_select "a[href=?]", location_path(@location), count: 0
   end
 
   test "explore filters by origin ai" do
@@ -782,6 +802,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   private
 
   def own_moment_for(user, location)
+    user.plan_visits.find_or_create_by!(plan: @plan, location: location)
     moment = user.moments.build(plan: @plan, location: location)
     moment.photo.attach(io: File.open(file_fixture("real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
     moment.save!
@@ -812,6 +833,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   end
 
   def publish_moment(user, location)
+    user.plan_visits.find_or_create_by!(plan: @plan, location: location)
     moment = user.moments.build(plan: @plan, location: location)
     moment.photo.attach(io: File.open(file_fixture("real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
     moment.save!

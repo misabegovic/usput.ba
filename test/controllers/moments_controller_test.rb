@@ -11,6 +11,7 @@ class MomentsControllerTest < ActionDispatch::IntegrationTest
     @experience.locations << @location
     @plan = Plan.create!(title: "Moment Trip", city_name: "Sarajevo", visibility: :public_plan, user: @owner)
     @plan.plan_experiences.create!(experience: @experience, day_number: 1)
+    @owner.plan_visits.create!(plan: @plan, location: @location)
   end
 
   teardown do
@@ -42,6 +43,17 @@ class MomentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal @plan, moment.plan
     assert_equal @location, moment.location
     assert moment.photo.attached?
+  end
+
+  test "create is refused before a check-in at the place" do
+    @owner.plan_visits.destroy_all
+    login_as(@owner)
+
+    assert_no_difference "Moment.count" do
+      post plan_moments_path(@plan), params: moment_params
+    end
+
+    assert_equal I18n.t("plans.moments.not_visited"), flash[:alert]
   end
 
   test "create rejects a non-image upload" do
@@ -125,6 +137,7 @@ class MomentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create allows a public plan the user does not own" do
+    @stranger.plan_visits.create!(plan: @plan, location: @location)
     login_as(@stranger)
 
     assert_difference "Moment.count", 1 do

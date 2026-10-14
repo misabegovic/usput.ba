@@ -15,6 +15,7 @@ export default class extends Controller {
     "typeCheckbox",
     "filterInput",
     "citySelect",
+    "tagSelect",
     "audioToggle",
     "accessibleToggle",
     "nearbyButton",
@@ -207,6 +208,11 @@ export default class extends Controller {
       formData.append("city_name", this.citySelectTarget.value)
     }
 
+    // Tag filter
+    if (this.hasTagSelectTarget && this.tagSelectTarget.value) {
+      formData.append("tag", this.tagSelectTarget.value)
+    }
+
     // Audio support filter
     if (this.hasAudioToggleTarget && this.audioToggleTarget.checked) {
       formData.append("audio_support", "true")
@@ -324,6 +330,9 @@ export default class extends Controller {
     // Count city select
     if (this.hasCitySelectTarget && this.citySelectTarget.value) count++
 
+    // Count tag select
+    if (this.hasTagSelectTarget && this.tagSelectTarget.value) count++
+
     // Count toggles
     if (this.hasAudioToggleTarget && this.audioToggleTarget.checked) count++
     if (this.hasAccessibleToggleTarget && this.accessibleToggleTarget.checked) count++
@@ -362,6 +371,9 @@ export default class extends Controller {
 
     // Reset city select
     if (this.hasCitySelectTarget) this.citySelectTarget.value = ""
+
+    // Reset tag select
+    if (this.hasTagSelectTarget) this.tagSelectTarget.value = ""
 
     // Clear toggles
     if (this.hasAudioToggleTarget) this.audioToggleTarget.checked = false

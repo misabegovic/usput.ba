@@ -114,6 +114,7 @@ class MomentLikeLifecycleTest < ActionDispatch::IntegrationTest
   end
 
   test "nobody can like a private moment, its author least of all" do
+    @author.plan_visits.find_or_create_by!(plan: @plan, location: @location)
     private_one = @author.moments.build(plan: @plan, location: @location, note: "mine alone")
     private_one.photo.attach(io: File.open(file_fixture("real_image.jpg")), filename: "mine.jpg",
                              content_type: "image/jpeg")
@@ -127,6 +128,7 @@ class MomentLikeLifecycleTest < ActionDispatch::IntegrationTest
   private
 
   def public_moment
+    @author.plan_visits.find_or_create_by!(plan: @plan, location: @location)
     moment = @author.moments.build(plan: @plan, location: @location, note: "lifecycle")
     moment.photo.attach(io: File.open(file_fixture("real_image.jpg")), filename: "life.jpg",
                         content_type: "image/jpeg")

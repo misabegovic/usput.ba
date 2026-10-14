@@ -2,7 +2,7 @@
 title: Open issues
 kind: reference
 status: living
-updated: 2026-09-29
+updated: 2026-10-08
 repos:
 - usput.ba
 confidence: medium
@@ -48,7 +48,7 @@ The 17 open GitHub issues on misabegovic/usput.ba as of 2026-09-29, grouped by t
 
 ## Explore, search and maps
 
-- [#111](https://github.com/misabegovic/usput.ba/issues/111) **Improve explore page filters** (filter on tags). Partly addressed: explore now filters by type, season, budget, duration, rating, city, origin, audio and accessibility (`app/controllers/new_design_controller.rb`), but not by tag. Tags reach search only as full text.
+- [#111](https://github.com/misabegovic/usput.ba/issues/111) **Improve explore page filters** (filter on tags). Addressed: explore now filters by type, season, budget, duration, rating, city, tag, origin, audio and accessibility (`app/controllers/new_design_controller.rb`; `app/models/browse.rb`, `by_tag`). Tags also reach full text search through the composed browse description (`app/services/browse_adapter.rb`).
 - [#86](https://github.com/misabegovic/usput.ba/issues/86) **Map view** for exploring and for plan, experience and location pages, with nearby places. Largely addressed: a location map (#163), map points and a map panel on places, a route page, and map cards on the plan walk (#164) and the Explore Bosnia deck (#165) (`config/routes.rb`). A map on experience pages is (unverified, 2026-09-29).
 - [#153](https://github.com/misabegovic/usput.ba/issues/153) **Cycling trails** (experiences for cyclists). Not addressed: no cycling experience type or trail data exists.
 - [#29](https://github.com/misabegovic/usput.ba/issues/29) **Area information**: live conditions for planning (roads, accidents, weather, ice). Not addressed.

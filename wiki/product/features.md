@@ -2,7 +2,7 @@
 title: Feature inventory
 kind: reference
 status: living
-updated: 2026-09-30
+updated: 2026-10-08
 repos:
 - usput.ba
 confidence: medium
@@ -99,7 +99,7 @@ This is what Usput.ba ships as of 2026-09-29, grouped by what a person does with
 ## Explore and search
 
 - **Home page.** Shows positive reviews (rating 3 or more), the newest approved public moments, and trending locations and experiences with a rating of at least 3.5 (`app/controllers/new_design_controller.rb`, `home`).
-- **Explore.** `/explore` searches one index, `Browse`, across locations, experiences, public plans and approved public moments. Filters: type, city, budget, minimum rating, season, duration, AI or human origin, audio support, accessibility and a nearby radius, with a sort order. Results page with load-more. A search that matches a single place expands to nearby items (`new_design_controller.rb`, `explore`, `build_browse_queries`; `app/models/browse.rb`). The most liked moments rank first ([#167](https://github.com/misabegovic/usput.ba/pull/167)).
+- **Explore.** `/explore` searches one index, `Browse`, across locations, experiences, public plans and approved public moments. Filters: type, city, budget, minimum rating, season, duration, tag, AI or human origin, audio support, accessibility and a nearby radius, with a sort order. Results page with load-more. A search that matches a single place expands to nearby items (`new_design_controller.rb`, `explore`, `build_browse_queries`; `app/models/browse.rb`). The most liked moments rank first ([#167](https://github.com/misabegovic/usput.ba/pull/167)).
 - **Explore Bosnia deck.** `/explore-bosnia` deals places as a deck of cards, nearest first. Position orders the deck but does not bound it, so a traveller anywhere gets the whole country. Paging uses a keyset cursor because a check-in removes a place from the set. Categories combine, and a filter turned off stays off. Places already reached drop out, and an empty deck says whether nothing is here or everything has been visited. Without a browser location the deck is ordered from the city the request's IP suggests ([#165](https://github.com/misabegovic/usput.ba/pull/165); `app/controllers/explore_bosnia_controller.rb`).
 - **Retired places stay hidden.** An archived location leaves Browse and the traveller-facing scopes ([#167](https://github.com/misabegovic/usput.ba/pull/167); `app/models/location.rb`, `places`).
 
@@ -114,7 +114,7 @@ This is what Usput.ba ships as of 2026-09-29, grouped by what a person does with
 - **Walk.** `/plans/:id/start` walks a plan as a stack of cards, nearest first. Each card carries a map, the audio tour and the check-in ([#164](https://github.com/misabegovic/usput.ba/pull/164)).
 - **Check-in.** Browser and server ask the same question: is the traveller within 100 m? The distance is one constant, `MAX_VISIT_DISTANCE_KM`, used by every surface (`app/controllers/concerns/records_visits.rb`). A warm and cold hint under the button tracks the distance. Admins check in from anywhere. The PR notes that 100 m is a testing value meant to drop to about 10 m ([#164](https://github.com/misabegovic/usput.ba/pull/164)).
 - **Guest walk.** A visitor explores, walks and checks in without an account. The walk stays on the device and is replayed into ordinary rows once, at sign-in or sign-up. The replay cannot be re-verified on the server: the 100 m gate ran in the browser ([#166](https://github.com/misabegovic/usput.ba/pull/166); `app/services/guest_visits_importer.rb`, `MAX_VISITS = 500`).
-- **Moments.** At a place already reached, a traveller captures a photo and a note. A moment is private; publishing sends it to a curator, and only an approved public moment is visible to others or searchable. Photos are served by the app's own action after a session check, never by a signed storage URL ([#164](https://github.com/misabegovic/usput.ba/pull/164)). Photos can be taken in the app, and iPhone photos are converted before upload ([#167](https://github.com/misabegovic/usput.ba/pull/167)).
+- **Moments.** At a place already reached, a traveller captures a photo and a note. Reached means checked in, on any plan: the server refuses a moment anywhere else, and the upload tile appears only after the check-in ([decision](../decisions/capture-needs-a-check-in.md); `app/models/moment.rb`). A moment is private; publishing sends it to a curator, and only an approved public moment is visible to others or searchable. Photos are served by the app's own action after a session check, never by a signed storage URL ([#164](https://github.com/misabegovic/usput.ba/pull/164)). Photos can be taken in the app, and iPhone photos are converted before upload ([#167](https://github.com/misabegovic/usput.ba/pull/167)).
 - **Moments view and likes.** A moment opens in a full view with who took it, where, the note, a download and a like. A like is its own record and needs a login. Each moment has its own URL (`/moments/:id`) with a link preview. A place's page has a shelf of its moments, loaded as the traveller scrolls ([#167](https://github.com/misabegovic/usput.ba/pull/167); `config/routes.rb`).
 - **Travel profile.** `/profile` shows plans, moments and visited places. Visited places and counts come from check-in rows, not from the device copy (`app/controllers/travel_profiles_controller.rb`).
 

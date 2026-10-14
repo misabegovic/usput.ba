@@ -54,6 +54,13 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     assert_selector "#my-moments-frame [data-photo-gallery-target='thumbnail']", minimum: 1, wait: 10
   end
 
+  # A traveller with check-ins is congratulated on the badges the profile's
+  # server sync awards, and the celebration covers the page until dismissed.
+  def dismiss_badge_celebration
+    find("div.fixed.inset-0.bg-black\\/50 > div > button", wait: 10).click
+    assert_no_selector "div.fixed.inset-0.bg-black\\/50"
+  end
+
   # Submitting before the field values have landed posts a blank form, which
   # re-renders the login page — no error raised, the test simply never left it.
   # Assert the value is in before pressing, and press again if the page did not

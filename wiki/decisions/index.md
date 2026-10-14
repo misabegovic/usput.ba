@@ -2,7 +2,7 @@
 title: Decisions
 kind: reference
 status: living
-updated: 2026-09-30
+updated: 2026-10-08
 repos:
 - usput.ba
 sources:
@@ -22,6 +22,7 @@ Architecture decision records, one choice per page. Accepted pages describe the 
 
 ## Accepted
 
+- [Capturing a moment needs a check-in at the place](capture-needs-a-check-in.md)
 - [Accounts through Devise, signed in by email](accounts-through-devise.md)
 - [Audio tours are paid by subscription; everything else stays free](audio-tours-by-subscription.md)
 - [Jev flags reviews; flagged reviews wait for an admin](jev-flags-reviews.md)

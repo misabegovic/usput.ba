@@ -120,6 +120,7 @@ class AdminMomentsTest < ActionDispatch::IntegrationTest
   private
 
   def moment(public:, note:)
+    @traveller.plan_visits.find_or_create_by!(plan: @plan, location: @place)
     record = @traveller.moments.build(plan: @plan, location: @place, note: note)
     record.photo.attach(io: File.open("test/fixtures/files/real_image.jpg"), filename: "moment.jpg", content_type: "image/jpeg")
     record.save!

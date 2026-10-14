@@ -46,10 +46,14 @@
   </div>
 
   <div class="<%= layout %>">
-    <div class="<%= tile[:wrapper] %>" data-action="submit->photo-gallery#closeLightbox">
-      <%= render "plans/moment_instant_form", plan: plan, location: location,
-            context: context, compact: true, tile: tile %>
-    </div>
+    <%# Capture is earned by being there. A guest's check-ins live on the
+        device until sign-in, so the guest keeps the sign-in tile. %>
+    <% if !logged_in? || visited_location?(location) %>
+      <div class="<%= tile[:wrapper] %>" data-action="submit->photo-gallery#closeLightbox">
+        <%= render "plans/moment_instant_form", plan: plan, location: location,
+              context: context, compact: true, tile: tile %>
+      </div>
+    <% end %>
 
     <div class="contents" data-load-more-target="container">
       <%= render "plans/moment_gallery_items", moments: moments,

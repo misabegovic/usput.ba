@@ -85,11 +85,13 @@ class PlanWalkTest < ApplicationSystemTestCase
   end
 
   test "publishing a moment from the profile updates in place (no full reload)" do
+    @user.plan_visits.find_or_create_by!(plan: @plan, location: @location)
     moment = @user.moments.build(plan: @plan, location: @location)
     moment.photo.attach(io: File.open(Rails.root.join("test/fixtures/files/real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
     moment.save!
     login
     visit profile_page_path
+    dismiss_badge_celebration
     load_profile_moments
 
     frame = "##{ActionView::RecordIdentifier.dom_id(moment)}"
@@ -103,11 +105,13 @@ class PlanWalkTest < ApplicationSystemTestCase
   end
 
   test "deleting a moment from the profile removes its card in place" do
+    @user.plan_visits.find_or_create_by!(plan: @plan, location: @location)
     moment = @user.moments.build(plan: @plan, location: @location)
     moment.photo.attach(io: File.open(Rails.root.join("test/fixtures/files/real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
     moment.save!
     login
     visit profile_page_path
+    dismiss_badge_celebration
     load_profile_moments
 
     frame = "##{ActionView::RecordIdentifier.dom_id(moment)}"
@@ -154,10 +158,10 @@ class PlanWalkTest < ApplicationSystemTestCase
   end
 
   test "the fullscreen moment closes on the X, even sitting over a swipeable card" do
+    @user.plan_visits.find_or_create_by!(plan: @plan, location: @location)
     moment = @user.moments.build(plan: @plan, location: @location)
     moment.photo.attach(io: File.open(Rails.root.join("test/fixtures/files/real_image.jpg")), filename: "m.jpg", content_type: "image/jpeg")
     moment.save!
-    @user.plan_visits.create!(plan: @plan, location: @location)
     login
     visit start_plan_path(@plan)
 
