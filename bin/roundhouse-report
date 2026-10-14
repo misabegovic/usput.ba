@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+# Roundhouse's static analysis of types, nil-safety and N+1 queries, as a
+# report that never fails the build (wiki/initiatives/roundhouse-analysis-and-compile.md).
+# Runs where `roundhouse` is installed, pinned to a release rather than main,
+# whose counts move daily; anywhere else it says so.
+if ! command -v roundhouse >/dev/null 2>&1; then
+  echo "roundhouse: not asked (roundhouse is not installed on this machine)"
+  exit 0
+fi
+roundhouse check --continue . | tail -n 40
+exit 0

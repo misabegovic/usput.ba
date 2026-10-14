@@ -82,8 +82,14 @@ class Moment < ApplicationRecord
 
   private
 
+  # A curator approved the note others read, so going public, or changing the
+  # note of a public moment, asks for a fresh approval, unless the same save
+  # records a decision of its own.
   def require_moderation_when_published
-    self.moderation_status = :pending if visibility_public_moment? && visibility_changed?
+    return unless visibility_public_moment?
+    return if moderation_status_changed?
+
+    self.moderation_status = :pending if visibility_changed? || (persisted? && note_changed?)
   end
 
   # Capture is earned by being there: a check-in at this place on any of the

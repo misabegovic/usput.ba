@@ -16,6 +16,7 @@ CI.run do
   step "Architecture: enola laws", "bin/enola-gate"
   step "Duplication: exhale dry", "bin/exhale dry --introduced-only"
   step "Review: qualm", "bin/qualm-gate"
+  step "Analysis: Roundhouse (report only)", "bin/roundhouse-report"
 
   step "Brain: tabula validate", "sh -c 'command -v tabula >/dev/null && tabula validate || echo \"tabula: not asked (not installed)\"'"
 

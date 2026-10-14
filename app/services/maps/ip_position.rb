@@ -35,16 +35,20 @@ module Maps
     end
 
     def lookup
-      response = Net::HTTP.get_response(URI("#{ENDPOINT}/#{@ip}?fields=status,lat,lon"),
-                                        nil, open_timeout: TIMEOUT, read_timeout: TIMEOUT)
+      uri = URI("#{ENDPOINT}/#{@ip}?fields=status,lat,lon")
+      # Net::HTTP.get_response takes no timeouts (they used to land in its
+      # unused port argument), so a slow lookup could hold a deck for a minute.
+      response = Net::HTTP.start(uri.host, uri.port, open_timeout: TIMEOUT, read_timeout: TIMEOUT) do |http|
+        http.get(uri.request_uri)
+      end
       return nil unless response.is_a?(Net::HTTPSuccess)
 
       body = JSON.parse(response.body)
       return nil unless body["status"] == "success" && body["lat"] && body["lon"]
 
       [ body["lat"].to_f, body["lon"].to_f ]
-    # Never a failure the traveller sees: a deck dealt from the country default
-    # beats a deck that did not load.
+    # Never a failure the traveller sees: with no position the deck asks for
+    # one rather than failing to load.
     rescue StandardError => e
       Rails.logger.info("[Maps::IpPosition] lookup failed for #{@ip}: #{e.class}")
       nil

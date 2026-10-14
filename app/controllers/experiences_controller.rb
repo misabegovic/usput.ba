@@ -2,7 +2,10 @@ class ExperiencesController < ApplicationController
   rescue_from ActiveRecord::RecordNotFound, with: :redirect_to_explore
 
   def show
-    @experience = Experience.includes(:locations, :reviews).find_by_public_id!(params[:id])
+    # The page draws every place's photos and name; the reviews are queried
+    # below, so preloading them here was a second read of the same rows.
+    @experience = Experience.includes(locations: [ :locale_translations, { photos_attachments: :blob } ])
+                            .find_by_public_id!(params[:id])
     @reviews = @experience.reviews.visible_to(current_user).recent.limit(10)
     @review = Review.new
     @nearby_experiences = @experience.nearby_featured(limit: 3)
