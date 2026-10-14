@@ -2,7 +2,7 @@
 title: Conventions
 kind: reference
 status: living
-updated: 2026-09-29
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
@@ -11,7 +11,8 @@ sources:
 - .claude/CLAUDE.md
 - AGENTS.md
 - .rubocop.yml
-- .erb-lint.yml
+- .herb.yml
+- sources/conversations/2026-10-14--usput--tooling-models-langfuse-jev.md
 - .github/workflows/ci.yml
 - config/application.rb
 - config/initializers/i18n.rb
@@ -98,14 +99,13 @@ the written rule and the code disagree, both are named.
   3.3, enables new cops, and excludes `db/schema.rb`, migrations, `vendor`,
   `node_modules`, `bin`, `tmp` and `log`. CI runs
   `bundle exec rubocop --parallel`.
-- **ERB.** `.erb-lint.yml` enables the default linters plus space around
-  ERB tags, trailing whitespace, HTML5 void tags without a slash, ERB
-  safety through `better_html`, right trim with `-%>`, a final newline,
-  no instance variables in partials, no JavaScript tag helper, and `<%#`
-  comments. Hard-coded string detection is off "until an i18n audit". CI
-  runs `bundle exec erb_lint --lint-all`.
-  `DEVELOPER_ONBOARDING.md` still mentions `herb lint`; the configured tool
-  is erb_lint.
+- **ERB.** Herb 0.11 (`@herb-tools/linter`, pinned in `package.json`)
+  parses each template under `app/` as HTML and ERB together and runs its
+  rules for the Action View framework, HTML validity and accessibility
+  included. `.herb.yml` turns five rules off, each with its reason, and the
+  build fails on errors only. CI and `bin/ci` run `npm run lint:erb`. Herb
+  replaced erb_lint and better_html on 2026-10-14
+  ([decision](../decisions/herb-lints-erb.md)).
 - **Coverage.** CI runs the suite with `COVERAGE=true` and then
   `undercover` against the base branch on pull requests. Undercover is
   advisory for now (`continue-on-error: true`,
@@ -126,7 +126,7 @@ traveller, with the pull request number: "Walk a plan as a stack of cards,
 check in, and capture the moment (#164)". Bodies of #161 to #167 are bullet
 lists that explain behaviour and its reason in plain words, may add an
 "Honest note" or "Note for review", and end with the test totals and
-"Rubocop and erb_lint clean", as in "Tests: 2643 runs, 6419 assertions, 0
+"Rubocop and erb_lint clean" (Herb lint since 2026-10-14), as in "Tests: 2643 runs, 6419 assertions, 0
 failures, 0 errors."
 
 ## Internationalization

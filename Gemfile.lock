@@ -127,13 +127,6 @@ GEM
     bcrypt_pbkdf (1.1.2)
     bcrypt_pbkdf (1.1.2-arm64-darwin)
     bcrypt_pbkdf (1.1.2-x86_64-darwin)
-    better_html (2.2.0)
-      actionview (>= 7.0)
-      activesupport (>= 7.0)
-      ast (~> 2.0)
-      erubi (~> 1.4)
-      parser (>= 2.4)
-      smart_properties
     bigdecimal (4.0.1)
     bindex (0.8.1)
     bootsnap (1.20.1)
@@ -177,13 +170,6 @@ GEM
     drb (2.2.3)
     ed25519 (1.4.0)
     erb (6.0.1)
-    erb_lint (0.9.0)
-      activesupport
-      better_html (>= 2.0.1)
-      parser (>= 2.7.1.4)
-      rainbow
-      rubocop (>= 1)
-      smart_properties
     erubi (1.13.1)
     et-orbi (1.4.0)
       tzinfo
@@ -471,15 +457,15 @@ GEM
       railties (>= 7.0)
     rexml (3.4.4)
     rollbar (3.7.0)
-    rubocop (1.82.1)
-      json (~> 2.3)
+    rubocop (1.92.0)
+      json (>= 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
-      parallel (~> 1.10)
+      parallel (>= 1.10)
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
-      regexp_parser (>= 2.9.3, < 3.0)
-      rubocop-ast (>= 1.48.0, < 2.0)
+      regexp_parser (>= 2.11.3, < 3.0)
+      rubocop-ast (>= 1.49.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
     rubocop-ast (1.49.0)
@@ -530,7 +516,6 @@ GEM
     simplecov-html (0.13.2)
     simplecov-lcov (0.9.0)
     simplecov_json_formatter (0.1.4)
-    smart_properties (1.17.0)
     snaky_hash (2.0.7)
       hashie (>= 0.1.0, < 6)
       version_gem (~> 1.1, >= 1.1.14)
@@ -639,7 +624,6 @@ DEPENDENCIES
   avo (~> 4.2)
   aws-sdk-s3
   bcrypt (~> 3.1.7)
-  better_html
   bootsnap
   brakeman
   bundler-audit
@@ -647,7 +631,6 @@ DEPENDENCIES
   debug
   devise (~> 5.0)
   dotenv-rails
-  erb_lint
   faraday
   faraday-follow_redirects
   flipper

@@ -9,6 +9,7 @@ confidence: medium
 sources:
 - sources/conversations/2026-10-14--usput--tooling-models-langfuse-jev.md
 - Gemfile
+- .herb.yml
 - .ruby-version
 - Dockerfile
 - Procfile.dev
@@ -153,7 +154,8 @@ gem group, creates `klosaer_test` and `klosaer_queue_test`, loads the
 schema, then runs in order:
 
 1. `bundle exec rubocop --parallel`
-2. `bundle exec erb_lint --lint-all`
+2. `npm run lint:erb`, Herb's linter, after Node 22 and `npm ci`
+   ([decision](../decisions/herb-lints-erb.md))
 3. `bin/rails test` with `COVERAGE=true` (SimpleCov with an LCOV formatter)
 4. `bin/rails test:system`, the 68 browser tests in `test/system/`, in
    headless Chrome through Selenium (`test/application_system_test_case.rb`,
@@ -168,7 +170,7 @@ schema, then runs in order:
    coverage gaps are fixed.
 
 `bin/ci` with `config/ci.rb` is a separate local pipeline: setup, rubocop,
-bundler-audit, importmap audit, Brakeman, unit tests, system tests and a
+Herb lint, bundler-audit, importmap audit, Brakeman, unit tests, system tests and a
 seed replant. Brakeman and bundler-audit run only there, not in GitHub
 Actions.
 
@@ -246,7 +248,7 @@ both sit on top of services and models; services call external APIs
 ## Now and Perceived
 
 - **Now:** two databases, one monolith, Hotwire frontend, CI with rubocop,
-  erb_lint, tests and advisory undercover.
+  Herb lint, tests and advisory undercover.
 - **Perceived:** `CLAUDE.md`, `README.md` and
   `sources/planning/DEVELOPER_ONBOARDING.md` still describe pgvector, a
   `new_design/` controller namespace, and planning files under

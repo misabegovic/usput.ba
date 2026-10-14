@@ -2,7 +2,7 @@
 title: How we work
 kind: meta
 status: living
-updated: 2026-09-29
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
@@ -76,7 +76,7 @@ through several of them, and each one's view is visible in the result.
 
 Every change arrives as a pull request with a short description written for
 a human: what is better for the traveller or the curator, what was wrong,
-and how it is kept safe. The same checks CI runs (rubocop, erb_lint, the
+and how it is kept safe. The same checks CI runs (rubocop, Herb lint, the
 full test suite) are run locally before anything is pushed, so a red build
 is a surprise rather than a routine.
 

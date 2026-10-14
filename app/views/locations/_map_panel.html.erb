@@ -4,7 +4,7 @@
   <div class="h-full overflow-y-auto bg-gray-50 dark:bg-gray-900">
     <div class="relative">
       <% if location.photos.attached? %>
-        <%= image_tag location.photos.first.variant(:large),
+        <%= image_tag location.photos.first.variant(:large), alt: location.name,
                       class: "h-48 w-full object-cover" %>
       <% end %>
       <button type="button" data-action="map#closePanel"
