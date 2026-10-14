@@ -17,6 +17,10 @@ bin/rails server
 bin/rails console
 bin/rails test
 
+# usput commands (CLI, and MCP with `bin/usput mcp`)
+bin/usput help
+bin/usput places list city=Mostar --json
+
 # Platform CLI (DSL queries)
 bin/platform exec 'locations | count'
 bin/platform exec 'experiences | where(city: "Sarajevo") | limit(5)'

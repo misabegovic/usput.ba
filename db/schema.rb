@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -57,6 +57,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_160000) do
     t.index ["city_name"], name: "index_ai_generations_on_city_name"
     t.index ["generation_type"], name: "index_ai_generations_on_generation_type"
     t.index ["status"], name: "index_ai_generations_on_status"
+  end
+
+  create_table "api_tokens", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "last_used_at"
+    t.string "name", null: false
+    t.datetime "revoked_at"
+    t.string "token_digest", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["token_digest"], name: "index_api_tokens_on_token_digest", unique: true
+    t.index ["user_id"], name: "index_api_tokens_on_user_id"
   end
 
   create_table "audio_tours", force: :cascade do |t|
@@ -552,6 +564,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_160000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "api_tokens", "users"
   add_foreign_key "audio_tours", "locations"
   add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"
   add_foreign_key "events", "locations"

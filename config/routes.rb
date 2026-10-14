@@ -147,6 +147,11 @@ Rails.application.routes.draw do
     end
   end
 
+  # The MCP server for remote agents: a bearer token, admins only, reading
+  # tools only (wiki/decisions/usput-commands.md).
+  post "mcp", to: "mcp#create"
+  get "mcp", to: "mcp#stream"
+
   # Defines the root path route ("/")
   root "new_design#home"
 end

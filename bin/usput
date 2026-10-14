@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+# The usput commands from a terminal and, with `mcp`, for a local agent.
+# See lib/usput/cli.rb, or run bin/usput help.
+#
+# Stdout carries the answer, and for `mcp` the protocol itself, so the log is
+# quiet and goes to stderr; USPUT_LOG_LEVEL=debug brings it back.
+ENV["RAILS_LOG_LEVEL"] = ENV.fetch("USPUT_LOG_LEVEL", "warn")
+require_relative "../config/boot"
+
+ENV["RAILS_ENV"] ||= "development"
+require_relative "../config/environment"
+
+Rails.logger = ActiveRecord::Base.logger = ActiveSupport::Logger.new($stderr, level: ENV["RAILS_LOG_LEVEL"])
+Usput::CLI.start(ARGV)

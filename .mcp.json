@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "usput": {
+      "command": "bin/usput",
+      "args": ["mcp"],
+      "env": { "RAILS_ENV": "development" }
+    }
+  }
+}

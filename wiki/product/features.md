@@ -134,6 +134,19 @@ Narrated tours per location and language, played on the location page, the walk 
 
 A signed-in traveller rates a location, experience or plan from 1 to 5 with an optional comment; the name shown is the account's. Jev sorts each new review into approved, held for a curator or rejected (observe mode records the band without acting on it yet); the author always sees their own review, marked when it is not public; ratings count approved reviews only; curators decide held reviews in the admin's reviews queue ([decision](../decisions/jev-decides-reviews.md); `app/controllers/reviews_controller.rb`, `app/services/review_moderation.rb`).
 
+## The usput CLI and MCP server
+
+- **`bin/usput`** runs usput's commands from a terminal: places, experiences
+  and plans to list and show, search as explore does it, the moments and
+  reviews queues with approve and reject, archive and restore for places,
+  Jev's band for a review without recording it, a record's decision
+  history, and `doctor` for what a deployment has and lacks. `--as` names
+  the account, whose role decides what is allowed; `--json` prints JSON.
+- **The MCP server**: `bin/usput mcp` offers the same commands as tools to
+  a local agent over stdio, and `POST /mcp` offers the reading ones to an
+  admin's personal access token over HTTP. The brain's index, state and
+  features pages are resources ([decision](../decisions/usput-commands.md)).
+
 ## Moderation in the admin
 
 - **No curator dashboard.** The `/curator` dashboard, its start page, reviews list and users pages were removed on 2026-10-14; everything they did is in the admin at `/admin` ([removal plan](../initiatives/remove-curator-dashboard.md)).

@@ -23,6 +23,7 @@ Architecture decision records, one choice per page. Accepted pages describe the 
 ## Accepted
 
 - [Jev sorts reviews into three bands; a curator decides the unsure ones](jev-decides-reviews.md)
+- [One set of usput commands behind the CLI and the MCP server](usput-commands.md)
 - [Decisions are domain events in Rails Event Store](rails-event-store.md)
 - [CI runs on the operator's machine, with Enola's laws and Obie's gates](ci-runs-locally.md)
 - [Support phones from iOS 15 and Android of about 2019](support-phones-from-ios-15.md)

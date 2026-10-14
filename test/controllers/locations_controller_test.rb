@@ -254,10 +254,13 @@ class LocationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "show handles concurrent access gracefully" do
-    # Simulate concurrent access by making multiple requests
+    # Simulate concurrent access by making multiple requests. The path is read
+    # before the threads start: a url helper inside one races another thread's
+    # request swapping the integration session, and fails without the app.
+    path = location_path(@location)
     threads = 3.times.map do
       Thread.new do
-        get location_path(@location)
+        get path
         response.status
       end
     end
