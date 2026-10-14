@@ -2,6 +2,11 @@ class Browse < ApplicationRecord
   # Polymorphic association to the source model
   belongs_to :browsable, polymorphic: true
 
+  # Meaning, beside the words: one embedding of the row's title and
+  # description, compared by cosine distance through an HNSW index
+  # (initiatives: pgvector-semantic-search).
+  has_neighbors :embedding
+
   # Validations
   validates :title, presence: true
   validates :browsable_type, inclusion: { in: %w[Location Experience Plan Moment] }

@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "vector"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
@@ -88,6 +89,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_160000) do
     t.string "city_name"
     t.datetime "created_at", null: false
     t.text "description"
+    t.vector "embedding", limit: 1536
+    t.string "embedding_digest"
+    t.string "embedding_model"
     t.decimal "lat", precision: 10, scale: 6
     t.decimal "lng", precision: 10, scale: 6
     t.integer "reviews_count", default: 0, null: false
@@ -104,6 +108,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_160000) do
     t.index ["budget"], name: "index_browses_on_budget"
     t.index ["category_keys"], name: "index_browses_on_category_keys", using: :gin
     t.index ["city_name"], name: "index_browses_on_city_name"
+    t.index ["embedding"], name: "index_browses_on_embedding", opclass: :vector_cosine_ops, using: :hnsw
     t.index ["lat", "lng"], name: "index_browses_on_lat_and_lng"
     t.index ["reviews_count"], name: "index_browses_on_reviews_count"
     t.index ["searchable"], name: "index_browses_on_searchable", using: :gin

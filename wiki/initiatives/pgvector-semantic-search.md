@@ -2,7 +2,7 @@
 title: pgvector semantic search
 kind: initiative
 status: proposed
-updated: 2026-09-30
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
@@ -12,6 +12,7 @@ depends_on:
 - initiatives/rubyllm-2-upgrade.md
 sources:
 - sources/conversations/2026-09-30--usput--platform-direction.md
+- sources/conversations/2026-10-14--usput--moment-notes-in-search.md
 - Gemfile
 - Gemfile.lock
 - db/schema.rb
@@ -74,13 +75,13 @@ The design: one `embedding` vector column on `browses`, not one per model, becau
 
 Slices, each a small pull request with its tests:
 
-1. **The extension.** A migration enabling `vector`, and CI moved to a Postgres image with pgvector. Test: the schema loads in CI.
-2. **The column and index.** `embedding` (dimension fixed by the model decision), `embedding_model` and `embedding_digest` on `browses`, the HNSW index, and `has_neighbors` from the `neighbor` gem (https://github.com/ankane/neighbor). Tests on the model.
+1. **Done 2026-10-14.** **The extension.** A migration enabling `vector`, and CI moved to a Postgres image with pgvector. Test: the schema loads in CI.
+2. **Done 2026-10-14.** **The column and index.** `embedding` (dimension fixed by the model decision), `embedding_model` and `embedding_digest` on `browses`, the HNSW index, and `has_neighbors` from the `neighbor` gem (https://github.com/ankane/neighbor). Tests on the model.
 3. **Embed on write.** When a Browse row's embedded text changes, a Solid Queue job embeds it through the seam; a missing key or a provider error leaves the row searchable by keyword only and records the failure. Tests with a stubbed embedding.
 4. **Hybrid search.** `smart_search` becomes full-text plus vector with rank fusion; with no embedding for the query (no key, provider down) it is exactly the keyword search. The query is embedded once per request. Tests on ranking with fixed vectors.
 5. **Similar places.** A "similar" list on each place, experience and plan: nearest neighbours of the row's own vector, same type, excluding itself, optionally within a radius. Tests with fixed vectors.
 6. **Cross-language check.** A small fixed set of Bosnian and English queries with the places they should find, run as a test against recorded vectors, so a model change that breaks cross-language search fails.
-7. **Moments**, only if the decision below says so: their notes join the embedded text under the same rules as their visibility.
+7. **Moments**: the notes of approved public moments join the embedded text, as decided on 2026-10-14; a private or pending moment's note is never sent.
 
 ## No-gos
 
@@ -106,5 +107,24 @@ Medium: slices 1 to 4 are the version 1 search; 5 and 6 follow; 7 depends on the
 **Decided on 2026-09-30** ([answers](../../sources/conversations/2026-09-30--usput--platform-direction.md)): Embeddings use OpenAI `text-embedding-3-small`. Production Postgres is Railway Postgres with pgvector. The questions below that these answers settle are closed; the rest stay open.
 
 - **Embedding model and provider**, which fixes the dimension, the cost and how well Bosnian works.
-- **Whether moments' notes are embedded.** They are user text: embedding them sends them to the provider (and to Langfuse, if content capture is on), and they may describe people. Leaving them out keeps moments findable by their place.
+- **Whether moments' notes are embedded.** Decided on 2026-10-14 ([answer](../../sources/conversations/2026-10-14--usput--moment-notes-in-search.md)): yes, for approved public moments only. A private or pending moment's note is never sent to OpenAI or Langfuse.
 - **Where the production Postgres runs**, and confirmation that it allows the `vector` extension.
+
+## Build notes
+
+Slices 1 and 2 landed together on 2026-10-14.
+
+- **The `vector` extension is enabled by migration**, and `browses` gains
+  `embedding` (`vector(1536)`, the native size of `text-embedding-3-small`),
+  `embedding_model` and `embedding_digest`, with an HNSW index on cosine
+  distance. `Browse` declares `has_neighbors :embedding` from the `neighbor`
+  gem already in the Gemfile, which also refuses a vector of the wrong size
+  before it reaches the database.
+- **CI is the operator's machine** since 2026-10-14
+  ([CI runs locally](../decisions/ci-runs-locally.md)), so its PostgreSQL needs
+  pgvector before `bin/ci` passes the database step. `bin/setup` names the
+  package when `db:prepare` fails (macOS `brew install pgvector`, Debian or
+  Ubuntu `postgresql-16-pgvector`). Production on Railway has it, as decided.
+- **Nothing is embedded yet**: rows carry an empty vector until slice 3, and
+  search is unchanged.
+
