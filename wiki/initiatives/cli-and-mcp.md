@@ -1,7 +1,7 @@
 ---
 title: A proper usput CLI and MCP server
 kind: initiative
-status: proposed
+status: living
 updated: 2026-10-14
 repos:
 - usput.ba
@@ -12,110 +12,88 @@ depends_on:
 sources:
 - sources/conversations/2026-10-14--usput--map-cli-merging.md
 - lib/platform/cli.rb
-- lib/platform/mcp_server.rb
 - bin/platform
-- bin/platform-mcp
 - app/policies/admin_policy.rb
 - https://ruby.sdk.modelcontextprotocol.io
+- sources/conversations/2026-10-14--usput--do-all.md
+- app/commands/usput/command.rb
+- app/commands/usput/commands.rb
+- app/commands/usput/mcp_server.rb
+- app/controllers/mcp_controller.rb
+- app/models/api_token.rb
+- app/services/decisions.rb
+- lib/usput/cli.rb
+- bin/usput
+- .mcp.json
 ---
 # A proper usput CLI and MCP server
 
-The operator asked on 2026-10-14 for "a proper CLI and MCP for usput" ([source](../../sources/conversations/2026-10-14--usput--map-cli-merging.md)). This
-page shapes what proper means here; nothing is built yet.
+## What
 
-## Objective
+One command line, `bin/usput`, and one MCP server that speak usput's own
+vocabulary rather than a query language, run under the admin's roles and
+policies, and are safe to point at production. The operator asked for "a
+proper CLI and MCP for usput" on 2026-10-14
+([source](../../sources/conversations/2026-10-14--usput--map-cli-merging.md)),
+and later that day to "do all" of the open work, which started it
+([source](../../sources/conversations/2026-10-14--usput--do-all.md)). How it
+is built, and the four choices the agent made for the operator, are in the
+[decision](../decisions/usput-commands.md).
 
-One command line and one MCP server that speak usput's own vocabulary
-(places, experiences, plans, moments, reviews, the moderation queues,
-generation and audio tours) rather than a query language, run under the
-same roles and policies as the admin, and are safe to point at production.
-The MCP server is the first step toward the [bring your own agent](bring-your-own-agent.md)
-idea.
+## How
 
-## Background
+- **Commands** (`app/commands/usput/`): each one declares its parameters and
+  whether it reads or decides, asks the actor's policy, and returns plain
+  data. 18 so far: `places list|show|archive|restore`, `experiences list|show`,
+  `plans list|show`, `search`, `moments queue|approve|reject`,
+  `reviews queue|approve|reject|judge`, `history`, `doctor`. Decisions go
+  through `Decisions` (`app/services/decisions.rb`), which the admin's
+  actions now share, so each records its Rails Event Store event once.
+- **The CLI**, `bin/usput`, prints a table or, with `--json`, JSON; `--as
+  EMAIL` names the account it acts as; bare values fill the required
+  parameters in order. Its log goes to stderr, so stdout carries only the
+  answer.
+- **The MCP server** runs on the official `mcp` gem. `bin/usput mcp` serves
+  every command over stdio (`.mcp.json` points agents in this repository at
+  it); `POST /mcp` serves the reading ones over HTTP to an admin's personal
+  access token (`bin/usput tokens issue|list|revoke`, kept as a SHA-256
+  digest). The brain's index, state and features pages are resources.
+- **Enola** holds two laws: commands never wait on the AI pipeline, and
+  never depend on the Platform DSL (`enola/constraints/usput.rb`).
 
-**Today's CLI.** `bin/platform` is a Thor CLI with four commands, `status`,
-`version`, `query` and `exec`, all of which run Platform DSL queries
-(`lib/platform/cli.rb`); its help is in Bosnian. It refuses production unless
-`PLATFORM_CLI_ENABLED=true`, and `bin/platform-prod` points it at the
-production database through `PROD_DATABASE_URL`. The DSL reads tables, runs
-mutations, generation and audio synthesis, and reads code and logs
-([Platform DSL](../architecture/platform-dsl.md)).
+## Why
 
-**Today's MCP server.** `bin/platform-mcp` is a hand-written stdio server
-(`lib/platform/mcp_server.rb`) with five tools and three resources. It refuses
-production unless `PLATFORM_MCP_ENABLED=true`, it has no authentication, and
-three of its tools are broken: `prepare_fix`, `prepare_feature` and
-`platform_prompts` call DSL commands removed on 2026-02-03, and the tests stub
-the DSL, so the suite stays green. Its `platform_execute` tool exposes the
-whole DSL, file reading and mutations included, to whoever can start it.
+The old server (`lib/platform/mcp_server.rb`, removed) had no login,
+exposed the whole DSL including file reading and mutations, and three of its
+five tools were broken while its tests stubbed the DSL. Agents and the
+operator needed the same verbs the admin offers, under the same rules, from a
+terminal and from an agent session; and the
+[bring your own agent](bring-your-own-agent.md) idea needs a server with
+authentication first.
 
-**What exists to build on.** The official Ruby SDK, `mcp` 1.7.0, implements
-servers and clients over stdio and Streamable HTTP. Obie Fernandez's
-`manceps` 1.0.1 is an MCP client with authentication, useful for testing a
-server end to end. The admin's policies (`AdminPolicy` and one per resource)
-already answer what each role may do, and `DecisionLog` records decisions in
-Rails Event Store.
+## Now
 
-## Affected personas
+- Built on 2026-10-14 and tried by hand in development: the CLI against the
+  seeded database, the stdio server driven by the gem's own client (18 tools,
+  calls and resources), and HTTP against a running server (401 without a
+  token, 12 reading tools for an admin's token, the call logged and the
+  token's last use kept, then revoked).
+- Tests: `test/commands/usput/`, `test/lib/usput/cli_test.rb`,
+  `test/integration/mcp_http_test.rb`, `test/models/api_token_test.rb`.
+- The Platform DSL and `bin/platform` stay for ad hoc queries.
 
-- **The operator and the agents working on usput**, who run content, audits
-  and generation from a terminal or an agent session.
-- **Curators**, whose agents could work the moments and reviews queues.
-- **Later, travellers' and providers' agents**, through the bring-your-own-agent
-  idea, read-only to begin with.
+## Perceived
 
-## Scope
+- `reviews judge` sends a review's text to TypeSafe as a moderation call
+  does, and records nothing; it is offered over HTTP to admins as a read.
+- Tokens are issued from a shell, not from the admin; whoever has a shell on
+  the server can already act as anyone.
 
-1. **One service layer under both.** Each command is a small object
-   (`Usput::Commands::ListPlaces`, `ApproveReview`, `GenerateDescription`, ...)
-   that takes an actor, asks the actor's policy, does one thing and, when it
-   decides something, publishes through `DecisionLog`. The CLI and the MCP
-   tools are thin doors onto the same objects, so a rule is written once.
-2. **The CLI** (`bin/usput`), in English with Bosnian content: `places`,
-   `experiences`, `plans` (list, show, search, archive, restore),
-   `moments` and `reviews` (the queues, approve, reject), `generate`
-   (description, translations, experience), `audio` (estimate, synthesize),
-   `judge` (screen a review with Jev, dry run), `doctor` (keys, queues, mine
-   data, Langfuse, Enola baseline). JSON output for agents, tables for people.
-3. **The MCP server** on the official `mcp` gem: the same commands as tools
-   with typed input schemas, resources for the schema and the brain's pages,
-   over stdio for local agents and Streamable HTTP for remote ones.
-4. **Authentication for HTTP**: a personal access token per user, created and
-   revoked in the admin, carrying that user's role; every call is recorded.
-5. **Read-only first.** The first release offers only reading commands over
-   HTTP; deciding and generating follow once the audit trail is in place.
-6. **The DSL stays** for the operator's ad hoc queries until the commands
-   cover what it is used for; the broken MCP tools are removed at once.
+## Target
 
-## No-gos
-
-- No command that bypasses a policy, and no second set of role rules.
-- No file reading, code search or log reading over HTTP.
-- No production access through `PROD_DATABASE_URL` from a laptop as the way
-  remote agents work; remote agents go through the HTTP server and tokens.
-- No prompts in Ruby strings: generation commands use `app/prompts/`.
-
-## Rabbit holes
-
-- **Two servers.** Keeping the hand-written server while building the SDK one
-  means two of everything; the old one goes when the new one covers it.
-- **Token scope.** A token per user with the user's role is simple; scoped
-  tokens (read-only, one queue) are tempting and can wait.
-- **Long calls.** Generation and audio take minutes; over MCP they should
-  enqueue a job and return its id rather than hold the connection.
-- **Enola.** New laws: commands are the only door to decisions from outside
-  a request, and MCP tools never call models directly.
-
-## Appetite
-
-Medium for the command layer, the CLI and a read-only MCP server over stdio
-and HTTP; the deciding and generating tools after that.
-
-## Decision needed
-
-- **Whether to start** now or after the rebuild's domain settles.
-- **Who may call the HTTP server in production** in its first release:
-  the operator only, curators, or anyone with an account.
-- **Where it runs**: inside the Rails app (one deploy) or as its own process.
-- **Whether the Platform DSL is retired** once the commands cover it.
+- **Generation and audio** as commands that enqueue a job and return its id
+  (`generate description`, `generate translations`, `audio estimate|synthesize`).
+- **Tokens in the admin**: list and revoke in Avo, issue from the account page.
+- **Curators over HTTP**, and deciding tools over HTTP, once the call log has
+  been watched in use; each a change to the decision.
+- **Retire the DSL** verb by verb as the commands cover what it is used for.

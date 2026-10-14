@@ -59,7 +59,7 @@ enola_intent:
 "Platform" is the name the plans give to an autonomous AI brain for
 Usput.ba. What exists in code today is narrower: a pipe-style query and
 command language (the DSL) over the application's own models, run from a
-Thor CLI (`bin/platform`) and a stdio MCP server (`bin/platform-mcp`).
+Thor CLI (`bin/platform`); its stdio MCP server was removed on 2026-10-14.
 Agents such as Claude Code call it directly. There is no built-in
 conversation loop, no `Platform::Brain` and no knowledge layer. This page
 describes what is implemented, then what the plans describe, then the gap.
@@ -167,19 +167,16 @@ curator proposals. Generation calls the LLM through `LLMHelper`
 (`RubyLLM.chat` on the default model) with prompts built inline in the
 executor, and audio calls `Ai::AudioTourGenerator`.
 
-**MCP server.** `lib/platform/mcp_server.rb` speaks JSON-RPC over stdio,
-protocol `2024-11-05`, server name `platform-mcp`. It refuses production
-unless `PLATFORM_MCP_ENABLED=true`. It lists five tools
-(`platform_execute`, `platform_status`, `platform_prompts`, `prepare_fix`,
-`prepare_feature`), three resources (`platform://schema`,
-`platform://prompts`, `platform://infrastructure`) and two prompts
-(`analyze_location`, `city_report`). `platform_execute` is the tool that
-does real work; the others build DSL strings and run them.
+**No MCP server on the DSL.** `lib/platform/mcp_server.rb` and
+`bin/platform-mcp` were removed on 2026-10-14: the server had no login,
+exposed the whole DSL with file reading and mutations through
+`platform_execute`, and three of its five tools called commands removed on
+2026-02-03. The MCP server is now `bin/usput mcp` and `POST /mcp`, on the
+usput commands rather than the DSL ([decision](../decisions/usput-commands.md)).
 
 **Tests.** `test/lib/platform/` holds tests for the CLI, the DSL (parser,
 grammar, executor, each executor module, mutations, generation, audio,
-approval, curator, introspection, validator, content validator) and the
-MCP server.
+approval, introspection, validator, content validator).
 
 ## The gap between plan and code
 
@@ -199,11 +196,10 @@ MCP server.
   self-improvement half of the introspection ADR, and the 2026-01-16 ADR
   that had restored those executors
   (`sources/planning/adr/ADR-2026-01-16-restore-all-executor-functionality.md`).
-- **Dead MCP surface.** The grammar has no `prompts` or `prepare` rule and
-  `TABLE_MAP` has no `prompts` table, so the `platform_prompts`,
-  `prepare_fix` and `prepare_feature` tools and the `platform://prompts`
-  resource return errors when called. Their tests stub `DSL.execute`, so
-  the suite stays green (`test/lib/platform/mcp_server_test.rb`).
+- **Dead MCP surface.** Settled on 2026-10-14 by removing the server: the
+  `platform_prompts`, `prepare_fix` and `prepare_feature` tools and the
+  `platform://prompts` resource returned errors while their tests stubbed
+  `DSL.execute`.
 - **Leftover scheduling.** The development and test block of
   `config/queue.yml` still schedules `Platform::StatisticsJob`,
   `Platform::SummaryGenerationJob` and `Platform::ClusterGenerationJob`,

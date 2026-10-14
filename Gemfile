@@ -91,6 +91,9 @@ gem "faraday-follow_redirects"  # Follow HTTP redirects for image downloads
 # Pagination
 gem "kaminari"
 
+# The usput commands as an MCP server (bin/usput mcp, POST /mcp)
+gem "mcp", "~> 1.7"
+
 # Error monitoring [https://rollbar.com/]
 gem "rollbar"
 

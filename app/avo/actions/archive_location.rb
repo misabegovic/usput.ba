@@ -4,13 +4,8 @@ class Avo::Actions::ArchiveLocation < Avo::BaseAction
   self.authorize = -> { AdminPolicy.new(current_user).update? }
 
   def handle(query:, current_user:, **)
-    archived = query.reject(&:archived?).select { |location| AdminPolicy.new(current_user, location).update? }
-    archived.each do |location|
-      ActiveRecord::Base.transaction do
-        location.archive!
-        DecisionLog.publish(PlaceArchived, location, by: current_user)
-      end
-    end
-    succeed I18n.t("admin.locations.archived", count: archived.size)
+    archived = query.select { |location| AdminPolicy.new(current_user, location).update? }
+                    .count { |location| Decisions.archive(location, by: current_user) }
+    succeed I18n.t("admin.locations.archived", count: archived)
   end
 end

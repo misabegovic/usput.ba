@@ -80,8 +80,7 @@ app/
 
 lib/
 └── platform/                 # Platform DSL
-    ├── dsl/                  # Query language
-    └── mcp_server.rb         # MCP integration
+    └── dsl/                  # Query language
 
 config/
 ├── database.yml              # Dual-database config
@@ -111,6 +110,23 @@ Location ←─N:M─→ LocationCategory
            via
   LocationCategoryAssignment
 ```
+
+## usput CLI and MCP
+
+The usput commands, under the same roles as the admin:
+
+```bash
+bin/usput help
+bin/usput places list city=Mostar limit=5
+bin/usput reviews queue --as curator@usput.local
+bin/usput reviews approve <review-uuid> --as curator@usput.local
+bin/usput doctor --as admin@usput.local --json
+```
+
+`bin/usput mcp` serves them to an agent over stdio (`.mcp.json` points agents
+in this repository at it). Remote agents call `POST /mcp` with a token from
+`bin/usput tokens issue EMAIL NAME`; in this first release only admins, and
+only the reading commands.
 
 ## Platform CLI
 
