@@ -303,18 +303,14 @@ module ApplicationHelper
   # Returns a random hero background image path from the hero_backgrounds folder
   # If no images are found, returns nil
   def random_hero_background
-    backgrounds_path = Rails.root.join("app/assets/images/hero_backgrounds")
-    image_extensions = %w[jpg jpeg png webp]
+    selected_file = ApplicationHelper.hero_backgrounds.sample
+    selected_file && "hero_backgrounds/#{selected_file}"
+  end
 
-    # Find all image files in the hero_backgrounds folder
-    image_files = Dir.glob(backgrounds_path.join("*.{#{image_extensions.join(',')}}"))
-
-    return nil if image_files.empty?
-
-    # Get just the filename from the randomly selected path
-    selected_file = File.basename(image_files.sample)
-
-    # Return the asset path for use in image_tag or CSS
-    "hero_backgrounds/#{selected_file}"
+  # The folder is read once per process rather than on every home page; its
+  # images ship with the code, so a new one arrives with a deploy or a reload.
+  def self.hero_backgrounds
+    @hero_backgrounds ||= Dir.glob(Rails.root.join("app/assets/images/hero_backgrounds/*.{jpg,jpeg,png,webp}"))
+                             .map { |path| File.basename(path) }.sort.freeze
   end
 end

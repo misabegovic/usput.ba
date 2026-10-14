@@ -499,4 +499,47 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Museum only"
     assert_not_includes response.body, "Museum then tower"
   end
+
+  # category_key, category_keys and every translated name used to query once
+  # per place; the count must not move when the city gains places.
+  test "generate costs the same whatever the number of places" do
+    category = LocationCategory.find_or_create_by!(key: "museum") do |cat|
+      cat.name = "Museum"
+      cat.icon = "circle"
+      cat.active = true
+      cat.position = LocationCategory.maximum(:position).to_i + 1
+    end
+    add_places = lambda do |count, offset|
+      count.times do |i|
+        place = Location.create!(name: "Spot #{offset + i}", city: "Banja Luka", lat: 44.76 + (offset + i) * 0.001,
+                                 lng: 17.19, budget: :medium, suitable_experiences: [ "culture" ])
+        place.add_category(category, primary: true)
+        @experience.add_location(place, position: offset + i + 2)
+      end
+    end
+
+    add_places.call(1, 0)
+    few = generate_queries
+    add_places.call(8, 1)
+    many = generate_queries
+
+    assert_equal few, many, "nine places cost #{many} queries against #{few} for one: a per-place query is back"
+  end
+
+  private
+
+  def generate_queries
+    params = { city_name: "Banja Luka", duration: "1" }
+    post plans_generate_path, params: params # warm
+    count = 0
+    subscriber = ActiveSupport::Notifications.subscribe("sql.active_record") do |*, payload|
+      count += 1 unless %w[SCHEMA TRANSACTION].include?(payload[:name]) || payload[:cached]
+    end
+    ActiveRecord::Base.connection.clear_query_cache
+    post plans_generate_path, params: params
+    assert_response :success
+    count
+  ensure
+    ActiveSupport::Notifications.unsubscribe(subscriber)
+  end
 end

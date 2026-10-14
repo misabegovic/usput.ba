@@ -89,16 +89,16 @@ module MineChecker
       r_cells_lon = (radius_m / (grid["dlon"] * 111_320.0 * Math.cos(lat * Math::PI / 180))).ceil
       r0 = row_for(grid, lat)
       c0 = col_for(grid, lon)
-      count = 0
-      (r0 - r_cells_lat).upto(r0 + r_cells_lat) do |r|
-        next if r.negative? || r >= grid["rows"]
+      rows = ([ r0 - r_cells_lat, 0 ].max)..([ r0 + r_cells_lat, grid["rows"] - 1 ].min)
+      # One span of the ellipse per row, counted a byte run at a time rather
+      # than cell by cell: 27 ms became under 1 ms for the 5 km minesweeper.
+      count = rows.sum do |r|
+        half = ellipse_half_width(r - r0, r_cells_lat, r_cells_lon)
+        next 0 if half.nil?
 
-        (c0 - r_cells_lon).upto(c0 + r_cells_lon) do |c|
-          next if c.negative? || c >= grid["cols"]
-          next unless ((r - r0) * 2.0 / (2 * r_cells_lat))**2 + ((c - c0) * 2.0 / (2 * r_cells_lon))**2 <= 1.0
-
-          count += 1 if bit_set?("inside", r, c)
-        end
+        first = [ c0 - half, 0 ].max
+        last = [ c0 + half, grid["cols"] - 1 ].min
+        last < first ? 0 : bits_set_in_run("inside", r * grid["cols"] + first, r * grid["cols"] + last)
       end
       (count * cell_km2).round(1)
     end
@@ -196,8 +196,25 @@ module MineChecker
       bit_set_in?(name, grid, r, c)
     end
 
-    def bit_set?(name, r, c)
-      bit_set_in?(name, @meta["grids"][name], r, c)
+    # The widest column offset dc in row offset dr that lies inside the
+    # ellipse, by the same test cell by cell would use, or nil for none. sqrt
+    # gives the guess; the two loops settle it exactly at the boundary.
+    def ellipse_half_width(dr, r_cells_lat, r_cells_lon)
+      inside = ->(dc) { (dr * 2.0 / (2 * r_cells_lat))**2 + (dc * 2.0 / (2 * r_cells_lon))**2 <= 1.0 }
+      return nil unless inside.call(0)
+
+      half = (r_cells_lon * Math.sqrt([ 1.0 - (dr.to_f / r_cells_lat)**2, 0.0 ].max)).floor
+      half += 1 while inside.call(half + 1)
+      half -= 1 until inside.call(half)
+      half
+    end
+
+    # Set bits from index first to last inclusive, bit i of a byte being
+    # Integer#[](i), as bit_set_in? reads it.
+    def bits_set_in_run(name, first, last)
+      start_byte = first >> 3
+      bytes = mask(name).byteslice(start_byte, (last >> 3) - start_byte + 1) || ""
+      bytes.unpack1("b*")[first - (start_byte << 3), last - first + 1].to_s.count("1")
     end
 
     def bit_set_in?(name, grid, r, c)
