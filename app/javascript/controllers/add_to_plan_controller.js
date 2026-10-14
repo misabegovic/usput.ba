@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import { escapeHtml } from "services/html_escape"
+import { storage } from "services/safe_storage"
 
 export default class extends Controller {
   static targets = ["addButton", "noplanMessage", "hasplanMessage", "feedback", "planSelector"]
@@ -22,27 +23,27 @@ export default class extends Controller {
 
   loadPlans() {
     try {
-      const data = localStorage.getItem(this.plansKeyValue)
+      const data = storage.getItem(this.plansKeyValue)
       if (data) {
         this.allPlans = JSON.parse(data)
       } else {
         // Migrate from old single-plan format
-        const oldPlan = localStorage.getItem("visitumo_plan")
+        const oldPlan = storage.getItem("visitumo_plan")
         if (oldPlan) {
           const plan = JSON.parse(oldPlan)
           this.allPlans = [plan]
           // Save in new format
-          localStorage.setItem(this.plansKeyValue, JSON.stringify(this.allPlans))
-          localStorage.setItem(this.activePlanKeyValue, plan.id)
+          storage.setItem(this.plansKeyValue, JSON.stringify(this.allPlans))
+          storage.setItem(this.activePlanKeyValue, plan.id)
           // Clean up old format
-          localStorage.removeItem("visitumo_plan")
+          storage.removeItem("visitumo_plan")
         } else {
           this.allPlans = []
         }
       }
 
       // Get active plan ID
-      this.selectedPlanId = localStorage.getItem(this.activePlanKeyValue)
+      this.selectedPlanId = storage.getItem(this.activePlanKeyValue)
       if (!this.selectedPlanId && this.allPlans.length > 0) {
         this.selectedPlanId = this.allPlans[0].id
       }
@@ -151,7 +152,7 @@ export default class extends Controller {
       if (planIndex !== -1) {
         this.allPlans[planIndex] = plan
       }
-      localStorage.setItem(this.plansKeyValue, JSON.stringify(this.allPlans))
+      storage.setItem(this.plansKeyValue, JSON.stringify(this.allPlans))
 
       const planName = plan.city?.display_name || plan.city?.name || 'plan'
       this.showFeedback(`Iskustvo je dodano u "${planName}"!`, "success")

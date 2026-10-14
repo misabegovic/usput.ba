@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { storage } from "services/safe_storage"
 
 // Connects to data-controller="cookie-consent"
 export default class extends Controller {
@@ -46,8 +47,8 @@ export default class extends Controller {
 
   saveConsent(value) {
     try {
-      localStorage.setItem(this.storageKeyValue, value)
-      localStorage.setItem(`${this.storageKeyValue}_date`, new Date().toISOString())
+      storage.setItem(this.storageKeyValue, value)
+      storage.setItem(`${this.storageKeyValue}_date`, new Date().toISOString())
     } catch (e) {
       // localStorage might be disabled
       console.warn("Could not save cookie consent preference:", e)
@@ -56,7 +57,7 @@ export default class extends Controller {
 
   get hasConsent() {
     try {
-      const consent = localStorage.getItem(this.storageKeyValue)
+      const consent = storage.getItem(this.storageKeyValue)
       return consent === "accepted" || consent === "declined"
     } catch (e) {
       // localStorage might be disabled

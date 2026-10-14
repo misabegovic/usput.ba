@@ -13,6 +13,14 @@ Discover Bosnia and Herzegovina. A tourism platform featuring curated locations,
 - **RubyLLM** for AI content generation
 - **Kamal** for deployment
 
+## Supported browsers
+
+Usput works on iOS 15.4 and later, and on Android phones whose browser still
+updates: Chrome and Android WebView 99, Samsung Internet 18, Firefox 115, and
+the desktop versions of the same. Older browsers still get the pages, rendered
+on the server, with a notice that the map, plans and check-ins need a newer
+browser. Why the floor sits there: `wiki/decisions/support-phones-from-ios-15.md`.
+
 ## Quick Start
 
 ```bash

@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { storage } from "services/safe_storage"
 
 // Connects to data-controller="pwa-install"
 // Shows an install prompt banner for mobile users who are not using the PWA
@@ -82,7 +83,7 @@ export default class extends Controller {
 
   isDismissed() {
     try {
-      const dismissedUntil = localStorage.getItem("pwa_install_dismissed_until")
+      const dismissedUntil = storage.getItem("pwa_install_dismissed_until")
       if (dismissedUntil) {
         return new Date().getTime() < parseInt(dismissedUntil, 10)
       }
@@ -96,7 +97,7 @@ export default class extends Controller {
     try {
       // Dismiss for 7 days
       const dismissUntil = new Date().getTime() + (7 * 24 * 60 * 60 * 1000)
-      localStorage.setItem("pwa_install_dismissed_until", dismissUntil.toString())
+      storage.setItem("pwa_install_dismissed_until", dismissUntil.toString())
     } catch (e) {
       // localStorage might not be available
     }

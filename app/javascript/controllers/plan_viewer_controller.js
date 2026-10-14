@@ -1,6 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { planSyncService } from "services/plan_sync_service"
 import { escapeHtml } from "services/html_escape"
+import { storage } from "services/safe_storage"
 
 export default class extends Controller {
   static targets = [
@@ -121,7 +122,7 @@ export default class extends Controller {
     const planId = urlParams.get('id')
     if (planId) {
       // Set this plan as active before loading
-      localStorage.setItem(this.activePlanKeyValue, planId)
+      storage.setItem(this.activePlanKeyValue, planId)
     }
   }
 
@@ -152,7 +153,7 @@ export default class extends Controller {
 
   loadPlans() {
     try {
-      const plansData = localStorage.getItem(this.plansKeyValue)
+      const plansData = storage.getItem(this.plansKeyValue)
       let parsedPlans = []
 
       if (plansData) {
@@ -160,8 +161,8 @@ export default class extends Controller {
           parsedPlans = JSON.parse(plansData)
         } catch (parseError) {
           console.error("Failed to parse plans from localStorage, clearing corrupted data:", parseError)
-          localStorage.removeItem(this.plansKeyValue)
-          localStorage.removeItem(this.activePlanKeyValue)
+          storage.removeItem(this.plansKeyValue)
+          storage.removeItem(this.activePlanKeyValue)
         }
       }
 
@@ -176,18 +177,18 @@ export default class extends Controller {
 
       // Migrate from old single-plan format if needed
       if (this.allPlans.length === 0) {
-        const oldPlan = localStorage.getItem("visitumo_plan")
+        const oldPlan = storage.getItem("visitumo_plan")
         if (oldPlan) {
           try {
             const plan = JSON.parse(oldPlan)
             if (this.isValidPlan(plan)) {
               this.allPlans = [plan]
               this.savePlans()
-              localStorage.removeItem("visitumo_plan")
+              storage.removeItem("visitumo_plan")
             }
           } catch (e) {
             console.error("Failed to migrate old plan format:", e)
-            localStorage.removeItem("visitumo_plan")
+            storage.removeItem("visitumo_plan")
           }
         }
       }
@@ -198,7 +199,7 @@ export default class extends Controller {
       }
 
       // Get active plan ID
-      const activePlanId = localStorage.getItem(this.activePlanKeyValue)
+      const activePlanId = storage.getItem(this.activePlanKeyValue)
       let activePlan = null
 
       if (activePlanId) {
@@ -234,7 +235,7 @@ export default class extends Controller {
 
   savePlans() {
     try {
-      localStorage.setItem(this.plansKeyValue, JSON.stringify(this.allPlans))
+      storage.setItem(this.plansKeyValue, JSON.stringify(this.allPlans))
 
       // Also sync to backend if logged in (debounced)
       if (planSyncService.isLoggedIn()) {
@@ -256,7 +257,7 @@ export default class extends Controller {
   }
 
   setActivePlan(planId) {
-    localStorage.setItem(this.activePlanKeyValue, planId)
+    storage.setItem(this.activePlanKeyValue, planId)
   }
 
   switchPlan(event) {
@@ -774,7 +775,7 @@ export default class extends Controller {
         this.loadRecommendations()
       } else {
         // No more plans
-        localStorage.removeItem(this.activePlanKeyValue)
+        storage.removeItem(this.activePlanKeyValue)
         this.currentPlan = null
         this.showEmpty()
       }

@@ -1,0 +1,10 @@
+{
+  "v": 1,
+  "id": "hook-585a5ed0-a332-4dd5-83ee-ac1ddd1795b2-01791966553276757645-w1791969334196024475-entered-usput.ba-langfuse",
+  "at": "2026-10-14T09:15:38Z",
+  "agent": "session",
+  "kind": "hook-injected",
+  "ref": "585a5ed0-a332-4dd5-83ee-ac1ddd1795b2",
+  "note": "gate intent-first: usput.ba-langfuse/test/services/llm_tracing_test.rb",
+  "written_ns": 1791969338807786577
+}

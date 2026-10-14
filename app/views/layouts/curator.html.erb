@@ -21,10 +21,13 @@
 
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%# Loads the import map on browsers without native support (Safari < 16.4, Firefox < 108) %>
+    <%= javascript_include_tag "es-module-shims", async: true, nonce: true %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body class="h-full bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
+    <%= render "shared/browser_floor" %>
     <div class="min-h-full">
       <!-- Navigation -->
       <nav class="bg-emerald-700 dark:bg-gray-800 dark:border-b dark:border-gray-700" data-controller="curator-menu">

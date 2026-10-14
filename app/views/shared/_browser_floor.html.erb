@@ -1,0 +1,41 @@
+<%# Usput works from iOS 15.4 and Chrome 99 (decisions/support-phones-from-ios-15).
+    Below that floor the pages still render on the server; this says why the
+    rest does not work. Styled inline, since a browser below the floor may not
+    apply the Tailwind stylesheet at all. %>
+<% notice_style = "display:block;margin:0;padding:12px 16px;background:#fef3c7;color:#78350f;font:15px/1.4 system-ui,sans-serif;text-align:center;border-bottom:1px solid #f59e0b" %>
+<noscript>
+  <p style="<%= notice_style %>"><%= t("browser_floor.no_javascript") %></p>
+</noscript>
+<p id="browser-floor-notice" role="alert" hidden style="<%= notice_style %>"><%= t("browser_floor.outdated") %></p>
+<script nonce="<%= content_security_policy_nonce %>" data-turbo-eval="false">
+  (function () {
+    function show() {
+      var notice = document.getElementById("browser-floor-notice");
+      if (notice) notice.hidden = false;
+    }
+    try {
+      // Every Tailwind rule sits in a cascade layer; a browser without layers drops them all.
+      var style = document.createElement("style");
+      var probe = document.createElement("div");
+      style.textContent = "@layer usput-probe{#usput-layer-probe{width:7px}}";
+      probe.id = "usput-layer-probe";
+      probe.style.position = "absolute";
+      document.head.appendChild(style);
+      document.body.appendChild(probe);
+      var layers = getComputedStyle(probe).width === "7px";
+      document.head.removeChild(style);
+      document.body.removeChild(probe);
+      if (!layers) return show();
+    } catch (e) {
+      return show();
+    }
+    // The module below runs only where Turbo's syntax parses.
+    window.addEventListener("load", function () {
+      if (!window.usputModernScript) show();
+    });
+  })();
+</script>
+<script type="module" nonce="<%= content_security_policy_nonce %>" data-turbo-eval="false">
+  class FloorProbe { #ready() { return true } check() { let ok; ok ??= this.#ready(); return ok } }
+  window.usputModernScript = new FloorProbe().check()
+</script>

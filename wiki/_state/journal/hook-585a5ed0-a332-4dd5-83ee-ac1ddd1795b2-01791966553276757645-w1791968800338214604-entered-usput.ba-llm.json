@@ -1,0 +1,10 @@
+{
+  "v": 1,
+  "id": "hook-585a5ed0-a332-4dd5-83ee-ac1ddd1795b2-01791966553276757645-w1791968800338214604-entered-usput.ba-llm",
+  "at": "2026-10-14T09:09:07Z",
+  "agent": "session",
+  "kind": "hook-injected",
+  "ref": "585a5ed0-a332-4dd5-83ee-ac1ddd1795b2",
+  "note": "gate intent-first: usput.ba-llm/test/services/ai/openai_queue_test.rb (a Bash call, after the write)",
+  "written_ns": 1791968947923495680
+}

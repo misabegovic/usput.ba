@@ -1,5 +1,8 @@
 ---
 en:
+  browser_floor:
+    no_javascript: Usput.ba needs JavaScript for the map, plans and check-ins. Turn it on in your browser settings to use everything.
+    outdated: This browser is too old for all of Usput.ba. You can read the pages; update the browser for the map, plans and check-ins (iOS 15.4 or Chrome 99 and later).
   app:
     name: Usput.ba
     tagline: Discover the beauty of Bosnia and Herzegovina

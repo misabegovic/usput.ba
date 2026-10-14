@@ -1,3 +1,4 @@
+import { storage } from "services/safe_storage"
 // The one owner of `usput_travel_profile`. The deck, the check-in and the
 // profile all read and write it here, so no two stores can disagree — and it is
 // the only file that knows the key carries the traveller.
@@ -20,7 +21,7 @@ export class TravelProfileService {
   read() {
     try {
       const key = this.storageKey()
-      const stored = localStorage.getItem(key) ?? this.adoptUnscopedStore(key)
+      const stored = storage.getItem(key) ?? this.adoptUnscopedStore(key)
       const profile = stored ? JSON.parse(stored) : null
       return profile && typeof profile === "object" ? this.withDefaults(profile) : this.defaultProfile()
     } catch {
@@ -37,11 +38,11 @@ export class TravelProfileService {
   adoptUnscopedStore(key) {
     if (key === STORAGE_KEY) return null
 
-    const unscoped = localStorage.getItem(STORAGE_KEY)
+    const unscoped = storage.getItem(STORAGE_KEY)
     if (unscoped === null) return null
 
-    localStorage.setItem(key, unscoped)
-    localStorage.removeItem(STORAGE_KEY)
+    storage.setItem(key, unscoped)
+    storage.removeItem(STORAGE_KEY)
     return unscoped
   }
 
@@ -60,13 +61,13 @@ export class TravelProfileService {
     const key = this.storageKey()
     if (key === STORAGE_KEY) return
 
-    localStorage.removeItem(key)
+    storage.removeItem(key)
   }
 
   write(profile) {
     try {
       profile.updatedAt = new Date().toISOString()
-      localStorage.setItem(this.storageKey(), JSON.stringify(profile))
+      storage.setItem(this.storageKey(), JSON.stringify(profile))
     } catch (error) {
       console.error("Failed to save travel profile:", error)
     }

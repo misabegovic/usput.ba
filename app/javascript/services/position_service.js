@@ -1,3 +1,4 @@
+import { storage } from "services/safe_storage"
 // Position Service
 // The only thing in the app that talks to navigator.geolocation. It asks once,
 // publishes one reading, and asks again only when the traveller says so — so
@@ -278,7 +279,7 @@ export class PositionService {
 
   persist() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...this.last, at: this.fixedAt }))
+      storage.setItem(STORAGE_KEY, JSON.stringify({ ...this.last, at: this.fixedAt }))
     } catch {
       // A full or blocked store is not worth failing a walk over.
     }
@@ -286,7 +287,7 @@ export class PositionService {
 
   stored() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY)
+      const raw = storage.getItem(STORAGE_KEY)
       const parsed = raw ? JSON.parse(raw) : null
       return parsed?.latitude && parsed?.longitude ? parsed : null
     } catch {

@@ -14,7 +14,8 @@ Rails.application.configure do
                        "https://upload.wikimedia.org",
                        "https://commons.wikimedia.org"
     policy.object_src  :none
-    policy.script_src  :self, :https
+    # blob: lets es-module-shims run rewritten modules on browsers without import maps
+    policy.script_src  :self, :https, :blob
     policy.style_src   :self, :https, :unsafe_inline  # Tailwind needs unsafe-inline
     policy.connect_src :self, :https,
                        "https://api.geoapify.com"

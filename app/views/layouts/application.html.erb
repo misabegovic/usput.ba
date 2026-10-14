@@ -47,11 +47,14 @@
     <%# Includes Tailwind CSS compiled stylesheet %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%# Loads the import map on browsers without native support (Safari < 16.4, Firefox < 108) %>
+    <%= javascript_include_tag "es-module-shims", async: true, nonce: true %>
     <%= javascript_importmap_tags %>
     <%= yield :head %>
   </head>
 
   <body class="h-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 overflow-x-hidden">
+    <%= render "shared/browser_floor" %>
     <%= render "shared/pwa_install_banner" %>
     <%= render "shared/cookie_consent" %>
     <%= render "shared/offline_banner" %>

@@ -1,5 +1,8 @@
 ---
 bs:
+  browser_floor:
+    no_javascript: Usput.ba treba JavaScript za mapu, planove i prijave na mjestima. Uključite ga u postavkama preglednika da biste koristili sve.
+    outdated: Ovaj preglednik je prestar za sve mogućnosti Usput.ba. Stranice možete čitati, a za mapu, planove i prijave na mjestima ažurirajte preglednik (iOS 15.4 ili Chrome 99 i noviji).
   app:
     name: Usput.ba
     tagline: Otkrij ljepote Bosne i Hercegovine

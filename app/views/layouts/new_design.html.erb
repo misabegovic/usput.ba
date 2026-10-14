@@ -44,10 +44,13 @@
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
 
     <%= yield :head %>
+    <%# Loads the import map on browsers without native support (Safari < 16.4, Firefox < 108) %>
+    <%= javascript_include_tag "es-module-shims", async: true, nonce: true %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body class="h-full">
+    <%= render "shared/browser_floor" %>
     <% if notice %>
       <div class="fixed top-20 left-1/2 -translate-x-1/2 z-[100] max-w-md w-full px-4 flash-message" data-controller="flash">
         <div class="rounded-lg bg-green-50 dark:bg-green-900/50 p-4 shadow-lg border border-green-200 dark:border-green-800 text-center">
