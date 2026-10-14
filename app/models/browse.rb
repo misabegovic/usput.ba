@@ -17,7 +17,8 @@ class Browse < ApplicationRecord
   scope :search, ->(query) {
     return all if query.blank?
 
-    sanitized_query = sanitize_sql_like(query.to_s.strip)
+    # A bound parameter of plainto_tsquery, which reads words, not LIKE patterns
+    sanitized_query = query.to_s.strip
     # Use plainto_tsquery for simple word matching, or websearch_to_tsquery for advanced search
     # Use sanitize_sql_array to prevent SQL injection in order clause
     order_sql = sanitize_sql_array([ "ts_rank(searchable, plainto_tsquery('simple', ?)) DESC", sanitized_query ])

@@ -110,18 +110,12 @@ class NewDesignController < ApplicationController
 
     @open_band = band_holding_named_moment
 
-    # Load city names for filter dropdown
-    @city_names = Location.not_archived.where.not(city: [ nil, "" ])
-                          .distinct
-                          .pluck(:city)
-                          .sort
-
-    # Load tags for filter dropdown
-    @tags = Location.not_archived.where.not(tags: [ nil, [] ])
-                   .pluck(:tags)
-                   .flatten
-                   .uniq
-                   .sort
+    # The filter menus read every place; they change only when a place does.
+    @city_names, @tags = Rails.cache.fetch([ "explore/filters", Location.not_archived.cache_key_with_version ]) do
+      places = Location.not_archived
+      [ places.where.not(city: [ nil, "" ]).distinct.pluck(:city).sort,
+        places.where.not(tags: [ nil, [] ]).pluck(:tags).flatten.uniq.sort ]
+    end
 
     # Load categories for filter dropdown
     @experience_categories = ExperienceCategory.active.ordered
@@ -278,82 +272,41 @@ class NewDesignController < ApplicationController
     scope.page(@moments_page).per(PER_PAGE)
   end
 
-  # Build locations from Browse results
+  # One page of a type's results, read from the search index in one query.
+  # A type's own filters (places only, public plans, audio, duration) ride the
+  # index query as a subquery, so the database filters, orders and pages
+  # together, and only the page's records are loaded. The order is the
+  # index's (apply_browse_sort), as it always was.
+  def page_from_browse(browse_scope, filter, records, page)
+    page = [ page.to_i, 1 ].max
+    matching = browse_scope.where(browsable_id: filter.select(:id))
+    ids = matching.offset((page - 1) * PER_PAGE).limit(PER_PAGE).pluck(:browsable_id)
+    by_id = ids.empty? ? {} : records.where(id: ids).index_by(&:id)
+    Kaminari.paginate_array(ids.filter_map { |id| by_id[id] }, total_count: matching.count(:all))
+            .page(page).per(PER_PAGE)
+  end
+
   def build_locations_from_browse(base_browse)
-    # Get matching location IDs from Browse
-    browse_scope = base_browse.locations
-    matching_ids = browse_scope.pluck(:browsable_id)
+    filter = Location.places
+    # audio_support is location-specific, so it is not in the index
+    filter = filter.where("EXISTS (SELECT 1 FROM audio_tours WHERE audio_tours.location_id = locations.id)") if @audio_support
 
-    return Location.none.page(1) if matching_ids.empty?
-
-    # Build the actual location query using the Browse-matched IDs
-    scope = Location.places
-                    .with_attached_photos
-                    .where(id: matching_ids)
-
-    # Apply additional filters not in Browse (audio_support is location-specific)
-    if @audio_support
-      # Use EXISTS subquery instead of joins + distinct to avoid ORDER BY issues
-      scope = scope.where("EXISTS (SELECT 1 FROM audio_tours WHERE audio_tours.location_id = locations.id)")
-    end
-
-    # Preserve the order from Browse search (by relevance)
-    # Use sanitized SQL to prevent SQL injection (matching_ids are integers from DB)
-    scope = scope.order(Arel.sql(ActiveRecord::Base.sanitize_sql_array([ "array_position(ARRAY[?]::bigint[], locations.id)", matching_ids ]))) if matching_ids.any?
-    scope = apply_location_sort(scope) unless @sort == "relevance"
-
-    scope.page(@locations_page).per(PER_PAGE)
+    page_from_browse(base_browse.locations, filter, Location.places.with_attached_photos, @locations_page)
   end
 
-  # Build experiences from Browse results
   def build_experiences_from_browse(base_browse)
-    # Get matching experience IDs from Browse
-    browse_scope = base_browse.experiences
-    matching_ids = browse_scope.pluck(:browsable_id)
+    filter = Experience.all
+    filter = filter.by_duration(@duration) if @duration.present?
 
-    return Experience.none.page(1) if matching_ids.empty?
-
-    # Build the actual experience query using the Browse-matched IDs
-    scope = Experience.includes(:experience_category)
-                      .with_attached_cover_photo
-                      .where(id: matching_ids)
-
-    # Apply additional filters not in Browse
-    if @duration.present?
-      scope = scope.by_duration(@duration)
-    end
-
-    # Preserve the order from Browse search (by relevance)
-    # Use sanitized SQL to prevent SQL injection (matching_ids are integers from DB)
-    scope = scope.order(Arel.sql(ActiveRecord::Base.sanitize_sql_array([ "array_position(ARRAY[?]::bigint[], experiences.id)", matching_ids ]))) if matching_ids.any?
-    scope = apply_experience_sort(scope) unless @sort == "relevance"
-
-    scope.page(@experiences_page).per(PER_PAGE)
+    page_from_browse(base_browse.experiences, filter,
+                     Experience.includes(:experience_category).with_attached_cover_photo, @experiences_page)
   end
 
-  # Build plans from Browse results
   def build_plans_from_browse(base_browse)
-    # Get matching plan IDs from Browse
-    browse_scope = base_browse.plans
-    matching_ids = browse_scope.pluck(:browsable_id)
+    filter = Plan.public_plans
+    filter = filter.by_duration(@duration) if @duration.present?
 
-    return Plan.none.page(1) if matching_ids.empty?
-
-    # Build the actual plan query using the Browse-matched IDs
-    scope = Plan.public_plans
-                .where(id: matching_ids)
-
-    # Apply additional filters not in Browse
-    if @duration.present?
-      scope = scope.by_duration(@duration)
-    end
-
-    # Preserve the order from Browse search (by relevance)
-    # Use sanitized SQL to prevent SQL injection (matching_ids are integers from DB)
-    scope = scope.order(Arel.sql(ActiveRecord::Base.sanitize_sql_array([ "array_position(ARRAY[?]::bigint[], plans.id)", matching_ids ]))) if matching_ids.any?
-    scope = apply_plan_sort(scope) unless @sort == "relevance"
-
-    scope.page(@plans_page).per(PER_PAGE)
+    page_from_browse(base_browse.plans, filter, Plan.public_plans, @plans_page)
   end
 
   # Apply sorting to Browse query
@@ -367,172 +320,6 @@ class NewDesignController < ApplicationController
       scope.by_name
     else # relevance
       scope.by_relevance
-    end
-  end
-
-  def build_locations_query
-    scope = Location.places.with_attached_photos
-
-    # Text search
-    if @query.present?
-      scope = scope.where("LOWER(locations.name) LIKE :q OR LOWER(locations.description) LIKE :q",
-                          q: "%#{@query.downcase}%")
-    end
-
-    # Season filter - locations are always available (no season restriction)
-    # Season filtering is primarily for experiences
-
-    # Budget filter
-    if @budget.present?
-      scope = scope.by_budget(@budget)
-    end
-
-    # Rating filter
-    if @min_rating.present?
-      scope = scope.by_min_rating(@min_rating)
-    end
-
-    # City filter
-    if @city_name.present?
-      scope = scope.by_city(@city_name)
-    end
-
-    # Audio support filter
-    if @audio_support
-      # Use EXISTS subquery instead of joins + distinct to avoid ORDER BY issues
-      scope = scope.where("EXISTS (SELECT 1 FROM audio_tours WHERE audio_tours.location_id = locations.id)")
-    end
-
-    # Nearby filter
-    if @lat.present? && @lng.present?
-      scope = scope.nearby(@lat, @lng, radius_km: @radius)
-    end
-
-    # Sorting
-    scope = apply_location_sort(scope)
-
-    scope.page(@locations_page).per(PER_PAGE)
-  end
-
-  def build_experiences_query
-    scope = Experience.includes(:experience_category).with_attached_cover_photo
-
-    # Text search
-    if @query.present?
-      scope = scope.where("LOWER(experiences.title) LIKE :q OR LOWER(experiences.description) LIKE :q",
-                          q: "%#{@query.downcase}%")
-    end
-
-    # Season filter
-    if @season.present?
-      scope = scope.by_season(@season)
-    end
-
-    # Duration filter
-    if @duration.present?
-      scope = scope.by_duration(@duration)
-    end
-
-    # Rating filter
-    if @min_rating.present?
-      scope = scope.by_min_rating(@min_rating)
-    end
-
-    # City filter (through locations)
-    if @city_name.present?
-      scope = scope.by_city_name(@city_name)
-    end
-
-    # Nearby filter
-    if @lat.present? && @lng.present?
-      scope = scope.nearby(@lat, @lng, radius_km: @radius)
-    end
-
-    # Sorting
-    scope = apply_experience_sort(scope)
-
-    scope.page(@experiences_page).per(PER_PAGE)
-  end
-
-  def build_plans_query
-    scope = Plan.public_plans
-
-    # Text search
-    if @query.present?
-      scope = scope.search_by_text(@query)
-    end
-
-    # Duration filter
-    if @duration.present?
-      scope = scope.by_duration(@duration)
-    end
-
-    # City filter
-    if @city_name.present?
-      scope = scope.by_city_name(@city_name)
-    end
-
-    # Nearby filter (using locations within plans)
-    if @lat.present? && @lng.present?
-      scope = scope.nearby_by_locations(@lat, @lng, radius_km: @radius)
-    end
-
-    # Sorting
-    scope = apply_plan_sort(scope)
-
-    scope.page(@plans_page).per(PER_PAGE)
-  end
-
-  def apply_location_sort(scope)
-    case @sort
-    when "rating"
-      scope.order(average_rating: :desc)
-    when "newest"
-      scope.order(created_at: :desc)
-    when "name"
-      scope.order(:name)
-    else # relevance or default
-      if @query.present?
-        # Use sanitized SQL to prevent SQL injection
-        sanitized_query = ActiveRecord::Base.sanitize_sql_like(@query.downcase)
-        scope.order(Arel.sql(ActiveRecord::Base.sanitize_sql_array([ "CASE WHEN LOWER(locations.name) LIKE ? THEN 0 ELSE 1 END", "#{sanitized_query}%" ])), :name)
-      else
-        scope.order(average_rating: :desc, reviews_count: :desc)
-      end
-    end
-  end
-
-  def apply_experience_sort(scope)
-    case @sort
-    when "rating"
-      scope.order(average_rating: :desc)
-    when "newest"
-      scope.order(created_at: :desc)
-    when "duration"
-      scope.order(:estimated_duration)
-    when "name"
-      scope.order(:title)
-    else # relevance or default
-      if @query.present?
-        # Use sanitized SQL to prevent SQL injection
-        sanitized_query = ActiveRecord::Base.sanitize_sql_like(@query.downcase)
-        scope.order(Arel.sql(ActiveRecord::Base.sanitize_sql_array([ "CASE WHEN LOWER(experiences.title) LIKE ? THEN 0 ELSE 1 END", "#{sanitized_query}%" ])), :title)
-      else
-        scope.order(average_rating: :desc, reviews_count: :desc)
-      end
-    end
-  end
-
-  def apply_plan_sort(scope)
-    case @sort
-    when "rating"
-      scope.order(average_rating: :desc)
-    when "newest"
-      scope.order(created_at: :desc)
-    when "name"
-      scope.order(:title)
-    else # relevance or default
-      scope.order(created_at: :desc)
     end
   end
 
