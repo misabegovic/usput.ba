@@ -232,18 +232,7 @@ puts "Created #{Setting.count} settings"
 # Seed Demo Users
 puts "Seeding demo users..."
 
-demo_users = [
-  { username: "admin", password: "admin123", user_type: :admin },
-  { username: "curator", password: "curator123", user_type: :curator },
-  { username: "user", password: "user123", user_type: :basic }
-]
-
-demo_users.each do |user_data|
-  User.find_or_create_by!(username: user_data[:username]) do |user|
-    user.password = user_data[:password]
-    user.user_type = user_data[:user_type]
-  end
-end
+load Rails.root.join("db/seeds/demo_users.rb")
 
 puts "Created #{User.count} users"
 
@@ -946,7 +935,7 @@ puts "Created #{Review.count} reviews"
 puts "Seeding complete!"
 puts ""
 puts "=== Demo Accounts ==="
-puts "Admin:   username: admin,   password: admin123"
-puts "Curator: username: curator, password: curator123"
-puts "User:    username: user,    password: user123"
+puts "Admin:   email: admin@usput.local,   password: admin123"
+puts "Curator: email: curator@usput.local, password: curator123"
+puts "User:    email: user@usput.local,    password: user123"
 puts "====================="
