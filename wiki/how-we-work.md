@@ -2,11 +2,14 @@
 title: How we work
 kind: meta
 status: living
-updated: 2026-09-29
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
 sources:
+- sources/conversations/2026-10-14--usput--event-store-compile-one-repo.md
+- sources/conversations/2026-10-08--usput--done-means-delivered-and-working.md
+- sources/conversations/2026-10-08--usput--merge-with-admin.md
 - AGENTS.md
 - .claude/agents/content-director.md
 - .github/workflows/ci.yml
@@ -40,6 +43,15 @@ after they land.
 The point of keeping them together is that they cannot drift apart without
 someone noticing. A pull request that changes what the product does also
 changes what the brain says about it. A reviewer sees both in one diff.
+
+Everything about usput lives in this repository (the operator, 2026-10-14).
+Notes kept about usput in the operator's other brains were brought in as
+sources on that day: the estate brain's usput conversations under
+`sources/conversations/`, and the phone brain's pages and repository
+snapshots under `sources/phone-brain/`. The estate brain's own usput pages
+stay there: they summarise this wiki and sit beside private projects, and
+this repository is public. The Remotion
+project that renders the promo video lives in `promo/`.
 
 ## Intent before code
 
@@ -79,6 +91,15 @@ a human: what is better for the traveller or the curator, what was wrong,
 and how it is kept safe. The same checks CI runs (rubocop, erb_lint, the
 full test suite) are run locally before anything is pushed, so a red build
 is a surprise rather than a routine.
+
+Merging is the operator's step. `main` is protected and asks for an
+approval from someone other than the author, so an agent opens pull requests
+and drives them to green, and the operator merges. When the operator asked
+on 2026-10-08 to drive three pull requests "to the end", they defined it as
+"done and delivered and working": merged, deployed from `main` and checked
+in production, with a revert if production breaks. That time they allowed a
+merge with `gh pr merge --admin` for those three only; the permission does
+not carry over to later pull requests.
 
 Outside contributions are taken seriously and kept whole. The accessibility
 work Delaida Muminovic proposed in #154 had drifted six months behind main.

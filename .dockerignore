@@ -3,3 +3,5 @@
 /sources/
 /log/log.md
 /brain.config.yml
+# The promo video project is built on its own (promo/package.json)
+/promo/

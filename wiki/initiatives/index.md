@@ -37,6 +37,7 @@ On 2026-09-30 the operator decided to rebuild usput from scratch, in place, with
 
 ## In flight or shipped
 
+- [Wider mobile browser support](wider-mobile-browser-support.md): phones from iOS 15 and Android of about 2019, decided 2026-10-14; the build is next.
 - [Location accessibility](location-accessibility.md): shipped 2026-09-29; the gaps that remain.
 
 ## Superseded
@@ -46,4 +47,6 @@ On 2026-09-30 the operator decided to rebuild usput from scratch, in place, with
 
 ## Backlog
 
+- [Redesign usput end to end with Impeccable](impeccable-redesign.md): proposed 2026-10-14, with a marketer's advice on the home page as input.
+- [Bring your own agent](bring-your-own-agent.md): an idea from 2026-08-02, usput reachable by travellers' and providers' own AI agents over MCP.
 - [Open issues](open-issues.md): the GitHub issues, grouped, with what recent work already covers.

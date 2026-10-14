@@ -22,6 +22,7 @@ Architecture decision records, one choice per page. Accepted pages describe the 
 
 ## Accepted
 
+- [Support phones from iOS 15 and Android of about 2019](support-phones-from-ios-15.md)
 - [Capturing a moment needs a check-in at the place](capture-needs-a-check-in.md)
 - [Accounts through Devise, signed in by email](accounts-through-devise.md)
 - [Audio tours are paid by subscription; everything else stays free](audio-tours-by-subscription.md)
@@ -44,6 +45,7 @@ Architecture decision records, one choice per page. Accepted pages describe the 
 
 ## Superseded
 
+- [Defer wider mobile browser support](defer-wider-mobile-browser-support.md)
 - [AI changes arrive as suggestions marked with their origin](ai-suggestions-carry-origin.md)
 - [Post-moderated reviews with curator flagging](post-moderated-reviews.md)
 - [Replace ContentChange with per-resource suggestion models](per-resource-suggestion-models.md)
