@@ -11,7 +11,7 @@ class LocationsControllerTest < ActionDispatch::IntegrationTest
       city: "Sarajevo",
       lat: 43.8563,
       lng: 18.4131,
-      location_type: :place
+      test_category: :place
     )
 
     # Create another location for nearby tests
@@ -21,7 +21,7 @@ class LocationsControllerTest < ActionDispatch::IntegrationTest
       city: "Sarajevo",
       lat: 43.8570,
       lng: 18.4140,
-      location_type: :restaurant
+      test_category: :restaurant
     )
 
     # Create an experience that includes this location

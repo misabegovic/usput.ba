@@ -11,7 +11,7 @@ class BrowseAdapterTest < ActiveSupport::TestCase
       city: "Sarajevo",
       lat: 43.8563,
       lng: 18.4131,
-      location_type: :place,
+      test_category: :place,
       budget: :medium,
       tags: [ "culture", "history" ],
       seasons: [ "spring", "summer", "fall", "winter" ],
@@ -100,7 +100,7 @@ class BrowseAdapterTest < ActiveSupport::TestCase
       city: "Sarajevo",
       lat: 43.86,
       lng: 18.42,
-      location_type: :guide
+      test_category: :guide
     )
 
     attrs = BrowseAdapter.attributes_for(contact)

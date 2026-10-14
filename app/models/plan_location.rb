@@ -1,6 +1,9 @@
 class PlanLocation < ApplicationRecord
   # Asocijacije
   belongs_to :plan
+
+  # The plan's search row places and describes it by what it holds.
+  after_commit -> { Browse.sync_plans([ plan_id ]) }
   belongs_to :location
 
   # Validacije

@@ -2,7 +2,7 @@
 title: Location accessibility
 kind: initiative
 status: living
-updated: 2026-09-29
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
@@ -72,15 +72,18 @@ A traveller in a wheelchair cannot use a plan that sends them to stairs. Issue #
 - Merged into main through #168 (7955ae9) on 2026-09-29, on top of the September traveller work.
 - The data model, filters, place page and curator form work end to end for places whose accessibility is recorded.
 - For every place without data, `wheelchair_access` reads unknown, `wheelchair_accessible?` is false, and the accessible filter hides it.
+- Since 2026-10-14 experiences and plans pass the filter too: an experience is accessible when it reaches at least one place and every live place on it is accessible, and a plan the same over its experiences' places and its own stops (`app/services/browse_adapter.rb`). Before, their Browse rows never carried the flag, so turning the filter on hid every experience and plan.
+- Since 2026-10-14 a place's change re-syncs the Browse rows of its experiences, the plans that reach it and its moments, so a moment, an experience or a plan follows its place's accessibility (`Browse.sync_dependents_of`, `app/models/location.rb`). The load-more url keeps the filter, and a search that widens around one place applies it to the neighbours.
+- Since 2026-10-14 the plan wizard keeps the accessibility requirement when nothing matches the other preferences, and leaves out any experience with a place that is not accessible (`app/controllers/plans_controller.rb`).
 
 ## Perceived
 
 - The toggle reads as "show accessible places"; in practice it means "show places a curator has marked accessible". With little data recorded, turning it on shows few results, which a traveller may read as "few accessible places exist". How many places have data is (unknown, needs source): it depends on the production database.
-- A moment is only as accessible as its place's Browse row was when the moment was last saved (see Target).
+- An experience or a plan with one place of unknown accessibility does not pass the filter, which is right for a traveller who needs it and reads as "few accessible outings" while data is thin.
 
 ## Target
 
-- **Re-sync moments when a place changes.** Browse rows sync on each record's own save (`app/models/concerns/browsable.rb`). A place's save updates the place's row, but nothing re-syncs the Browse rows of its moments, so a moment keeps the old `wheelchair_accessible` value until the moment itself is saved. The same holds for the other filters moments read from their place.
+- **Re-sync moments when a place changes.** Done 2026-10-14 (see Now); it covers experiences and plans as well, for every attribute they copy from a place except its categories, which change through their own join rows.
 - **Fill the data for existing places.** Most places are unknown. Options are a curator pass, traveller reports, or an AI-assisted first guess marked for review; none is chosen.
 - **Close or update issue #15** now that #168 is merged, noting what is covered (wheelchair access) and what is not (for example, visual or hearing accessibility, which the model has no fields for).
 - **Consider an "unknown" choice** on the filter, so travellers can see places that are not ruled out.

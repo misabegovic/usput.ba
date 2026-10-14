@@ -24,7 +24,7 @@ class TravelProfilesControllerTest < ActionDispatch::IntegrationTest
       city: "Sarajevo",
       lat: 43.8563,
       lng: 18.4131,
-      location_type: :place,
+      test_category: :place,
       budget: :medium,
       tags: [ "culture", "history" ]
     )

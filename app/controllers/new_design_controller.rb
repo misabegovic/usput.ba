@@ -117,9 +117,6 @@ class NewDesignController < ApplicationController
         places.where.not(tags: [ nil, [] ]).pluck(:tags).flatten.uniq.sort ]
     end
 
-    # Load categories for filter dropdown
-    @experience_categories = ExperienceCategory.active.ordered
-
     # Handle partial/AJAX requests for "Load More" functionality
     if params[:partial].present? && request.xhr?
       render_partial_for(params[:partial])
@@ -145,24 +142,11 @@ class NewDesignController < ApplicationController
 
   # Build queries using the Browse model for optimized full-text search
   def build_browse_queries(search_types)
-    # Build base Browse query with common filters
-    base_browse = Browse.smart_search(@query)
-    base_browse = base_browse.by_city_name(@city_name) if @city_name.present?
-    base_browse = base_browse.by_tag(@tag) if @tag.present?
-    base_browse = base_browse.by_min_rating(@min_rating) if @min_rating.present?
-    base_browse = base_browse.by_season(@season) if @season.present?
-    base_browse = base_browse.by_budget(@budget) if @budget.present?
-    base_browse = base_browse.by_origin(@origin) if @origin.present?
-    base_browse = base_browse.by_accessible(@accessible) if @accessible
+    base_browse = apply_browse_filters(Browse.smart_search(@query))
     base_browse = base_browse.nearby(@lat, @lng, radius_km: @radius) if @lat.present? && @lng.present?
 
-    # Check if search matches a single place - if so, expand to nearby items
-    single_place_expansion = find_single_place_for_expansion(base_browse)
-    if single_place_expansion
-      @matched_place = single_place_expansion[:place]
-      @nearby_radius = 10 # 10 km radius for single place expansion
-      base_browse = single_place_expansion[:expanded_browse]
-    end
+    # A search naming exactly one place widens to what lies around it
+    base_browse = widen_around_single_place(base_browse) || base_browse
 
     base_browse = apply_browse_sort(base_browse)
 
@@ -244,7 +228,7 @@ class NewDesignController < ApplicationController
   # page, and an id would re-name a moment on every fetch.
   def filter_params
     params.permit(:q, :season, :budget, :duration, :min_rating, :city_name, :tag,
-                  :origin, :audio_support, :lat, :lng, :radius, :sort, types: [])
+                  :origin, :audio_support, :accessible, :lat, :lng, :radius, :sort, types: [])
           .to_h.reject { |_, value| value.blank? }
   end
 
@@ -252,7 +236,7 @@ class NewDesignController < ApplicationController
   # at places since retired that browse no longer indexes.
   def filters_active?
     @query.present? || @city_name.present? || @tag.present? || @season.present? || @budget.present? ||
-      @min_rating.present? || @origin.present? || (@lat.present? && @lng.present?)
+      @min_rating.present? || @origin.present? || @accessible || (@lat.present? && @lng.present?)
   end
 
   def build_moments_from_browse(base_browse)
@@ -323,39 +307,35 @@ class NewDesignController < ApplicationController
     end
   end
 
-  # Check if the search query matches exactly one place (Location)
-  # If so, expand to include all nearby items within 10km radius
-  def find_single_place_for_expansion(base_browse)
+  # Every filter the traveller set, whichever rows they narrow: the search's
+  # own matches and, when a search widens around a place, its neighbours too.
+  def apply_browse_filters(scope)
+    scope = scope.by_city_name(@city_name) if @city_name.present?
+    scope = scope.by_tag(@tag) if @tag.present?
+    scope = scope.by_min_rating(@min_rating) if @min_rating.present?
+    scope = scope.by_season(@season) if @season.present?
+    scope = scope.by_budget(@budget) if @budget.present?
+    scope = scope.by_origin(@origin) if @origin.present?
+    scope = scope.by_accessible(@accessible) if @accessible
+    scope
+  end
+
+  # When the search matches exactly one place, the results are what matches
+  # the words or lies within 10 km of that place, with the same filters on
+  # both. nil when there is nothing to widen.
+  def widen_around_single_place(base_browse)
     return nil if @query.blank?
     return nil if @lat.present? && @lng.present? # Already using nearby filter
 
-    # Check if query matches exactly one location
-    matching_locations = base_browse.locations.limit(2)
-    return nil unless matching_locations.count == 1
+    matching_locations = base_browse.locations.limit(2).pluck(:browsable_id)
+    return nil unless matching_locations.one?
 
-    # Get the matched location
-    browse_record = matching_locations.first
-    location = Location.find_by(id: browse_record.browsable_id)
+    location = Location.find_by(id: matching_locations.first)
     return nil unless location&.geocoded?
 
-    # Build expanded browse query including all items within 10km radius
-    # Start fresh with smart_search to preserve text relevance
-    expanded_browse = Browse.smart_search(@query)
-    expanded_browse = expanded_browse.by_city_name(@city_name) if @city_name.present?
-    expanded_browse = expanded_browse.by_min_rating(@min_rating) if @min_rating.present?
-    expanded_browse = expanded_browse.by_season(@season) if @season.present?
-    expanded_browse = expanded_browse.by_budget(@budget) if @budget.present?
-    expanded_browse = expanded_browse.by_origin(@origin) if @origin.present?
-
-    # Now add nearby items that match the search OR are within 10km of the matched location
-    nearby_browse = Browse.nearby(location.lat, location.lng, radius_km: 10)
-
-    # Combine: items matching search query OR items nearby the matched location
-    expanded_browse = expanded_browse.or(nearby_browse)
-
-    {
-      place: location,
-      expanded_browse: expanded_browse
-    }
+    # The words' matches by id, so the union carries no ranking order for #or
+    # to refuse; the sort applied after it orders the whole set.
+    words = Browse.where(id: Browse.smart_search(@query).select(:id))
+    apply_browse_filters(words.or(Browse.nearby(location.lat, location.lng, radius_km: 10)))
   end
 end

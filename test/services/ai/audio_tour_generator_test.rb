@@ -675,7 +675,7 @@ module Ai
         id: id || rand(1000..9999),
         name: name,
         city: mock_city,
-        location_type: "place",
+        test_category: "place",
         tags: [ "historical", "cultural" ],
         suitable_experiences: [ "culture", "history" ],
         audio_tour_metadata: {}

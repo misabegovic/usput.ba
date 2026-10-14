@@ -56,7 +56,7 @@ class GuestVisitsImporter
   # what the traveller already has, insert the rest in one statement.
   def import_visits
     plan = Plan.explore_bosnia_for(@user)
-    location_ids = Location.where(uuid: location_uuids).pluck(:id)
+    location_ids = Location.not_archived.where(uuid: location_uuids).pluck(:id)
     return if location_ids.empty?
 
     already_visited = @user.plan_visits.where(plan: plan, location_id: location_ids).pluck(:location_id)

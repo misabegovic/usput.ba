@@ -41,7 +41,8 @@ class MomentsController < ApplicationController
   def create
     @moment = current_user.moments.build(moment_params.merge(photo: CameraPhoto.as_jpeg(params.dig(:moment, :photo))))
     @moment.plan = @plan
-    @moment.location = Location.find_by_public_id!(params[:moment][:location_id])
+    # Moments taken before a place retired survive it; new ones are not taken there.
+    @moment.location = Location.not_archived.find_by_public_id!(params[:moment][:location_id])
 
     respond_to do |format|
       if @moment.save

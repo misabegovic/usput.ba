@@ -3,6 +3,7 @@ class ReviewsController < ApplicationController
   # decided (decided 2026-09-30: reviews require signing in).
   before_action :require_login, only: :create
   before_action :set_reviewable
+  before_action :refuse_closed_reviewable, only: :create
 
   def index
     @page = (params[:page] || 1).to_i
@@ -63,6 +64,17 @@ class ReviewsController < ApplicationController
         format.turbo_stream { head :not_found }
       end
     end
+  end
+
+  # A retired place and a private plan are on no public page, so nobody
+  # reviews them; asking is answered as if they did not exist.
+  def refuse_closed_reviewable
+    closed = case @reviewable
+    when Location then @reviewable.archived?
+    when Plan then !@reviewable.visibility_public_plan?
+    else false
+    end
+    raise ActiveRecord::RecordNotFound if closed
   end
 
   def review_params

@@ -55,7 +55,8 @@ class BrowseAdapter
         budget: nil, # Experiences don't have budget
         category_keys: [ experience.category_key ].compact,
         seasons: experience.seasons,
-        ai_generated: experience.ai_generated
+        ai_generated: experience.ai_generated,
+        wheelchair_accessible: all_wheelchair_accessible?(experience.locations.not_archived)
       }
     end
 
@@ -63,8 +64,11 @@ class BrowseAdapter
       # Only sync public plans
       return nil unless plan.visibility_public_plan?
 
-      # Get coordinates from the plan's first experience location
-      first_location = plan.experiences.flat_map(&:locations).first
+      # A plan reaches places through its experiences and as stops of its own;
+      # its coordinates are its first place's.
+      location_ids = plan.reachable_location_ids
+      plan_locations = Location.where(id: location_ids).index_by(&:id).values_at(*location_ids).compact
+      first_location = plan_locations.first
 
       # Aggregate seasons from all experiences in the plan
       plan_seasons = plan.experiences.flat_map(&:seasons).uniq
@@ -81,7 +85,8 @@ class BrowseAdapter
         budget: nil, # Plans don't have budget
         category_keys: [],
         seasons: plan_seasons,
-        ai_generated: plan.ai_generated
+        ai_generated: plan.ai_generated,
+        wheelchair_accessible: all_wheelchair_accessible?(plan_locations)
       }
     end
 
@@ -109,6 +114,13 @@ class BrowseAdapter
         ai_generated: false,
         wheelchair_accessible: location.wheelchair_accessible?
       }
+    end
+
+    # Accessible only when there is somewhere to go and every place on the way
+    # is accessible; one step-only stop makes the whole outing inaccessible.
+    def all_wheelchair_accessible?(locations)
+      locations = locations.to_a
+      locations.any? && locations.all?(&:wheelchair_accessible?)
     end
 
     # Build searchable description for a moment
@@ -162,9 +174,11 @@ class BrowseAdapter
       parts << plan.notes if plan.notes.present?
       parts << plan.city_name if plan.city_name.present?
 
-      # Include experience titles for searchability
+      # Include experience titles and the plan's own stops for searchability
       experience_titles = plan.experiences.pluck(:title).join(" ")
       parts << experience_titles if experience_titles.present?
+      stop_names = plan.location_items.pluck(:name).join(" ")
+      parts << stop_names if stop_names.present?
 
       parts.join(" ")
     end

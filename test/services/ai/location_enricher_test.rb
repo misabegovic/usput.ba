@@ -265,6 +265,26 @@ module Ai
       end
     end
 
+    test "create_and_enrich creates a place with its primary category" do
+      restaurant = LocationCategory.find_or_create_by!(key: "restaurant") do |category|
+        category.name = "Restaurant"
+        category.icon = "utensils"
+        category.active = true
+        category.position = LocationCategory.maximum(:position).to_i + 1
+      end
+      place_data = { name: "Ćevabdžinica Testna", lat: 43.8590, lng: 18.4310,
+                     categories: [ "catering.restaurant" ] }
+
+      result = Ai::OpenaiQueue.stub :request, ->(*) { raise Ai::OpenaiQueue::RequestError, "offline" } do
+        @enricher.create_and_enrich(place_data, city: "Sarajevo")
+      end
+
+      assert_kind_of Location, result
+      assert result.persisted?
+      assert_equal restaurant, result.primary_category
+      assert result.ai_generated
+    end
+
     # === add_tags_from_categories tests ===
 
     test "add_tags_from_categories extracts tags from category strings" do
@@ -722,7 +742,7 @@ module Ai
         city: city,
         lat: lat,
         lng: lng,
-        location_type: "place",
+        test_category: "place",
         tags: [],
         suitable_experiences: [],
         audio_tour_metadata: {}

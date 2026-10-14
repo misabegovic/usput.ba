@@ -31,28 +31,28 @@ require_relative "../config/environment"
 require "rails/test_help"
 require "minitest/mock"
 
-# Monkey patch Location for tests to handle deprecated location_type parameter
+# Tests name a place's primary category as it is built: `test_category: :place`
+# finds or creates that category and assigns it after create. The name is
+# deliberately not a real attribute, so app code that writes a column Location
+# does not have still fails here as it does in production.
 class Location
-  # Store location_type temporarily before creation
-  attr_accessor :_temp_location_type
+  attr_accessor :_test_category
 
-  # Override initialize to capture location_type
   alias_method :original_initialize, :initialize
   def initialize(attributes = {})
-    attributes ||= {}
-    @_temp_location_type = attributes.delete(:location_type) || attributes.delete("location_type")
+    attributes = (attributes || {}).dup
+    @_test_category = attributes.delete(:test_category) || attributes.delete("test_category")
     original_initialize(attributes)
   end
 
-  # After create, add category based on temp location_type
-  after_create :add_category_from_temp_type
+  after_create :add_category_from_test_category
 
   private
 
-  def add_category_from_temp_type
-    return unless @_temp_location_type
+  def add_category_from_test_category
+    return unless @_test_category
 
-    category_key = @_temp_location_type.to_s
+    category_key = @_test_category.to_s
     category = LocationCategory.find_or_create_by!(key: category_key) do |cat|
       cat.name = category_key.titleize
       cat.icon = "circle"

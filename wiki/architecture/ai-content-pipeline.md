@@ -77,7 +77,7 @@ site. This page describes that pipeline and where it is headed.
 | `Ai::LocationEnricher::MetadataGenerator` | Tags, tips, experience type hints | `location_enricher/metadata.md.erb` |
 | `Ai::LocationEnricher::Applicator` | Writes translations, experience types (calling `Ai::ExperienceTypeClassifier`), tags and practical info onto the location | none |
 | `Ai::ExperienceTypeClassifier` | Experience types for a location, with optional hints and a dry run | `experience_type_classifier/system.md.erb`, `classify.md.erb` |
-| `Ai::ExperienceLocationSyncer` | Finds places mentioned in an experience description (minimum confidence 0.6), matches them in the database or creates them through Geoapify and the enricher, and attaches them | `experience_location_syncer/extract_locations.md.erb` |
+| `Ai::ExperienceLocationSyncer` | Finds places mentioned in an experience description (minimum confidence 0.6), matches them in the database or creates them through Geoapify and the enricher, and attaches them. Until 2026-10-14 creation always failed on a `location_type` column that no longer exists, hidden by a test shim; the enricher now gives the new place the primary category Geoapify's categories name, when usput has one by that key | `experience_location_syncer/extract_locations.md.erb` |
 | `Ai::AudioTourGenerator` | A narration script per locale, then audio through ElevenLabs (`eleven_multilingual_v2` by default) or OpenAI TTS, attached to an `AudioTour` through Active Storage | `audio_tour_generator/script.md.erb` |
 
 `Ai::BihContext::BIH_CULTURAL_CONTEXT` is shared context injected into the
@@ -152,8 +152,10 @@ second, and the DSL's external executor uses its `with_delay`.
 
 There is no web action that starts AI generation. The entry points are:
 
-- `rake audio_tours:generate`, `generate_city`, `generate_missing`,
-  `preview` and `status` (`lib/tasks/audio_tours.rake`);
+- `rake audio_tours:generate`, `generate_city` (by the city's name, since
+  2026-10-14; it used to look up a `City` model that no longer exists),
+  `generate_missing` (both skip retired places), `preview` and `status`
+  (`lib/tasks/audio_tours.rake`);
 - `rake experience_types:populate_missing` and a classifier smoke test in
   `lib/tasks/experience_types_cleanup.rake`;
 - the Platform DSL: `generate description`, `generate translations`,

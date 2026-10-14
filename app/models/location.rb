@@ -69,6 +69,13 @@ class Location < ApplicationRecord
   # Sync JSON cache from relational data when experience_types association changes
   after_save :sync_suitable_experiences_cache, if: :should_sync_experience_types?
 
+  # What a place's experiences, plans and moments copy into their own search
+  # rows; a change to any of it is synced into theirs too.
+  BROWSE_DEPENDENT_ATTRIBUTES = %w[name city lat lng tags accessibility archived_at
+                                   average_rating budget seasons].freeze
+  after_commit -> { Browse.sync_dependents_of(self) }, on: :update,
+               if: -> { saved_changes.keys.intersect?(BROWSE_DEPENDENT_ATTRIBUTES) }
+
   # Custom validation for coordinates (both or neither)
   validate :coordinates_must_be_complete
 
@@ -87,7 +94,7 @@ class Location < ApplicationRecord
   # Retired from the catalogue. Deliberately not a default scope: 165 symbols
   # depend on this model, and the curator surfaces that retire a place are the
   # same ones that have to keep seeing it to bring it back. A default scope
-  # would also hide a retired place from Browse.sync_all, which has to see it
+  # would also hide a retired place from Browse.rebuild_all!, which has to see it
   # to remove it, and from the associations on the moments and check-ins that
   # survive retirement. Instead the traveller-facing entry points carry it:
   # places, nearby, and Browse.syncable?.

@@ -11,7 +11,7 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
       city: "Banja Luka",
       lat: 44.7758,
       lng: 17.1858,
-      location_type: :place,
+      test_category: :place,
       budget: :medium,
       suitable_experiences: [ "culture", "history" ]
     )
@@ -412,7 +412,7 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
       description: "Fully accessible museum",
       city: "Banja Luka",
       lat: 44.7760, lng: 17.1860,
-      location_type: :place,
+      test_category: :place,
       budget: :medium,
       accessibility: { "wheelchair_access" => "full", "ramp" => true }
     )
@@ -422,7 +422,7 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
       description: "Not accessible",
       city: "Banja Luka",
       lat: 44.7770, lng: 17.1870,
-      location_type: :place,
+      test_category: :place,
       budget: :medium,
       accessibility: { "wheelchair_access" => "none" }
     )
@@ -469,7 +469,7 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "generate with accessibility_required gracefully falls back when no accessible locations exist" do
+  test "generate with accessibility_required never falls back to inaccessible places" do
     # All existing test locations have no accessibility data (default: unknown)
     post plans_generate_path, params: {
       city_name: "Banja Luka",
@@ -477,7 +477,26 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
       accessibility_required: "true"
     }
 
-    # Should still succeed — falls back to all locations with a warning
+    # A need is not a preference: nothing accessible means no plan, not any plan
+    assert_response :unprocessable_entity
+    assert_not_includes response.body, @location.name
+  end
+
+  test "generate with accessibility_required leaves out experiences with an inaccessible stop" do
+    ramp = Location.create!(name: "Ramp Museum", city: "Banja Luka", lat: 44.7700, lng: 17.1900,
+                            accessibility: { "wheelchair_access" => "full" })
+    stairs = Location.create!(name: "Stair Tower", city: "Banja Luka", lat: 44.7720, lng: 17.1950,
+                              accessibility: { "wheelchair_access" => "none" })
+    mixed = Experience.create!(title: "Museum then tower", description: "Both", estimated_duration: 60)
+    mixed.add_location(ramp, position: 1)
+    mixed.add_location(stairs, position: 2)
+    level = Experience.create!(title: "Museum only", description: "Level", estimated_duration: 60)
+    level.add_location(ramp, position: 1)
+
+    post plans_generate_path, params: { city_name: "Banja Luka", duration: "1", accessibility_required: "true" }
+
     assert_response :success
+    assert_includes response.body, "Museum only"
+    assert_not_includes response.body, "Museum then tower"
   end
 end

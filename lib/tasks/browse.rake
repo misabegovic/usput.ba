@@ -61,13 +61,12 @@ namespace :browse do
     puts "  - Moments: #{Browse.moments.count}"
     puts ""
     puts "By city (top 10):"
-    Browse.group(:city_id)
+    Browse.group(:city_name)
           .count
           .sort_by { |_, count| -count }
           .first(10)
-          .each do |city_id, count|
-      city_name = city_id ? City.find(city_id).name : "No city"
-      puts "  - #{city_name}: #{count}"
+          .each do |city_name, count|
+      puts "  - #{city_name.presence || 'No city'}: #{count}"
     end
   end
 end

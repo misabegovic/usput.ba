@@ -222,7 +222,7 @@ module Ai
           city: city,
           lat: lat,
           lng: lng,
-          location_type: "place"
+          test_category: "place"
         )
 
         mock.define_singleton_method(:category_name) { "Bridge" }

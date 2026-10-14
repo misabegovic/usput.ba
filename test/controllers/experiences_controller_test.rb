@@ -11,7 +11,7 @@ class ExperiencesControllerTest < ActionDispatch::IntegrationTest
       city: "Mostar",
       lat: 43.3438,
       lng: 17.8078,
-      location_type: :place
+      test_category: :place
     )
 
     # Create test experience
@@ -34,7 +34,7 @@ class ExperiencesControllerTest < ActionDispatch::IntegrationTest
       city: "Mostar",
       lat: 43.3440,
       lng: 17.8080,
-      location_type: :restaurant
+      test_category: :restaurant
     )
     @nearby_experience.add_location(nearby_location, position: 1)
     @nearby_location_for_cleanup = nearby_location
