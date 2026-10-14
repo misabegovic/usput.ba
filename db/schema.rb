@@ -60,6 +60,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_180000) do
     t.index ["status"], name: "index_ai_generations_on_status"
   end
 
+  create_table "api_tokens", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "last_used_at"
+    t.string "name", null: false
+    t.datetime "revoked_at"
+    t.string "token_digest", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["token_digest"], name: "index_api_tokens_on_token_digest", unique: true
+    t.index ["user_id"], name: "index_api_tokens_on_user_id"
+  end
+
   create_table "audio_tours", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "duration"
@@ -557,6 +569,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_180000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "api_tokens", "users"
   add_foreign_key "audio_tours", "locations"
   add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"
   add_foreign_key "events", "locations"

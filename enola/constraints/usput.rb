@@ -10,6 +10,7 @@ Enola.architecture "usput" do
   part :ai_seam,    files: "app/services/ai/openai_queue.rb"
   part :ai,         files: "app/services/ai/**"
   part :services,   files: "app/services/**"
+  part :commands,   files: "app/commands/**"
   part :avo_controllers, files: "app/controllers/avo/**", kind: :symbol,
                          where: { symbol_kind: "class" }
   part :policy_gate, files: "app/controllers/concerns/admin_resource.rb"
@@ -53,6 +54,19 @@ Enola.architecture "usput" do
   law "controllers never wait on a language model" do
     controllers.must_not_call ai
     why "a model call takes seconds and fails in ways a page cannot recover from; generation runs in a job"
+  end
+
+  # The usput commands answer a terminal or an agent in one call
+  # (wiki/decisions/usput-commands.md).
+  law "commands never wait on the AI pipeline" do
+    commands.must_not_call ai
+    why "a command answers in one call; generation and audio take minutes, so they belong in a job whose id the command returns"
+  end
+
+  law "commands never depend on the Platform DSL" do
+    commands.must_not_call platform
+    why "the commands replace the DSL for agents one verb at a time; leaning on it would keep both"
+    mode :strict
   end
 
   # Avo Community authorizes nothing by itself (wiki/initiatives/avo-admin-and-roles.md).

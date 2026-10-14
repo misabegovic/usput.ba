@@ -11,6 +11,9 @@ depends_on:
 - architecture/frontend.md
 sources:
 - sources/conversations/2026-10-14--usput--map-cli-merging.md
+- sources/conversations/2026-10-14--usput--do-all.md
+- PRODUCT.md
+- db/seeds.rb
 - sources/conversations/2026-10-14--usput--event-store-compile-one-repo.md
 - sources/advice/2026-02-13-emir-glogic-mkt-analiza-usput--2026-10-14.md
 - app/views/new_design/home.html.erb
@@ -23,7 +26,10 @@ sources:
 The operator asked on 2026-10-14 to think about redesigning the app with
 Impeccable, end to end, and in the same breath to take in a marketer's
 advice on the site ([source](../../sources/conversations/2026-10-14--usput--event-store-compile-one-repo.md)).
-This page shapes that; nothing is built yet.
+This page shapes that. On 2026-10-14, under the operator's "do all"
+([source](../../sources/conversations/2026-10-14--usput--do-all.md)), the
+agent laid the groundwork: `PRODUCT.md` and a first review of the incumbent
+(below). The visual direction waits for the operator.
 
 ## Objective
 
@@ -131,4 +137,52 @@ the direction is chosen.
 - **Who supplies photography and video** of people.
 - **How far to follow the advice**, point by point, on the home page.
 - **Where `PRODUCT.md` and `DESIGN.md` live** and which is derived from
-  which.
+  which. Taken by the agent on 2026-10-14, the operator's to reverse: both at
+  the repository root, where Impeccable reads them, and both derived from
+  the brain; `PRODUCT.md` says so at its top, and its inferred facts are
+  marked. `DESIGN.md` is written for the chosen world, not for the
+  incumbent one, since a redesign treats the old look as evidence only.
+- **The direction itself**: one visual world, picked by the operator from
+  a small set Impeccable's new-work step proposes.
+
+## Review of the incumbent, 2026-10-14
+
+An agent's first pass, from screenshots of the seeded development database
+at 390 px and 1440 px (home, explore, the Explore Bosnia deck, a place, an
+experience, a plan, the wizard, the mine check, the profile). It is
+evidence for the redesign, not a design: Impeccable's `critique` and `audit`
+proper, and the direction, wait for the operator.
+
+- **The home page says what the advice warns against.** It opens on
+  "Otkrij ljepote Bosne i Hercegovine" over scenery, with no people, then
+  three full-width buttons in three colours (blue "Kreiraj svoj plan", gold
+  "Istraži", green "Usput Bosnia"), each styled as the primary action. "Zašto
+  Usput.ba" is told by usput about itself.
+- **Empty media reads as broken.** Where a place, experience or moment has
+  no photo, the card shows a dark block of the photo's size: the moments
+  band on the home page, most experience cards on explore, the deck's card.
+  A redesign needs an intended empty state, not a missing image.
+- **One colour story per section, not per product.** Plans are green
+  gradients with a clipboard icon, places are photos, experiences are dark
+  cards, audio is a teal panel, the mine check is its own world; the pages
+  share a navy ground and little else.
+- **The install banner covers the page.** On a phone the "Instaliraj Usput
+  aplikaciju" banner sits over the top of every page, and over the wizard's
+  language picker.
+- **The place page is long and flat.** Photos, moments, video, audio, the
+  description, history, reviews, facts, the map, nearby places, experiences
+  and plans follow one another at the same weight; on a phone the map, which
+  a traveller standing there needs, is past the fold of four screens.
+- **The mine check is a separate site.** Its own header (logo, "Minolovac",
+  "Početna"), its own palette and a different card style; it reads as a
+  safety tool bolted on rather than part of the product. Its warning card is
+  clear and must survive any redesign word for word.
+- **Seeded content breaks the content rules.** The demo seeds gave six
+  places, Baščaršija among them, the same YouTube video, a Quran recitation
+  unrelated to the places; it is removed from the seeds. The seeds also
+  carry "Tunnel of Hope (Tunel spasa)", a museum of the 1992 to 1995 siege,
+  against the rule on history from 1990 on; that one is the operator's call.
+- **Unverified:** the deck showed "White Fortress (Bijela Tabija), 506.9 km"
+  from a Sarajevo position in the url; the deck may read the visitor's
+  position from the IP lookup rather than the url on a local machine.
+

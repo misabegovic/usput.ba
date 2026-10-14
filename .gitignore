@@ -73,3 +73,6 @@ wiki/_state/embeddings/
 .enola/
 # Written per machine by bin/enola-gate (the Prism provider runs under local Ruby)
 mcp-arch.yaml
+
+# Avo builds this on a development server start; it is not part of the app
+/app/assets/builds/avo/
