@@ -2,7 +2,7 @@
 title: Personas
 kind: reference
 status: living
-updated: 2026-09-30
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
@@ -65,7 +65,7 @@ A visitor without an account can use most of the traveller product.
 - **Plan wizard.** `/plans/wizard` builds a personalised plan with `POST /plans/generate` without saving it. The plan lives in the browser's localStorage and `/plans/view` renders it client-side (`app/controllers/plans_controller.rb`, `generate` and `view`).
 - **Check in on the device.** Since 2026-09-15 a visitor can explore, walk and check in without registering. The walk lives on the device until there is an account (https://github.com/misabegovic/usput.ba/pull/166). The server check-in endpoint itself requires login (`app/controllers/plans/visits_controller.rb`, `before_action :require_login`), so a guest check-in is a device record only.
 - **Read moments.** A place's moments can be read without a plan or login (`config/routes.rb`, `resources :moments, only: [ :index ]` under locations; `app/controllers/moments_controller.rb`, `except: :index`).
-- **Write reviews.** Reviews of locations, experiences and plans need no login. The form takes a rating, a comment and an `author_name` (`app/controllers/reviews_controller.rb`, no `require_login`; `review_params`).
+- **Read reviews.** Approved reviews are public. Writing one needs an account since 2026-10-14; the form asks a guest to sign in ([decision](../decisions/jev-decides-reviews.md)).
 - **Maps, routes, audio.** The location map, route lookups (`/route`) and audio tours are public routes (`config/routes.rb`).
 - **Mine safety.** The public mine check `/mine-check` and the Minolovac game `/minesweeper` are public (`config/routes.rb`).
 - **Travel profile page.** `/profile` renders for everyone, filled from localStorage for guests (`app/controllers/travel_profiles_controller.rb`, `page`).

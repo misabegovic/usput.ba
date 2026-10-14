@@ -22,6 +22,7 @@ Architecture decision records, one choice per page. Accepted pages describe the 
 
 ## Accepted
 
+- [Jev sorts reviews into three bands; a curator decides the unsure ones](jev-decides-reviews.md)
 - [Decisions are domain events in Rails Event Store](rails-event-store.md)
 - [CI runs on the operator's machine, with Enola's laws and Obie's gates](ci-runs-locally.md)
 - [Support phones from iOS 15 and Android of about 2019](support-phones-from-ios-15.md)
@@ -29,7 +30,6 @@ Architecture decision records, one choice per page. Accepted pages describe the 
 - [Herb lints the ERB templates; erb_lint is removed](herb-lints-erb.md)
 - [Accounts through Devise, signed in by email](accounts-through-devise.md)
 - [Audio tours are paid by subscription; everything else stays free](audio-tours-by-subscription.md)
-- [Jev flags reviews; flagged reviews wait for an admin](jev-flags-reviews.md)
 - [Admin work moves to Avo; the curator area is removed](admin-through-avo.md)
 - [Avo now; compiling with Roundhouse and Spinel later](avo-now-compile-later.md)
 - [DSL-first architecture for the Platform](dsl-first-platform-architecture.md)
@@ -48,6 +48,7 @@ Architecture decision records, one choice per page. Accepted pages describe the 
 
 ## Superseded
 
+- [Jev flags reviews; flagged reviews wait for an admin](jev-flags-reviews.md)
 - [Defer wider mobile browser support](defer-wider-mobile-browser-support.md)
 - [AI changes arrive as suggestions marked with their origin](ai-suggestions-carry-origin.md)
 - [Post-moderated reviews with curator flagging](post-moderated-reviews.md)

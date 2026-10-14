@@ -2,11 +2,12 @@
 title: Feature inventory
 kind: reference
 status: living
-updated: 2026-10-08
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
 sources:
+- app/services/review_moderation.rb
 - config/routes.rb
 - README.md
 - app/controllers/new_design_controller.rb
@@ -130,7 +131,7 @@ Narrated tours per location and language, played on the location page, the walk 
 
 ## Reviews
 
-Anyone can rate a location, experience or plan from 1 to 5 with an optional comment and name; no login is required and there is no moderation (`app/controllers/reviews_controller.rb`; `app/models/review.rb`). Reviews stream back in place on deck cards ([#165](https://github.com/misabegovic/usput.ba/pull/165)). A curator can propose deleting a review (`app/controllers/curator/reviews_controller.rb`). Login-required, moderated reviews are planned, not built ([#152](https://github.com/misabegovic/usput.ba/pull/152); `sources/planning/REVIEW_APPROVAL_SYSTEM.md`).
+A signed-in traveller rates a location, experience or plan from 1 to 5 with an optional comment; the name shown is the account's. Jev sorts each new review into approved, held for a curator or rejected (observe mode records the band without acting on it yet); the author always sees their own review, marked when it is not public; ratings count approved reviews only; curators decide held reviews in the admin's reviews queue ([decision](../decisions/jev-decides-reviews.md); `app/controllers/reviews_controller.rb`, `app/services/review_moderation.rb`).
 
 ## Curator dashboard and moderation
 

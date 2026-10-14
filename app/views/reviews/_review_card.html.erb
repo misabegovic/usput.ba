@@ -2,11 +2,11 @@
   <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-0 mb-3">
     <div class="flex items-center space-x-3">
       <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-white font-bold">
-        <%= review.author_name.present? ? review.author_name[0].upcase : "?" %>
+        <%= review.author_label.present? ? review.author_label[0].upcase : "?" %>
       </div>
       <div>
         <p class="font-medium text-gray-900 dark:text-white">
-          <%= review.author_name.presence || t("reviews.anonymous", default: "Anonimno") %>
+          <%= review.author_label || t("reviews.anonymous") %>
         </p>
         <p class="text-sm text-gray-500 dark:text-gray-400">
           <%= l(review.created_at, format: :short) rescue review.created_at.strftime("%d.%m.%Y") %>
@@ -15,6 +15,12 @@
     </div>
     <%= render "shared/star_rating", rating: review.rating %>
   </div>
+  <% unless review.approved? %>
+    <%# Only the author ever sees a review that is not approved. %>
+    <p class="mb-2 inline-block rounded-full bg-amber-100 dark:bg-amber-900/40 px-3 py-1 text-xs font-medium text-amber-800 dark:text-amber-200">
+      <%= t("reviews.status.#{review.moderation_status}") %>
+    </p>
+  <% end %>
   <% if review.comment.present? %>
     <p class="text-gray-700 dark:text-gray-300 break-words"><%= simple_format(h(review.comment), {}, wrapper_tag: "span") %></p>
   <% end %>

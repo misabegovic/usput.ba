@@ -46,14 +46,6 @@
       <%= f.text_area :comment, rows: 4, class: "w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors", placeholder: t("reviews.form.comment_placeholder", default: "Podijeli svoje iskustvo...") %>
     </div>
 
-    <%# Author Name %>
-    <div>
-      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-        <%= t("reviews.form.author_name", default: "Tvoje ime") %>
-      </label>
-      <%= f.text_field :author_name, class: "w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors", placeholder: t("reviews.form.author_name_placeholder", default: "Kako se zoves?") %>
-    </div>
-
     <%# Submit %>
     <div class="pt-2">
       <%= f.submit t("reviews.form.submit", default: "Posalji recenziju"), class: "w-full bg-blue-600 hover:bg-blue-700 dark:bg-yellow-500 dark:hover:bg-yellow-600 text-white dark:text-gray-900 py-3 px-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg cursor-pointer" %>

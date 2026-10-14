@@ -8,6 +8,10 @@ RubyLLM.configure do |config|
   config.anthropic_api_key = ENV.fetch("ANTHROPIC_API_KEY", nil)
   config.gemini_api_key = ENV.fetch("GEMINI_API_KEY", nil)
 
+  # Jev, TypeSafe's decision model, screens reviews (ReviewModeration). With no
+  # key, reviews are not screened and nothing breaks.
+  config.typesafe_api_key = ENV["TYPESAFE_API_KEY"].presence || Rails.application.credentials.dig(:typesafe, :api_key)
+
   # GPT-6 Luna, OpenAI's low-cost tier ($0.10 in, $0.50 out per million tokens
   # on 2026-10-14; it replaced gpt-4o-mini at $0.15 and $0.60). RubyLLM's model
   # registry carries its prices, so every reply reports its cost.

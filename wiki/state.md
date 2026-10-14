@@ -7,6 +7,7 @@ repos:
 - usput.ba
 confidence: medium
 sources:
+- app/services/review_moderation.rb
 - sources/conversations/2026-10-14--usput--local-ci-enola-obie.md
 - sources/conversations/2026-10-14--usput--event-store-compile-one-repo.md
 - sources/conversations/2026-10-14--usput--tooling-models-langfuse-jev.md
@@ -72,7 +73,7 @@ Where Usput.ba has been, what is true in the code today, what the older planning
 - **Admin.** Avo 4 Community at `/admin`, open only to curators and admins, checked in the route and again inside Avo; users page for admins, with role changes and blocks, places, experiences and plans with all 16 languages editable, plans limited to curated ones and travellers' public ones, audio tours, and the moments queue, where curators approve or reject public moments (`Moment` enum `moderation_status`) ([Avo admin and roles](initiatives/avo-admin-and-roles.md)). Curators create and edit there directly; there are no proposals. What is left of the old curator dashboard runs beside it until each Avo slice replaces a part. Every decision taken there (moments approved or rejected, places archived or restored, accounts blocked, unblocked or given a role) is a Rails Event Store event in the record's stream, readable by admins at `/event-store` since 2026-10-14 ([decision](decisions/rails-event-store.md)).
 - **Curator dashboard.** What remains at `/curator` is the start page with counts and recent activity, whose links now open the admin, the reviews list, where only an admin removes a review, and the old users pages. Proposals (`ContentChange`, its contributions and curator reviews) and the curator pages for places, experiences, plans, audio tours and moments were removed on 2026-09-30 ([removal plan](initiatives/remove-curator-dashboard.md)).
 - **Moments need a check-in.** Since 2026-10-08 a moment is saved only at a place the traveller checked in at, on any of their plans, and the upload tile appears only after that check-in; guests keep the sign-in tile ([decision](decisions/capture-needs-a-check-in.md); `app/models/moment.rb`).
-- **Reviews are unmoderated.** `Review` has no status column; any visitor can post (the controller has no login requirement and still permits `author_name`), and every review counts toward `average_rating` (`app/models/review.rb`, `app/controllers/reviews_controller.rb`).
+- **Reviews.** Since 2026-10-14 a review needs a signed-in author, who always sees it. Jev sorts each new one into approved, held for a curator or rejected; the system starts in observe mode, where reviews are public on submit and Jev's band is only recorded until the thresholds are measured. Ratings count approved reviews only, and curators decide held reviews in the admin ([decision](decisions/jev-decides-reviews.md)).
 - **Platform CLI.** `bin/platform` offers `status`, `version`, `query` and `exec` for DSL queries; there is no `chat` command (`lib/platform/cli.rb`). Executors cover schema, table queries, content, curators, external data, infrastructure and quality. The MCP server exists (`lib/platform/mcp_server.rb`) and refuses to run in production.
 - **AI content.** `Ai::LocationEnricher`, `Ai::ExperienceTypeClassifier`, `Ai::AudioTourGenerator` and `Ai::ExperienceLocationSyncer` call the LLM through `Ai::OpenaiQueue` with prompts under `app/prompts/`, on RubyLLM 2.1 with `gpt-6-luna` as the default model since 2026-10-14; each call logs its tokens and cost, and when Langfuse keys are set every call is traced to the self-hosted Langfuse with its model, tokens and cost ([initiative](initiatives/langfuse-llmops.md)). Audio tours are generated from rake tasks and DSL, not from the dashboard.
 - **Accessibility.** Locations carry an `accessibility` JSONB (wheelchair level plus five features and notes); Browse rows carry `wheelchair_accessible`. See [location accessibility](initiatives/location-accessibility.md).
@@ -90,7 +91,7 @@ What the planning documents in `sources/planning/` still say, and where it no lo
 - **The MCP server still exposes prepared prompts.** `lib/platform/mcp_server.rb` offers `prepare_fix`, `prepare_feature` and a prompts listing that call DSL commands removed with `PreparedPrompt` on 2026-02-03; they would return errors (unverified, 2026-09-29).
 - **AI services on the DSL.** `sources/planning/decisions/2026-02-04-ai-services-dsl-migration.md` is still "Proposed"; the four services call the LLM directly.
 - **ContentChange works.** Settled on 2026-09-30 by removal: the rebuild edits content directly in the admin and the proposal system is gone, so whether it worked in production no longer matters ([removal plan](initiatives/remove-curator-dashboard.md)).
-- **Two review moderation designs.** `REVIEW_APPROVAL_SYSTEM.md` (pre-moderation) is merged; #151's ADR-0004 (post-moderation) is not. Neither is implemented.
+- **Two review moderation designs.** Settled on 2026-10-14 by Jev's three bands ([decision](decisions/jev-decides-reviews.md)); `REVIEW_APPROVAL_SYSTEM.md` and #151's ADR-0004 are history.
 
 ## Target
 

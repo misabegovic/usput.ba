@@ -4,8 +4,9 @@
 
 <%
   per_page = 5
-  initial_reviews = local_assigns.fetch(:initial_reviews) { reviewable.reviews.recent.limit(per_page) }.first(per_page)
-  total_reviews = reviewable.reviews_count
+  visible_reviews = reviewable.reviews.visible_to(current_user)
+  initial_reviews = local_assigns.fetch(:initial_reviews) { visible_reviews.recent.limit(per_page) }.first(per_page)
+  total_reviews = visible_reviews.count
   has_more = total_reviews > per_page
   reviews_path = polymorphic_path([reviewable, :reviews])
 %>
@@ -58,6 +59,12 @@
 
   <%# Review Form %>
   <div class="mt-8">
-    <%= render "reviews/form", reviewable: reviewable, review: Review.new %>
+    <% if logged_in? %>
+      <%= render "reviews/form", reviewable: reviewable, review: Review.new %>
+    <% else %>
+      <p class="text-center text-gray-600 dark:text-gray-400">
+        <%= link_to t("reviews.sign_in_to_review"), new_user_session_path, class: "font-medium text-blue-600 hover:underline dark:text-yellow-400" %>
+      </p>
+    <% end %>
   </div>
 </div>

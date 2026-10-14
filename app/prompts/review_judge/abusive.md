@@ -1,0 +1,1 @@
+Does `review` insult, threaten, harass or use slurs against a person or a group of people, or describe sexual or violent acts? A harsh or negative opinion of the place, its prices, its staff's service or the experience is not abusive. Strong language about the visit itself is not abusive.

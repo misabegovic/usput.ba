@@ -16,7 +16,7 @@ class PlansController < ApplicationController
       raise ActiveRecord::RecordNotFound
     end
 
-    @reviews = @plan.reviews.recent.limit(10)
+    @reviews = @plan.reviews.visible_to(current_user).recent.limit(10)
     @review = Review.new
   end
 

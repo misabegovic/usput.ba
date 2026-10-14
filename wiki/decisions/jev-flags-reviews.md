@@ -1,8 +1,8 @@
 ---
 title: Jev flags reviews; flagged reviews wait for an admin
 kind: decision
-status: accepted
-updated: 2026-09-30
+status: superseded
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
@@ -15,7 +15,7 @@ sources:
 enola_intent:
   page:
     type: decision
-    status: accepted
+    status: superseded
     scope:
     - usput.ba
     origin:
@@ -26,6 +26,8 @@ enola_intent:
       to: wiki/decisions/post-moderated-reviews.md
 ---
 # Jev flags reviews; flagged reviews wait for an admin
+
+Superseded on 2026-10-14 by [three bands](jev-decides-reviews.md): the operator asked for Jev to approve or reject, with a curator for the unsure ones.
 
 ## Context
 

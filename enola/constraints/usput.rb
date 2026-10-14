@@ -31,6 +31,17 @@ Enola.architecture "usput" do
     why "LLMHelper#generate_with_llm still opens its own chat; the rubyllm-2 initiative moves it behind Ai::OpenaiQueue, and nothing new may join it"
   end
 
+  # One door to Jev (wiki/decisions/jev-decides-reviews.md).
+  law "only ReviewModeration asks Jev" do
+    app_code.must_not_call "RubyLLM.judge"
+    why "what leaves usput for TypeSafe, the thresholds and the never-raise skips are decided in one place"
+    mode :strict
+    exempt "ReviewModeration.screen -> RubyLLM.judge via calls",
+           because: "this is the door", owner: "usput", since: "2026-10-14"
+    exempt "prism-call: app/services/review_moderation.rb -> RubyLLM.judge -> RubyLLM.judge via calls",
+           because: "this is the door, as the Prism extractor records the same call", owner: "usput", since: "2026-10-14"
+  end
+
   # The app never leans on the agents' tooling (wiki/architecture/overview.md).
   law "the app never depends on the Platform DSL" do
     app_code.must_not_call platform
