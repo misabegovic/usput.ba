@@ -469,7 +469,7 @@ class LocationTest < ActiveSupport::TestCase
   end
 
   test "category_key falls back to location_type when no categories" do
-    location = Location.create!(@valid_params.merge(location_type: :guide))
+    location = Location.create!(@valid_params.merge(test_category: :guide))
     assert_equal "guide", location.category_key
     location.destroy
   end
@@ -501,7 +501,7 @@ class LocationTest < ActiveSupport::TestCase
   end
 
   test "category_name falls back to location_type titleized when no categories" do
-    location = Location.create!(@valid_params.merge(location_type: :guide))
+    location = Location.create!(@valid_params.merge(test_category: :guide))
     assert_equal "Guide", location.category_name
     location.destroy
   end
@@ -632,13 +632,13 @@ class LocationTest < ActiveSupport::TestCase
   end
 
   test "contact? returns true for legacy non-place type" do
-    location = Location.create!(@valid_params.merge(location_type: :guide))
+    location = Location.create!(@valid_params.merge(test_category: :guide))
     assert location.contact?
     location.destroy
   end
 
   test "contact? returns false for place type" do
-    location = Location.create!(@valid_params.merge(location_type: :place))
+    location = Location.create!(@valid_params.merge(test_category: :place))
     assert_not location.contact?
     location.destroy
   end
@@ -655,7 +655,7 @@ class LocationTest < ActiveSupport::TestCase
   end
 
   test "place_type? returns true for legacy place type when no categories" do
-    location = Location.create!(@valid_params.merge(location_type: :place))
+    location = Location.create!(@valid_params.merge(test_category: :place))
     assert location.place_type?
     location.destroy
   end
@@ -1347,12 +1347,12 @@ class LocationTest < ActiveSupport::TestCase
   end
 
   test "by_type scope falls back to legacy enum" do
-    guide = Location.create!(@valid_params.merge(location_type: :guide))
+    guide = Location.create!(@valid_params.merge(test_category: :guide))
     place = Location.create!(@valid_params.merge(
       name: "Place Type",
       lat: 43.8570,
       lng: 18.4140,
-      location_type: :place
+      test_category: :place
     ))
 
     results = Location.by_type("guide")
@@ -1398,7 +1398,7 @@ class LocationTest < ActiveSupport::TestCase
   end
 
   test "places scope includes locations without categories" do
-    location = Location.create!(@valid_params.merge(location_type: :place))
+    location = Location.create!(@valid_params.merge(test_category: :place))
     results = Location.places
     assert_includes results, location
     location.destroy
@@ -1432,7 +1432,7 @@ class LocationTest < ActiveSupport::TestCase
   end
 
   test "contacts scope includes locations with legacy non-place type" do
-    location = Location.create!(@valid_params.merge(location_type: :business))
+    location = Location.create!(@valid_params.merge(test_category: :business))
     results = Location.contacts
     assert_includes results, location
     location.destroy

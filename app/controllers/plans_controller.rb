@@ -200,15 +200,18 @@ class PlansController < ApplicationController
     locations = find_matching_locations(city_name, budget, meat_lover, interests, accessibility_required: accessibility_required)
 
     if locations.empty?
-      # Try without filters if no locations match
-      locations = Location.not_archived.where(city: city_name).order("RANDOM()").limit(20)
+      # Try without the preference filters if no locations match. Accessibility
+      # is a need, not a preference, so it survives the fallback.
+      locations = Location.not_archived.where(city: city_name)
+      locations = locations.wheelchair_accessible if accessibility_required
+      locations = locations.order("RANDOM()").limit(20)
       if locations.any?
         warnings << I18n.t("plans.errors.no_matching_locations", default: "No locations matched your preferences, showing all available")
       end
     end
 
     # Pronađi experience-e koji sadrže te lokacije
-    experiences = find_matching_experiences(locations)
+    experiences = find_matching_experiences(locations, accessibility_required: accessibility_required)
 
     if experiences.empty?
       render json: {
@@ -338,7 +341,7 @@ class PlansController < ApplicationController
     locations.order("RANDOM()").limit(20)
   end
 
-  def find_matching_experiences(locations)
+  def find_matching_experiences(locations, accessibility_required: false)
     return Experience.none if locations.empty?
 
     location_ids = locations.pluck(:id)
@@ -348,10 +351,16 @@ class PlansController < ApplicationController
                                       .where(experience_locations: { location_id: location_ids })
                                       .select("DISTINCT experiences.id")
 
-    Experience.where("experiences.id IN (#{distinct_ids_subquery.to_sql})")
-              .includes(:locations)
-              .order("RANDOM()")
-              .limit(10)
+    experiences = Experience.where("experiences.id IN (#{distinct_ids_subquery.to_sql})")
+    # An experience that reaches one accessible place may still send the
+    # traveller on to a place that is not.
+    if accessibility_required
+      inaccessible = Location.not_archived.where.not(id: Location.wheelchair_accessible.select(:id))
+      experiences = experiences.where.not(id: ExperienceLocation.where(location_id: inaccessible.select(:id))
+                                                                .select(:experience_id))
+    end
+
+    experiences.includes(:locations).order("RANDOM()").limit(10)
   end
 
   def build_plan(city_name, duration_days, daily_hours, experiences, preferences)

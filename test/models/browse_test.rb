@@ -12,7 +12,7 @@ class BrowseTest < ActiveSupport::TestCase
       city: city,
       lat: lat,
       lng: lng,
-      location_type: :place,
+      test_category: :place,
       **options
     )
   end
@@ -105,7 +105,7 @@ class BrowseTest < ActiveSupport::TestCase
       city: "Sarajevo",
       lat: 43.8563,
       lng: 18.4131,
-      location_type: :place
+      test_category: :place
     )
     Browse.sync_record(location)
 
@@ -115,7 +115,7 @@ class BrowseTest < ActiveSupport::TestCase
       city: "Mostar",
       lat: 43.3438,
       lng: 17.8078,
-      location_type: :place
+      test_category: :place
     )
     Browse.sync_record(location_mostar)
 
@@ -136,7 +136,7 @@ class BrowseTest < ActiveSupport::TestCase
       city: "Sarajevo",
       lat: 43.8563,
       lng: 18.4131,
-      location_type: :place
+      test_category: :place
     )
 
     location_mostar = Location.create!(
@@ -144,7 +144,7 @@ class BrowseTest < ActiveSupport::TestCase
       city: "Mostar",
       lat: 43.3438,
       lng: 17.8078,
-      location_type: :place
+      test_category: :place
     )
 
     location_banja_luka = Location.create!(
@@ -152,7 +152,7 @@ class BrowseTest < ActiveSupport::TestCase
       city: "Banja Luka",
       lat: 44.7758,
       lng: 17.1858,
-      location_type: :place
+      test_category: :place
     )
 
     # Create an experience with multiple locations (Sarajevo and Mostar)
@@ -219,7 +219,7 @@ class BrowseTest < ActiveSupport::TestCase
       city: "Sarajevo",
       lat: 43.8563,
       lng: 18.4131,
-      location_type: :place,
+      test_category: :place,
       ai_generated: true
     )
     Browse.sync_record(ai_location)
@@ -230,7 +230,7 @@ class BrowseTest < ActiveSupport::TestCase
       city: "Sarajevo",
       lat: 43.8564,
       lng: 18.4132,
-      location_type: :place,
+      test_category: :place,
       ai_generated: false
     )
     Browse.sync_record(human_location)
@@ -256,7 +256,7 @@ class BrowseTest < ActiveSupport::TestCase
       city: "Sarajevo",
       lat: 43.8563,
       lng: 18.4131,
-      location_type: :place,
+      test_category: :place,
       ai_generated: true
     )
     Browse.sync_record(ai_location)
@@ -266,7 +266,7 @@ class BrowseTest < ActiveSupport::TestCase
       city: "Sarajevo",
       lat: 43.8564,
       lng: 18.4132,
-      location_type: :place,
+      test_category: :place,
       ai_generated: false
     )
     Browse.sync_record(human_location)
@@ -297,7 +297,7 @@ class BrowseTest < ActiveSupport::TestCase
       city: "Sarajevo",
       lat: 43.8563,
       lng: 18.4131,
-      location_type: :place,
+      test_category: :place,
       ai_generated: false
     )
 
@@ -314,7 +314,7 @@ class BrowseTest < ActiveSupport::TestCase
       city: "Neum",
       lat: 42.9247,
       lng: 17.6141,
-      location_type: :place,
+      test_category: :place,
       seasons: %w[summer]
     )
 
@@ -750,7 +750,7 @@ class BrowseTest < ActiveSupport::TestCase
       city: "Sarajevo",
       lat: 43.8563,
       lng: 18.4131,
-      location_type: :guide
+      test_category: :guide
     )
 
     Browse.sync_record(location)
@@ -836,7 +836,7 @@ class BrowseTest < ActiveSupport::TestCase
       city: "Sarajevo",
       lat: 43.8563,
       lng: 18.4131,
-      location_type: :guide
+      test_category: :guide
     )
     assert Browse.syncable?(location)
     location.destroy
@@ -940,7 +940,7 @@ class BrowseTest < ActiveSupport::TestCase
       city: nil,
       lat: 43.8563,
       lng: 18.4131,
-      location_type: :place
+      test_category: :place
     )
 
     Browse.sync_record(location)

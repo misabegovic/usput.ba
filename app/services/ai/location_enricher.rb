@@ -96,7 +96,6 @@ module Ai
         lat: place_data[:lat],
         lng: place_data[:lng],
         city: city,
-        location_type: determine_location_type(place_data[:categories]),
         budget: determine_budget(place_data),
         website: normalize_website_url(place_data[:website]),
         phone: sanitized_phone,
@@ -110,6 +109,10 @@ module Ai
         log_error "Failed to create location: #{location.errors.full_messages.join(', ')}"
         return nil
       end
+
+      # Geoapify's categories name the primary category, when usput has one by
+      # that key; Location has no type column of its own.
+      location.add_category(determine_location_type(place_data[:categories]).to_s, primary: true)
 
       # Generate and apply enrichment (including translations) now that location has an ID
       enrichment = generate_enrichment(location, place_data)

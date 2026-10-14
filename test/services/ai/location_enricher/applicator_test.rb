@@ -11,7 +11,7 @@ module Ai
           city: "Sarajevo",
           lat: 43.856,
           lng: 18.413,
-          location_type: :place,
+          test_category: :place,
           tags: [],
           audio_tour_metadata: {}
         )

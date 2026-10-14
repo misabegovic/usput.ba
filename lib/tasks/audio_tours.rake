@@ -1,6 +1,18 @@
 # frozen_string_literal: true
 
 namespace :audio_tours do
+  # A lambda, not a def: a method defined in a rake file lands on Object.
+  report_batch = lambda do |result|
+    puts "\nResults:"
+    puts "  Generated: #{result[:generated]}"
+    puts "  Skipped (already exist): #{result[:skipped]}"
+    puts "  Failed: #{result[:failed]}"
+    next if result[:errors].empty?
+
+    puts "\nErrors:"
+    result[:errors].each { |error| puts "  - #{error[:location]}: #{error[:error]}" }
+  end
+
   desc "Generate audio tour for a specific location"
   task :generate, [ :location_id, :locale ] => :environment do |_t, args|
     location_id = args[:location_id]
@@ -16,29 +28,16 @@ namespace :audio_tours do
     puts "Duration: #{result[:duration_estimate]}" if result[:duration_estimate]
   end
 
-  desc "Generate audio tours for all locations in a city"
-  task :generate_city, [ :city_id, :locale ] => :environment do |_t, args|
-    city_id = args[:city_id]
+  desc "Generate audio tours for every place in a city, by the city's name"
+  task :generate_city, [ :city, :locale ] => :environment do |_t, args|
+    city = args[:city].to_s.strip
+    abort "Usage: rake \"audio_tours:generate_city[Mostar,bs]\"" if city.empty?
     locale = args[:locale] || "bs"
 
-    city = City.find(city_id)
-    locations = city.locations
+    locations = Location.not_archived.where(city: city)
+    puts "Generating audio tours for #{locations.count} locations in #{city}"
 
-    puts "Generating audio tours for #{locations.count} locations in #{city.name}"
-
-    result = Ai::AudioTourGenerator.generate_batch(locations, locale: locale)
-
-    puts "\nResults:"
-    puts "  Generated: #{result[:generated]}"
-    puts "  Skipped (already exist): #{result[:skipped]}"
-    puts "  Failed: #{result[:failed]}"
-
-    if result[:errors].any?
-      puts "\nErrors:"
-      result[:errors].each do |error|
-        puts "  - #{error[:location]}: #{error[:error]}"
-      end
-    end
+    report_batch.call(Ai::AudioTourGenerator.generate_batch(locations, locales: [ locale ]))
   end
 
   desc "Generate audio tours for all locations without audio"
@@ -46,22 +45,11 @@ namespace :audio_tours do
     locale = ENV.fetch("LOCALE", "bs")
     # Find locations that don't have audio tours with audio files for this locale
     locations_with_audio_ids = AudioTour.by_locale(locale).with_audio.pluck(:location_id)
-    locations = Location.where.not(id: locations_with_audio_ids)
+    locations = Location.not_archived.where.not(id: locations_with_audio_ids)
 
     puts "Found #{locations.count} locations without audio tours for locale '#{locale}'"
 
-    result = Ai::AudioTourGenerator.generate_batch(locations, locale: locale)
-
-    puts "\nResults:"
-    puts "  Generated: #{result[:generated]}"
-    puts "  Failed: #{result[:failed]}"
-
-    if result[:errors].any?
-      puts "\nErrors:"
-      result[:errors].each do |error|
-        puts "  - #{error[:location]}: #{error[:error]}"
-      end
-    end
+    report_batch.call(Ai::AudioTourGenerator.generate_batch(locations, locales: [ locale ]))
   end
 
   desc "Preview audio tour script (without generating audio)"

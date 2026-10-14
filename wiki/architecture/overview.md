@@ -115,11 +115,8 @@ The job adapter is `inline` in development unless
 (`config/environments/development.rb`, `config/environments/production.rb`).
 `config/queue.yml` gives the `ai_generation` queue a single thread so LLM
 calls respect the provider's token rate, and runs every other queue on a
-shared pool. Its `default` block (used by development and test) still
-schedules three recurring jobs, `Platform::StatisticsJob`,
-`Platform::SummaryGenerationJob` and `Platform::ClusterGenerationJob`,
-whose classes were deleted with the platform database. The production
-block has no recurring section.
+shared pool. No job recurs: the three recurring entries whose classes went
+with the platform database were removed on 2026-10-14.
 
 The cache store is `memory_store` in development and production, so
 cached values (for example routes in `MapRoutesController`) live per

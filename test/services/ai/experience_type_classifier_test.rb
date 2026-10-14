@@ -45,7 +45,7 @@ module Ai
         city: "Mostar",
         lat: 43.3378,
         lng: 18.4289,
-        location_type: "place"
+        test_category: "place"
       )
     end
 
@@ -127,7 +127,7 @@ module Ai
           city: "Test",
           lat: 43.0,
           lng: 18.0,
-          location_type: "place"
+          test_category: "place"
         )
 
         # Make add_experience_type fail for one type
@@ -153,7 +153,7 @@ module Ai
         city: "Sarajevo",
         lat: 43.8207,
         lng: 18.2622,
-        location_type: "place"
+        test_category: "place"
       )
       locations = [ @location, location2 ]
 
@@ -173,7 +173,7 @@ module Ai
         city: "Sarajevo",
         lat: 43.8207,
         lng: 18.2622,
-        location_type: "place"
+        test_category: "place"
       )
       locations = [ @location, location2 ]
 
@@ -191,7 +191,7 @@ module Ai
         city: "Sarajevo",
         lat: 43.8207,
         lng: 18.2622,
-        location_type: "place"
+        test_category: "place"
       )
       locations = [ @location, location2 ]
 
@@ -218,7 +218,7 @@ module Ai
           city: "Test",
           lat: 43.0 + (i * 0.01),
           lng: 18.0,
-          location_type: "place"
+          test_category: "place"
         )
       end
 
@@ -257,14 +257,14 @@ module Ai
         city: "Test",
         lat: 43.1,
         lng: 18.0,
-        location_type: "place"
+        test_category: "place"
       )
       location3 = Location.create!(
         name: "Location 3",
         city: "Test",
         lat: 43.2,
         lng: 18.0,
-        location_type: "place"
+        test_category: "place"
       )
       locations = [ @location, location2, location3 ]
 

@@ -13,6 +13,9 @@ class ExperienceLocation < ApplicationRecord
   # Callbacks - automatski postavi poziciju ako nije zadana
   before_validation :set_default_position, on: :create
 
+  # The experience's search row, and its plans', name and place it by these.
+  after_commit -> { Browse.sync_experiences_and_their_plans([ experience_id ]) }
+
   # Pomjeri na novu poziciju
   def move_to(new_position)
     return if position == new_position

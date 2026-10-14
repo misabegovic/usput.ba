@@ -113,48 +113,32 @@ class Browse < ApplicationRecord
   scope :by_tag, ->(tag) {
     return all if tag.blank?
 
-    tagged_location_ids = Location
-      .where("EXISTS (SELECT 1 FROM jsonb_array_elements_text(tags) AS tag WHERE lower(tag) = lower(?))", tag.to_s.strip)
-      .pluck(:id)
-    return none if tagged_location_ids.empty?
+    reaching_locations(
+      Location.where("EXISTS (SELECT 1 FROM jsonb_array_elements_text(tags) AS tag WHERE lower(tag) = lower(?))", tag.to_s.strip)
+              .pluck(:id)
+    )
+  }
 
-    experience_ids = ExperienceLocation
-      .where(location_id: tagged_location_ids)
-      .pluck(:experience_id)
-      .uniq
+  # The rows that reach any of these places: the places themselves, the
+  # experiences that visit them, the plans that hold them (through an
+  # experience or as a stop of their own) and the moments taken there.
+  scope :reaching_locations, ->(location_ids) {
+    return none if location_ids.empty?
 
-    plan_ids = PlanExperience
-      .joins(experience: :experience_locations)
-      .where(experience_locations: { location_id: tagged_location_ids })
-      .pluck(:plan_id)
-      .uniq
+    plan_ids = PlanExperience.joins(experience: :experience_locations)
+                             .where(experience_locations: { location_id: location_ids })
+                             .pluck(:plan_id) |
+               PlanLocation.where(location_id: location_ids).pluck(:plan_id)
+    reached = {
+      "Location" => location_ids,
+      "Experience" => ExperienceLocation.where(location_id: location_ids).distinct.pluck(:experience_id),
+      "Plan" => plan_ids,
+      "Moment" => Moment.where(location_id: location_ids).pluck(:id)
+    }.reject { |_, ids| ids.empty? }
 
-    moment_ids = Moment
-      .where(location_id: tagged_location_ids)
-      .pluck(:id)
-
-    conditions = []
-    values = []
-
-    conditions << "(browsable_type = 'Location' AND browsable_id IN (?))"
-    values << tagged_location_ids
-
-    if experience_ids.any?
-      conditions << "(browsable_type = 'Experience' AND browsable_id IN (?))"
-      values << experience_ids
-    end
-
-    if plan_ids.any?
-      conditions << "(browsable_type = 'Plan' AND browsable_id IN (?))"
-      values << plan_ids
-    end
-
-    if moment_ids.any?
-      conditions << "(browsable_type = 'Moment' AND browsable_id IN (?))"
-      values << moment_ids
-    end
-
-    where(conditions.join(" OR "), *values)
+    # One condition per type that has ids, so no type is asked for IN (NULL).
+    conditions = reached.map { "(browsable_type = ? AND browsable_id IN (?))" }
+    where(conditions.join(" OR "), *reached.flat_map { |type, ids| [ type, ids ] })
   }
 
   # Filter by AI generated / Human made
@@ -192,8 +176,8 @@ class Browse < ApplicationRecord
     where("seasons = '[]'::jsonb OR #{conditions.join(' OR ')}", *seasons.map { |s| [ s ].to_json })
   }
 
-  # Nearby search - searches locations directly by coordinates,
-  # and experiences/plans by their associated locations
+  # Nearby search - searches locations directly by coordinates, and
+  # experiences, plans and moments by the places they reach
   scope :nearby, ->(lat, lng, radius_km: 25) {
     return all if lat.blank? || lng.blank?
 
@@ -209,59 +193,11 @@ class Browse < ApplicationRecord
     min_lng = lng - lng_delta
     max_lng = lng + lng_delta
 
-    # Find location IDs within bounding box
-    nearby_location_ids = Location
-      .where("lat BETWEEN ? AND ?", min_lat, max_lat)
-      .where("lng BETWEEN ? AND ?", min_lng, max_lng)
-      .pluck(:id)
-
-    return none if nearby_location_ids.empty?
-
-    # Find experience IDs that have any location within bounding box
-    nearby_experience_ids = ExperienceLocation
-      .where(location_id: nearby_location_ids)
-      .pluck(:experience_id)
-      .uniq
-
-    # Find plan IDs that have any experience with location within bounding box
-    nearby_plan_ids = PlanExperience
-      .joins(experience: :experience_locations)
-      .where(experience_locations: { location_id: nearby_location_ids })
-      .pluck(:plan_id)
-      .uniq
-
-    # Derived like the two above; a moment's own lat/lng are copies.
-    nearby_moment_ids = Moment
-      .where(location_id: nearby_location_ids)
-      .pluck(:id)
-
-    # Build conditions dynamically to avoid IN (NULL) issues
-    conditions = []
-    values = []
-
-    # Locations directly within bounding box
-    conditions << "(browsable_type = 'Location' AND browsable_id IN (?))"
-    values << nearby_location_ids
-
-    # Experiences with locations within bounding box
-    if nearby_experience_ids.any?
-      conditions << "(browsable_type = 'Experience' AND browsable_id IN (?))"
-      values << nearby_experience_ids
-    end
-
-    # Plans with experiences that have locations within bounding box
-    if nearby_plan_ids.any?
-      conditions << "(browsable_type = 'Plan' AND browsable_id IN (?))"
-      values << nearby_plan_ids
-    end
-
-    # Moments taken at locations within bounding box
-    if nearby_moment_ids.any?
-      conditions << "(browsable_type = 'Moment' AND browsable_id IN (?))"
-      values << nearby_moment_ids
-    end
-
-    where(conditions.join(" OR "), *values)
+    reaching_locations(
+      Location.where("lat BETWEEN ? AND ?", min_lat, max_lat)
+              .where("lng BETWEEN ? AND ?", min_lng, max_lng)
+              .pluck(:id)
+    )
   }
 
   # Sorting options
@@ -329,6 +265,25 @@ class Browse < ApplicationRecord
       else
         false
       end
+    end
+
+    # An experience's row copies its places, and a plan's row its
+    # experiences'; when what they copy changes, both are synced again.
+    def sync_experiences_and_their_plans(experience_ids)
+      Experience.where(id: experience_ids).find_each { |experience| sync_record(experience) }
+      sync_plans(PlanExperience.where(experience_id: experience_ids).pluck(:plan_id))
+    end
+
+    def sync_plans(plan_ids)
+      Plan.where(id: plan_ids).find_each { |plan| sync_record(plan) }
+    end
+
+    # Every row that copies something of this place: its experiences, the
+    # plans that hold it as a stop and the moments taken there.
+    def sync_dependents_of(location)
+      sync_experiences_and_their_plans(ExperienceLocation.where(location_id: location.id).pluck(:experience_id))
+      sync_plans(PlanLocation.where(location_id: location.id).pluck(:plan_id))
+      Moment.where(location_id: location.id).find_each { |moment| sync_record(moment) }
     end
 
     # Rebuild entire Browse table

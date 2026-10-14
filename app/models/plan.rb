@@ -78,65 +78,6 @@ class Plan < ApplicationRecord
     preferences.is_a?(Hash) && preferences["explore_bosnia"] == true
   end
 
-  # Find plans that have locations within given radius (more precise than city-based)
-  # This joins through plan_experiences -> experiences -> experience_locations -> locations
-  scope :nearby_by_locations, ->(lat, lng, radius_km: 25) {
-    return none if lat.blank? || lng.blank?
-
-    # Calculate bounding box for initial filtering (faster than full distance calc)
-    lat_delta = radius_km / 111.0 # ~111km per degree latitude
-    lng_delta = radius_km / (111.0 * Math.cos(lat.to_f * Math::PI / 180))
-
-    min_lat = lat.to_f - lat_delta
-    max_lat = lat.to_f + lat_delta
-    min_lng = lng.to_f - lng_delta
-    max_lng = lng.to_f + lng_delta
-
-    # Subquery to find location IDs within the bounding box
-    nearby_location_ids = Location
-      .where("lat BETWEEN ? AND ?", min_lat, max_lat)
-      .where("lng BETWEEN ? AND ?", min_lng, max_lng)
-      .select(:id)
-
-    # Find plans that have experiences with these locations
-    where(
-      id: PlanExperience
-        .joins(experience: :experience_locations)
-        .where(experience_locations: { location_id: nearby_location_ids })
-        .select(:plan_id)
-    )
-  }
-
-  # Search plans by text query (matches title, notes, experience titles, location names)
-  scope :search_by_text, ->(query) {
-    return all if query.blank?
-
-    sanitized_query = "%#{query.to_s.strip.downcase}%"
-
-    # Find plan IDs that match through experiences or locations
-    matching_experience_ids = Experience
-      .where("LOWER(title) LIKE ? OR LOWER(description) LIKE ?", sanitized_query, sanitized_query)
-      .select(:id)
-
-    matching_location_ids = Location
-      .where("LOWER(name) LIKE ? OR LOWER(description) LIKE ?", sanitized_query, sanitized_query)
-      .select(:id)
-
-    plan_ids_from_experiences = PlanExperience
-      .where(experience_id: matching_experience_ids)
-      .select(:plan_id)
-
-    plan_ids_from_locations = PlanExperience
-      .joins(experience: :experience_locations)
-      .where(experience_locations: { location_id: matching_location_ids })
-      .select(:plan_id)
-
-    # Match on plan title/notes OR on experiences/locations
-    where("LOWER(title) LIKE ? OR LOWER(notes) LIKE ?", sanitized_query, sanitized_query)
-      .or(where(id: plan_ids_from_experiences))
-      .or(where(id: plan_ids_from_locations))
-  }
-
   # Filter by duration
   scope :by_duration, ->(duration_filter) {
     case duration_filter.to_s
@@ -212,19 +153,25 @@ class Plan < ApplicationRecord
   end
 
   def all_location_ids
-    @all_location_ids ||= begin
-      by_day = Hash.new { |hash, day| hash[day] = [] }
+    @all_location_ids ||= reachable_location_ids
+  end
 
-      plan_experiences.includes(experience: :experience_locations).each do |plan_experience|
-        by_day[plan_experience.day_number].concat(plan_experience.experience.experience_locations.map(&:location_id))
-      end
+  # Read fresh from the tables every time: the search index calls this right
+  # after a stop or an experience changes, when a memo would be stale.
+  def reachable_location_ids
+    by_day = Hash.new { |hash, day| hash[day] = [] }
 
-      plan_locations.each do |plan_location|
-        by_day[plan_location.day_number] << plan_location.location_id
-      end
-
-      by_day.keys.sort.flat_map { |day| by_day[day] }.uniq
+    PlanExperience.where(plan_id: id).includes(experience: :experience_locations).each do |plan_experience|
+      by_day[plan_experience.day_number].concat(plan_experience.experience.experience_locations.map(&:location_id))
     end
+
+    PlanLocation.where(plan_id: id).order(:day_number, :position).each do |plan_location|
+      by_day[plan_location.day_number] << plan_location.location_id
+    end
+
+    # A retired place leaves every walk that held it, as it leaves explore.
+    ids = by_day.keys.sort.flat_map { |day| by_day[day] }.uniq
+    ids - Location.archived.where(id: ids).pluck(:id)
   end
 
   # Dodaj standalone lokaciju u određeni dan

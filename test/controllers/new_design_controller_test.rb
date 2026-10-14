@@ -11,7 +11,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
       city: "Sarajevo",
       lat: 43.8563,
       lng: 18.4131,
-      location_type: :place,
+      test_category: :place,
       average_rating: 4.5,
       reviews_count: 5
     )
@@ -23,7 +23,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
       city: "Mostar",
       lat: 43.3372,
       lng: 17.8153,
-      location_type: :place,
+      test_category: :place,
       average_rating: 4.8,
       reviews_count: 10
     )
@@ -216,9 +216,9 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
     # Own places: relevance leads with the rating, so the liked moment has to
     # sit at the weaker of the two for the likes to be what moves it.
     weaker = Location.create!(name: "Ranker Weaker", city: "Tuzla", lat: 44.53, lng: 18.67,
-                              location_type: :place, average_rating: 3.0, reviews_count: 2)
+                              test_category: :place, average_rating: 3.0, reviews_count: 2)
     stronger = Location.create!(name: "Ranker Stronger", city: "Tuzla", lat: 44.54, lng: 18.68,
-                                location_type: :place, average_rating: 5.0, reviews_count: 9)
+                                test_category: :place, average_rating: 5.0, reviews_count: 9)
 
     quiet = publish_moment(user, stronger)
     liked = publish_moment(user, weaker)
@@ -604,7 +604,7 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
       city: "Sarajevo",
       lat: 43.9000,
       lng: 18.5000,
-      location_type: :place,
+      test_category: :place,
       average_rating: 4.5,
       reviews_count: 5
     )
@@ -617,6 +617,32 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     unique_location.destroy
+  end
+
+  test "widening around a single place keeps the tag filter on its neighbours" do
+    museum = Location.create!(name: "UniqueTestMuseum12345", city: "Sarajevo", lat: 43.9000, lng: 18.5000,
+                              tags: [ "muzej" ])
+    Location.create!(name: "Untagged Neighbour", city: "Sarajevo", lat: 43.9010, lng: 18.5010)
+    Location.create!(name: "Tagged Neighbour", city: "Sarajevo", lat: 43.9020, lng: 18.5020, tags: [ "muzej" ])
+
+    get explore_path, params: { q: museum.name, tag: "muzej", types: [ "location" ] }
+
+    assert_response :success
+    assert_includes response.body, "Tagged Neighbour"
+    assert_not_includes response.body, "Untagged Neighbour"
+  end
+
+  test "the accessible filter keeps accessible experiences and the load-more url keeps it" do
+    ramp = Location.create!(name: "Ramp Hall", city: "Sarajevo", lat: 43.8600, lng: 18.4200,
+                            accessibility: { "wheelchair_access" => "full" })
+    level = Experience.create!(title: "Level Walk", description: "desc")
+    level.add_location(ramp, position: 1)
+
+    get explore_path, params: { accessible: "true", types: [ "experience" ] }
+
+    assert_response :success
+    assert_includes response.body, "Level Walk"
+    assert_select "[data-load-more-url-value*='accessible=true']"
   end
 
   test "explore does not expand when coordinates are already provided" do

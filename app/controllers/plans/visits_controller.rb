@@ -7,7 +7,8 @@ class Plans::VisitsController < ApplicationController
   before_action :set_plan
 
   def create
-    location = Location.find_by_public_id!(params[:location_id])
+    # A retired place takes no new check-ins, as it shows in no walk.
+    location = Location.not_archived.find_by_public_id!(params[:location_id])
 
     if (reason = out_of_range_reason(location))
       return render_location(location, alert: reason)
