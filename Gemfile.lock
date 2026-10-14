@@ -584,7 +584,7 @@ GEM
       marcel (>= 1.0, < 3)
       schematist (~> 1.1)
       zeitwerk (~> 2)
-    rubyzip (3.2.2)
+    rubyzip (3.7.0)
     rugged (1.9.0)
     schematist (1.1.0)
     securerandom (0.4.1)
