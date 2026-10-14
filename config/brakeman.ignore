@@ -1,0 +1,104 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "f2a88db5326ba837876387d4716195ac2cf2969a5e5022d284fbc8d17bc3cbc6",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/controllers/explore_bosnia_controller.rb",
+      "line": 149,
+      "confidence": "Medium",
+      "note": "The interpolated SQL is geocoder's distance expression built from @lat and @lng, which origin() casts with to_f; the cursor values are bound."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "06a489b0b51183e12db9dee5594d648e2d38e2cda0435202ccb6f192e769740c",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/browse.rb",
+      "line": 191,
+      "confidence": "Medium",
+      "note": "Only literal 'seasons @> ?' placeholders are interpolated, one per season; the season values are bound."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "51b2a1e8fea622bcb1dc6012079a8eee1ae1697eabd90df7cdd9d9e7eab76b99",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/experience.rb",
+      "line": 83,
+      "confidence": "Medium",
+      "note": "Only literal 'seasons @> ?' placeholders are interpolated, one per season; the season values are bound."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "7f77a352bb1faad90b0502f2237ce03a52fffc18851ec3d2030cc1696ea1620b",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/location.rb",
+      "line": 198,
+      "confidence": "Medium",
+      "note": "Only literal 'seasons @> ?' placeholders are interpolated, one per season; the season values are bound."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "4253233507f5285811a6dfc1f2cd19d73c2831adcb4207fa07d4d8a7045ad08d",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "lib/platform/dsl/executors/infrastructure.rb",
+      "line": 352,
+      "confidence": "Medium",
+      "note": "table comes from a hard-coded list of table names in get_table_sizes, never from input."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "766cb3132cf7e5a38c56b1616db9205b750b48cbb605f72465015ef4e43e0515",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "lib/platform/dsl/executors/table_query.rb",
+      "line": 177,
+      "confidence": "Weak",
+      "note": "field is captured by \\w+ (word characters only) and the value is bound; this is the development-only Platform CLI."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "cec517d653075110936657f691367b8c275e1dc966148f8b5f455e04aa4161db",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "lib/platform/dsl/executors/table_query.rb",
+      "line": 178,
+      "confidence": "Weak",
+      "note": "field is captured by \\w+ (word characters only) and the value is bound; this is the development-only Platform CLI."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "c79037a5280b2cfff2e7af09c9324841e1f0912375ee7496adeaffa5520dc2e5",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "lib/platform/dsl/executors/table_query.rb",
+      "line": 179,
+      "confidence": "Weak",
+      "note": "field is captured by \\w+ (word characters only) and the value is bound; this is the development-only Platform CLI."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "4c7041b8073f1ea8d80b6301cec00842f6ca7b5c6dacb0657332c54c2f2e61ea",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "lib/platform/dsl/executors/table_query.rb",
+      "line": 180,
+      "confidence": "Weak",
+      "note": "field is captured by \\w+ (word characters only) and the value is bound; this is the development-only Platform CLI."
+    }
+  ],
+  "brakeman_version": "8.1.0"
+}

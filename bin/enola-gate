@@ -1,0 +1,64 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Grades the working tree against usput's architecture laws (enola/constraints/).
+# Strict laws fail on any breach; ratchet laws fail only on a breach the
+# baseline did not already carry, so the baseline has to be main as this
+# branch left it: the snapshot pinned in .enola/ at `git merge-base HEAD
+# origin/main`. On that commit itself the gate pins it; anywhere else it says
+# how. Runs locally, in bin/ci; there is no hosted CI.
+require "bundler/setup"
+require "enola"
+require "json"
+
+Dir.chdir(File.expand_path("..", __dir__))
+
+# The Prism provider runs under this machine's Ruby, so the config is written
+# here, per machine, rather than committed.
+File.write("mcp-arch.yaml", <<~YAML)
+  # Written by bin/enola-gate for this machine; not committed.
+  repo: .
+  repos:
+    - .
+  ignore:
+    - "**/.git/**"
+    - "**/node_modules/**"
+    - "**/vendor/**"
+    - "**/tmp/**"
+    - "**/log/**"
+    - "**/coverage/**"
+    - "**/public/assets/**"
+    - "promo/**"
+    - "sources/**"
+    - "wiki/**"
+  providers:
+    - name: prism
+      command: [#{Enola::Providers.ruby.to_json}, #{Enola::Providers.prism_script.to_json}]
+      expected_version: #{Enola::Providers.prism_version.to_json}
+    - name: rubydex
+YAML
+
+git = ->(*args) { IO.popen([ "git", *args ], &:read).strip }
+base = git.call("merge-base", "HEAD", "origin/main")
+abort "enola-gate: no merge base with origin/main; run `git fetch origin` first" if base.empty?
+
+receipt = ".enola/receipt.json"
+pinned = File.exist?(receipt) ? JSON.parse(File.read(receipt))["git"] || {} : {}
+
+unless pinned["commit"] == base && pinned["dirty"] == false
+  clean = git.call("status", "--porcelain", "--untracked-files=no").empty?
+  if git.call("rev-parse", "HEAD") == base && clean
+    system("bin/rake", "enola:snapshot", exception: true)
+  else
+    abort <<~MSG
+      enola-gate: the baseline is pinned at #{pinned["commit"].to_s[0, 12].presence || "nothing"}#{" (dirty)" if pinned["dirty"]},
+      but this branch leaves origin/main at #{base[0, 12]}. Pin it there, then come back:
+
+        git stash --include-untracked   # if you have changes
+        git switch --detach #{base[0, 12]} && bin/rake enola:snapshot && git switch -
+        git stash pop                   # if you stashed
+    MSG
+  end
+end
+
+exec("bin/rake", "enola:check")

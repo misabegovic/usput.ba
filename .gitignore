@@ -70,3 +70,6 @@ coverage/
 wiki/_state/claims/
 wiki/_state/embeddings/
 .fastembed_cache/
+.enola/
+# Written per machine by bin/enola-gate (the Prism provider runs under local Ruby)
+mcp-arch.yaml

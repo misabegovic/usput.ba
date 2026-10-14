@@ -34,8 +34,6 @@ gem "avo", "~> 4.2"
 # Transactional mail in production [https://github.com/ActiveCampaign/postmark-rails]
 gem "postmark-rails"
 
-# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem "tzinfo-data", platforms: %i[ windows jruby ]
 
 # Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
 gem "solid_cache"
@@ -108,6 +106,12 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # Architecture laws, graded against a pinned baseline (enola) [https://github.com/misabegovic/enola-rb]
+  gem "enola-rb", "~> 0.5"
+
+  # Fails while duplicated code has no Contract clause [https://github.com/obie/exhale]
+  gem "exhale", "~> 0.2", require: false
 end
 
 group :development do
@@ -139,5 +143,5 @@ end
 
 gem "tailwindcss-rails", "~> 4.0"
 
-# Android/Termux has no system zoneinfo database
+# Windows and Android/Termux have no system zoneinfo database (#159)
 gem "tzinfo-data"

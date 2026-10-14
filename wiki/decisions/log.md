@@ -63,3 +63,4 @@ Every recorded decision for Usput.ba in date order, oldest first. Dates are thos
 | 2026-10-08 | [Capturing a moment needs a check-in at the place](capture-needs-a-check-in.md) | accepted | A moment is created only where the traveller checked in, on any plan; the upload tile waits for the visit. |
 | 2026-10-14 | [Herb lints the ERB templates; erb_lint is removed](herb-lints-erb.md) | accepted | Herb 0.11 lint in CI and bin/ci, five rules off with reasons; erb_lint and better_html removed. |
 | 2026-10-14 | [Support phones from iOS 15 and Android of about 2019](support-phones-from-ios-15.md) | accepted | es-module-shims, Tailwind 4's fallbacks, guarded localStorage and a no-JS notice; no build step. |
+| 2026-10-14 | [CI runs on the operator's machine, with Enola's laws and Obie's gates](ci-runs-locally.md) | accepted | `bin/ci` is the only CI, ending in `gh signoff`; Enola laws, exhale and qualm gates; the workflow is removed. |

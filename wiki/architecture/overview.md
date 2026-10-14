@@ -10,6 +10,8 @@ sources:
 - sources/conversations/2026-10-14--usput--tooling-models-langfuse-jev.md
 - Gemfile
 - .herb.yml
+- config/ci.rb
+- sources/conversations/2026-10-14--usput--local-ci-enola-obie.md
 - .ruby-version
 - Dockerfile
 - Procfile.dev
@@ -25,7 +27,6 @@ sources:
 - config/initializers/flipper.rb
 - config/initializers/rack_attack.rb
 - config/ci.rb
-- .github/workflows/ci.yml
 - test/test_helper.rb
 - test/application_system_test_case.rb
 - README.md
@@ -86,7 +87,7 @@ other. The deeper pages are [Platform DSL](platform-dsl.md),
 | LLM | RubyLLM 2.1, default model `gpt-6-luna` unless `LLM_DEFAULT_MODEL` is set | `config/initializers/ruby_llm.rb` |
 | Text to speech | ElevenLabs by default, OpenAI TTS as an alternative | `app/services/ai/audio_tour_generator.rb` |
 | Files | Active Storage, S3 in production when `AWS_BUCKET` is set, disk otherwise | `config/storage.yml`, `config/environments/production.rb` |
-| Images | `image_processing` over libvips (`libvips42` in the image, `libvips` in CI) | `Gemfile`, `Dockerfile`, `.github/workflows/ci.yml` |
+| Images | `image_processing` over libvips (`libvips42` in the image, `libvips` locally) | `Gemfile`, `Dockerfile` |
 | Feature flags | Flipper with the Active Record adapter, no web UI | `config/initializers/flipper.rb` |
 | Errors | Rollbar | `Gemfile`, `app/jobs/application_job.rb` |
 | Abuse control | rack-attack throttles and blocklists | `config/initializers/rack_attack.rb` |
@@ -147,32 +148,26 @@ and `css` (`tailwindcss:watch`).
 
 ## Continuous integration
 
-`.github/workflows/ci.yml` runs on pull requests to `main` and on pushes to
-`main`. One job starts a `postgres:15` service, installs `cmake`,
-`libgit2-dev` and `libvips`, sets up Ruby from `.ruby-version` with the `ci`
-gem group, creates `klosaer_test` and `klosaer_queue_test`, loads the
-schema, then runs in order:
+CI runs on the operator's machine; there is no hosted CI
+([decision](../decisions/ci-runs-locally.md)). `bin/ci` runs
+`config/ci.rb` and stops at the first failure:
 
-1. `bundle exec rubocop --parallel`
-2. `npm run lint:erb`, Herb's linter, after Node 22 and `npm ci`
-   ([decision](../decisions/herb-lints-erb.md))
-3. `bin/rails test` with `COVERAGE=true` (SimpleCov with an LCOV formatter)
-4. `bin/rails test:system`, the 68 browser tests in `test/system/`, in
-   headless Chrome through Selenium (`test/application_system_test_case.rb`,
-   using the Chrome the runner image ships). `bin/rails test` skips
-   `test/system/`, so before this step they ran only by hand. When the step
-   fails, the screenshots in `tmp/screenshots` are kept as an artifact.
-   SimpleCov starts only when `COVERAGE` is set (`test/test_helper.rb`), so
-   this step is not held to the coverage threshold of the unit suite, which
-   the browser tests alone fall far below.
-5. `bundle exec undercover --compare origin/<base>` on pull requests only,
-   with `continue-on-error: true` and a note to remove that once older
-   coverage gaps are fixed.
-
-`bin/ci` with `config/ci.rb` is a separate local pipeline: setup, rubocop,
-Herb lint, bundler-audit, importmap audit, Brakeman, unit tests, system tests and a
-seed replant. Brakeman and bundler-audit run only there, not in GitHub
-Actions.
+1. Setup (`bin/setup --skip-server`, which installs gems and Node packages
+   and prepares the databases)
+2. `bin/rubocop` and `npm run lint:erb` (Herb,
+   [decision](../decisions/herb-lints-erb.md))
+3. `bin/bundler-audit`, `bin/importmap audit` and Brakeman, with reviewed
+   false positives in `config/brakeman.ignore`
+4. `bin/enola-gate`: usput's architecture laws in `enola/constraints/`,
+   graded against main as the branch left it
+5. `bin/exhale dry --introduced-only`: no new duplicated code
+6. `bin/qualm-gate`: Jev's review of each changed file, where qualm and an
+   OpenRouter key exist
+7. `tabula validate`, where tabula is installed
+8. `bin/rails test` with `COVERAGE=true`, then `bin/rails test:system` (the
+   71 browser tests in headless Chrome, which needs a chromedriver matching
+   the local Chrome), then a seed replant
+9. `gh signoff`, which marks the pushed commit green on GitHub
 
 ## The main parts and how they depend on each other
 
@@ -247,8 +242,8 @@ both sit on top of services and models; services call external APIs
 
 ## Now and Perceived
 
-- **Now:** two databases, one monolith, Hotwire frontend, CI with rubocop,
-  Herb lint, tests and advisory undercover.
+- **Now:** two databases, one monolith, Hotwire frontend, local CI through
+  `bin/ci` with lint, security audits, Enola's laws and the test suites.
 - **Perceived:** `CLAUDE.md`, `README.md` and
   `sources/planning/DEVELOPER_ONBOARDING.md` still describe pgvector, a
   `new_design/` controller namespace, and planning files under

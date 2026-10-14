@@ -2,7 +2,7 @@
 title: Enola for usput
 kind: initiative
 status: proposed
-updated: 2026-09-30
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
@@ -14,7 +14,9 @@ sources:
 - sources/conversations/2026-09-30--usput--platform-direction.md
 - brain.config.yml
 - AGENTS.md
-- .github/workflows/ci.yml
+- config/ci.rb
+- enola/constraints/usput.rb
+- sources/conversations/2026-10-14--usput--local-ci-enola-obie.md
 - config/routes.rb
 - app/controllers/curator/base_controller.rb
 - app/models/content_change.rb
@@ -57,7 +59,7 @@ The rebuild of usput is graded by what the code does, not by what anyone remembe
 
 **What tabula adds.** The `tabula` tool that runs this brain has two verbs for it. `tabula architecture <page>` compiles a page of `kind: architecture` into enola constraints and a Mermaid graph, and with `--write` writes them into a repository `brain.config.yml` lists as active, which is `usput.ba` (`brain.config.yml`). Laws on that page are one sentence each, from six written forms: "A never calls B.", "A never reaches B, even indirectly.", "A only calls B and C.", "Only B and C call A.", "A has at most N members, growing by at most M." and "A stays empty.", with calls, imports, depends on, inherits from or includes as the verb. No strength word means ratchet (new breaches fail, old ones are kept), ", as a warning." is advisory and ", without exception." is strict, and every law needs a `because:`. `tabula distance <page>` then says how far the page stands from the code in four buckets: broken (standing breaches), absent (planned parts or arrows with no code), divergent (code no part admits) and not asked (no engine, no facts, or too little resolved to measure); `--write` keeps a dated file under `wiki/_state/distance/` and `--against` compares with an earlier one.
 
-**Where things run.** Enola is not installed in usput's CI: the workflow runs rubocop, erb_lint, the test suite and undercover only (`.github/workflows/ci.yml`), and there is no `.enola/` directory in the repository. Every enola step is therefore run by the operator or an agent on a machine with enola installed, and when it is absent the step says "not asked" rather than passing. That is the rule tabula already follows, and it stays the rule here.
+**Where things run.** Until 2026-10-14 Enola was not in usput's CI. Since then CI is local (`bin/ci`), Enola comes with the bundle through `enola-rb`, and `bin/enola-gate` runs it as a step ([decision](../decisions/ci-runs-locally.md)). The fact store stays in an uncommitted `.enola/`.
 
 **The parts today, from the code.**
 
@@ -90,11 +92,11 @@ Slices, each a small pull request (the brain slices are pages; the code slices c
 3. **Baseline before the removal.** On `main`, before the rebuild branch deletes anything: an enola snapshot of usput, the compiled constraints written into the repository, the baseline pinned, and `tabula distance --write` kept as the starting file.
 4. **Grade each deletion.** Each rebuild merge that removes a piece runs `tabula distance --against` the starting file; closed breaches and the shrinking curator part are recorded on the rebuild's page, and any new breach is fixed before the merge.
 5. **Avo and the new parts.** When Avo resources and the RubyLLM seam land, the page gains their parts and the law "Only admin and jobs call ai." replaces the first one.
-6. **CI, later and optional.** If enola is ever installed in CI, `check` runs as a report that never fails the build, and says "not asked" when it cannot compare.
+6. **CI.** Done 2026-10-14, as a gate rather than the report first proposed: the operator asked for Enola's constraints in CI, written for usput. See Build notes.
 
 ## No-gos
 
-- No enola step that fails CI or blocks a merge; findings are read by a person.
+- No enola step that fails CI on anything but a declared law: the gate fails on a new breach of `enola/constraints/` (and on any breach of a strict law); every other finding is a report a person reads. (Amended 2026-10-14; it said no enola step may fail CI at all.)
 - No single-repository shortcut that overwrites a shared fact store: usput's facts live in its own `.enola/`, uncommitted.
 - No law without a because and a deciding page.
 - No claim on a brain page from a graph finding that has not been confirmed in the code.
@@ -114,4 +116,15 @@ Small: slices 1 to 3 are a day of brain work plus one enola run; slice 4 rides o
 
 - **The law set**: which of the five laws above to declare, and how strict each is.
 - **Whether the rebuild's own page links a distance file per merge**, or only at milestones.
-- **Whether enola ever runs in CI** as a non-blocking report, which means installing it in the workflow.
+- **Decided on 2026-10-14** ([answer](../../sources/conversations/2026-10-14--usput--local-ci-enola-obie.md)): Enola runs in CI, with laws the agent writes for usput, and CI is local.
+
+## Build notes
+
+Landed on 2026-10-14 with local CI ([decision](../decisions/ci-runs-locally.md)):
+
+- `enola-rb` 0.5.5 in the development and test group drives Enola 0.4.19; `bin/rails generate enola:install` wrote `enola/constraints/` with four Rails laws (models do not reach controllers, jobs never invoke controller code, the request API stays in controllers, policies only answer) and bound the `layered` and `ruby-conventions` recipes. `layered` is unbound again: usput's controllers use models directly, and it counted 129 breaches against an architecture usput does not follow.
+- usput's own laws are in `enola/constraints/usput.rb`, each with its reason: only `Ai::OpenaiQueue` opens a chat with a model; the Platform DSL may not add a second door (its one breach, `LLMHelper#generate_with_llm`, is held by the ratchet); the app never depends on the Platform DSL (strict); controllers never wait on a model; every Avo resource controller passes `AdminResource` (strict); services never read `params`; jobs and policies are named for what they are. Four carve-outs are signed: the seam's own chat (twice, as two extractors record it), the welcome tool, which holds no records, and `GuestPayloadStash`, whose `request.params` the extractor reads without its receiver.
+- First reading on main at `c3f739a`: 60,104 facts, 15 rules (13 ratchet, 2 strict), 28 standing breaches, 4 excused, no regression. A probe that opened a chat from a controller failed the gate with both edges, as it should.
+- `bin/enola-gate` writes the per-machine `mcp-arch.yaml` (the Prism provider runs under local Ruby), checks that the baseline was pinned at the merge base with `origin/main`, pins it there when run on that commit, and otherwise prints the commands to do so. A baseline taken from a `git archive` export is refused by Enola as a different repository, so the gate does not fake one.
+- Enola 0.4.29 is available upstream; the version follows `enola-rb`'s pin.
+

@@ -1,0 +1,36 @@
+# `layered` was bound by enola:install and is left out on purpose: usput is a
+# Rails app whose controllers use models directly (129 breaches on
+# 2026-10-14), so the recipe describes an architecture usput does not follow.
+# usput's own laws are in usput.rb.
+use_recipe:
+  - recipe: ruby-conventions
+    as: ruby-conventions
+    bind:
+      code: { match: ["app/**"] }
+
+# Shipped recipes not bound because their roles found no directory here.
+# Uncomment one once the directories exist, then run `enola constraints lint`.
+#  - recipe: rails-conventions
+#    as: rails-conventions
+#    mode: ratchet
+#  - recipe: rails-strict
+#    as: rails-strict
+#    mode: ratchet
+#  - recipe: vanilla-rails
+#    as: vanilla-rails
+#    mode: ratchet
+#  - recipe: ports-and-adapters
+#    as: ports-and-adapters
+#    mode: ratchet
+#  - recipe: modular-monolith
+#    as: modular-monolith
+#    mode: ratchet
+#  - recipe: event-driven
+#    as: event-driven
+#    mode: ratchet
+#  - recipe: clean
+#    as: clean
+#    mode: ratchet
+#  - recipe: cqrs
+#    as: cqrs
+#    mode: ratchet

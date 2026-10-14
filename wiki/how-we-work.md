@@ -12,7 +12,7 @@ sources:
 - sources/conversations/2026-10-08--usput--merge-with-admin.md
 - AGENTS.md
 - .claude/agents/content-director.md
-- .github/workflows/ci.yml
+- config/ci.rb
 - https://github.com/misabegovic/usput.ba/pull/154
 - https://github.com/misabegovic/usput.ba/pull/168
 enola_intent:
@@ -88,9 +88,10 @@ through several of them, and each one's view is visible in the result.
 
 Every change arrives as a pull request with a short description written for
 a human: what is better for the traveller or the curator, what was wrong,
-and how it is kept safe. The same checks CI runs (rubocop, Herb lint, the
-full test suite) are run locally before anything is pushed, so a red build
-is a surprise rather than a routine.
+and how it is kept safe. CI is `bin/ci`, run on the author's machine
+before the push: lint, security audits, the architecture laws in
+`enola/constraints/`, the duplication and review gates and both test suites,
+ending with `gh signoff` on the pushed commit. There is no hosted CI.
 
 Merging is the operator's step. `main` is protected and asks for an
 approval from someone other than the author, so an agent opens pull requests

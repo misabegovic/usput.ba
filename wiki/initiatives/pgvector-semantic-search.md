@@ -21,7 +21,7 @@ sources:
 - config/application.rb
 - config/database.yml
 - config/deploy.yml
-- .github/workflows/ci.yml
+- config/ci.rb
 - sources/planning/decisions/2026-02-03-remove-platform-database.md
 - https://github.com/misabegovic/usput.ba/pull/126
 - https://github.com/ankane/neighbor
@@ -58,7 +58,7 @@ A traveller finds places, experiences, plans and moments by what they mean, not 
 
 What keyword search cannot do today: match synonyms or paraphrase, cross languages (a Bosnian description does not match an English query), or rank "similar" other than by distance through `Browse.nearby`.
 
-**Production database: pgvector support is (unknown, needs source).** PR #126's message says the primary database was "Railway PostgreSQL" and asked for a separate database "with pgvector extension", which suggests the primary did not have it at the time (unverified, 2026-09-30). `config/deploy.yml` is the Kamal template with placeholder hosts, and `DATABASE_URL` is a secret (`config/deploy.yml`, `config/database.yml`), so where the rebuilt app's database will run is not recorded. CI runs on the `postgres:15` image (`.github/workflows/ci.yml`), which does not ship pgvector; the tests would need an image that does.
+**Production database: pgvector support is (unknown, needs source).** PR #126's message says the primary database was "Railway PostgreSQL" and asked for a separate database "with pgvector extension", which suggests the primary did not have it at the time (unverified, 2026-09-30). `config/deploy.yml` is the Kamal template with placeholder hosts, and `DATABASE_URL` is a secret (`config/deploy.yml`, `config/database.yml`), so where the rebuilt app's database will run is not recorded. CI ran on the `postgres:15` image until 2026-10-14; it now runs on the local Postgres (`bin/ci`), so the tests need pgvector installed there.
 
 **Settled constraint.** Postgres is the rebuild's database, so pgvector is available wherever the host allows the extension. Roundhouse's compiled path documents SQLite ([Avo now, compile later](../decisions/avo-now-compile-later.md)); vector search is one more thing a future compile would have to answer, and is recorded in [Roundhouse analysis and compile](roundhouse-analysis-and-compile.md).
 
