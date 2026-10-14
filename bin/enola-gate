@@ -45,13 +45,16 @@ abort "enola-gate: no merge base with origin/main; run `git fetch origin` first"
 receipt = ".enola/receipt.json"
 pinned = File.exist?(receipt) ? JSON.parse(File.read(receipt))["git"] || {} : {}
 
-unless pinned["commit"] == base && pinned["dirty"] == false
+# Enola counts untracked files as dirty (tabula's journal always is), so the
+# commit is what has to match; the gate itself pins only on a tree whose
+# tracked files are clean.
+unless pinned["commit"] == base
   clean = git.call("status", "--porcelain", "--untracked-files=no").empty?
   if git.call("rev-parse", "HEAD") == base && clean
     system("bin/rake", "enola:snapshot", exception: true)
   else
     abort <<~MSG
-      enola-gate: the baseline is pinned at #{pinned["commit"].to_s[0, 12].presence || "nothing"}#{" (dirty)" if pinned["dirty"]},
+      enola-gate: the baseline is pinned at #{pinned["commit"] ? pinned["commit"][0, 12] : "nothing"},
       but this branch leaves origin/main at #{base[0, 12]}. Pin it there, then come back:
 
         git stash --include-untracked   # if you have changes
