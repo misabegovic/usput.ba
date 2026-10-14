@@ -9,7 +9,6 @@ class User < ApplicationRecord
     attachable.variant :medium, resize_to_limit: [ 256, 256 ]
   end
   has_many :plans, dependent: :nullify
-  has_many :curator_activities, dependent: :destroy
   has_many :moments, dependent: :destroy
   has_many :plan_visits, dependent: :destroy
   has_many :likes, dependent: :destroy
@@ -20,11 +19,6 @@ class User < ApplicationRecord
   # list it holds is bounded rather than left to grow a row without limit.
   MAX_PROFILE_ENTRIES = 200
   MAX_RECENTLY_VIEWED = 20
-
-  # Spam protection constants
-  MAX_ACTIVITIES_PER_HOUR = 50
-  MAX_ACTIVITIES_PER_DAY = 200
-  SPAM_BLOCK_DURATION = 24.hours
 
   validate :acceptable_avatar, if: -> { avatar.attached? }
 
@@ -83,60 +77,6 @@ class User < ApplicationRecord
   # Permission helpers
   def can_curate?
     curator? || admin?
-  end
-
-  # Spam protection methods
-  def spam_blocked?
-    return false unless spam_blocked_until.present?
-
-    if spam_blocked_until > Time.current
-      true
-    else
-      # Auto-unblock if block has expired
-      clear_spam_block!
-      false
-    end
-  end
-
-  def check_spam_activity!
-    return unless curator?
-
-    reset_activity_count_if_needed!
-
-    hourly_count = curator_activities.this_hour.count
-    daily_count = activity_count_today
-
-    if hourly_count >= MAX_ACTIVITIES_PER_HOUR
-      block_for_spam!("Exceeded #{MAX_ACTIVITIES_PER_HOUR} actions per hour")
-    elsif daily_count >= MAX_ACTIVITIES_PER_DAY
-      block_for_spam!("Exceeded #{MAX_ACTIVITIES_PER_DAY} actions per day")
-    end
-  end
-
-  def increment_activity_count!
-    reset_activity_count_if_needed!
-    increment!(:activity_count_today)
-  end
-
-  def block_for_spam!(reason)
-    update!(
-      spam_blocked_at: Time.current,
-      spam_blocked_until: SPAM_BLOCK_DURATION.from_now,
-      spam_block_reason: reason
-    )
-  end
-
-  def clear_spam_block!
-    update!(
-      spam_blocked_at: nil,
-      spam_blocked_until: nil,
-      spam_block_reason: nil
-    )
-  end
-
-  def admin_unblock!
-    clear_spam_block!
-    update!(activity_count_today: 0)
   end
 
   # Default travel profile structure. `visited` and `stats` are always projected
@@ -232,15 +172,6 @@ class User < ApplicationRecord
     Time.iso8601(value.to_s)
   rescue ArgumentError, TypeError
     nil
-  end
-
-  def reset_activity_count_if_needed!
-    if activity_count_reset_at.nil? || activity_count_reset_at < Time.current.beginning_of_day
-      update!(
-        activity_count_today: 0,
-        activity_count_reset_at: Time.current
-      )
-    end
   end
 
   def default_travel_profile

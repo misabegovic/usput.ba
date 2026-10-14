@@ -877,29 +877,12 @@ pl:
         name: Nazwa
         country_name: Kraj
         region: Region
-  curator:
-    title: Panel Kuratora
-    nav:
-      dashboard: Panel
-    dashboard:
-      welcome: Witaj, %{username}!
-      total_locations: Łączna Liczba Lokalizacji
-      total_experiences: Łączna Liczba Doświadczeń
-      total_cities: Łączna Liczba Miast
-      quick_actions: Szybkie Działania
-      new_location: Nowa Lokalizacja
-      new_experience: Nowe Doświadczenie
-      recent_locations: Ostatnie Lokalizacje
-      recent_experiences: Ostatnie Doświadczenia
-      no_locations: Brak jeszcze lokalizacji
-      no_experiences: Brak jeszcze doświadczeń
-    experiences:
-      seasons:
-        all_year: Cały rok
-        spring: Wiosna
-        summer: Lato
-        fall: Jesień
-        winter: Zima
+  seasons:
+    all_year: Cały rok
+    spring: Wiosna
+    summer: Lato
+    fall: Jesień
+    winter: Zima
   minesweeper:
     title: Saper
     subtitle: "Gra edukacyjna na prawdziwych mapach — miny są tam, gdzie prawdziwe dane rejestrują obszary podejrzane o miny."

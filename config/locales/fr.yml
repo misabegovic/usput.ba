@@ -978,29 +978,12 @@ fr:
         name: Nom
         country_name: Pays
         region: Région
-  curator:
-    title: Tableau de Bord Curateur
-    nav:
-      dashboard: Tableau de Bord
-    dashboard:
-      welcome: Bienvenue, %{username} !
-      total_locations: Total des Lieux
-      total_experiences: Total des Expériences
-      total_cities: Total des Villes
-      quick_actions: Actions Rapides
-      new_location: Nouveau Lieu
-      new_experience: Nouvelle Expérience
-      recent_locations: Lieux Récents
-      recent_experiences: Expériences Récentes
-      no_locations: Pas encore de lieux
-      no_experiences: Pas encore d'expériences
-    experiences:
-      seasons:
-        all_year: Toute l'année
-        spring: Printemps
-        summer: Été
-        fall: Automne
-        winter: Hiver
+  seasons:
+    all_year: Toute l'année
+    spring: Printemps
+    summer: Été
+    fall: Automne
+    winter: Hiver
   travel_profile:
     checking_location: Vérification de votre position...
     visit_recorded: Visite enregistrée avec succès !

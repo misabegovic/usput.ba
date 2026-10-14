@@ -51,6 +51,22 @@ class AdminReviewsTest < ActionDispatch::IntegrationTest
     assert_not response.successful?
   end
 
+  test "a curator cannot remove a review" do
+    sign_in person(:curator)
+
+    delete "/admin/resources/reviews/#{@fine.to_param}"
+
+    assert Review.exists?(@fine.id)
+  end
+
+  test "an admin removes a review" do
+    sign_in person(:admin)
+
+    delete "/admin/resources/reviews/#{@fine.to_param}"
+
+    assert_not Review.exists?(@fine.id)
+  end
+
   test "a traveller finds no reviews queue" do
     sign_in @author
 

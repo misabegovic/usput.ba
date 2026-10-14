@@ -877,29 +877,12 @@ nl:
         name: Naam
         country_name: Land
         region: Regio
-  curator:
-    title: Curator Dashboard
-    nav:
-      dashboard: Dashboard
-    dashboard:
-      welcome: Welkom, %{username}!
-      total_locations: Totaal Locaties
-      total_experiences: Totaal Ervaringen
-      total_cities: Totaal Steden
-      quick_actions: Snelle Acties
-      new_location: Nieuwe Locatie
-      new_experience: Nieuwe Ervaring
-      recent_locations: Recente Locaties
-      recent_experiences: Recente Ervaringen
-      no_locations: Nog geen locaties
-      no_experiences: Nog geen ervaringen
-    experiences:
-      seasons:
-        all_year: Het hele jaar
-        spring: Lente
-        summer: Zomer
-        fall: Herfst
-        winter: Winter
+  seasons:
+    all_year: Het hele jaar
+    spring: Lente
+    summer: Zomer
+    fall: Herfst
+    winter: Winter
   minesweeper:
     title: Mijnenveger
     subtitle: "Een educatief spel op echte kaarten — mijnen liggen waar echte gegevens mijnverdachte gebieden registreren."

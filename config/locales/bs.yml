@@ -1247,57 +1247,12 @@ bs:
       city:
         one: Mjesto
         other: Mjesta
-  curator:
-    title: Kurator Panel
-    nav:
-      dashboard: Pregled
-      reviews: Recenzije
-      moments: Uspomene
-    dashboard:
-      welcome: Dobrodošao, %{username}!
-      total_locations: Ukupno lokacija
-      total_experiences: Ukupno iskustava
-      total_cities: Ukupno mjesta
-      total_plans: Javni planovi
-      total_reviews: Ukupno recenzija
-      recent_reviews: Nove recenzije
-      recent_reviews_title: Nedavne recenzije
-      recent_plans: Nedavni planovi
-      audio_tours: Audio ture
-      audio_coverage: Audio pokrivenost
-      with_audio: sa audiom
-      locations_covered: lokacija
-      avg: prosjek
-      last_7_days: zadnjih 7 dana
-      quick_actions: Brze akcije
-      new_location: Nova lokacija
-      new_experience: Novo iskustvo
-      new_plan: Novi plan
-      new_audio_tour: Nova audio tura
-      needs_photos: Treba fotografije
-      recent_locations: Nedavne lokacije
-      recent_experiences: Nedavna iskustva
-      no_locations: Još nema lokacija
-      no_experiences: Još nema iskustava
-      no_reviews: Još nema recenzija
-      no_plans: Još nema javnih planova
-      recent_activity: Nedavne aktivnosti kuratora
-    experiences:
-      seasons:
-        all_year: Cijela godina
-        spring: Proljeće
-        summer: Ljeto
-        fall: Jesen
-        winter: Zima
-    admin:
-      nav:
-        users: Upravljanje korisnicima
-        content_changes: Odobrenje sadržaja
-      users:
-        title: Upravljanje korisnicima
-        updated: Korisnik uspješno ažuriran
-        unblocked: Korisnik uspješno deblokiran
-        not_blocked: Ovaj korisnik nije blokiran
+  seasons:
+    all_year: Cijela godina
+    spring: Proljeće
+    summer: Ljeto
+    fall: Jesen
+    winter: Zima
   pagination:
     aria_label: Paginacija
     previous_short: Nazad

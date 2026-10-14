@@ -24,7 +24,6 @@ sources:
 - config/environments/production.rb
 - config/environments/development.rb
 - config/initializers/ruby_llm.rb
-- config/initializers/flipper.rb
 - config/initializers/rack_attack.rb
 - config/ci.rb
 - test/test_helper.rb
@@ -88,7 +87,6 @@ other. The deeper pages are [Platform DSL](platform-dsl.md),
 | Text to speech | ElevenLabs by default, OpenAI TTS as an alternative | `app/services/ai/audio_tour_generator.rb` |
 | Files | Active Storage, S3 in production when `AWS_BUCKET` is set, disk otherwise | `config/storage.yml`, `config/environments/production.rb` |
 | Images | `image_processing` over libvips (`libvips42` in the image, `libvips` locally) | `Gemfile`, `Dockerfile` |
-| Feature flags | Flipper with the Active Record adapter, no web UI | `config/initializers/flipper.rb` |
 | Domain events | Rails Event Store 3.2, jsonb, a stream per record, browser at `/event-store` for admins | `Gemfile`, `config/initializers/event_store.rb` |
 | Errors | Rollbar | `Gemfile`, `app/jobs/application_job.rb` |
 | Abuse control | rack-attack throttles and blocklists | `config/initializers/rack_attack.rb` |
@@ -186,13 +184,10 @@ The request side has three audiences, all in `app/controllers/`:
   public design live in `app/views/new_design/`. Shared behaviour sits in
   concerns: `Authenticatable`, `Localizable`, `RecordsVisits` (the one
   check-in distance rule), `ServesMomentPhotos` and `SyncsLocalData`.
-- **Curator dashboard** (`/curator`, `app/controllers/curator/`). Every
-  controller inherits `Curator::BaseController`, which requires login,
-  a curator role and a spam-block check, and renders the `curator` layout.
-  `Curator::Admin::BaseController` adds an admin requirement for the users
-  pages. What is left there is the start page, moments, reviews and users;
-  content is edited directly in Avo at `/admin`, and the `ContentChange`
-  proposals were removed on 2026-09-30.
+- **Admin** (Avo at `/admin`, `app/avo/`). The old curator dashboard at
+  `/curator` was removed on 2026-10-14, with its layout, its activity trail
+  and Flipper; no route begins with `/curator`
+  (`test/integration/curator_dashboard_removed_test.rb`).
 - **Mine safety.** `MineCheckPublicController` (`/mine-check`) and
   `MinesweeperController` (`/minesweeper`) read the static mine engine; see
   [Mine Checker](mine-checker.md).

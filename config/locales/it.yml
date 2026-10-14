@@ -967,29 +967,12 @@ it:
         name: Nome
         country_name: Paese
         region: Regione
-  curator:
-    title: Dashboard Curatore
-    nav:
-      dashboard: Dashboard
-    dashboard:
-      welcome: Benvenuto, %{username}!
-      total_locations: Totale Luoghi
-      total_experiences: Totale Esperienze
-      total_cities: Totale Città
-      quick_actions: Azioni Rapide
-      new_location: Nuovo Luogo
-      new_experience: Nuova Esperienza
-      recent_locations: Luoghi Recenti
-      recent_experiences: Esperienze Recenti
-      no_locations: Nessun luogo ancora
-      no_experiences: Nessuna esperienza ancora
-    experiences:
-      seasons:
-        all_year: Tutto l'anno
-        spring: Primavera
-        summer: Estate
-        fall: Autunno
-        winter: Inverno
+  seasons:
+    all_year: Tutto l'anno
+    spring: Primavera
+    summer: Estate
+    fall: Autunno
+    winter: Inverno
   minesweeper:
     title: Campo minato
     subtitle: "Un gioco educativo su mappe reali — le mine sono dove i dati reali registrano aree sospette."

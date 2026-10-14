@@ -2,6 +2,16 @@
 
 require "test_helper"
 
+# A probe controller behind each filter, so the concern is tested without
+# borrowing a real page that may move or go.
+class AuthenticatableProbeController < ApplicationController
+  before_action :require_login
+  before_action :require_curator, only: :curated
+
+  def signed_in = render(plain: current_user.username)
+  def curated = render(plain: "curated")
+end
+
 class AuthenticatableTest < ActionDispatch::IntegrationTest
   setup do
     @user = User.create!(
@@ -24,129 +34,92 @@ class AuthenticatableTest < ActionDispatch::IntegrationTest
     )
   end
 
-  # current_user tests
+  test "a guest is sent to sign in" do
+    with_probe_routes do
+      get "/probe/signed_in"
 
-  test "current_user returns nil when not logged in" do
-    get curator_root_path
-
-    assert_redirected_to new_user_session_path
+      assert_redirected_to new_user_session_path
+      assert_equal I18n.t("auth.login_required"), flash[:alert]
+    end
   end
-
-  test "current_user returns user when logged in" do
-    post user_session_path, params: { user: { email: @curator.email, password: "password123" } }
-
-    get curator_root_path
-
-    assert_response :success
-  end
-
-  # logged_in? tests
-
-  test "redirects to login when not logged in for protected routes" do
-    get curator_root_path
-
-    assert_redirected_to new_user_session_path
-    assert_equal I18n.t("auth.login_required"), flash[:alert]
-  end
-
-  test "allows access when logged in" do
-    post user_session_path, params: { user: { email: @curator.email, password: "password123" } }
-
-    get curator_root_path
-
-    assert_response :success
-  end
-
-  # require_login JSON response test
 
   test "require_login returns JSON error for API requests" do
-    get curator_root_path, headers: { "Accept" => "application/json" }
+    with_probe_routes do
+      get "/probe/signed_in", headers: { "Accept" => "application/json" }
 
-    assert_response :unauthorized
-    assert_equal "Unauthorized", response.parsed_body["error"]
+      assert_response :unauthorized
+      assert_equal "Unauthorized", response.parsed_body["error"]
+    end
   end
 
-  # log_in and log_out tests
+  test "a signed-in traveller is current_user" do
+    with_probe_routes do
+      sign_in_as @user
+      get "/probe/signed_in"
 
-  test "log_in sets session" do
-    post user_session_path, params: { user: { email: @curator.email, password: "password123" } }
-
-    get curator_root_path
-
-    assert_response :success
+      assert_response :success
+      assert_equal @user.username, response.body
+    end
   end
 
-  test "log_out clears session" do
-    post user_session_path, params: { user: { email: @curator.email, password: "password123" } }
+  test "signing out clears the session" do
+    with_probe_routes do
+      sign_in_as @user
+      delete destroy_user_session_path
+      get "/probe/signed_in"
 
-    delete destroy_user_session_path
-
-    get curator_root_path
-
-    assert_redirected_to new_user_session_path
+      assert_redirected_to new_user_session_path
+    end
   end
-
-  # require_curator tests
 
   test "require_curator redirects regular users" do
-    post user_session_path, params: { user: { email: @user.email, password: "password123" } }
+    with_probe_routes do
+      sign_in_as @user
+      get "/probe/curated"
 
-    get curator_root_path
-
-    assert_redirected_to root_path
-    assert_equal I18n.t("auth.curator_required"), flash[:alert]
+      assert_redirected_to root_path
+      assert_equal I18n.t("auth.curator_required"), flash[:alert]
+    end
   end
 
-  test "require_curator allows curators" do
-    post user_session_path, params: { user: { email: @curator.email, password: "password123" } }
+  test "require_curator allows curators and admins" do
+    with_probe_routes do
+      [ @curator, @admin ].each do |person|
+        sign_in_as person
+        get "/probe/curated"
 
-    get curator_root_path
-
-    assert_response :success
-  end
-
-  test "require_curator allows admins" do
-    post user_session_path, params: { user: { email: @admin.email, password: "password123" } }
-
-    get curator_root_path
-
-    assert_response :success
+        assert_response :success, "#{person.user_type} should pass"
+        delete destroy_user_session_path
+      end
+    end
   end
 
   test "require_curator returns JSON forbidden for API requests" do
-    post user_session_path, params: { user: { email: @user.email, password: "password123" } }
+    with_probe_routes do
+      sign_in_as @user
+      get "/probe/curated", headers: { "Accept" => "application/json" }
 
-    get curator_root_path, headers: { "Accept" => "application/json" }
-
-    assert_response :forbidden
-    assert_equal "Forbidden", response.parsed_body["error"]
+      assert_response :forbidden
+      assert_equal "Forbidden", response.parsed_body["error"]
+    end
   end
 
-  # require_admin tests
+  private
 
-  test "require_admin redirects curators" do
-    post user_session_path, params: { user: { email: @curator.email, password: "password123" } }
-
-    get curator_admin_users_path
-
-    assert_redirected_to curator_root_path
-    assert_equal I18n.t("auth.admin_required"), flash[:alert]
+  def with_probe_routes(&)
+    with_routing do |set|
+      set.draw do
+        devise_for :users, path: "", controllers: { sessions: "users/sessions" },
+                           path_names: { sign_in: "login", sign_out: "logout" }
+        get "probe/signed_in", to: "authenticatable_probe#signed_in"
+        get "probe/curated", to: "authenticatable_probe#curated"
+        root "new_design#home"
+      end
+      yield
+    end
   end
 
-  test "require_admin allows admins" do
-    post user_session_path, params: { user: { email: @admin.email, password: "password123" } }
-
-    get curator_admin_users_path
-
-    assert_response :success
-  end
-
-  test "require_admin returns JSON forbidden for API requests" do
-    post user_session_path, params: { user: { email: @curator.email, password: "password123" } }
-
-    get curator_admin_users_path, headers: { "Accept" => "application/json" }
-
-    assert_response :forbidden
-    assert_equal "Forbidden", response.parsed_body["error"]
+  def sign_in_as(person)
+    post user_session_path, params: { user: { email: person.email, password: "password123" } }
   end
 end

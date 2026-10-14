@@ -65,9 +65,8 @@ ROLLBAR_ACCESS_TOKEN=your_token
 
 ```
 app/
-├── controllers/
-│   ├── curator/              # Curator dashboard
-│   └── new_design/           # Public pages
+├── avo/                      # The admin at /admin (Avo)
+├── controllers/              # Public pages
 ├── models/                   # ActiveRecord models
 ├── services/
 │   └── ai/                   # AI services
@@ -77,7 +76,6 @@ app/
 │       └── openai_queue.rb       # LLM wrapper
 ├── prompts/                  # Centralized AI prompts
 └── views/
-    ├── curator/              # Curator UI
     └── new_design/           # Public UI
 
 lib/
@@ -98,7 +96,8 @@ config/
 | `Experience` | Curated collections of locations (tours, activities) |
 | `Plan` | Multi-day travel itineraries |
 | `AudioTour` | Narrated audio content for locations |
-| `ContentChange` | Proposal system for curator contributions |
+| `Review` | Travellers' ratings, sorted by Jev and decided by curators |
+| `Moment` | Travellers' photos at places they checked in at |
 | `User` | User accounts with curator/admin roles |
 
 ### Relationships
@@ -129,18 +128,13 @@ bin/platform exec 'schema | stats'
 bin/platform-prod exec 'locations | count'
 ```
 
-## Curator Dashboard
+## Admin
 
-The curator dashboard (`/curator`) allows content management:
-
-- **Locations** - CRUD with proposal workflow
-- **Experiences** - Multi-location collections
-- **Plans** - Travel itineraries
-- **Audio Tours** - Narrated content
-- **Photo Suggestions** - Community photo uploads
-- **Proposals** - Review and approval system
-
-Curators submit changes as proposals. Admins review and approve/reject.
+Curators and admins work in the admin at `/admin` (Avo): places, experiences,
+plans and audio tours are edited directly, moments and reviews are approved or
+rejected from their queues, and admins change roles and block accounts. Every
+decision is recorded in Rails Event Store, readable by admins at
+`/event-store`.
 
 ## Testing
 

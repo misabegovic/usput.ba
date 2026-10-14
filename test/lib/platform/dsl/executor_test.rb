@@ -512,12 +512,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
   # Execute type routing
 
-  test "execute routes curators_query correctly" do
-    result = Platform::DSL.execute("curators | count")
-
-    assert result.is_a?(Hash) || result.is_a?(Integer)
-  end
-
   test "execute routes logs_query correctly" do
     result = Platform::DSL.execute("logs | list")
 
@@ -525,53 +519,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
   end
 
   # Proposals query tests
-
-  # Curators query tests
-  test "execute_curators_query with list" do
-    result = Platform::DSL.execute("curators | list")
-
-    assert result.is_a?(Hash)
-    assert_equal :list_curators, result[:action]
-  end
-
-  test "execute_curators_query with stats" do
-    result = Platform::DSL.execute("curators | stats")
-
-    assert result.is_a?(Hash)
-    # Stats returns Services::SpamDetector.statistics hash
-  end
-
-  # Curator management tests
-  test "execute_curator_management block command" do
-    curator = User.create!(
-      username: "block_test_#{SecureRandom.hex(4)}",
-      email: "block_test_#{SecureRandom.hex(4)}@example.com",
-      password: "password123",
-      user_type: :curator
-    )
-
-    result = Platform::DSL.execute("block curator { id: #{curator.id} } reason \"Spam activity\"")
-
-    assert result.is_a?(Hash)
-    assert result[:success]
-    assert_equal :block_curator, result[:action]
-  end
-
-  test "execute_curator_management unblock command" do
-    curator = User.create!(
-      username: "unblock_test_#{SecureRandom.hex(4)}",
-      email: "unblock_test_#{SecureRandom.hex(4)}@example.com",
-      password: "password123",
-      user_type: :curator
-    )
-    curator.block_for_spam!("Test block")
-
-    result = Platform::DSL.execute("unblock curator { id: #{curator.id} }")
-
-    assert result.is_a?(Hash)
-    assert result[:success]
-    assert_equal :unblock_curator, result[:action]
-  end
 
   # Code query tests
   test "execute_code_query with list" do
@@ -780,13 +727,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     assert result.is_a?(Hash)
   end
 
-  # Curators stats test
-  test "curators stats returns curator statistics" do
-    result = Platform::DSL.execute("curators | count")
-
-    assert result.is_a?(Hash) || result.is_a?(Integer)
-  end
-
 
   # Apply filters internal method test
   test "apply_filters filters by column" do
@@ -945,15 +885,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
     end
   end
 
-  # Curators list test
-  test "curators list returns curators" do
-    result = Platform::DSL.execute("curators | list")
-
-    assert result.is_a?(Hash)
-    assert_equal :list_curators, result[:action]
-    assert result.key?(:curators)
-  end
-
   # Logs with filter - removed (audit logging no longer exists)
   test "logs with action filter returns message" do
     result = Platform::DSL.execute('logs { action: "create" } | list')
@@ -1048,21 +979,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
 
     assert result.is_a?(Hash)
     assert result.key?(:message) || result.key?(:action)
-  end
-
-  # Test curators | show
-  test "curators show returns curator details" do
-    curator = User.create!(
-      username: "curator_test_#{SecureRandom.hex(4)}",
-      email: "curator_test_#{SecureRandom.hex(4)}@example.com",
-      password: "password123",
-      password_confirmation: "password123",
-      user_type: :curator
-    )
-
-    result = Platform::DSL.execute("curators { id: #{curator.id} } | show")
-
-    assert result.is_a?(Hash)
   end
 
   # Test show_proposal with curator reviews
@@ -1161,23 +1077,6 @@ class Platform::DSL::ExecutorTest < ActiveSupport::TestCase
   end
 
   # Test count_proposals returns statistics
-
-  # Test list_curators returns curators with stats
-  test "list_curators returns curators list" do
-    User.create!(
-      username: "curator_list_test_#{SecureRandom.hex(4)}",
-      email: "curator_list_test_#{SecureRandom.hex(4)}@example.com",
-      password: "password123",
-      password_confirmation: "password123",
-      user_type: :curator
-    )
-
-    result = Platform::DSL::Executors::Curator.send(:list_curators, {})
-
-    assert result.is_a?(Hash)
-    assert result.key?(:curators)
-    assert result[:curators].is_a?(Array)
-  end
 
   # Test grep_code
   test "grep_code returns search results" do

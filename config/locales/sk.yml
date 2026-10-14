@@ -867,29 +867,12 @@ sk:
         name: Názov
         country_name: Krajina
         region: Región
-  curator:
-    title: Panel Kurátora
-    nav:
-      dashboard: Panel
-    dashboard:
-      welcome: Vitajte, %{username}!
-      total_locations: Celkový Počet Miest
-      total_experiences: Celkový Počet Zážitkov
-      total_cities: Celkový Počet Miest
-      quick_actions: Rýchle Akcie
-      new_location: Nové Miesto
-      new_experience: Nový Zážitok
-      recent_locations: Nedávne Miesta
-      recent_experiences: Nedávne Zážitky
-      no_locations: Zatiaľ žiadne miesta
-      no_experiences: Zatiaľ žiadne zážitky
-    experiences:
-      seasons:
-        all_year: Celý rok
-        spring: Jar
-        summer: Leto
-        fall: Jeseň
-        winter: Zima
+  seasons:
+    all_year: Celý rok
+    spring: Jar
+    summer: Leto
+    fall: Jeseň
+    winter: Zima
   minesweeper:
     title: Míny
     subtitle: "Vzdelávacia hra na skutočných mapách — míny sú tam, kde skutočné údaje zaznamenávajú oblasti podozrivé z výskytu mín."

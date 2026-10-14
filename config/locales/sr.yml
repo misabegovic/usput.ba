@@ -956,29 +956,12 @@ sr:
         name: Назив
         country_name: Држава
         region: Регион
-  curator:
-    title: Куратор Панел
-    nav:
-      dashboard: Преглед
-    dashboard:
-      welcome: Добродошли, %{username}!
-      total_locations: Укупно локација
-      total_experiences: Укупно искустава
-      total_cities: Укупно места
-      quick_actions: Брзе акције
-      new_location: Нова локација
-      new_experience: Ново искуство
-      recent_locations: Недавне локације
-      recent_experiences: Недавна искуства
-      no_locations: Још нема локација
-      no_experiences: Још нема искустава
-    experiences:
-      seasons:
-        all_year: Цела година
-        spring: Пролеће
-        summer: Лето
-        fall: Јесен
-        winter: Зима
+  seasons:
+    all_year: Цела година
+    spring: Пролеће
+    summer: Лето
+    fall: Јесен
+    winter: Зима
   minesweeper:
     title: Миноловац
     subtitle: "Едукативна игра на стварним картама — мине су тамо где стварни подаци бележе минско сумњива подручја."

@@ -315,27 +315,6 @@ module Platform
         }
       end
 
-      # Curator management commands
-      # block curator { id: 123 } reason "spam"
-      rule(query: { curator_cmd: simple(:cmd), curator_action: simple(:ca), filters: subtree(:f), rejection_reason: subtree(:r) }) do |dict|
-        {
-          type: :curator_management,
-          action: dict[:cmd].to_s.to_sym,
-          filters: Transform.convert_filters(dict[:f]),
-          reason: dict[:r]&.to_s
-        }
-      end
-
-      # unblock curator { id: 123 }
-      rule(query: { curator_cmd: simple(:cmd), curator_action: simple(:ca), filters: subtree(:f) }) do |dict|
-        {
-          type: :curator_management,
-          action: dict[:cmd].to_s.to_sym,
-          filters: Transform.convert_filters(dict[:f]),
-          reason: nil
-        }
-      end
-
       # Validation commands
       # validate location { name: "X", city: "Y" }
       rule(query: { validation_cmd: simple(:cmd), validate_type: simple(:vt), filters: subtree(:f) }) do |dict|

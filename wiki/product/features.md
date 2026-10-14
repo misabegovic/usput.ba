@@ -134,14 +134,16 @@ Narrated tours per location and language, played on the location page, the walk 
 
 A signed-in traveller rates a location, experience or plan from 1 to 5 with an optional comment; the name shown is the account's. Jev sorts each new review into approved, held for a curator or rejected (observe mode records the band without acting on it yet); the author always sees their own review, marked when it is not public; ratings count approved reviews only; curators decide held reviews in the admin's reviews queue ([decision](../decisions/jev-decides-reviews.md); `app/controllers/reviews_controller.rb`, `app/services/review_moderation.rb`).
 
-## Curator dashboard and moderation
+## Moderation in the admin
 
-- **Dashboard.** `/curator` shows counts, review and audio coverage statistics, recent items and recent curator activity (`app/controllers/curator/dashboard_controller.rb`). Card layout, load-more and dark mode arrived in [#147](https://github.com/misabegovic/usput.ba/pull/147).
-- **Direct editing.** Curators create and edit places, experiences, plans and audio tours in the admin at `/admin`; only admins delete. The proposals that admins approved or rejected, present before 2026-01-15, were removed on 2026-09-30.
-- **Photos** are uploaded on the place in the admin at `/admin`, where a filter lists places with no photos or fewer than three; the photo suggestions of [#143](https://github.com/misabegovic/usput.ba/pull/143) were removed on 2026-09-30. The curator start page's "needs photos" button opens that filter.
+- **No curator dashboard.** The `/curator` dashboard, its start page, reviews list and users pages were removed on 2026-10-14; everything they did is in the admin at `/admin` ([removal plan](../initiatives/remove-curator-dashboard.md)).
+- **Direct editing.** Curators create and edit places, experiences, plans and audio tours in the admin; only admins delete. The proposals that admins approved or rejected, present before 2026-01-15, were removed on 2026-09-30.
+- **Photos** are uploaded on the place in the admin, where a filter lists places with no photos or fewer than three; the photo suggestions of [#143](https://github.com/misabegovic/usput.ba/pull/143) were removed on 2026-09-30.
 - **Moment moderation queue** ([#164](https://github.com/misabegovic/usput.ba/pull/164)), in the admin since 2026-09-30: public moments only, opening on those waiting, with Approve and Reject actions and the photo streamed by the app rather than through a storage link (`app/avo/resources/moment.rb`, `app/controllers/admin/moment_photos_controller.rb`).
-- **Archiving.** A place is archived instead of deleted, so check-ins and moments survive, and it can be restored. Delete states what it would cost first. Archiving is recorded in the curator activity trail ([#167](https://github.com/misabegovic/usput.ba/pull/167)).
-- **Admin tools.** Manage and unblock users (`config/routes.rb`, `curator/admin`); remove a review from the reviews list. Curator applications were removed on 2026-09-30; roles change in the new admin at `/admin`.
+- **Reviews queue**, opening on the reviews Jev held, with Approve and Reject; only an admin removes a review ([decision](../decisions/jev-decides-reviews.md)).
+- **Archiving.** A place is archived instead of deleted, so check-ins and moments survive, and it can be restored ([#167](https://github.com/misabegovic/usput.ba/pull/167)).
+- **Users.** Admins change roles and block or unblock accounts in the admin.
+- **The record of decisions** is Rails Event Store, one stream per record, readable by admins at `/event-store`; the curator activity trail, its spam limits and Flipper went with the dashboard on 2026-10-14.
 
 ## Accessibility
 

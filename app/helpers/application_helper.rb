@@ -78,7 +78,7 @@ module ApplicationHelper
   # an experience with no seasons is year-round by definition.
   def experience_season_label(season)
     key = season.presence || "all_year"
-    t("curator.experiences.seasons.#{key}", default: key.to_s.humanize)
+    t("seasons.#{key}", default: key.to_s.humanize)
   end
 
   # Safely renders an ActiveStorage attachment image, handling missing files gracefully

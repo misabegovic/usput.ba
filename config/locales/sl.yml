@@ -868,29 +868,12 @@ sl:
         name: Ime
         country_name: Država
         region: Regija
-  curator:
-    title: Nadzorna Plošča Kustosa
-    nav:
-      dashboard: Nadzorna Plošča
-    dashboard:
-      welcome: Dobrodošli, %{username}!
-      total_locations: Skupaj Lokacij
-      total_experiences: Skupaj Doživetij
-      total_cities: Skupaj Mest
-      quick_actions: Hitre Akcije
-      new_location: Nova Lokacija
-      new_experience: Novo Doživetje
-      recent_locations: Nedavne Lokacije
-      recent_experiences: Nedavna Doživetja
-      no_locations: Še ni lokacij
-      no_experiences: Še ni doživetij
-    experiences:
-      seasons:
-        all_year: Vse leto
-        spring: Pomlad
-        summer: Poletje
-        fall: Jesen
-        winter: Zima
+  seasons:
+    all_year: Vse leto
+    spring: Pomlad
+    summer: Poletje
+    fall: Jesen
+    winter: Zima
   minesweeper:
     title: Minolovec
     subtitle: "Izobraževalna igra na resničnih zemljevidih — mine so tam, kjer resnični podatki beležijo območja, sumljiva zaradi min."

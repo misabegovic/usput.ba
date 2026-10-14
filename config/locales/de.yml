@@ -976,29 +976,12 @@ de:
         name: Name
         country_name: Land
         region: Region
-  curator:
-    title: Kurator-Dashboard
-    nav:
-      dashboard: Übersicht
-    dashboard:
-      welcome: Willkommen, %{username}!
-      total_locations: Orte gesamt
-      total_experiences: Erlebnisse gesamt
-      total_cities: Orte gesamt
-      quick_actions: Schnellaktionen
-      new_location: Neuer Ort
-      new_experience: Neues Erlebnis
-      recent_locations: Neueste Orte
-      recent_experiences: Neueste Erlebnisse
-      no_locations: Noch keine Orte
-      no_experiences: Noch keine Erlebnisse
-    experiences:
-      seasons:
-        all_year: Ganzjährig
-        spring: Frühling
-        summer: Sommer
-        fall: Herbst
-        winter: Winter
+  seasons:
+    all_year: Ganzjährig
+    spring: Frühling
+    summer: Sommer
+    fall: Herbst
+    winter: Winter
   minesweeper:
     title: Minesweeper
     subtitle: "Ein Lernspiel auf echten Karten — Minen liegen dort, wo echte Daten minenverdächtige Gebiete verzeichnen."

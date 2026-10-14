@@ -923,29 +923,12 @@ pt:
         name: Nome
         country_name: País
         region: Região
-  curator:
-    title: Painel do Curador
-    nav:
-      dashboard: Painel
-    dashboard:
-      welcome: Bem-vindo, %{username}!
-      total_locations: Total de Locais
-      total_experiences: Total de Experiências
-      total_cities: Total de Cidades
-      quick_actions: Ações Rápidas
-      new_location: Novo Local
-      new_experience: Nova Experiência
-      recent_locations: Locais Recentes
-      recent_experiences: Experiências Recentes
-      no_locations: Ainda não há locais
-      no_experiences: Ainda não há experiências
-    experiences:
-      seasons:
-        all_year: Ano todo
-        spring: Primavera
-        summer: Verão
-        fall: Outono
-        winter: Inverno
+  seasons:
+    all_year: Ano todo
+    spring: Primavera
+    summer: Verão
+    fall: Outono
+    winter: Inverno
   minesweeper:
     title: Campo minado
     subtitle: "Um jogo educativo sobre mapas reais — as minas estão onde os dados reais registam áreas suspeitas."
