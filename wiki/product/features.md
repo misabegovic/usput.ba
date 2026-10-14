@@ -23,7 +23,7 @@ sources:
 - app/controllers/minesweeper_controller.rb
 - app/controllers/concerns/records_visits.rb
 - app/controllers/curator/locations_controller.rb
-- app/controllers/curator/moments_controller.rb
+- app/avo/resources/moment.rb
 - app/models/browse.rb
 - app/models/location.rb
 - app/models/audio_tour.rb
@@ -137,7 +137,7 @@ Anyone can rate a location, experience or plan from 1 to 5 with an optional comm
 - **Dashboard.** `/curator` shows counts, review and audio coverage statistics, recent items and recent curator activity (`app/controllers/curator/dashboard_controller.rb`). Card layout, load-more and dark mode arrived in [#147](https://github.com/misabegovic/usput.ba/pull/147).
 - **Direct editing.** Curators create and edit places, experiences, plans and audio tours in the admin at `/admin`; only admins delete. The proposals that admins approved or rejected, present before 2026-01-15, were removed on 2026-09-30.
 - **Photos** are uploaded on the place in the admin at `/admin`, where a filter lists places with no photos or fewer than three; the photo suggestions of [#143](https://github.com/misabegovic/usput.ba/pull/143) were removed on 2026-09-30. The curator start page's "needs photos" button opens that filter.
-- **Moment moderation queue** with pending, approved and rejected counts ([#164](https://github.com/misabegovic/usput.ba/pull/164); `app/controllers/curator/moments_controller.rb`). It is linked from the mobile menu since [#167](https://github.com/misabegovic/usput.ba/pull/167).
+- **Moment moderation queue** ([#164](https://github.com/misabegovic/usput.ba/pull/164)), in the admin since 2026-09-30: public moments only, opening on those waiting, with Approve and Reject actions and the photo streamed by the app rather than through a storage link (`app/avo/resources/moment.rb`, `app/controllers/admin/moment_photos_controller.rb`).
 - **Archiving.** A place is archived instead of deleted, so check-ins and moments survive, and it can be restored. Delete states what it would cost first. Archiving is recorded in the curator activity trail ([#167](https://github.com/misabegovic/usput.ba/pull/167)).
 - **Admin tools.** Manage and unblock users (`config/routes.rb`, `curator/admin`); remove a review from the reviews list. Curator applications were removed on 2026-09-30; roles change in the new admin at `/admin`.
 

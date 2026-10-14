@@ -42,6 +42,7 @@ Rails.application.routes.draw do
   # The admin (Avo) at /admin: a guest is sent to sign in, anyone who is not a
   # curator or admin finds no such page. Avo checks the role again inside.
   authenticate :user, ->(user) { user.can_curate? } do
+    get "admin/moment_photos/:id", to: "admin/moment_photos#show", as: :admin_moment_photo
     mount_avo do
       get "welcome", to: "tools#welcome", as: :welcome
     end
@@ -143,13 +144,6 @@ Rails.application.routes.draw do
   # Curator dashboard - for curators and admins
   namespace :curator do
     resources :reviews, only: [ :index, :show, :destroy ]
-    resources :moments, only: [ :index ] do
-      member do
-        get :photo
-        post :approve
-        post :reject
-      end
-    end
 
     # Admin features for admin users within curator dashboard
     namespace :admin do

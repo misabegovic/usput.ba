@@ -246,6 +246,7 @@
               <% youtube_id = @location.video_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/)&.[](1) %>
               <% if youtube_id %>
                 <iframe
+                  title="<%= @location.name %>"
                   src="https://www.youtube.com/embed/<%= youtube_id %>"
                   class="w-full h-full"
                   frameborder="0"

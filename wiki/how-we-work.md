@@ -88,7 +88,7 @@ through several of them, and each one's view is visible in the result.
 
 Every change arrives as a pull request with a short description written for
 a human: what is better for the traveller or the curator, what was wrong,
-and how it is kept safe. The same checks CI runs (rubocop, erb_lint, the
+and how it is kept safe. The same checks CI runs (rubocop, Herb lint, the
 full test suite) are run locally before anything is pushed, so a red build
 is a surprise rather than a routine.
 

@@ -61,8 +61,17 @@ jobs:
       - name: Run Rubocop
         run: bundle exec rubocop --parallel
 
-      - name: Run ERB lint
-        run: bundle exec erb_lint --lint-all
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Node packages
+        run: npm ci
+
+      - name: Run Herb lint
+        run: npm run lint:erb -- --github
 
       - name: Run tests with coverage
         run: bin/rails test

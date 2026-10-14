@@ -2,18 +2,16 @@
 # https://rubyllm.com/
 
 RubyLLM.configure do |config|
-  # OpenAI API key for GPT models
+  # Content generation runs on OpenAI (decided 2026-09-30). The other keys stay
+  # optional so a model from another provider can be named per call.
   config.openai_api_key = ENV.fetch("OPENAI_API_KEY", nil)
-
-  # Anthropic API key for Claude models (preferred)
   config.anthropic_api_key = ENV.fetch("ANTHROPIC_API_KEY", nil)
-
-  # Google AI API key for Gemini models
   config.gemini_api_key = ENV.fetch("GEMINI_API_KEY", nil)
 
-  # Default model to use
-  # Options: "gpt-4o-mini", "claude-sonnet-4-20250514", "gemini-2.0-flash", etc.
-  config.default_model = ENV.fetch("LLM_DEFAULT_MODEL", "gpt-4o-mini")
+  # GPT-6 Luna, OpenAI's low-cost tier ($0.10 in, $0.50 out per million tokens
+  # on 2026-10-14; it replaced gpt-4o-mini at $0.15 and $0.60). RubyLLM's model
+  # registry carries its prices, so every reply reports its cost.
+  config.default_model = ENV.fetch("LLM_DEFAULT_MODEL", "gpt-6-luna")
 
   # Request timeout in seconds
   # Increased to 300s (5 min) for complex AI proposals with structured output
@@ -30,8 +28,7 @@ RubyLLM.configure do |config|
   # - Attempt 2: wait ~5s (5 * 2^0 + randomness)
   # - Attempt 3: wait ~10s (5 * 2^1 + randomness)
   # - Attempt 4: wait ~20s (5 * 2^2 + randomness)
-  # - Attempt 5: wait ~40s (5 * 2^3 + randomness)
-  # Total max wait: ~75s before giving up
+  # - Attempt 5: wait ~30s (capped by retry_max_interval)
   config.max_retries = ENV.fetch("LLM_MAX_RETRIES", 5).to_i
   config.retry_interval = ENV.fetch("LLM_RETRY_INTERVAL", 5.0).to_f
   config.retry_backoff_factor = ENV.fetch("LLM_RETRY_BACKOFF_FACTOR", 2.0).to_f
