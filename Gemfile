@@ -64,7 +64,7 @@ gem "geocoder"
 gem "rubyzip", require: "zip"
 
 # AI/LLM integration for experience generation [https://github.com/crmne/ruby_llm]
-gem "ruby_llm"
+gem "ruby_llm", "~> 2.1"
 
 
 # CLI framework for Platform [https://github.com/rails/thor]

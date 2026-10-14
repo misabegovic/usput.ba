@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 module Ai
-  # Thin wrapper around RubyLLM for OpenAI API requests
-  # Provides centralized error handling and logging
+  # Thin wrapper around RubyLLM (2.x) for OpenAI API requests
+  # Provides centralized error handling and logging, and logs each call's
+  # model, tokens and cost
   #
   # Rate limiting is handled by RubyLLM's built-in Faraday retry middleware:
   # - Automatically retries on 429 (rate limit) status codes
@@ -95,6 +96,7 @@ module Ai
 
         # Check for gateway errors in the response content
         check_for_gateway_error_in_response(response)
+        log_usage(response, context)
 
         parse_response(response, schema)
       rescue GatewayError => e
@@ -155,17 +157,30 @@ module Ai
 
     private
 
+    # RubyLLM 2 returns structured output as a JSON string in `content` and
+    # parsed in `parsed`. Without a schema the reply is plain text.
     def parse_response(response, schema)
       return nil if response.nil? || response.content.nil?
+      return response.content if schema.nil?
 
-      if response.content.is_a?(Hash)
-        response.content.deep_symbolize_keys
-      elsif schema.nil?
-        # No schema means we expect plain text, return as-is
-        response.content
-      else
-        parse_ai_json_response(response.content)
-      end
+      parsed = response.parsed
+      parsed.is_a?(Hash) ? parsed.deep_symbolize_keys : parse_ai_json_response(response.content)
+    rescue JSON::ParserError
+      # A model that wraps its JSON in prose or a code fence
+      parse_ai_json_response(response.content)
+    end
+
+    # One line per call, so cost per service shows in the log until tracing
+    # (Langfuse) records it. Never lets a reporting problem fail the request.
+    def log_usage(response, context)
+      return if response.nil? || !response.respond_to?(:tokens)
+
+      tokens = response.tokens
+      cost = response.cost.total
+      Rails.logger.info "[#{context}] #{response.model} tokens in=#{tokens&.input || 0} " \
+                        "out=#{tokens&.output || 0} cost=$#{format("%.6f", cost || 0)}"
+    rescue StandardError => e
+      Rails.logger.debug "[#{context}] usage not logged: #{e.class}"
     end
 
     def parse_ai_json_response(content)
@@ -183,8 +198,8 @@ module Ai
 
     def sanitize_ai_json(json_str)
       json_str = json_str.dup
-      json_str.gsub!(/[""]/, '"')
-      json_str.gsub!(/['']/, "'")
+      json_str.gsub!(/[\u201C\u201D]/, '"')
+      json_str.gsub!(/[\u2018\u2019]/, "'")
       json_str.gsub!(/,(\s*[\}\]])/, '\1')
       json_str
     end

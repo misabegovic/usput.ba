@@ -4,14 +4,18 @@ require "test_helper"
 
 module Ai
   class OpenaiQueueTest < ActiveJob::TestCase
+    # An assistant reply as RubyLLM 2 returns it: structured output arrives as
+    # a JSON string in content, read back through #parsed.
+    def reply(content)
+      RubyLLM::Message.new(role: :assistant, content: content, model: "gpt-6-luna")
+    end
+
     # === Request method tests ===
 
     test "request returns parsed hash response when schema is provided" do
       response_content = { name: "Test", value: 123 }
 
-      mock_response = Object.new
-      mock_response.define_singleton_method(:nil?) { false }
-      mock_response.define_singleton_method(:content) { response_content }
+      mock_response = reply(response_content.to_json)
 
       mock_chat = Object.new
       mock_chat.define_singleton_method(:with_schema) { |_schema| self }
@@ -29,9 +33,7 @@ module Ai
     end
 
     test "request returns string response when no schema is provided" do
-      mock_response = Object.new
-      mock_response.define_singleton_method(:nil?) { false }
-      mock_response.define_singleton_method(:content) { "Plain text response" }
+      mock_response = reply("Plain text response")
 
       mock_chat = Object.new
       mock_chat.define_singleton_method(:ask) { |_prompt| mock_response }
@@ -61,9 +63,7 @@ module Ai
     end
 
     test "request returns nil when response content is nil" do
-      mock_response = Object.new
-      mock_response.define_singleton_method(:nil?) { false }
-      mock_response.define_singleton_method(:content) { nil }
+      mock_response = reply(nil)
 
       mock_chat = Object.new
       mock_chat.define_singleton_method(:ask) { |_prompt| mock_response }
@@ -78,16 +78,53 @@ module Ai
       end
     end
 
+    # === Model and cost (RubyLLM 2) ===
+
+    test "GPT-6 Luna is in RubyLLM's registry with its prices" do
+      model = RubyLLM.models.find("gpt-6-luna")
+      tokens = RubyLLM::Tokens.new(input: 100_000, output: 100_000)
+
+      # $0.10 in and $0.50 out per million tokens (OpenAI, 2026-10-14)
+      assert_in_delta 0.06, RubyLLM::Cost.new(tokens: tokens, model: model).total, 0.0001
+    end
+
+    test "each call logs its model, tokens and cost" do
+      response = reply("Plain text response")
+      response.define_singleton_method(:tokens) { RubyLLM::Tokens.new(input: 1200, output: 300) }
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:ask) { |_prompt| response }
+      logged = []
+
+      Rails.logger.stub :info, ->(message) { logged << message } do
+        RubyLLM.stub :chat, mock_chat do
+          Ai::OpenaiQueue.request(prompt: "Test", context: "Describer")
+        end
+      end
+
+      assert_includes logged, "[Describer] gpt-6-luna tokens in=1200 out=300 cost=$0.000270"
+    end
+
+    test "a reply without usage still returns its content" do
+      response = reply("Plain text response")
+      response.define_singleton_method(:cost) { raise "no pricing" }
+      mock_chat = Object.new
+      mock_chat.define_singleton_method(:ask) { |_prompt| response }
+
+      RubyLLM.stub :chat, mock_chat do
+        assert_equal "Plain text response", Ai::OpenaiQueue.request(prompt: "Test", context: "Test")
+      end
+    end
+
     # === Error handling tests ===
 
     test "request raises RateLimitError on RubyLLM::RateLimitError" do
-      # RubyLLM errors expect a response object with a body method
+      # RubyLLM 2 errors take the response as a keyword; its body is the message
       mock_response = Object.new
       mock_response.define_singleton_method(:body) { '{"error": {"message": "Rate limit exceeded"}}' }
 
       mock_chat = Object.new
       mock_chat.define_singleton_method(:ask) do |_prompt|
-        raise RubyLLM::RateLimitError.new(mock_response)
+        raise RubyLLM::RateLimitError.new(response: mock_response)
       end
 
       RubyLLM.stub :chat, mock_chat do
@@ -100,13 +137,13 @@ module Ai
     end
 
     test "request raises RequestError on RubyLLM::Error" do
-      # RubyLLM errors expect a response object with a body method
+      # RubyLLM 2 errors take the response as a keyword; its body is the message
       mock_response = Object.new
       mock_response.define_singleton_method(:body) { '{"error": {"message": "API error"}}' }
 
       mock_chat = Object.new
       mock_chat.define_singleton_method(:ask) do |_prompt|
-        raise RubyLLM::Error.new(mock_response)
+        raise RubyLLM::Error.new(response: mock_response)
       end
 
       RubyLLM.stub :chat, mock_chat do
@@ -138,9 +175,7 @@ module Ai
     test "parses JSON from markdown code block" do
       json_content = "```json\n{\"name\": \"Test\", \"value\": 123}\n```"
 
-      mock_response = Object.new
-      mock_response.define_singleton_method(:nil?) { false }
-      mock_response.define_singleton_method(:content) { json_content }
+      mock_response = reply(json_content)
 
       mock_chat = Object.new
       mock_chat.define_singleton_method(:with_schema) { |_schema| self }
@@ -160,9 +195,7 @@ module Ai
     test "parses raw JSON object" do
       json_content = '{"name": "Test", "items": ["a", "b"]}'
 
-      mock_response = Object.new
-      mock_response.define_singleton_method(:nil?) { false }
-      mock_response.define_singleton_method(:content) { json_content }
+      mock_response = reply(json_content)
 
       mock_chat = Object.new
       mock_chat.define_singleton_method(:with_schema) { |_schema| self }
@@ -180,12 +213,10 @@ module Ai
     end
 
     test "sanitizes smart quotes in JSON" do
-      # Using smart quotes that should be converted to regular quotes
-      json_content = '{"name": "Test"}'
+      # Curly quotes, as a model writing prose sometimes returns
+      json_content = "{\u201Cname\u201D: \u201CTest\u201D}"
 
-      mock_response = Object.new
-      mock_response.define_singleton_method(:nil?) { false }
-      mock_response.define_singleton_method(:content) { json_content }
+      mock_response = reply(json_content)
 
       mock_chat = Object.new
       mock_chat.define_singleton_method(:with_schema) { |_schema| self }
@@ -205,9 +236,7 @@ module Ai
     test "handles trailing commas in JSON" do
       json_content = '{"name": "Test", "value": 1,}'
 
-      mock_response = Object.new
-      mock_response.define_singleton_method(:nil?) { false }
-      mock_response.define_singleton_method(:content) { json_content }
+      mock_response = reply(json_content)
 
       mock_chat = Object.new
       mock_chat.define_singleton_method(:with_schema) { |_schema| self }
@@ -227,9 +256,7 @@ module Ai
     test "returns empty hash on invalid JSON" do
       json_content = "not valid json at all"
 
-      mock_response = Object.new
-      mock_response.define_singleton_method(:nil?) { false }
-      mock_response.define_singleton_method(:content) { json_content }
+      mock_response = reply(json_content)
 
       mock_chat = Object.new
       mock_chat.define_singleton_method(:with_schema) { |_schema| self }
@@ -306,13 +333,9 @@ module Ai
       gateway_html = "<html><title>502 Bad Gateway</title></html>"
       good_response = { result: "success" }
 
-      mock_response_bad = Object.new
-      mock_response_bad.define_singleton_method(:nil?) { false }
-      mock_response_bad.define_singleton_method(:content) { gateway_html }
+      mock_response_bad = reply(gateway_html)
 
-      mock_response_good = Object.new
-      mock_response_good.define_singleton_method(:nil?) { false }
-      mock_response_good.define_singleton_method(:content) { good_response }
+      mock_response_good = reply(good_response.to_json)
 
       mock_chat = Object.new
       mock_chat.define_singleton_method(:with_schema) { |_schema| self }
@@ -378,9 +401,7 @@ module Ai
       call_count = 0
       good_response = { result: "success" }
 
-      mock_response_good = Object.new
-      mock_response_good.define_singleton_method(:nil?) { false }
-      mock_response_good.define_singleton_method(:content) { good_response }
+      mock_response_good = reply(good_response.to_json)
 
       mock_chat = Object.new
       mock_chat.define_singleton_method(:with_schema) { |_schema| self }

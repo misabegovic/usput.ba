@@ -2,11 +2,12 @@
 title: Product state
 kind: reference
 status: living
-updated: 2026-10-08
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
 sources:
+- sources/conversations/2026-10-14--usput--tooling-models-langfuse-jev.md
 - sources/conversations/2026-09-30--usput--platform-direction.md
 - sources/planning/README.md
 - sources/planning/IMPLEMENTATION.md
@@ -69,7 +70,7 @@ Where Usput.ba has been, what is true in the code today, what the older planning
 - **Moments need a check-in.** Since 2026-10-08 a moment is saved only at a place the traveller checked in at, on any of their plans, and the upload tile appears only after that check-in; guests keep the sign-in tile ([decision](decisions/capture-needs-a-check-in.md); `app/models/moment.rb`).
 - **Reviews are unmoderated.** `Review` has no status column; any visitor can post (the controller has no login requirement and still permits `author_name`), and every review counts toward `average_rating` (`app/models/review.rb`, `app/controllers/reviews_controller.rb`).
 - **Platform CLI.** `bin/platform` offers `status`, `version`, `query` and `exec` for DSL queries; there is no `chat` command (`lib/platform/cli.rb`). Executors cover schema, table queries, content, curators, external data, infrastructure and quality. The MCP server exists (`lib/platform/mcp_server.rb`) and refuses to run in production.
-- **AI content.** `Ai::LocationEnricher`, `Ai::ExperienceTypeClassifier`, `Ai::AudioTourGenerator` and `Ai::ExperienceLocationSyncer` call the LLM directly with prompts under `app/prompts/`. Audio tours are generated from rake tasks and DSL, not from the dashboard.
+- **AI content.** `Ai::LocationEnricher`, `Ai::ExperienceTypeClassifier`, `Ai::AudioTourGenerator` and `Ai::ExperienceLocationSyncer` call the LLM through `Ai::OpenaiQueue` with prompts under `app/prompts/`, on RubyLLM 2.1 with `gpt-6-luna` as the default model since 2026-10-14; each call logs its tokens and cost. Audio tours are generated from rake tasks and DSL, not from the dashboard.
 - **Accessibility.** Locations carry an `accessibility` JSONB (wheelchair level plus five features and notes); Browse rows carry `wheelchair_accessible`. See [location accessibility](initiatives/location-accessibility.md).
 
 ## Perceived

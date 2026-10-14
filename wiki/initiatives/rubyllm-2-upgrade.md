@@ -2,7 +2,7 @@
 title: RubyLLM 2 in the rebuild
 kind: initiative
 status: proposed
-updated: 2026-09-30
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
@@ -10,6 +10,8 @@ depends_on:
 - architecture/ai-content-pipeline.md
 - decisions/avo-now-compile-later.md
 sources:
+- sources/conversations/2026-10-14--usput--tooling-models-langfuse-jev.md
+- https://developers.openai.com/api/docs/pricing
 - sources/conversations/2026-09-30--usput--platform-direction.md
 - Gemfile
 - Gemfile.lock
@@ -114,6 +116,18 @@ Small to medium: slices 1, 2 and 4 are small, slices 3, 5 and 6 are medium, slic
 
 **Decided on 2026-09-30** ([answers](../../sources/conversations/2026-09-30--usput--platform-direction.md)): Content generation uses OpenAI. Embeddings use OpenAI `text-embedding-3-small`. Audio tours are in version 1. The questions below that these answers settle are closed; the rest stay open.
 
-- **Default provider and model** for content generation. Today the default is `gpt-4o-mini` with keys for three providers configured; the rebuild can name one provider and one model per task.
+- **Default provider and model** for content generation. Decided on 2026-10-14: `gpt-6-luna`, OpenAI's low-cost tier ([answers](../../sources/conversations/2026-10-14--usput--tooling-models-langfuse-jev.md)). A task that needs stronger prose can name another model per call.
 - **OpenAI protocol**: the 2.0 default (Responses API) or `chat_completions`.
 - **Whether audio tours come back** in the rebuild, and if so after version 1.
+
+## Build notes
+
+On 2026-10-14 the operator asked for the latest RubyLLM and OpenAI's Luna models now, on the current code, rather than waiting for the rebuild ([answers](../../sources/conversations/2026-10-14--usput--tooling-models-langfuse-jev.md)). The first slice landed on `Ai::OpenaiQueue` as it is:
+
+- **`ruby_llm` 2.1.1**, pinned `~> 2.1`. The legacy `acts_as` warning is gone with the API it warned about.
+- **`gpt-6-luna` is the default model.** OpenAI lists it at $0.10 input, $0.01 cached input and $0.50 output per million tokens, half that on Batch and Flex; `gpt-4o-mini` was $0.15 and $0.60 (https://developers.openai.com/api/docs/pricing, read 2026-10-14). Above 272K input tokens the long-context price applies. `LLM_DEFAULT_MODEL` still overrides it, so an environment that sets it keeps its own model.
+- **Structured output is read through `parsed`**, with the regex extraction kept only as a fallback for a reply that wraps its JSON in prose. The curly-quote repair now matches real curly quotes; before, its character classes held plain ASCII quotes and repaired nothing.
+- **Cost on every call.** The wrapper logs the model, tokens and dollar cost of each reply, priced by RubyLLM's model registry, until Langfuse traces carry them.
+- **Tests describe 2.x**: replies are `RubyLLM::Message` objects with JSON string content, errors take `response:` as a keyword.
+
+Still open from the scope above: the one seam beyond `OpenaiQueue` (the Platform DSL's `LLMHelper` still calls `RubyLLM.chat` itself), schema classes, prompts only from files, and generation jobs.
