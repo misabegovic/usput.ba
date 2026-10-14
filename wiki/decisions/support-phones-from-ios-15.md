@@ -52,8 +52,8 @@ feature).
 ## Decision
 
 The floor is **iOS 15 (Safari 15.4 and later) and Android phones of about
-2019** (Chrome and WebView 80 and later, Samsung Internet 13 and later),
-reached without a build step:
+2019 whose browser still updates**: Chrome and Android WebView 99, Samsung
+Internet 18, Firefox 115. It is reached without a build step:
 
 - `es-module-shims` loads the import map where the browser cannot.
 - Tailwind moves to the current 4.x release for its fallbacks.
@@ -63,10 +63,16 @@ reached without a build step:
   notice and keeps the server-rendered pages.
 - The floor is written in `README.md` and checked on a short device list.
 
-The exact Chrome and Samsung numbers are confirmed by that check, not
-assumed: where a library's own baseline (Turbo, Stimulus, Leaflet) or
-syntax in usput's controllers sits higher, either the code changes or this
-page records the higher number.
+**The numbers come from the code, checked on 2026-10-14.** The first
+estimate was Chrome 80. Turbo 8's shipped build uses private methods (82
+times) and logical assignment, which need Chrome 85 and Safari 15; usput's
+controllers use private methods too. Then every rule in the Tailwind build
+sits inside a cascade layer (`@layer theme`, `base`, `components`,
+`utilities`), and a browser without layers drops each block whole, which
+leaves the page unstyled below Chrome 99, Firefox 97 and Safari 15.4. Getting
+under that would need a CSS build step, which this decision rules out, so the
+floor is Chrome 99. A phone from 2019 meets it as long as its browser
+updates; a WebView frozen below 99 gets the notice.
 
 ## Alternatives
 
@@ -85,5 +91,9 @@ page records the higher number.
   phones can update to 15.8 and are treated as below the floor.
 - Every new controller or dependency is held to the floor; a library that
   needs more raises the floor in this page, by decision, not by accident.
+  `test/javascript_floor_test.rb` fails on the newer features that are easy
+  to reach for, and on any `localStorage` call outside the safe helper.
+- `es-module-shims` runs rewritten modules from `blob:` URLs, so the content
+  security policy allows `blob:` scripts.
 - Herb lint and the system tests do not check the floor; the device list
   does.

@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { storage } from "services/safe_storage"
 
 // Connects to data-controller="theme"
 export default class extends Controller {
@@ -75,7 +76,7 @@ export default class extends Controller {
 
   saveTheme(theme) {
     try {
-      localStorage.setItem(this.storageKeyValue, theme)
+      storage.setItem(this.storageKeyValue, theme)
     } catch (e) {
       // localStorage might be disabled
       console.warn("Could not save theme preference:", e)
@@ -85,7 +86,7 @@ export default class extends Controller {
   get currentTheme() {
     // Check localStorage first
     try {
-      const stored = localStorage.getItem(this.storageKeyValue)
+      const stored = storage.getItem(this.storageKeyValue)
       if (stored === "dark" || stored === "light") {
         return stored
       }

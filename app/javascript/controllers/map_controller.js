@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { positionService } from "services/position_service"
 import { distanceKm, profileFor, summarise, fetchRoute } from "services/route_service"
 import { loadLeaflet } from "services/leaflet_service"
+import { session } from "services/safe_storage"
 
 // Assigned by the first build on the page, and read by every method below —
 // all of which run downstream of one.
@@ -38,13 +39,13 @@ function catalogue(version, { fresh = false } = {}) {
   catalogueVersion = version
 
   const key = `usput_map_points/${version}`
-  const held = fresh ? null : sessionStorage.getItem(key)
+  const held = fresh ? null : session.getItem(key)
   if (held) {
     try {
       cataloguePromise = Promise.resolve(JSON.parse(held))
       return cataloguePromise
     } catch {
-      sessionStorage.removeItem(key)
+      session.removeItem(key)
     }
   }
 
@@ -61,8 +62,8 @@ function catalogue(version, { fresh = false } = {}) {
       try {
         Object.keys(sessionStorage)
           .filter((held) => held.startsWith("usput_map_points/") && held !== key)
-          .forEach((stale) => sessionStorage.removeItem(stale))
-        sessionStorage.setItem(key, JSON.stringify(points))
+          .forEach((stale) => session.removeItem(stale))
+        session.setItem(key, JSON.stringify(points))
       } catch {
         // A full quota is not a reason to lose the map.
       }
@@ -93,7 +94,7 @@ function forgetCatalogue() {
   try {
     Object.keys(sessionStorage)
       .filter((key) => key.startsWith("usput_map_points/"))
-      .forEach((key) => sessionStorage.removeItem(key))
+      .forEach((key) => session.removeItem(key))
   } catch {
     // Storage the browser will not hand over holds nothing to forget.
   }

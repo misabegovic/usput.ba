@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { storage } from "services/safe_storage"
 
 export default class extends Controller {
   static targets = ["container", "empty", "list"]
@@ -26,18 +27,18 @@ export default class extends Controller {
 
   getPlans() {
     try {
-      const data = localStorage.getItem(this.plansKeyValue)
+      const data = storage.getItem(this.plansKeyValue)
       if (data) {
         return JSON.parse(data)
       }
 
       // Migrate from old format
-      const oldPlan = localStorage.getItem("visitumo_plan")
+      const oldPlan = storage.getItem("visitumo_plan")
       if (oldPlan) {
         const plan = JSON.parse(oldPlan)
         const plans = [plan]
-        localStorage.setItem(this.plansKeyValue, JSON.stringify(plans))
-        localStorage.removeItem("visitumo_plan")
+        storage.setItem(this.plansKeyValue, JSON.stringify(plans))
+        storage.removeItem("visitumo_plan")
         return plans
       }
 
@@ -85,7 +86,7 @@ export default class extends Controller {
   renderPlans(plans) {
     if (!this.hasListTarget) return
 
-    const activePlanId = localStorage.getItem(this.activePlanKeyValue)
+    const activePlanId = storage.getItem(this.activePlanKeyValue)
 
     this.listTarget.innerHTML = plans.map(plan => {
       const isActive = plan.id === activePlanId
@@ -205,7 +206,7 @@ export default class extends Controller {
   setActivePlan(event) {
     const planId = event.currentTarget.dataset.planId
     if (planId) {
-      localStorage.setItem(this.activePlanKeyValue, planId)
+      storage.setItem(this.activePlanKeyValue, planId)
     }
   }
 
@@ -244,15 +245,15 @@ export default class extends Controller {
       }
 
       plans = plans.filter(p => p.id !== planId)
-      localStorage.setItem(this.plansKeyValue, JSON.stringify(plans))
+      storage.setItem(this.plansKeyValue, JSON.stringify(plans))
 
       // Update active plan if needed
-      const activePlanId = localStorage.getItem(this.activePlanKeyValue)
+      const activePlanId = storage.getItem(this.activePlanKeyValue)
       if (activePlanId === planId) {
         if (plans.length > 0) {
-          localStorage.setItem(this.activePlanKeyValue, plans[0].id)
+          storage.setItem(this.activePlanKeyValue, plans[0].id)
         } else {
-          localStorage.removeItem(this.activePlanKeyValue)
+          storage.removeItem(this.activePlanKeyValue)
         }
       }
 

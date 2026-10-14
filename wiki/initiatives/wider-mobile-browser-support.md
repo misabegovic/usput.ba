@@ -25,8 +25,8 @@ work on all devices. The floor is now decided
 ## Objective
 
 Usput works, not only reads, on phones from iOS 15 (Safari 15.4 and later)
-and Android of about 2019 (Chrome and WebView 80, Samsung Internet 13), as
-decided on 2026-10-14, stated in `README.md`, with a visible notice below it
+and Android of about 2019 whose browser updates (Chrome and WebView 99,
+Samsung Internet 18, Firefox 115), as decided on 2026-10-14, stated in `README.md`, with a visible notice below it
 instead of a silently broken page.
 
 ## Background
@@ -90,3 +90,15 @@ Medium: a delivery-layer change, guards and one device pass.
 
 - **The device list** for the check: which real phones or emulators, and
   whether a hosted device cloud is worth paying for.
+
+## Build notes
+
+Built on 2026-10-14, on the branch `feat/phones-from-ios-15`:
+
+- `es-module-shims` 2.8.4 is vendored (`vendor/javascript/es-module-shims.js`, MIT) and loaded, async, before the import map in all three layouts; the content security policy allows `blob:` scripts for it.
+- Tailwind 4.1.18 to 4.3.3 in the gem, the Dockerfile's standalone CLI and `package.json`; the build carries 139 `@supports` colour fallbacks.
+- `app/javascript/services/safe_storage.js` takes all 63 `localStorage` calls in the controllers and services (the 78 counted on 2026-08-02 had shrunk), and the 7 `sessionStorage` calls of the map and the deck filters, which the 2026-08-02 count missed; with storage refused, the map drew no places at all. The three inline theme scripts already had a `try`.
+- `app/views/shared/_browser_floor.html.erb`, in every layout: a `<noscript>` notice, and a notice shown when the browser lacks cascade layers or cannot parse Turbo's syntax, styled inline so it shows without the stylesheet, in Bosnian and English.
+- Tests: the layouts load the shim before the import map, the notice starts hidden, the policy allows `blob:`; no script uses a feature above the floor or touches `localStorage` directly; in Chrome the probe passes, and when every storage call throws the cookie banner still works and the map still draws its places (that test fails without the guard).
+- Not yet done: a pass on real devices at the floor (an iPhone on iOS 15.8, an older Android WebView). Chrome is the only browser the system tests drive.
+

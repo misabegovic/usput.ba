@@ -1,0 +1,10 @@
+{
+  "v": 1,
+  "id": "hook-585a5ed0-a332-4dd5-83ee-ac1ddd1795b2-01791966553276757645-w1791967843394031018-entered-usput.ba-pr182",
+  "at": "2026-10-14T08:57:25Z",
+  "agent": "session",
+  "kind": "hook-injected",
+  "ref": "585a5ed0-a332-4dd5-83ee-ac1ddd1795b2",
+  "note": "gate intent-first: usput.ba-pr182/.github/workflows/ci.yml (a Bash call, after the write)",
+  "written_ns": 1791968245751912146
+}

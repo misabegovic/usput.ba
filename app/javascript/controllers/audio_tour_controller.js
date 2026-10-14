@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { storage } from "services/safe_storage"
 
 // Audio Tour controller for multilingual audio playback with custom player controls
 // Allows users to switch between different language versions of audio tours
@@ -209,7 +210,7 @@ export default class extends Controller {
   // Save preferred language to localStorage
   savePreferredLanguage(locale) {
     try {
-      localStorage.setItem("audio_tour_locale", locale)
+      storage.setItem("audio_tour_locale", locale)
     } catch (e) {
       // localStorage not available, ignore
     }
@@ -218,7 +219,7 @@ export default class extends Controller {
   // Load and apply preferred language
   loadPreferredLanguage() {
     try {
-      const savedLocale = localStorage.getItem("audio_tour_locale")
+      const savedLocale = storage.getItem("audio_tour_locale")
       if (savedLocale && this.audioUrlsValue && this.audioUrlsValue[savedLocale]) {
         // Find the button for the saved locale and click it
         const button = this.languageButtonTargets.find(b => b.dataset.locale === savedLocale)

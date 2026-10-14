@@ -1,3 +1,4 @@
+import { storage } from "services/safe_storage"
 // Plan Sync Service
 // Handles synchronization between localStorage and backend for user plans
 
@@ -24,7 +25,7 @@ export class PlanSyncService {
   // Load plans from localStorage
   getLocalPlans() {
     try {
-      const data = localStorage.getItem(PLANS_KEY)
+      const data = storage.getItem(PLANS_KEY)
       return data ? JSON.parse(data) : []
     } catch {
       return []
@@ -34,7 +35,7 @@ export class PlanSyncService {
   // Save plans to localStorage
   saveLocalPlans(plans) {
     try {
-      localStorage.setItem(PLANS_KEY, JSON.stringify(plans))
+      storage.setItem(PLANS_KEY, JSON.stringify(plans))
     } catch (error) {
       console.error("Failed to save plans to localStorage:", error)
     }
@@ -42,15 +43,15 @@ export class PlanSyncService {
 
   // Get active plan ID
   getActivePlanId() {
-    return localStorage.getItem(ACTIVE_PLAN_KEY)
+    return storage.getItem(ACTIVE_PLAN_KEY)
   }
 
   // Set active plan ID
   setActivePlanId(planId) {
     if (planId) {
-      localStorage.setItem(ACTIVE_PLAN_KEY, planId)
+      storage.setItem(ACTIVE_PLAN_KEY, planId)
     } else {
-      localStorage.removeItem(ACTIVE_PLAN_KEY)
+      storage.removeItem(ACTIVE_PLAN_KEY)
     }
   }
 

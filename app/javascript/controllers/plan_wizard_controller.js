@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import { escapeHtml } from "services/html_escape"
+import { storage } from "services/safe_storage"
 
 // Connects to data-controller="plan-wizard"
 export default class extends Controller {
@@ -667,14 +668,14 @@ export default class extends Controller {
       const trimmedPlans = plans.slice(0, 10)
 
       // Save plans list
-      localStorage.setItem(this.plansKeyValue, JSON.stringify(trimmedPlans))
+      storage.setItem(this.plansKeyValue, JSON.stringify(trimmedPlans))
 
       // Set this plan as active
-      localStorage.setItem(this.activePlanKeyValue, planData.id)
+      storage.setItem(this.activePlanKeyValue, planData.id)
 
       // Clean up old single-plan format if it exists
-      localStorage.removeItem("visitumo_plan")
-      localStorage.removeItem("visitumo_plan_history")
+      storage.removeItem("visitumo_plan")
+      storage.removeItem("visitumo_plan_history")
 
       return true
     } catch (error) {
@@ -686,13 +687,13 @@ export default class extends Controller {
   // Get all plans from localStorage
   getAllPlans() {
     try {
-      const data = localStorage.getItem(this.plansKeyValue)
+      const data = storage.getItem(this.plansKeyValue)
       if (data) {
         return JSON.parse(data)
       }
 
       // Migrate from old single-plan format if exists
-      const oldPlan = localStorage.getItem("visitumo_plan")
+      const oldPlan = storage.getItem("visitumo_plan")
       if (oldPlan) {
         const plan = JSON.parse(oldPlan)
         return [plan]
@@ -710,7 +711,7 @@ export default class extends Controller {
       const plans = this.getAllPlans()
       if (plans.length === 0) return null
 
-      const activePlanId = localStorage.getItem(this.activePlanKeyValue)
+      const activePlanId = storage.getItem(this.activePlanKeyValue)
       if (activePlanId) {
         const activePlan = plans.find(p => p.id === activePlanId)
         if (activePlan) return activePlan
@@ -725,22 +726,22 @@ export default class extends Controller {
 
   // Clear all plans
   clearAllPlans() {
-    localStorage.removeItem(this.plansKeyValue)
-    localStorage.removeItem(this.activePlanKeyValue)
+    storage.removeItem(this.plansKeyValue)
+    storage.removeItem(this.activePlanKeyValue)
   }
 
   // Clear specific plan
   clearPlan(planId) {
     const plans = this.getAllPlans()
     const filtered = plans.filter(p => p.id !== planId)
-    localStorage.setItem(this.plansKeyValue, JSON.stringify(filtered))
+    storage.setItem(this.plansKeyValue, JSON.stringify(filtered))
 
     // If we deleted the active plan, set a new active
-    const activePlanId = localStorage.getItem(this.activePlanKeyValue)
+    const activePlanId = storage.getItem(this.activePlanKeyValue)
     if (activePlanId === planId && filtered.length > 0) {
-      localStorage.setItem(this.activePlanKeyValue, filtered[0].id)
+      storage.setItem(this.activePlanKeyValue, filtered[0].id)
     } else if (filtered.length === 0) {
-      localStorage.removeItem(this.activePlanKeyValue)
+      storage.removeItem(this.activePlanKeyValue)
     }
   }
 

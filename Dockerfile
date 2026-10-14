@@ -36,7 +36,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install standalone Tailwind CSS CLI
-ARG TAILWINDCSS_VERSION=4.1.8
+ARG TAILWINDCSS_VERSION=4.3.3
 RUN curl -fsSL "https://github.com/tailwindlabs/tailwindcss/releases/download/v${TAILWINDCSS_VERSION}/tailwindcss-linux-x64" -o /usr/local/bin/tailwindcss && \
     chmod +x /usr/local/bin/tailwindcss
 
