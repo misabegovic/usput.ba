@@ -8,7 +8,10 @@ gem "propshaft"
 gem "pg", "~> 1.5"
 # Mine Checker (docs/mine_checker/SPEC.md): PostGIS geography + GeoJSON import
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", ">= 5.0"
+gem "puma", "~> 7.2" # 7.2.1 fixes the PROXY protocol advisories; 8.x is a major left for its own change
+# ActiveSupport 8.1's JSON decoding breaks on json 3 (every json column read
+# raised ArgumentError); 2.21 carries the security fixes
+gem "json", "~> 2.21"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
 gem "importmap-rails"
 # Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
