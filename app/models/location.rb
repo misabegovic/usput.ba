@@ -109,6 +109,8 @@ class Location < ApplicationRecord
              photos_attachments: :blob,
              audio_tours: { audio_file_attachment: :blob })
   }
+  # What category_key and category_keys read, for a list to preload.
+  CATEGORY_PRELOAD = [ :location_categories, { location_category_assignments: :location_category } ].freeze
   scope :wheelchair_accessible, -> {
     where("accessibility->>'wheelchair_access' IN (?)", %w[full partial])
   }
@@ -562,14 +564,20 @@ class Location < ApplicationRecord
     @destroying_traveller_records = false
   end
 
+  # Both readers answer from preloaded associations when a list preloaded
+  # them, and query otherwise, so a page of places costs no query per place.
   def primary_category
+    if location_category_assignments.loaded? && location_categories.loaded?
+      return location_category_assignments.find(&:primary)&.location_category || location_categories.min_by(&:id)
+    end
+
     location_category_assignments.find_by(primary: true)&.location_category ||
       location_categories.first
   end
 
   # Get all category keys
   def category_keys
-    location_categories.pluck(:key)
+    location_categories.loaded? ? location_categories.map(&:key) : location_categories.pluck(:key)
   end
 
   # Get primary category key (for display and API)

@@ -60,4 +60,12 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_kind_of String, location_type_label(nil)
     assert_equal location_type_label("place"), location_type_label(nil)
   end
+
+  test "random_hero_background picks from the folder, read once" do
+    files = ApplicationHelper.hero_backgrounds
+    skip "no hero images in this checkout" if files.empty?
+
+    assert_includes files.map { |file| "hero_backgrounds/#{file}" }, random_hero_background
+    Dir.stub(:glob, ->(*) { flunk "the folder is read again" }) { random_hero_background }
+  end
 end

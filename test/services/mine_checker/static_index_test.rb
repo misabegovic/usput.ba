@@ -50,6 +50,20 @@ class MineChecker::StaticIndexTest < ActiveSupport::TestCase
     assert_in_delta 0.7, km2, 0.3
   end
 
+  test "km2 by row spans counts exactly what the cell-by-cell walk counts" do
+    grid = @index.meta["grids"]["inside"]
+    lat = (@area[:south] + @area[:north]) / 2.0
+    lon = (@area[:west] + @area[:east]) / 2.0
+
+    [ [ lat, lon ], [ @area[:north], @area[:east] ], [ lat + 0.004, lon - 0.006 ] ].each do |point_lat, point_lon|
+      [ 300, 700, 5_000 ].each do |radius|
+        assert_equal cell_by_cell_km2(grid, point_lat, point_lon, radius),
+                     @index.suspected_km2_within(point_lat, point_lon, radius),
+                     "at #{point_lat},#{point_lon} within #{radius} m"
+      end
+    end
+  end
+
   test "overlay artifacts serve overview dots and boundary tiles" do
     overview = JSON.parse(@index.overview_json)
     assert_equal 1, overview["features"].size
@@ -63,5 +77,27 @@ class MineChecker::StaticIndexTest < ActiveSupport::TestCase
     ENV["MINE_STATIC_DIR"] = Rails.root.join("tmp/definitely_missing_static").to_s
     MineChecker::StaticIndex.reset!
     assert_equal "unavailable", MineChecker::StaticIndex.instance.band_at(44.0, 17.5)
+  end
+
+  private
+
+  # The walk suspected_km2_within replaced, kept as the oracle.
+  def cell_by_cell_km2(grid, lat, lon, radius_m)
+    r_lat = (radius_m / (grid["dlat"] * 111_320.0)).ceil
+    r_lon = (radius_m / (grid["dlon"] * 111_320.0 * Math.cos(lat * Math::PI / 180))).ceil
+    r0 = @index.send(:row_for, grid, lat)
+    c0 = @index.send(:col_for, grid, lon)
+    count = 0
+    (r0 - r_lat).upto(r0 + r_lat) do |r|
+      next if r.negative? || r >= grid["rows"]
+
+      (c0 - r_lon).upto(c0 + r_lon) do |c|
+        next if c.negative? || c >= grid["cols"]
+        next unless ((r - r0) * 2.0 / (2 * r_lat))**2 + ((c - c0) * 2.0 / (2 * r_lon))**2 <= 1.0
+
+        count += 1 if @index.send(:bit_set_in?, "inside", grid, r, c)
+      end
+    end
+    (count * (grid["cell_m"] / 1000.0)**2).round(1)
   end
 end

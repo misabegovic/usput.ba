@@ -118,7 +118,7 @@ class PlansController < ApplicationController
                                  .select("DISTINCT experiences.id")
 
     experiences = Experience.where("experiences.id IN (#{distinct_exp_ids.to_sql})")
-                            .includes(:locations)
+                            .includes(:locale_translations, :locations)
                             .order("RANDOM()")
                             .limit(4)
                             .map do |exp|
@@ -134,6 +134,7 @@ class PlansController < ApplicationController
     # Standalone locations in this city, for the per-day "Add location" picker.
     # The client filters out ones already added to the plan.
     locations = Location.not_archived.where(city: city_name)
+                        .includes(:locale_translations, *Location::CATEGORY_PRELOAD)
                         .order(:name)
                         .limit(50)
                         .map do |loc|
@@ -360,7 +361,8 @@ class PlansController < ApplicationController
                                                                 .select(:experience_id))
     end
 
-    experiences.includes(:locations).order("RANDOM()").limit(10)
+    experiences.includes(:locale_translations, locations: [ :locale_translations, *Location::CATEGORY_PRELOAD ])
+               .order("RANDOM()").limit(10)
   end
 
   def build_plan(city_name, duration_days, daily_hours, experiences, preferences)
