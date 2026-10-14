@@ -86,9 +86,10 @@ rather than resolving it.
 
 ## Product rules that bind every change
 
-- Tests are mandatory (Minitest). CI runs rubocop, Herb lint
-  (`npm run lint:erb`) and the full suite; run the same locally before
-  pushing.
+- Tests are mandatory (Minitest). CI is local: `bin/ci` runs lint, the
+  security audits, Enola's architecture laws (`enola/constraints/`), the
+  duplication and review gates and both test suites, then `gh signoff`. Run
+  it on the commit you push; there is no hosted CI.
 - Follow the patterns the code already uses before inventing new ones.
 - AI prompts live in `app/prompts/` as text files, loaded with
   `PromptHelper#load_prompt`, never inline in a service.

@@ -8,7 +8,10 @@ gem "propshaft"
 gem "pg", "~> 1.5"
 # Mine Checker (docs/mine_checker/SPEC.md): PostGIS geography + GeoJSON import
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", ">= 5.0"
+gem "puma", "~> 7.2" # 7.2.1 fixes the PROXY protocol advisories; 8.x is a major left for its own change
+# ActiveSupport 8.1's JSON decoding breaks on json 3 (every json column read
+# raised ArgumentError); 2.21 carries the security fixes
+gem "json", "~> 2.21"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
 gem "importmap-rails"
 # Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
@@ -34,8 +37,6 @@ gem "avo", "~> 4.2"
 # Transactional mail in production [https://github.com/ActiveCampaign/postmark-rails]
 gem "postmark-rails"
 
-# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem "tzinfo-data", platforms: %i[ windows jruby ]
 
 # Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
 gem "solid_cache"
@@ -108,6 +109,12 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # Architecture laws, graded against a pinned baseline (enola) [https://github.com/misabegovic/enola-rb]
+  gem "enola-rb", "~> 0.5"
+
+  # Fails while duplicated code has no Contract clause [https://github.com/obie/exhale]
+  gem "exhale", "~> 0.2", require: false
 end
 
 group :development do
@@ -139,5 +146,5 @@ end
 
 gem "tailwindcss-rails", "~> 4.0"
 
-# Android/Termux has no system zoneinfo database
+# Windows and Android/Termux have no system zoneinfo database (#159)
 gem "tzinfo-data"

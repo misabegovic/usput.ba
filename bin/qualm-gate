@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+# Asks Jev, through qualm, whether an experienced reviewer would push back on
+# each file this branch changes against origin/main. Every run is a paid call,
+# so it runs only where qualm is installed (`gem install qualm`, or
+# `go install github.com/tools4imps/qualm/cmd/qualm@latest`) and an
+# OPENROUTER_API_KEY is set; anywhere else it says so and passes.
+if ! command -v qualm >/dev/null 2>&1; then
+  echo "qualm: not asked (qualm is not installed on this machine)"
+  exit 0
+fi
+if [ -z "$OPENROUTER_API_KEY" ]; then
+  echo "qualm: not asked (no OPENROUTER_API_KEY)"
+  exit 0
+fi
+exec qualm

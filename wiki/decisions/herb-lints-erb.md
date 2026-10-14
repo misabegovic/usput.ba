@@ -10,7 +10,6 @@ sources:
 - sources/conversations/2026-10-14--usput--tooling-models-langfuse-jev.md
 - .herb.yml
 - package.json
-- .github/workflows/ci.yml
 - config/ci.rb
 - Gemfile
 enola_intent:
@@ -41,8 +40,9 @@ including HTML validity and accessibility. Its linter is the npm package
 ## Decision
 
 - `@herb-tools/linter` is a pinned dev dependency in `package.json`, run as
-  `npm run lint:erb`. CI sets up Node 22 and runs it with GitHub annotations;
-  `bin/ci` runs it as "Style: ERB".
+  `npm run lint:erb`. `bin/ci` runs it as "Style: ERB". (The GitHub workflow
+  that also ran it was removed on 2026-10-14, when CI moved to the
+  operator's machine: [decision](ci-runs-locally.md).)
 - `.herb.yml` sets the Action View framework, lints `app/` only (not the
   static pages in `public/`), fails on errors, and turns off five rules, each
   with its reason in the file: two false positives (nested forms through
@@ -66,8 +66,8 @@ dropped.
 
 ## Consequences
 
-- CI needs Node for one step; the Docker image does not, since linting is not
-  part of the build.
+- `bin/setup` installs the Node packages; the Docker image needs none, since
+  linting is not part of the build.
 - A Herb upgrade can add rules. `herb-lint --upgrade` bumps `version:` in
   `.herb.yml` and turns new rules off until they are looked at.
 - The five disabled rules are a list to revisit; the collection-render rule in

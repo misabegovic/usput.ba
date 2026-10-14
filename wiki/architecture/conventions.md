@@ -13,7 +13,7 @@ sources:
 - .rubocop.yml
 - .herb.yml
 - sources/conversations/2026-10-14--usput--tooling-models-langfuse-jev.md
-- .github/workflows/ci.yml
+- config/ci.rb
 - config/application.rb
 - config/initializers/i18n.rb
 - config/locales/en.yml
@@ -97,19 +97,18 @@ the written rule and the code disagree, both are named.
 
 - **Ruby.** `.rubocop.yml` inherits `rubocop-rails-omakase`, targets Ruby
   3.3, enables new cops, and excludes `db/schema.rb`, migrations, `vendor`,
-  `node_modules`, `bin`, `tmp` and `log`. CI runs
+  `node_modules`, `bin`, `tmp` and `log`. `bin/ci` runs
   `bundle exec rubocop --parallel`.
 - **ERB.** Herb 0.11 (`@herb-tools/linter`, pinned in `package.json`)
   parses each template under `app/` as HTML and ERB together and runs its
   rules for the Action View framework, HTML validity and accessibility
   included. `.herb.yml` turns five rules off, each with its reason, and the
-  build fails on errors only. CI and `bin/ci` run `npm run lint:erb`. Herb
+  build fails on errors only. `bin/ci` runs `npm run lint:erb`. Herb
   replaced erb_lint and better_html on 2026-10-14
   ([decision](../decisions/herb-lints-erb.md)).
-- **Coverage.** CI runs the suite with `COVERAGE=true` and then
-  `undercover` against the base branch on pull requests. Undercover is
-  advisory for now (`continue-on-error: true`,
-  `.github/workflows/ci.yml`).
+- **Coverage.** `bin/ci` runs the unit suite with `COVERAGE=true`, held to
+  80% of lines and 67% of branches (`test/test_helper.rb`). `undercover` no
+  longer runs ([decision](../decisions/ci-runs-locally.md)).
 - **Ruby files** start with `# frozen_string_literal: true` in most of
   `lib/platform/` and `app/services/ai/`, but not everywhere (for example
   `app/services/ai.rb` and `app/services/mine_checker/*.rb` do not).

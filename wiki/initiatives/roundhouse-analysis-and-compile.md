@@ -30,7 +30,7 @@ sources:
 - app/jobs/openai_request_job.rb
 - app/services/mine_checker/config.rb
 - lib/platform/dsl/executors/table_query.rb
-- .github/workflows/ci.yml
+- config/ci.rb
 - https://github.com/rubys/roundhouse
 - https://github.com/matz/spinel
 enola_intent:
@@ -83,7 +83,7 @@ Phase 1, now: analysis.
 
 1. **Survey.** Run `roundhouse check --continue` on `main` and record the counts, the survey gaps and the unknown gems here. Pending, as above.
 2. **Agent access.** A checked-in MCP configuration so agents working on the rebuild can ask `traceroute` and `diagnostics`. Roundhouse must be installed on the machine; without it the server is simply absent.
-3. **Report in CI.** A workflow step that installs a pinned Roundhouse release and runs `check --continue`, reporting without failing. CI today runs rubocop, erb_lint, tests and undercover (`.github/workflows/ci.yml`).
+3. **Report in CI.** A `bin/ci` step (CI is local since 2026-10-14) that installs a pinned Roundhouse release and runs `check --continue`, reporting without failing. CI today runs rubocop, erb_lint, tests and undercover (`.github/workflows/ci.yml`).
 4. **Gate in CI.** Once the rebuild's own code checks with zero errors, the step fails on new errors. `missing_preload` findings are fixed as they appear.
 
 Phase 2, later: what blocks compiling usput today, checked against the Roundhouse guide's coverage page and usput's code.
