@@ -635,3 +635,9 @@
 .story-open [data-pwa-install-target] {
   display: none !important;
 }
+
+/* The cookie banner slides in once the consent controller marks it visible. */
+.cookie-consent-banner.cookie-consent-visible {
+  transform: translateY(0);
+  opacity: 1;
+}
