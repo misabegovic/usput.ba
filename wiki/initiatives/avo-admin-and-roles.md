@@ -12,6 +12,9 @@ depends_on:
 - decisions/jev-flags-reviews.md
 - decisions/archive-places-not-delete.md
 sources:
+- app/controllers/concerns/admin_attachment_gate.rb
+- app/controllers/concerns/admin_search_gate.rb
+- config/initializers/avo_gates.rb
 - sources/conversations/2026-09-30--usput--place-translations-in-avo.md
 - sources/conversations/2026-09-30--usput--plans-in-avo.md
 - sources/conversations/2026-09-30--usput--platform-direction.md
@@ -263,3 +266,4 @@ Slice 5 landed on 2026-09-30.
 - **The old curator queue is gone**, with its page, route, tests and locale
   keys; the curator menu's "Moments" link opens the admin queue.
 
+**Gates on Avo's own controllers, 2026-10-14.** A review of the admin found that Avo's attachments and search controllers sat outside both `AdminResource` and `AdminAssociationGate`, and Avo Community's own check allows everything: a curator could delete or replace a traveller's avatar, or a tour's audio, and search accounts by email. `AdminAttachmentGate` now asks the record's policy for `update?` before an upload or a delete, and `AdminSearchGate` asks the resource's policy for `index?`; all three gates are registered in `config/initializers/avo_gates.rb`. Each hole has a test that fails with the gates off (`test/integration/admin_engine_gates_test.rb`). Enola's strict law covers `AdminResource` on the resource controllers; the engine's own controllers are covered by these tests.

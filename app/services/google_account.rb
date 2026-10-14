@@ -26,8 +26,18 @@ class GoogleAccount
     return if user.identities.exists?(provider: PROVIDER)
 
     user.identities.create!(provider: PROVIDER, uid: uid)
-    user.confirm unless user.confirmed?
+    take_over(user) unless user.confirmed?
     user
+  end
+
+  # An unconfirmed account was opened by whoever typed this email, and nobody
+  # has proved they own it until now: Google just did. Whatever password that
+  # stranger set, and any session they hold, must not survive the link.
+  def take_over(user)
+    user.password = Devise.friendly_token(32)
+    user.confirm
+    user.save!
+    user.end_sessions
   end
 
   def new_user
