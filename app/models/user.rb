@@ -13,6 +13,7 @@ class User < ApplicationRecord
   has_many :moments, dependent: :destroy
   has_many :plan_visits, dependent: :destroy
   has_many :likes, dependent: :destroy
+  has_many :reviews, dependent: :destroy
   has_many :identities, dependent: :destroy
 
   # The profile blob is written straight from whatever the device sends, so each

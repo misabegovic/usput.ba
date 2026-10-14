@@ -2,7 +2,7 @@
 title: Jev review flagging
 kind: initiative
 status: proposed
-updated: 2026-09-30
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
@@ -12,6 +12,8 @@ depends_on:
 - initiatives/avo-admin-and-roles.md
 - initiatives/secure-sessions.md
 sources:
+- sources/conversations/2026-10-14--usput--tooling-models-langfuse-jev.md
+- app/services/review_moderation.rb
 - sources/conversations/2026-09-30--usput--platform-direction.md
 - app/models/review.rb
 - app/models/concerns/reviewable.rb
@@ -52,6 +54,8 @@ enola_intent:
 # Jev review flagging
 
 ## Objective
+
+**Amended 2026-10-14:** the operator asked for Jev to approve or reject, and chose three bands; the shape below the line is the flag-only design of 2026-09-30, kept for its research. What was built is in Build notes and the [decision](../decisions/jev-decides-reviews.md).
 
 In the rebuilt usput a review is live the moment it is submitted. A background job asks Jev, TypeSafe's hosted decision model, whether the review reads as negative or unsafe; if it does, the review is hidden from everyone but its author until an admin or curator clears or removes it in Avo. Ratings and counts come from visible reviews only. When there is no key or the call fails, nothing is hidden and nothing breaks. This implements [Jev flags reviews](../decisions/jev-flags-reviews.md).
 
@@ -99,8 +103,8 @@ Slices, in order on the rebuild branch, each with its tests:
 
 ## No-gos
 
-- No pre-moderation: nothing waits unless Jev flags it.
-- Jev never deletes or edits a review; only a person removes one.
+- No pre-moderation without measurement: reviews stay public on submit (observe mode) until the thresholds are measured; only then may a review wait for Jev. (Amended 2026-10-14; this said nothing ever waits.)
+- Jev never deletes or edits a review; only a person removes one. Jev may hide one, as rejected, in enforce mode; its author still sees it, and a curator can overturn it.
 - No author name, account, IP address or location sent to TypeSafe.
 - No synchronous call on submit, and no error shown to a reviewer because of Jev.
 - No notifications to authors in version 1.
@@ -125,3 +129,13 @@ Medium: seven slices, the seam and the job being the smallest. The measurement i
 - **What counts as a flag.** Unsafe only, negative only, or either, and the thresholds.
 - **Moment notes.** In scope (Jev pre-screens notes to sort the curator's moment queue, the queue stays human), or out of scope for version 1 (moments stay human-approved only).
 - **Remove.** A soft `removed` state (proposed, keeps a record) or a hard delete.
+
+## Build notes
+
+Built on 2026-10-14 on the current code ([decision](../decisions/jev-decides-reviews.md)):
+
+- Slices 1 to 6 of the scope, in three-band form: the `moderation_status` column (`pending`, `approved`, `held`, `rejected`, default `approved` so older reviews stay public) and Jev's reading on `reviews`; `visible_to(user)` on every read path (home, trending, the three detail pages, the review list); ratings and counts from approved reviews; the seam (`ReviewModeration`, two questions in `app/prompts/review_judge/`, RubyLLM 2.1's TypeSafe provider, never raising); `ReviewJudgmentJob`; the Avo queue with Approve and Reject; the privacy line in `bs` and `en`.
+- Author identity is the account: reviews require signing in, as decided on 2026-09-30, so no guest token was needed.
+- Every step is an event in the review's Rails Event Store stream, Jev's reading included, which is the data observe mode collects.
+- Not done: slice 7's measurement. It needs the TypeSafe key in production, a period in observe mode, and a person labelling a sample of the recorded readings; then `config/review_moderation.yml` gets measured thresholds and `mode: enforce`. Moment notes are not read by Jev yet.
+

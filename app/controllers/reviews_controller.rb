@@ -1,11 +1,15 @@
 class ReviewsController < ApplicationController
+  # A review has an author, so the author can always see it, whatever Jev
+  # decided (decided 2026-09-30: reviews require signing in).
+  before_action :require_login, only: :create
   before_action :set_reviewable
 
   def index
     @page = (params[:page] || 1).to_i
     @per_page = 5
-    @reviews = @reviewable.reviews.recent.offset((@page - 1) * @per_page).limit(@per_page)
-    @total_reviews = @reviewable.reviews_count
+    visible = @reviewable.reviews.visible_to(current_user)
+    @reviews = visible.recent.offset((@page - 1) * @per_page).limit(@per_page)
+    @total_reviews = visible.count
     @has_more = (@page * @per_page) < @total_reviews
 
     respond_to do |format|
@@ -21,12 +25,20 @@ class ReviewsController < ApplicationController
   end
 
   def create
-    @review = @reviewable.reviews.build(review_params)
+    @review = @reviewable.reviews.build(review_params.merge(user: current_user,
+                                                            moderation_status: ReviewModeration.initial_status))
     @saved = @review.save
+    if @saved
+      DecisionLog.publish(ReviewSubmitted, @review, by: current_user)
+      ReviewJudgmentJob.perform_later(@review.id)
+    end
 
     respond_to do |format|
       if @saved
-        format.html { redirect_back fallback_location: root_path, notice: t("flash.review.created") }
+        format.html do
+          redirect_back fallback_location: root_path,
+                        notice: t(@review.pending? ? "flash.review.created_pending" : "flash.review.created")
+        end
       else
         format.html { redirect_back fallback_location: root_path, alert: @review.errors.full_messages.join(", ") }
       end
@@ -54,6 +66,6 @@ class ReviewsController < ApplicationController
   end
 
   def review_params
-    params.require(:review).permit(:rating, :comment, :author_name, :author_email)
+    params.require(:review).permit(:rating, :comment)
   end
 end

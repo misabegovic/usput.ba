@@ -1,0 +1,1 @@
+Is `review` advertising, a link, a phone number or contact details meant to send readers elsewhere, or text that has nothing to do with visiting the place it is written about? A short review, a negative review, or a review in any language is not spam.

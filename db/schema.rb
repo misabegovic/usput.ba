@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_125519) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_125520) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -501,6 +501,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_125519) do
     t.string "author_name"
     t.text "comment"
     t.datetime "created_at", null: false
+    t.jsonb "jev_answers"
+    t.string "jev_band"
+    t.string "jev_model"
+    t.string "jev_skip"
+    t.datetime "judged_at"
+    t.string "moderation_status", default: "approved", null: false
     t.integer "rating", null: false
     t.bigint "reviewable_id", null: false
     t.string "reviewable_type", null: false
@@ -509,6 +515,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_125519) do
     t.string "uuid", limit: 36, null: false
     t.index ["rating"], name: "index_reviews_on_rating"
     t.index ["reviewable_type", "reviewable_id", "created_at"], name: "index_reviews_on_reviewable_and_created_at"
+    t.index ["reviewable_type", "reviewable_id", "moderation_status"], name: "index_reviews_on_reviewable_and_status"
     t.index ["reviewable_type", "reviewable_id"], name: "index_reviews_on_reviewable"
     t.index ["user_id"], name: "index_reviews_on_user_id"
     t.index ["uuid"], name: "index_reviews_on_uuid", unique: true

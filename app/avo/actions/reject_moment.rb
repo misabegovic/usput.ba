@@ -1,4 +1,4 @@
-class Avo::Actions::RejectMoment < Avo::Actions::ModerateMoment
+class Avo::Actions::RejectMoment < Avo::Actions::Moderate
   self.name = -> { I18n.t("admin.moments.reject") }
-  decides :rejected, event: MomentRejected, activity: :reject_moment
+  decides :rejected, event: MomentRejected, policy: MomentPolicy, label: "moments", activity: :reject_moment
 end

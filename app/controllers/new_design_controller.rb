@@ -3,7 +3,7 @@ class NewDesignController < ApplicationController
 
   def home
     # Fetch positive reviews (rating 3+) with reviewable and user associations for display
-    @positive_reviews = Review.includes(:reviewable, :user)
+    @positive_reviews = Review.approved.includes(:reviewable, :user)
                               .where("rating >= ?", 3)
                               .where.not(comment: [ nil, "" ])
                               .order(created_at: :desc)
@@ -19,7 +19,7 @@ class NewDesignController < ApplicationController
     # Trending locations - minimum 3.5 rating, sorted by most recent review
     @trending_locations = Location.places
                                   .with_attached_photos
-                                  .left_joins(:reviews)
+                                  .left_joins(:reviews).where(reviews: { moderation_status: [ "approved", nil ] })
                                   .where("locations.average_rating >= ?", 3.5)
                                   .where("locations.reviews_count > ?", 0)
                                   .group("locations.id")
@@ -37,7 +37,7 @@ class NewDesignController < ApplicationController
     # Trending experiences - minimum 3.5 rating, sorted by most recent review
     @trending_experiences = Experience.includes(:experience_category)
                                       .with_attached_cover_photo
-                                      .left_joins(:reviews)
+                                      .left_joins(:reviews).where(reviews: { moderation_status: [ "approved", nil ] })
                                       .where("experiences.average_rating >= ?", 3.5)
                                       .where("experiences.reviews_count > ?", 0)
                                       .group("experiences.id")

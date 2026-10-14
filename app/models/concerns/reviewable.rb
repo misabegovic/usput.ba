@@ -15,6 +15,7 @@ module Reviewable
       recent_date = days.days.ago
 
       joins(:reviews)
+        .where(reviews: { moderation_status: "approved" })
         .where("reviews.created_at >= ?", recent_date)
         .group("#{table_name}.id")
         .select(

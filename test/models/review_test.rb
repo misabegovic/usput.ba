@@ -150,4 +150,16 @@ class ReviewTest < ActiveSupport::TestCase
     ))
     assert review.valid?
   end
+
+  test "an account's reviews go with it, and the place's rating forgets them" do
+    place = Location.create!(name: "Ravne", city: "Visoko", lat: 43.9887, lng: 18.1780)
+    author = User.create!(username: "leaving", email: "leaving@example.com", password: "password123")
+    place.reviews.create!(rating: 1, comment: "Bye", user: author)
+    place.reviews.create!(rating: 5, comment: "Stays")
+
+    author.destroy
+
+    assert_equal 1, place.reload.reviews_count
+    assert_equal 5.0, place.average_rating.to_f
+  end
 end

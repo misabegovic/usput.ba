@@ -3,7 +3,7 @@ class ExperiencesController < ApplicationController
 
   def show
     @experience = Experience.includes(:locations, :reviews).find_by_public_id!(params[:id])
-    @reviews = @experience.reviews.recent.limit(10)
+    @reviews = @experience.reviews.visible_to(current_user).recent.limit(10)
     @review = Review.new
     @nearby_experiences = @experience.nearby_featured(limit: 3)
 

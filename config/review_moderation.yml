@@ -1,0 +1,22 @@
+# Jev's three bands for reviews (wiki/decisions/jev-decides-reviews.md).
+# observe: every review is public on submit, as before, and Jev's band is
+#   only recorded, so the thresholds can be measured on real reviews.
+# enforce: a review waits as pending until Jev answers, then is approved
+#   (public), held (a curator decides) or rejected (hidden; its author still
+#   sees it).
+# The thresholds are not measured yet; they are where the TypeSafe guardrails
+# cookbook starts, and change once observe mode has labelled data.
+default: &default
+  mode: observe
+  approve_below: 0.35
+  reject_above: 0.85
+  model: jev-latest
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default

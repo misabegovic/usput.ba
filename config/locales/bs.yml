@@ -311,6 +311,11 @@ bs:
         - Latinska ćuprija
         - Historijski muzej
   reviews:
+    sign_in_to_review: Prijavite se da biste ostavili recenziju
+    status:
+      pending: Provjerava se; za sada je vidite samo vi
+      held: Čeka kustosa; za sada je vidite samo vi
+      rejected: Nije objavljena; vidite je samo vi
     title: Recenzije
     anonymous: Anonimni posjetitelj
     load_more: Učitaj još recenzija
@@ -609,6 +614,9 @@ bs:
       notes_label: Bilješke
       city_label: Mjesto
   flash:
+    review:
+      created: Hvala na recenziji!
+      created_pending: Hvala! Recenzija se objavljuje nakon kratke automatske provjere.
     moment:
       created: Uspomena dodana
       destroyed: Uspomena obrisana
@@ -690,6 +698,30 @@ bs:
       ownerships:
         curated: Usput
         travellers: Putnici (javni)
+    reviews:
+      status: Status
+      rating: Ocjena
+      comment: Recenzija
+      author: Napisao/la
+      about: O čemu
+      jev_band: Jevova odluka
+      jev_reading: Jevovo čitanje
+      jev_model: Jev model
+      written_at: Napisana
+      approve: Odobri
+      reject: Odbij
+      approved:
+        one: Odobrena jedna recenzija.
+        other: "Odobreno recenzija: %{count}."
+      rejected:
+        one: Odbijena jedna recenzija.
+        other: "Odbijeno recenzija: %{count}."
+      statuses:
+        held: Čeka kustosa
+        pending: Provjerava se
+        approved: Odobrena
+        rejected: Odbijena
+        all: Sve
     moments:
       photo: Fotografija
       status: Status
@@ -911,6 +943,7 @@ bs:
         account: Podaci za registraciju (korisničko ime)
         profile: Travel profil (preferencije putovanja, posjećena mjesta)
         reviews: Recenzije i ocjene
+        reviews_screening: Tekst recenzije i njena ocjena šalju se servisu TypeSafe, automatskoj moderaciji u Sjedinjenim Američkim Državama, da bi se odlučilo da li recenzija čeka pregled osobe prije nego što je vide drugi. Ne šalju se ime, račun ni adresa.
     purpose:
       title: Svrha obrade podataka
       service: Pružanje i poboljšanje naših usluga

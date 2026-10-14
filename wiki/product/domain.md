@@ -97,7 +97,11 @@ A photo and an optional note (up to 1000 characters) that a user takes at a loca
 
 ### Review
 
-A 1 to 5 star rating with an optional comment (up to 1000 characters) and an optional author name, attached polymorphically to a Location, Experience or Plan (`app/models/review.rb`). The user is optional, so anonymous reviews are allowed. Saving a review recomputes the target's `average_rating`. There is no moderation status in the schema today; a plan for one exists in `sources/planning/REVIEW_APPROVAL_SYSTEM.md` (https://github.com/misabegovic/usput.ba/pull/152).
+A 1 to 5 star rating with an optional comment (up to 1000 characters) by a signed-in user, attached polymorphically to a Location, Experience or Plan (`app/models/review.rb`). Older reviews may carry a free `author_name` instead of a user.
+
+- **Moderation status.** `pending` (waiting for Jev), `approved` (public), `held` (waiting for a curator) or `rejected` (hidden). `visible_to(user)` is every approved review plus the reader's own in any state. The column defaults to approved, so reviews from before 2026-10-14 stay public.
+- **Jev's reading.** `jev_answers` (the probability for each question), `jev_band`, `jev_model`, `jev_skip` and `judged_at`, kept in observe mode too ([decision](../decisions/jev-decides-reviews.md)).
+- **Ratings.** Saving or deleting a review recomputes the target's `average_rating` and `reviews_count` from approved reviews only.
 
 ## Search
 
