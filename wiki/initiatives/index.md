@@ -48,5 +48,6 @@ On 2026-09-30 the operator decided to rebuild usput from scratch, in place, with
 ## Backlog
 
 - [Redesign usput end to end with Impeccable](impeccable-redesign.md): proposed 2026-10-14, with a marketer's advice on the home page as input.
+- [A proper usput CLI and MCP server](cli-and-mcp.md): proposed 2026-10-14; one command layer under a CLI and an MCP server, under the admin's policies.
 - [Bring your own agent](bring-your-own-agent.md): an idea from 2026-08-02, usput reachable by travellers' and providers' own AI agents over MCP.
 - [Open issues](open-issues.md): the GitHub issues, grouped, with what recent work already covers.

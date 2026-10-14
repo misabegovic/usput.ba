@@ -10,6 +10,7 @@ depends_on:
 - decisions/support-phones-from-ios-15.md
 - architecture/frontend.md
 sources:
+- sources/conversations/2026-10-14--usput--map-cli-merging.md
 - sources/conversations/2026-10-14--usput--event-store-compile-one-repo.md
 - sources/advice/2026-02-13-emir-glogic-mkt-analiza-usput--2026-10-14.md
 - app/views/new_design/home.html.erb
@@ -51,6 +52,8 @@ redesign (its new-work path), then builds and refines surface by surface
 Persuade for the home page, Operate for the wizard, walk and profile,
 Experience for the deck and moments, Read for place pages and the mine
 check.
+
+**A map of BiH by municipality.** The operator's Dejtonska Igra card game draws an SVG of the country's 142 municipalities, with cantonal and entity outlines merged from their shared borders and a neighbour list for each, in about 70 KB, from polytiks.ba's `bih.json` in a 1000-unit drawing space; the operator suggested it for usput on 2026-10-14 ([source](../../sources/conversations/2026-10-14--usput--map-cli-merging.md)). It suits what Leaflet does badly: a light, offline-friendly picture of the whole country. Uses it invites: a travel profile that fills the municipalities a traveller has checked in at, a region picker for explore and the plan wizard, and a coverage view showing curators where the catalogue is thin.
 
 **A marketer's advice** (Emir Glogić of The Simple, by email on 2026-02-13,
 [source](../../sources/advice/2026-02-13-emir-glogic-mkt-analiza-usput--2026-10-14.md)),
@@ -102,6 +105,10 @@ in short:
 - No images that put one community or city forward as "BiH".
 
 ## Rabbit holes
+
+- **The map's licence.** The game's owner treated polytiks.ba's licence as no obstacle for the game; usput's repository is public, so redistributing that geometry needs polytiks.ba's terms, or the same municipal outlines rebuilt from an open source (geoBoundaries, OpenStreetMap) (unknown, needs source).
+- **Coordinates.** The map's 1000-unit space is a drawing, not latitude and longitude; placing usput's places on it needs the projection worked out once.
+- **What the map shows.** Usput's rules keep content positive and away from contested modern history: municipalities and regions, never entity lines or anything else from the game's political layers.
 
 - **The rebuild.** The rebuild from scratch (2026-09-30) rewrites the UI
   anyway; redesigning the old views first would be done twice. The redesign
