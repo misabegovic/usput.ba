@@ -32,6 +32,8 @@ class BrowserFloorSystemTest < ApplicationSystemTestCase
     # The map caches its catalogue of places in session storage.
     place = Location.create!(name: "Floor Bridge", city: "Mostar", lat: 43.337, lng: 17.815)
     visit location_path(place)
+    # A click before the map controller connects is swallowed with no error.
+    wait_for_controller "[data-controller~='map']", "map"
     find("[data-map-target='fullscreenButton']").click
     assert_selector ".leaflet-marker-icon", wait: 10
   ensure
