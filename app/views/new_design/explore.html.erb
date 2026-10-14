@@ -187,11 +187,11 @@
                           class="rounded-full border-0 bg-white dark:bg-gray-700 py-2 pl-3 pr-8 text-sm text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-200 dark:ring-gray-600 focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-500"
                           data-explore-target="radiusSelect"
                           data-action="change->explore#onRadiusChange">
-                    <option value="5" <%= @radius.to_i == 5 ? 'selected' : '' %>>5 km</option>
-                    <option value="10" <%= @radius.to_i == 10 ? 'selected' : '' %>>10 km</option>
-                    <option value="25" <%= @radius.to_i == 25 || @radius.blank? ? 'selected' : '' %>>25 km</option>
-                    <option value="50" <%= @radius.to_i == 50 ? 'selected' : '' %>>50 km</option>
-                    <option value="100" <%= @radius.to_i == 100 ? 'selected' : '' %>>100 km</option>
+                    <option value="5" <% if @radius.to_i == 5 %>selected<% end %>>5 km</option>
+                    <option value="10" <% if @radius.to_i == 10 %>selected<% end %>>10 km</option>
+                    <option value="25" <% if @radius.to_i == 25 || @radius.blank? %>selected<% end %>>25 km</option>
+                    <option value="50" <% if @radius.to_i == 50 %>selected<% end %>>50 km</option>
+                    <option value="100" <% if @radius.to_i == 100 %>selected<% end %>>100 km</option>
                   </select>
                 </div>
               </div>
