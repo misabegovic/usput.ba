@@ -2,12 +2,14 @@
 title: Architecture overview
 kind: reference
 status: living
-updated: 2026-10-08
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
 sources:
+- sources/conversations/2026-10-14--usput--tooling-models-langfuse-jev.md
 - Gemfile
+- .herb.yml
 - .ruby-version
 - Dockerfile
 - Procfile.dev
@@ -81,7 +83,7 @@ other. The deeper pages are [Platform DSL](platform-dsl.md),
 | Web server | Puma behind Thruster | `Gemfile`, `Dockerfile` |
 | Frontend | Turbo, Stimulus, importmap, vendored Leaflet 1.9.4 and markercluster 1.5.3 | `config/importmap.rb` |
 | CSS | Tailwind CSS 4 through `tailwindcss-rails` and the standalone CLI | `Gemfile`, `Dockerfile`, `package.json` |
-| LLM | RubyLLM, default model `gpt-4o-mini` unless `LLM_DEFAULT_MODEL` is set | `config/initializers/ruby_llm.rb` |
+| LLM | RubyLLM 2.1, default model `gpt-6-luna` unless `LLM_DEFAULT_MODEL` is set | `config/initializers/ruby_llm.rb` |
 | Text to speech | ElevenLabs by default, OpenAI TTS as an alternative | `app/services/ai/audio_tour_generator.rb` |
 | Files | Active Storage, S3 in production when `AWS_BUCKET` is set, disk otherwise | `config/storage.yml`, `config/environments/production.rb` |
 | Images | `image_processing` over libvips (`libvips42` in the image, `libvips` in CI) | `Gemfile`, `Dockerfile`, `.github/workflows/ci.yml` |
@@ -152,7 +154,8 @@ gem group, creates `klosaer_test` and `klosaer_queue_test`, loads the
 schema, then runs in order:
 
 1. `bundle exec rubocop --parallel`
-2. `bundle exec erb_lint --lint-all`
+2. `npm run lint:erb`, Herb's linter, after Node 22 and `npm ci`
+   ([decision](../decisions/herb-lints-erb.md))
 3. `bin/rails test` with `COVERAGE=true` (SimpleCov with an LCOV formatter)
 4. `bin/rails test:system`, the 68 browser tests in `test/system/`, in
    headless Chrome through Selenium (`test/application_system_test_case.rb`,
@@ -167,7 +170,7 @@ schema, then runs in order:
    coverage gaps are fixed.
 
 `bin/ci` with `config/ci.rb` is a separate local pipeline: setup, rubocop,
-bundler-audit, importmap audit, Brakeman, unit tests, system tests and a
+Herb lint, bundler-audit, importmap audit, Brakeman, unit tests, system tests and a
 seed replant. Brakeman and bundler-audit run only there, not in GitHub
 Actions.
 
@@ -245,7 +248,7 @@ both sit on top of services and models; services call external APIs
 ## Now and Perceived
 
 - **Now:** two databases, one monolith, Hotwire frontend, CI with rubocop,
-  erb_lint, tests and advisory undercover.
+  Herb lint, tests and advisory undercover.
 - **Perceived:** `CLAUDE.md`, `README.md` and
   `sources/planning/DEVELOPER_ONBOARDING.md` still describe pgvector, a
   `new_design/` controller namespace, and planning files under

@@ -2,11 +2,12 @@
 title: AI content pipeline
 kind: reference
 status: living
-updated: 2026-09-29
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
 sources:
+- sources/conversations/2026-10-14--usput--tooling-models-langfuse-jev.md
 - app/services/ai/openai_queue.rb
 - app/services/ai/rate_limiter.rb
 - app/services/ai/bih_context.rb
@@ -114,12 +115,14 @@ for wording, not live code.
 
 `Ai::OpenaiQueue.request(prompt:, schema:, context:)` is the synchronous
 path every service uses. Despite its name it calls whatever model RubyLLM
-is configured for: `LLM_DEFAULT_MODEL`, default `gpt-4o-mini`, with OpenAI,
-Anthropic and Gemini keys all read from the environment
-(`config/initializers/ruby_llm.rb`). With a JSON schema it uses
-`with_schema` and parses the result into a symbol-keyed hash, falling back
-to extracting JSON from fenced or bare text and repairing smart quotes and
-trailing commas.
+is configured for: `LLM_DEFAULT_MODEL`, default `gpt-6-luna` since
+2026-10-14 (it was `gpt-4o-mini`), with OpenAI, Anthropic and Gemini keys all
+read from the environment (`config/initializers/ruby_llm.rb`). RubyLLM is
+2.1. With a JSON schema it uses `with_schema` and reads the reply through
+`parsed` into a symbol-keyed hash, falling back to extracting JSON from
+fenced or bare text and repairing curly quotes and trailing commas. Every
+call logs one line with its model, input and output tokens and cost in US
+dollars, priced from RubyLLM's model registry.
 
 Retries come in two layers. RubyLLM's Faraday middleware retries 429, 5xx
 and network failures up to `LLM_MAX_RETRIES` (default 5) with exponential
