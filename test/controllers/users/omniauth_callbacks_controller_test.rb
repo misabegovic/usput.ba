@@ -62,6 +62,31 @@ class Users::OmniauthCallbacksControllerTest < ActionDispatch::IntegrationTest
     assert_signed_in
   end
 
+  test "a stranger's password on an unconfirmed account does not survive the Google link" do
+    # Someone registered with this address before its owner arrived through Google.
+    squatter = User.create!(username: "squatter", email: "owner@example.com", password: "password123")
+    token_before = squatter.session_token
+    google(uid: "g-owner", email: "owner@example.com")
+
+    sign_in_with_google
+
+    squatter.reload
+    assert_not squatter.valid_password?("password123"), "the stranger's password no longer opens it"
+    assert_not_equal token_before, squatter.session_token, "the stranger's sessions ended"
+    assert squatter.confirmed?
+    assert_signed_in
+  end
+
+  test "a confirmed account keeps its password when Google links to it" do
+    user = User.create!(username: "settled", email: "settled@example.com", password: "password123").tap(&:confirm)
+    google(uid: "g-settled", email: "settled@example.com")
+
+    sign_in_with_google
+
+    assert user.reload.valid_password?("password123"), "the owner had already proved the address"
+    assert_signed_in
+  end
+
   test "a linked account signs in by its Google id even if the Google email changed" do
     user = User.create!(username: "moved", email: "old@example.com", password: "password123")
     user.identities.create!(provider: "google_oauth2", uid: "g-moved")

@@ -2,7 +2,7 @@
 title: Secure sessions for the rebuilt app
 kind: initiative
 status: living
-updated: 2026-09-30
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
@@ -10,6 +10,8 @@ depends_on:
 - decisions/admin-through-avo.md
 - decisions/accounts-through-devise.md
 sources:
+- app/services/google_account.rb
+- test/controllers/users/omniauth_callbacks_controller_test.rb
 - sources/conversations/2026-09-30--usput--platform-direction.md
 - sources/conversations/2026-09-30--usput--devise-and-google.md
 - app/controllers/concerns/authenticatable.rb
@@ -212,3 +214,4 @@ Slice 5, Rack::Attack, landed on 2026-09-30.
   added without being listed there, and checks the 429, the localhost
   safelist and the exploit blocklist end to end.
 
+**Google link to an unconfirmed account, 2026-10-14.** Anyone could register with someone else's address and use the account unconfirmed for three days; when the address's owner later signed in with Google, `GoogleAccount` linked and confirmed that same account and kept the stranger's password and sessions. Now an unconfirmed account found by email gets a new random password and ends every session before it is confirmed (`GoogleAccount#take_over`); a confirmed account, whose owner had already proved the address, keeps its password.
