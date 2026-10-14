@@ -123,11 +123,11 @@ Until 2026-09-30 curators changed content through a **ContentChange** (a propose
 
 ### CuratorActivity
 
-The audit trail of curator and admin actions: proposals, reviews, logins, moderation of moments, approvals, user changes, and archiving or restoring a location (`app/models/curator_activity.rb`, `ACTIONS`). It stores IP and user agent, and it feeds the spam limits on `User`.
+Removed on 2026-10-14 with the curator dashboard. It was the audit trail of curator and admin actions and fed the spam limits on `User`; decisions are recorded in Rails Event Store instead ([decision](../decisions/rails-event-store.md)).
 
 ### User
 
-An account with a unique lowercase username, a password, an avatar, a `user_type` of `basic`, `curator` or `admin`, spam-block fields and a `travel_profile_data` JSON blob (`app/models/user.rb`).
+An account with a unique lowercase username, a password, an avatar, a `user_type` of `basic`, `curator` or `admin`, a block flag (`blocked_at`) and a `travel_profile_data` JSON blob (`app/models/user.rb`).
 
 ## Decisions
 

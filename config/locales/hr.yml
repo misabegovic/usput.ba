@@ -825,32 +825,12 @@ hr:
     contact:
       title: Kontakt
       text: 'Za pitanja o ovim uvjetima korištenja, kontaktiraj nas na:'
-  curator:
-    title: Kustos Kontrolna Ploča
-    nav:
-      dashboard: Kontrolna Ploča
-      content: Sadržaj
-      workflow: Tok Rada
-      reviews: Recenzije
-    dashboard:
-      welcome: Dobrodošao, %{username}!
-      total_locations: Ukupno Lokacija
-      total_experiences: Ukupno Iskustava
-      total_cities: Ukupno Mjesta
-      quick_actions: Brze Akcije
-      new_location: Nova Lokacija
-      new_experience: Novo Iskustvo
-      recent_locations: Nedavne Lokacije
-      recent_experiences: Nedavna Iskustva
-      no_locations: Još nema lokacija
-      no_experiences: Još nema iskustava
-    experiences:
-      seasons:
-        all_year: Cijela godina
-        spring: Proljeće
-        summer: Ljeto
-        fall: Jesen
-        winter: Zima
+  seasons:
+    all_year: Cijela godina
+    spring: Proljeće
+    summer: Ljeto
+    fall: Jesen
+    winter: Zima
   travel_profile:
     checking_location: Provjeravamo vašu lokaciju...
     visit_recorded: Posjet uspješno zabilježen!

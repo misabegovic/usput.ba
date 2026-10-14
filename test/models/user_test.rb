@@ -317,55 +317,6 @@ class UserTest < ActiveSupport::TestCase
 
   # === Spam protection tests ===
 
-  test "spam_blocked? returns false when not blocked" do
-    user = User.create!(@valid_params)
-    assert_not user.spam_blocked?
-    user.destroy
-  end
-
-  test "spam_blocked? returns true when blocked until future time" do
-    user = User.create!(@valid_params)
-    user.update!(spam_blocked_until: 1.hour.from_now)
-    assert user.spam_blocked?
-    user.destroy
-  end
-
-  test "spam_blocked? auto-clears expired block" do
-    user = User.create!(@valid_params)
-    user.update!(
-      spam_blocked_until: 1.hour.ago,
-      spam_blocked_at: 2.hours.ago
-    )
-    assert_not user.spam_blocked?
-    user.reload
-    assert_nil user.spam_blocked_until
-    user.destroy
-  end
-
-  test "block_for_spam! sets block fields" do
-    user = User.create!(@valid_params)
-    user.block_for_spam!("Test reason")
-
-    assert user.spam_blocked?
-    assert user.spam_blocked_at.present?
-    assert user.spam_blocked_until.present?
-    assert_equal "Test reason", user.spam_block_reason
-
-    user.destroy
-  end
-
-  test "clear_spam_block! removes block" do
-    user = User.create!(@valid_params)
-    user.block_for_spam!("Test")
-    user.clear_spam_block!
-
-    assert_not user.spam_blocked?
-    assert_nil user.spam_blocked_at
-    assert_nil user.spam_blocked_until
-
-    user.destroy
-  end
-
   # === Authentication tests ===
 
   test "valid_password? accepts the right password only" do

@@ -203,34 +203,6 @@ module Platform
         synthesize_audio_command | estimate_audio_command
       end
 
-      # Curator management commands
-      # curators { status: "active" } | list
-      # curators { id: 123 } | activity
-      rule(:curators_command) do
-        str("curators").as(:command_type) >> space? >> filters.maybe >> space? >> operations.maybe
-      end
-
-      rule(:rejection_reason_clause) do
-        space >> str("reason") >> space >> string.as(:rejection_reason)
-      end
-
-      # block curator { id: 123 } reason "spam"
-      rule(:block_curator_command) do
-        str("block").as(:curator_cmd) >> space >>
-        str("curator").as(:curator_action) >> space? >> filters >>
-        rejection_reason_clause
-      end
-
-      # unblock curator { id: 123 }
-      rule(:unblock_curator_command) do
-        str("unblock").as(:curator_cmd) >> space >>
-        str("curator").as(:curator_action) >> space? >> filters
-      end
-
-      rule(:curator_management_command) do
-        block_curator_command | unblock_curator_command
-      end
-
       # Introspection commands
       # code { file: "path" } | read_file
       # code | search "pattern"
@@ -296,7 +268,7 @@ module Platform
       end
 
       rule(:query) do
-        space? >> (schema_command | external_command | curators_command | code_command | logs_command | infrastructure_command | quality_command | validation_command | curator_management_command | create_command | update_command | delete_command | generation_command | audio_command | table_query).as(:query) >> space?
+        space? >> (schema_command | external_command | code_command | logs_command | infrastructure_command | quality_command | validation_command | create_command | update_command | delete_command | generation_command | audio_command | table_query).as(:query) >> space?
       end
 
       root(:query)

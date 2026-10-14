@@ -91,10 +91,6 @@ gem "faraday-follow_redirects"  # Follow HTTP redirects for image downloads
 # Pagination
 gem "kaminari"
 
-# Feature flags [https://github.com/flippercloud/flipper]
-gem "flipper"
-gem "flipper-active_record"
-
 # Error monitoring [https://rollbar.com/]
 gem "rollbar"
 

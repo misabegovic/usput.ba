@@ -5,10 +5,7 @@ require "test_helper"
 # Usput works from iOS 15.4 and Chrome 99 (wiki/decisions/support-phones-from-ios-15.md).
 class BrowserFloorTest < ActionDispatch::IntegrationTest
   test "every layout loads the import map shim before the import map" do
-    sign_in User.create!(username: "floor_curator", email: "floor_curator@example.com",
-                         password: "password123", user_type: :curator).tap(&:confirm)
-
-    { "/" => "new_design", "/mine-check" => "application", "/curator" => "curator" }.each do |path, layout|
+    { "/" => "new_design", "/mine-check" => "application" }.each do |path, layout|
       get path
       assert_response :success, "#{path} (#{layout} layout)"
 

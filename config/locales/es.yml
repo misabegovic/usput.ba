@@ -961,29 +961,12 @@ es:
         name: Nombre
         country_name: País
         region: Región
-  curator:
-    title: Panel de Curador
-    nav:
-      dashboard: Panel
-    dashboard:
-      welcome: "¡Bienvenido, %{username}!"
-      total_locations: Total de Lugares
-      total_experiences: Total de Experiencias
-      total_cities: Total de Ciudades
-      quick_actions: Acciones Rápidas
-      new_location: Nuevo Lugar
-      new_experience: Nueva Experiencia
-      recent_locations: Lugares Recientes
-      recent_experiences: Experiencias Recientes
-      no_locations: Aún no hay lugares
-      no_experiences: Aún no hay experiencias
-    experiences:
-      seasons:
-        all_year: Todo el año
-        spring: Primavera
-        summer: Verano
-        fall: Otoño
-        winter: Invierno
+  seasons:
+    all_year: Todo el año
+    spring: Primavera
+    summer: Verano
+    fall: Otoño
+    winter: Invierno
   travel_profile:
     checking_location: Verificando tu ubicación...
     visit_recorded: "¡Visita registrada con éxito!"

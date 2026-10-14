@@ -16,7 +16,6 @@ module Platform
     # - TableQuery: dynamic queries on tables
     # - Infrastructure: system health, queue status, logs
     # - Content: mutations, generation, audio
-    # - Curator: curator management
     # - External: external APIs, code introspection
     #
     class Executor
@@ -48,12 +47,6 @@ module Platform
             Executors::Content.execute_generation(ast)
           when :audio
             Executors::Content.execute_audio(ast)
-
-          # Curator queries
-          when :curators_query
-            Executors::Curator.execute_curators_query(ast)
-          when :curator_management
-            Executors::Curator.execute_curator_management(ast)
 
           # External queries
           when :external_query
@@ -127,11 +120,6 @@ module Platform
         def validate_mutation_data!(table, data, action) = Executors::Content.send(:validate_mutation_data!, table, data, action)
         def find_record_for_mutation(model, filters) = Executors::Content.send(:find_record_for_mutation, model, filters)
         def format_created_record(record) = Executors::Content.send(:format_created_record, record)
-
-        # Curator delegations
-        def execute_curators_query(ast) = Executors::Curator.execute_curators_query(ast)
-        def execute_curator_management(ast) = Executors::Curator.execute_curator_management(ast)
-        def list_curators(filters) = Executors::Curator.send(:list_curators, filters)
 
         # External delegations
         def execute_external_query(ast) = Executors::External.execute_external_query(ast)

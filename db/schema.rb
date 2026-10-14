@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_125521) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -109,23 +109,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_125521) do
     t.index ["searchable"], name: "index_browses_on_searchable", using: :gin
     t.index ["seasons"], name: "index_browses_on_seasons", using: :gin
     t.index ["wheelchair_accessible"], name: "index_browses_on_wheelchair_accessible"
-  end
-
-  create_table "curator_activities", force: :cascade do |t|
-    t.string "action", null: false
-    t.datetime "created_at", null: false
-    t.string "ip_address"
-    t.jsonb "metadata", default: {}
-    t.bigint "recordable_id"
-    t.string "recordable_type"
-    t.datetime "updated_at", null: false
-    t.string "user_agent"
-    t.bigint "user_id", null: false
-    t.index ["action", "created_at"], name: "index_curator_activities_on_action_and_created_at"
-    t.index ["created_at"], name: "index_curator_activities_on_created_at"
-    t.index ["recordable_type", "recordable_id"], name: "index_curator_activities_on_recordable"
-    t.index ["user_id", "created_at"], name: "index_curator_activities_on_user_id_and_created_at"
-    t.index ["user_id"], name: "index_curator_activities_on_user_id"
   end
 
   create_table "event_store_events", force: :cascade do |t|
@@ -260,22 +243,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_125521) do
     t.index ["seasons"], name: "index_experiences_on_seasons", using: :gin
     t.index ["title"], name: "index_experiences_on_title"
     t.index ["uuid"], name: "index_experiences_on_uuid", unique: true
-  end
-
-  create_table "flipper_features", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "key", null: false
-    t.datetime "updated_at", null: false
-    t.index ["key"], name: "index_flipper_features_on_key", unique: true
-  end
-
-  create_table "flipper_gates", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "feature_key", null: false
-    t.string "key", null: false
-    t.datetime "updated_at", null: false
-    t.text "value"
-    t.index ["feature_key", "key", "value"], name: "index_flipper_gates_on_feature_key_and_key_and_value", unique: true
   end
 
   create_table "identities", force: :cascade do |t|
@@ -559,8 +526,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_125521) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.datetime "activity_count_reset_at"
-    t.integer "activity_count_today", default: 0
     t.datetime "blocked_at"
     t.datetime "confirmation_sent_at"
     t.string "confirmation_token"
@@ -571,9 +536,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_125521) do
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
     t.string "session_token"
-    t.string "spam_block_reason"
-    t.datetime "spam_blocked_at"
-    t.datetime "spam_blocked_until"
     t.jsonb "travel_profile_data", default: {}
     t.string "unconfirmed_email"
     t.datetime "updated_at", null: false
@@ -591,7 +553,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_125521) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "audio_tours", "locations"
-  add_foreign_key "curator_activities", "users"
   add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"
   add_foreign_key "events", "locations"
   add_foreign_key "experience_category_types", "experience_categories"

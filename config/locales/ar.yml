@@ -854,69 +854,12 @@ ar:
         name: الاسم
         country_name: البلد
         region: المنطقة
-  curator:
-    title: لوحة تحكم أمين المحتوى
-    nav:
-      dashboard: لوحة التحكم
-      reviews: المراجعات
-    dashboard:
-      welcome: مرحباً، %{username}!
-      total_locations: إجمالي الأماكن
-      total_experiences: إجمالي التجارب
-      total_cities: إجمالي المدن
-      total_plans: الخطط العامة
-      total_reviews: إجمالي المراجعات
-      recent_reviews: مراجعات جديدة
-      recent_reviews_title: المراجعات الأخيرة
-      recent_plans: الخطط الأخيرة
-      audio_tours: الجولات الصوتية
-      audio_coverage: التغطية الصوتية
-      with_audio: مع صوت
-      locations_covered: أماكن
-      avg: معدل
-      last_7_days: آخر 7 أيام
-      quick_actions: إجراءات سريعة
-      new_location: مكان جديد
-      new_experience: تجربة جديدة
-      new_plan: خطة جديدة
-      new_audio_tour: جولة صوتية جديدة
-      recent_locations: الأماكن الأخيرة
-      recent_experiences: التجارب الأخيرة
-      no_locations: لا توجد أماكن بعد
-      no_experiences: لا توجد تجارب بعد
-      no_reviews: لا توجد مراجعات بعد
-      no_plans: لا توجد خطط عامة بعد
-    experiences:
-      seasons:
-        all_year: طوال السنة
-        spring: الربيع
-        summer: الصيف
-        fall: الخريف
-        winter: الشتاء
-    reviews:
-      title: المراجعات
-      show_title: تفاصيل المراجعة
-      back_to_list: العودة للقائمة
-      total: إجمالي المراجعات
-      average_rating: متوسط التقييم
-      with_comments: مع تعليقات
-      by_type: حسب النوع
-      search_placeholder: ابحث بالتعليق أو الكاتب...
-      all_types: جميع الأنواع
-      all_ratings: جميع التقييمات
-      no_reviews: لم يتم العثور على مراجعات
-      no_comment: بدون تعليق
-      deleted_item: عنصر محذوف
-      author: الكاتب
-      type: النوع
-      item: العنصر
-      comment: التعليق
-      created_at: تاريخ الإنشاء
-      delete: حذف
-      deleted: تم حذف المراجعة بنجاح
-      confirm_delete: هل أنت متأكد من حذف هذه المراجعة؟
-    plans:
-      no_author: بدون كاتب
+  seasons:
+    all_year: طوال السنة
+    spring: الربيع
+    summer: الصيف
+    fall: الخريف
+    winter: الشتاء
   travel_profile:
     checking_location: جاري التحقق من موقعك...
     visit_recorded: تم تسجيل الزيارة بنجاح!

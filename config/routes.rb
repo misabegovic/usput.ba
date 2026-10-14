@@ -147,22 +147,6 @@ Rails.application.routes.draw do
     end
   end
 
-  # Curator dashboard - for curators and admins
-  namespace :curator do
-    resources :reviews, only: [ :index, :show, :destroy ]
-
-    # Admin features for admin users within curator dashboard
-    namespace :admin do
-      resources :users, only: [ :index, :show, :edit, :update ] do
-        member do
-          post :unblock
-        end
-      end
-    end
-
-    root "dashboard#index"
-  end
-
   # Defines the root path route ("/")
   root "new_design#home"
 end

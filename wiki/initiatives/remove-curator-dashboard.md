@@ -1,8 +1,8 @@
 ---
 title: What the rebuild leaves out, the curator dashboard
 kind: initiative
-status: proposed
-updated: 2026-09-30
+status: archived
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
@@ -33,10 +33,12 @@ sources:
 - lib/platform/dsl/grammar.rb
 - config/initializers/flipper.rb
 - Gemfile
+- db/migrate/20261014160000_drop_curator_dashboard_tables.rb
+- test/integration/curator_dashboard_removed_test.rb
 enola_intent:
   page:
     type: initiative
-    status: proposed
+    status: archived
     scope:
     - usput.ba
     origin:
@@ -105,10 +107,10 @@ On the rebuild branch, each deletion lands in the same pull request as, or right
 1. **Done 2026-09-30.** **Proposals and curator reviews.** Delete `ContentChange`, `ContentChangeContribution`, `CuratorReview`, the proposals and content change controllers and views, their tests and locale keys. Lands with Avo's `Location`, `Experience` and `Plan` resources.
 2. **Done 2026-09-30.** **Photo suggestions.** Delete `PhotoSuggestion`, both photo suggestion controllers, `multi_photo_upload`, their tests. Lands with photo upload on the Avo `Location` resource.
 3. **Done 2026-09-30.** **Curator applications.** Delete `CuratorApplication`, the public and admin controllers and views, the footer and profile links, their locale keys. Lands with role changes in the Avo `User` resource.
-4. **Moments and reviews queues.** Delete `Curator::MomentsController` and `Curator::ReviewsController` with views and tests. Lands with the Avo `Moment` and `Review` queues. The moments half was done on 2026-09-30; reviews wait for the flag.
-5. **The shell.** Delete the dashboard, base controllers, curator layout, `CuratorHelper`, `curator_filters`, `curator_menu`, the `namespace :curator` routes, the remaining `curator:` locale keys, and `require_curator` and `require_admin` from `Authenticatable`. Add a test that no route begins with `/curator`.
-6. **Activity trail and spam counter.** Delete `CuratorActivity`, the spam columns and methods on `User`, `SpamDetector` and the DSL curator executor with its grammar rules and tests. Lands with the `AdminEvent` trail if the operator keeps one.
-7. **Flipper.** Remove the gems, the initializer and its tables once no flag is read.
+4. **Done 2026-10-14.** **Moments and reviews queues.** Delete `Curator::MomentsController` and `Curator::ReviewsController` with views and tests. Lands with the Avo `Moment` and `Review` queues. The moments half was done on 2026-09-30; reviews followed once Jev's reviews queue was in the admin.
+5. **Done 2026-10-14.** **The shell.** Delete the dashboard, base controllers, curator layout, `CuratorHelper`, `curator_filters`, `curator_menu`, the `namespace :curator` routes, the remaining `curator:` locale keys, and `require_curator` and `require_admin` from `Authenticatable`. Add a test that no route begins with `/curator`. `require_curator` stays: the admin's moment photo stream uses it.
+6. **Done 2026-10-14.** **Activity trail and spam counter.** Delete `CuratorActivity`, the spam columns and methods on `User`, `SpamDetector` and the DSL curator executor with its grammar rules and tests. Lands with the `AdminEvent` trail if the operator keeps one. Rails Event Store became that trail on 2026-10-14.
+7. **Done 2026-10-14.** **Flipper.** Remove the gems, the initializer and its tables once no flag is read.
 
 ## No-gos
 
@@ -130,9 +132,9 @@ Small per slice, since each is mostly deletion with a test run; the risk is in t
 
 **Decided on 2026-09-30** ([answers](../../sources/conversations/2026-09-30--usput--platform-direction.md)): Production is deployed by hand, so the removal lands on `main` piece by piece while the old site keeps running from its last deployed version. The questions below that these answers settle are closed; the rest stay open.
 
-- **Migrations on the branch.** Drop the tables in a new migration, or squash all migrations into a baseline for the rebuilt schema.
+- **Migrations on the branch.** Taken on 2026-10-14 by the agent, under the operator's "do all": a new migration drops the activity trail, Flipper's tables and the spam columns (`db/migrate/20261014160000_drop_curator_dashboard_tables.rb`); a baseline squash stays possible later.
 - **The old production data at launch.** Whether the old database is archived as a snapshot or discarded when the old site goes down.
-- **The DSL curator commands.** Remove them with the tables (proposed), or rewrite the useful ones (list users by role, block and unblock) against the new models.
+- **The DSL curator commands.** Removed with the tables on 2026-10-14, as proposed; roles and blocks are changed in the admin, and the [CLI and MCP](cli-and-mcp.md) commands are where a terminal version would go.
 
 ## Build notes
 
@@ -198,3 +200,9 @@ plans pages.
   process. Tests of one class ran in several local workers and truncated each
   other's files; CI runs one worker and never saw it.
 
+Slices 4 to 7 landed together on 2026-10-14: the start page, reviews list,
+users pages, curator layout and helper, `CuratorActivity`, the spam counter
+on `User`, `SpamDetector`, the DSL's curator commands, and Flipper with its
+gems and tables. Season labels the place forms read moved from
+`curator.experiences.seasons` to a top-level `seasons` key in every locale.
+The travel profile's button for curators now opens `/admin`.

@@ -42,7 +42,7 @@ The core objects are places (`Location`), curated sets of places (`Experience`),
 ## Who it serves
 
 - **Travellers**, local and foreign, who want to find what to see and do across the whole country, and then walk it. Browsing, the plan wizard and the explore deck need no account (see [personas](personas.md)).
-- **Curators**, trusted volunteers who propose and moderate content through the curator dashboard at `/curator` (`README.md`, Curator Dashboard section).
+- **Curators**, trusted volunteers who edit and moderate content in the admin at `/admin`; the curator dashboard at `/curator` that `README.md` describes was removed on 2026-10-14.
 - **Admins**, who approve or reject what curators propose (`README.md`: "Curators submit changes as proposals. Admins review and approve/reject.").
 
 ## The promises

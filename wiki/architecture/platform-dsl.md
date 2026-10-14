@@ -137,9 +137,10 @@ requires `PROD_DATABASE_URL`, and runs `bin/platform` in development mode;
   ... to [...]`, `generate experience from locations [...]`;
 - audio: `synthesize audio for ...` with optional locale and voice,
   `estimate audio cost for ...`;
-- curator work: `curators`, `block curator`, `unblock curator` (the
-  `proposals`, `applications`, `approve` and `reject` commands were removed
-  on 2026-09-30 with what they acted on);
+- no curator work: `curators`, `block curator` and `unblock curator` went
+  with the activity trail and spam counter on 2026-10-14, after `proposals`,
+  `applications`, `approve` and `reject` on 2026-09-30; roles and blocks are
+  changed in the admin;
 - introspection: `code` (read_file, search, grep, structure, models,
   routes), `logs`, `infrastructure`;
 - quality: `quality`, `validate location`, `validate experience from
@@ -149,8 +150,8 @@ requires `PROD_DATABASE_URL`, and runs `bin/platform` in development mode;
   duplicate and location validation), paced by `Ai::RateLimiter`.
 
 **Executor.** `Executor.execute` switches on the AST type and delegates to
-seven modules under `lib/platform/dsl/executors/`: `Schema`, `TableQuery`,
-`Infrastructure`, `Content`, `Curator`, `External` and `Quality`. It also
+six modules under `lib/platform/dsl/executors/`: `Schema`, `TableQuery`,
+`Infrastructure`, `Content`, `External` and `Quality`. It also
 keeps a block of private delegation methods so older tests can reach module
 internals through `send`.
 

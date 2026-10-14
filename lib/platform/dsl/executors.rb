@@ -11,7 +11,6 @@ module Platform
 
       # Restored executors (previously archived)
       autoload :Content, "platform/dsl/executors/content"
-      autoload :Curator, "platform/dsl/executors/curator"
       autoload :External, "platform/dsl/executors/external"
 
       # Quality auditing

@@ -126,22 +126,6 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
 
   # Approval queries
 
-  # Curator management commands
-  test "parses block curator command" do
-    ast = Platform::DSL::Parser.parse('block curator { id: 1 } reason "Spam detected"')
-    assert_equal :curator_management, ast[:type]
-    assert_equal :block, ast[:action]
-    assert_equal 1, ast[:filters][:id]
-    assert_equal "Spam detected", ast[:reason]
-  end
-
-  test "parses unblock curator command" do
-    ast = Platform::DSL::Parser.parse("unblock curator { id: 1 }")
-    assert_equal :curator_management, ast[:type]
-    assert_equal :unblock, ast[:action]
-    assert_equal 1, ast[:filters][:id]
-  end
-
   # Improvement commands are no longer supported (removed Prompts executor)
   # test "parses prepare fix command" do
   #   ast = Platform::DSL::Parser.parse('prepare fix for "Memory leak in background jobs"')
@@ -271,12 +255,6 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
   end
 
   # Proposals queries
-
-  # Curators query
-  test "parses curators query" do
-    ast = Platform::DSL::Parser.parse("curators | list")
-    assert_equal :curators_query, ast[:type]
-  end
 
   # Show operation
   test "parses show operation" do
@@ -493,18 +471,6 @@ class Platform::DSL::ParserTest < ActiveSupport::TestCase
   end
 
   # Test proposals operations
-
-  # Test curators operations
-  test "parses curators with activity" do
-    ast = Platform::DSL::Parser.parse("curators { id: 1 } | activity")
-    assert_equal :curators_query, ast[:type]
-    assert_equal :activity, ast[:operations].first[:name]
-  end
-
-  test "parses curators check_spam" do
-    ast = Platform::DSL::Parser.parse("curators | check_spam")
-    assert_equal :curators_query, ast[:type]
-  end
 
   # Prompts operations are no longer supported (removed Prompts executor)
   # test "parses prompts show" do

@@ -873,69 +873,12 @@ tr:
         name: İsim
         country_name: Ülke
         region: Bölge
-  curator:
-    title: Küratör Paneli
-    nav:
-      dashboard: Panel
-      reviews: Yorumlar
-    dashboard:
-      welcome: Hoş geldiniz, %{username}!
-      total_locations: Toplam Mekan
-      total_experiences: Toplam Deneyim
-      total_cities: Toplam Şehir
-      total_plans: Herkese Açık Planlar
-      total_reviews: Toplam Yorum
-      recent_reviews: Yeni Yorumlar
-      recent_reviews_title: Son Yorumlar
-      recent_plans: Son Planlar
-      audio_tours: Sesli Turlar
-      audio_coverage: Ses Kapsamı
-      with_audio: sesli
-      locations_covered: mekan
-      avg: ort
-      last_7_days: son 7 gün
-      quick_actions: Hızlı İşlemler
-      new_location: Yeni Mekan
-      new_experience: Yeni Deneyim
-      new_plan: Yeni Plan
-      new_audio_tour: Yeni Sesli Tur
-      recent_locations: Son Mekanlar
-      recent_experiences: Son Deneyimler
-      no_locations: Henüz mekan yok
-      no_experiences: Henüz deneyim yok
-      no_reviews: Henüz yorum yok
-      no_plans: Henüz herkese açık plan yok
-    experiences:
-      seasons:
-        all_year: Tüm yıl
-        spring: İlkbahar
-        summer: Yaz
-        fall: Sonbahar
-        winter: Kış
-    reviews:
-      title: Yorumlar
-      show_title: Yorum Detayları
-      back_to_list: Listeye dön
-      total: Toplam Yorum
-      average_rating: Ortalama Puan
-      with_comments: Yorumlu
-      by_type: Türe Göre
-      search_placeholder: Yorum veya yazara göre ara...
-      all_types: Tüm türler
-      all_ratings: Tüm puanlar
-      no_reviews: Yorum bulunamadı
-      no_comment: Yorum yok
-      deleted_item: Silinmiş öğe
-      author: Yazar
-      type: Tür
-      item: Öğe
-      comment: Yorum
-      created_at: Oluşturulma
-      delete: Sil
-      deleted: Yorum başarıyla silindi
-      confirm_delete: Bu yorumu silmek istediğinizden emin misiniz?
-    plans:
-      no_author: Yazar yok
+  seasons:
+    all_year: Tüm yıl
+    spring: İlkbahar
+    summer: Yaz
+    fall: Sonbahar
+    winter: Kış
   travel_profile:
     checking_location: Konumunuz kontrol ediliyor...
     visit_recorded: Ziyaret başarıyla kaydedildi!
