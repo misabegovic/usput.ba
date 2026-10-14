@@ -20,7 +20,7 @@
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
       <%= render "users/flash" %>
 
-      <%= form_with scope: resource_name, url: user_session_path, local: true, class: "space-y-6", data: { controller: "local-data" } do |f| %>
+      <%= form_with scope: resource_name, url: user_session_path, local: true, class: "space-y-6", data: { controller: "local-data" } do %>
         <%# Email %>
         <div>
           <label for="user_email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

@@ -49,7 +49,7 @@
         <p class="text-sm text-red-700 dark:text-red-400 mb-2">Blocked until: <%= @user.spam_blocked_until&.strftime("%d.%m.%Y %H:%M") %></p>
         <p class="text-sm text-red-700 dark:text-red-400 mb-4">Reason: <%= @user.spam_block_reason %></p>
 
-        <%= form_with url: unblock_curator_admin_user_path(@user), method: :post do |f| %>
+        <%= form_with url: unblock_curator_admin_user_path(@user), method: :post do %>
           <button type="submit"
                   class="inline-flex items-center justify-center rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
             Unblock User
