@@ -2,7 +2,7 @@
 title: Roundhouse analysis and compile
 kind: initiative
 status: proposed
-updated: 2026-09-30
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
@@ -11,6 +11,9 @@ depends_on:
 - decisions/admin-through-avo.md
 - initiatives/pgvector-semantic-search.md
 sources:
+- sources/conversations/2026-10-14--usput--event-store-compile-one-repo.md
+- bin/roundhouse-report
+- db/migrate/20261014125521_tighten_reviews_count_and_browse_indexes.rb
 - sources/analysis/2026-09-30--roundhouse-check.md
 - sources/conversations/2026-09-30--usput--platform-direction.md
 - Gemfile
@@ -121,3 +124,16 @@ Phase 1 is small: a survey, a config file and a CI step. Phase 2 is not sized; i
 - **Whether the rebuild holds a zero-error `roundhouse check` from its first commit**, with the gate turned on early, or reports only until launch.
 - **Which compile blockers the rebuild removes anyway because they are cheap** (the explicit CSRF line, credentials read through one config object, no `define_method` translation accessors, no string-to-class dispatch), and which stay because a decision needs them (Postgres, pgvector, S3, Solid Queue, Avo).
 - **The tension, recorded for when compiling comes back**: pgvector needs Postgres while Roundhouse's compiled path documents SQLite, and Avo is an engine Roundhouse does not mount. Compiling usput means either Roundhouse growing Postgres, cloud storage and engine support, or a split deployment.
+
+## Build notes
+
+**Survey of 2026-10-14**, on the operator's ask to explore optimisations with Roundhouse and Spinel ([source](../../sources/conversations/2026-10-14--usput--event-store-compile-one-repo.md)). An agent ran `roundhouse check --continue` read-only on this checkout, with Roundhouse release v2026.9.18 and with main at `2bf23b7c`, and built Spinel 2026.09.12; the numbers are from those runs and were not repeated by hand (confidence low).
+
+- **Counts.** 243 errors, 2,263 warnings and 55 survey gaps on 2026-09-30; 218, 1,653 and 22 on the release; 177, 1,112 and 41 on Roundhouse main. The app changed between, so the fall is not all the tool's. Of main's 177 errors, 94 are a new kind: gems and features a compiled app cannot support (Faraday, Rollbar, Solid Queue, RubyLLM, Parslet, Avo, I18n keys computed at run time).
+- **Fixed from it on 2026-10-14:** the `wizard.preferences.accessibility*` keys defined twice in both locale files (the later English copy won and stays); the experience page preloading reviews it then read again, and reading each place's photos and translations one query at a time (76 queries down to 52 on a seeded experience); `reviews_count` allowing NULL on places, experiences, plans and browses; and browses carrying the same index twice.
+- **Fixed beside it, from the first review of the code:** the IP lookup's two-second timeout, which never applied, and an edited note on a public moment going public without a curator.
+- **Left, in order:** rewrite the explore queries as one query per type with a limit instead of loading every matching id, and cache the tag and city lists; preload categories in the plan wizard's generate (estimated 100 to 200 queries, not measured); drop the `LIKE` escaping applied to full-text search text; memoize the home page's hero image folder scan.
+- **Spinel.** `MineChecker::StaticIndex#suspected_km2_within` took 27.5 ms per call; Spinel's `spin ext` made a CRuby extension of its loop at 0.80 ms, and a plain-Ruby rewrite reached 0.47 ms with the same answer. The release's `spin ext` did not bundle its runtime, so the extension needed files copied by hand. The plain-Ruby rewrite is the one to take; Spinel stays out of production until a release bundles its runtime.
+- **Compiling usput** stays blocked as the decision says: Roundhouse's compiled path supports SQLite, local disk and an in-process queue only, cannot mount Avo or `devise_for` with options, and models none of RubyLLM, Faraday, Parslet, Flipper or Geocoder.
+- **In CI:** `bin/roundhouse-report` is a `bin/ci` step that runs `check --continue` where Roundhouse is installed and never fails the build, slice 3 above.
+

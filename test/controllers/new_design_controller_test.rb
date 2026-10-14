@@ -790,7 +790,9 @@ class NewDesignControllerTest < ActionDispatch::IntegrationTest
   test "a moment's address previews as the moment, not as the search page" do
     user = User.create!(username: "addr_preview", email: "addr_preview@example.com", password: "password123")
     named = publish_moment(user, @location)
+    # An edited note waits for a curator again, who approves it.
     named.update!(note: "The bridge at dusk")
+    named.update!(moderation_status: :approved)
     sync_browse_records
 
     get moment_path(named.public_id)

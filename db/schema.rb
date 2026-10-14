@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_125520) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_125521) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -90,7 +90,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_125520) do
     t.text "description"
     t.decimal "lat", precision: 10, scale: 6
     t.decimal "lng", precision: 10, scale: 6
-    t.integer "reviews_count", default: 0
+    t.integer "reviews_count", default: 0, null: false
     t.virtual "searchable", type: :tsvector, as: "(setweight(to_tsvector('simple'::regconfig, (COALESCE(title, ''::character varying))::text), 'A'::\"char\") || setweight(to_tsvector('simple'::regconfig, COALESCE(description, ''::text)), 'B'::\"char\"))", stored: true
     t.jsonb "seasons", default: []
     t.string "title", null: false
@@ -99,7 +99,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_125520) do
     t.index ["ai_generated"], name: "index_browses_on_ai_generated"
     t.index ["average_rating"], name: "index_browses_on_average_rating"
     t.index ["browsable_subtype"], name: "index_browses_on_browsable_subtype"
-    t.index ["browsable_type", "browsable_id"], name: "index_browses_on_browsable"
     t.index ["browsable_type", "browsable_id"], name: "index_browses_on_browsable_type_and_browsable_id", unique: true
     t.index ["browsable_type"], name: "index_browses_on_browsable_type"
     t.index ["budget"], name: "index_browses_on_budget"
@@ -246,7 +245,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_125520) do
     t.integer "estimated_duration"
     t.bigint "experience_category_id"
     t.boolean "needs_ai_regeneration", default: false, null: false
-    t.integer "reviews_count", default: 0
+    t.integer "reviews_count", default: 0, null: false
     t.jsonb "route_geometry"
     t.jsonb "seasons", default: []
     t.string "title", null: false
@@ -370,7 +369,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_125520) do
     t.string "name", null: false
     t.boolean "needs_ai_regeneration", default: false, null: false
     t.string "phone"
-    t.integer "reviews_count", default: 0
+    t.integer "reviews_count", default: 0, null: false
     t.jsonb "seasons", default: [], null: false
     t.text "short_description"
     t.jsonb "social_links", default: {}
@@ -474,7 +473,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_125520) do
     t.boolean "needs_ai_regeneration", default: false, null: false
     t.text "notes"
     t.jsonb "preferences", default: {}
-    t.integer "reviews_count", default: 0
+    t.integer "reviews_count", default: 0, null: false
     t.date "start_date"
     t.string "title", null: false
     t.datetime "updated_at", null: false

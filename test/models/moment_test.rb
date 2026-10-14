@@ -156,6 +156,26 @@ class MomentTest < ActiveSupport::TestCase
     assert moment.pending?, "going public again must require a fresh approval"
   end
 
+  test "editing the note of an approved public moment sends it back to moderation" do
+    moment = build_moment
+    moment.update!(visibility: :public_moment)
+    moment.update!(moderation_status: :approved)
+
+    moment.update!(note: "Something a curator never read")
+
+    assert moment.pending?
+    assert_not Browse.exists?(browsable: moment), "the edited note is not public until approved again"
+  end
+
+  test "editing a private moment's note leaves its moderation alone" do
+    moment = build_moment.tap(&:save!)
+
+    moment.update!(note: "Just for me")
+
+    assert moment.pending?
+    assert moment.visibility_private_moment?
+  end
+
   test "only an approved public moment is indexed in Browse" do
     private_m = build_moment.tap(&:save!)
     pending = build_moment.tap { |m| m.update!(visibility: :public_moment) }
