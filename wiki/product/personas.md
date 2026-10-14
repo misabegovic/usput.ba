@@ -24,7 +24,7 @@ sources:
 - app/controllers/curator/base_controller.rb
 - app/controllers/curator/admin/base_controller.rb
 - app/controllers/curator/locations_controller.rb
-- app/controllers/curator/moments_controller.rb
+- app/avo/resources/moment.rb
 - app/controllers/curator/reviews_controller.rb
 - app/models/content_change.rb
 - app/models/curator_application.rb
@@ -89,7 +89,7 @@ A curator reaches the `/curator` dashboard. Its base controller requires login a
 - **Review proposals.** Curators add a comment and a recommendation to a proposal (`config/routes.rb`, `proposals#add_review`; `CuratorReview` in [domain](domain.md)).
 - **Add photos.** Curators upload photos on the place in the admin at `/admin`; photo suggestions were removed on 2026-09-30. A "needs photos" list sorts places by photo count (`curator/locations_controller.rb`, `needs_photos`).
 - **Archive and restore places.** Archiving is reversible, so it lands directly instead of through a proposal (`curator/locations_controller.rb`, comment above `archive`).
-- **Moderate moments.** The moderation queue lets a curator approve or reject moments that travellers chose to publish (`app/controllers/curator/moments_controller.rb`).
+- **Moderate moments.** The moments queue in the admin lets a curator approve or reject moments that travellers chose to publish (`app/avo/resources/moment.rb`).
 - **Limits.** A curator is blocked for 24 hours after 50 actions in an hour or 200 in a day (`app/models/user.rb`, `MAX_ACTIVITIES_PER_HOUR`, `MAX_ACTIVITIES_PER_DAY`, `SPAM_BLOCK_DURATION`). Edit, delete and new buttons on some list and show pages sit behind the Flipper flag `curator_edit_delete` (`app/views/curator/locations/index.html.erb`; https://github.com/misabegovic/usput.ba/pull/149).
 
 ### Admin
