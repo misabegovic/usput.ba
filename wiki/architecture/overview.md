@@ -7,6 +7,7 @@ repos:
 - usput.ba
 confidence: medium
 sources:
+- sources/conversations/2026-10-14--usput--tooling-models-langfuse-jev.md
 - Gemfile
 - .herb.yml
 - .ruby-version
@@ -82,7 +83,7 @@ other. The deeper pages are [Platform DSL](platform-dsl.md),
 | Web server | Puma behind Thruster | `Gemfile`, `Dockerfile` |
 | Frontend | Turbo, Stimulus, importmap, vendored Leaflet 1.9.4 and markercluster 1.5.3 | `config/importmap.rb` |
 | CSS | Tailwind CSS 4 through `tailwindcss-rails` and the standalone CLI | `Gemfile`, `Dockerfile`, `package.json` |
-| LLM | RubyLLM, default model `gpt-4o-mini` unless `LLM_DEFAULT_MODEL` is set | `config/initializers/ruby_llm.rb` |
+| LLM | RubyLLM 2.1, default model `gpt-6-luna` unless `LLM_DEFAULT_MODEL` is set | `config/initializers/ruby_llm.rb` |
 | Text to speech | ElevenLabs by default, OpenAI TTS as an alternative | `app/services/ai/audio_tour_generator.rb` |
 | Files | Active Storage, S3 in production when `AWS_BUCKET` is set, disk otherwise | `config/storage.yml`, `config/environments/production.rb` |
 | Images | `image_processing` over libvips (`libvips42` in the image, `libvips` in CI) | `Gemfile`, `Dockerfile`, `.github/workflows/ci.yml` |
