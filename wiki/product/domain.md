@@ -2,11 +2,12 @@
 title: Domain vocabulary
 kind: reference
 status: living
-updated: 2026-10-08
+updated: 2026-10-14
 repos:
 - usput.ba
 confidence: medium
 sources:
+- app/services/decision_log.rb
 - db/schema.rb
 - app/models/location.rb
 - app/models/experience.rb
@@ -123,6 +124,12 @@ The audit trail of curator and admin actions: proposals, reviews, logins, modera
 ### User
 
 An account with a unique lowercase username, a password, an avatar, a `user_type` of `basic`, `curator` or `admin`, spam-block fields and a `travel_profile_data` JSON blob (`app/models/user.rb`).
+
+## Decisions
+
+### Domain events (Rails Event Store)
+
+What a curator or admin decided about a record, as a past-tense event in that record's own stream (`Moment$<uuid>`): `MomentApproved`, `MomentRejected`, `PlaceArchived`, `PlaceRestored`, `UserBlocked`, `UserUnblocked`, `UserRoleChanged`. Each carries the record's and the actor's uuid; a role change also carries `from` and `to`. They are published through `DecisionLog` (`app/services/decision_log.rb`) and read in order with `DecisionLog.history(record)` ([decision](../decisions/rails-event-store.md)).
 
 ## Safety
 

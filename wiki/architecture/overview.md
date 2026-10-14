@@ -89,6 +89,7 @@ other. The deeper pages are [Platform DSL](platform-dsl.md),
 | Files | Active Storage, S3 in production when `AWS_BUCKET` is set, disk otherwise | `config/storage.yml`, `config/environments/production.rb` |
 | Images | `image_processing` over libvips (`libvips42` in the image, `libvips` locally) | `Gemfile`, `Dockerfile` |
 | Feature flags | Flipper with the Active Record adapter, no web UI | `config/initializers/flipper.rb` |
+| Domain events | Rails Event Store 3.2, jsonb, a stream per record, browser at `/event-store` for admins | `Gemfile`, `config/initializers/event_store.rb` |
 | Errors | Rollbar | `Gemfile`, `app/jobs/application_job.rb` |
 | Abuse control | rack-attack throttles and blocklists | `config/initializers/rack_attack.rb` |
 | Geo | `geocoder`, Geoapify over Faraday, OpenRouteService for routes | `Gemfile`, `app/services/geoapify_service.rb`, `app/services/maps/route_fetcher.rb` |
