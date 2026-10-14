@@ -67,6 +67,10 @@ gem "rubyzip", require: "zip"
 # AI/LLM integration for experience generation [https://github.com/crmne/ruby_llm]
 gem "ruby_llm", "~> 2.1"
 
+# Traces every model call to Langfuse over OpenTelemetry (see LlmTracing)
+gem "opentelemetry-sdk", "~> 1.13"
+gem "opentelemetry-exporter-otlp", "~> 0.37"
+
 
 # CLI framework for Platform [https://github.com/rails/thor]
 gem "thor"

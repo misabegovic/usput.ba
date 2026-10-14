@@ -122,7 +122,10 @@ read from the environment (`config/initializers/ruby_llm.rb`). RubyLLM is
 `parsed` into a symbol-keyed hash, falling back to extracting JSON from
 fenced or bare text and repairing curly quotes and trailing commas. Every
 call logs one line with its model, input and output tokens and cost in US
-dollars, priced from RubyLLM's model registry.
+dollars, priced from RubyLLM's model registry. With `LANGFUSE_*` keys set, each
+call is also an OpenTelemetry span sent to the self-hosted Langfuse, inside a
+trace named for the calling service (`LLMTracing`,
+`app/services/llm_tracing.rb`).
 
 Retries come in two layers. RubyLLM's Faraday middleware retries 429, 5xx
 and network failures up to `LLM_MAX_RETRIES` (default 5) with exponential
