@@ -250,8 +250,7 @@ locations_data = [
     budget: :low,
     categories: [ "place" ],
     tags: [ "historic", "shopping", "culture", "ottoman", "old-town" ],
-    suitable_experiences: [ "culture", "history", "food" ],
-    video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
+    suitable_experiences: [ "culture", "history", "food" ]
   },
   {
     name: "Sebilj Fountain",
@@ -273,8 +272,7 @@ locations_data = [
     budget: :low,
     categories: [ "place" ],
     tags: [ "mosque", "historic", "architecture", "ottoman", "religious" ],
-    suitable_experiences: [ "religious", "history", "culture", "art" ],
-    video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
+    suitable_experiences: [ "religious", "history", "culture", "art" ]
   },
   {
     name: "Latin Bridge",
@@ -296,8 +294,7 @@ locations_data = [
     budget: :low,
     categories: [ "place" ],
     tags: [ "architecture", "historic", "library", "landmark", "austro-hungarian" ],
-    suitable_experiences: [ "culture", "history", "art" ],
-    video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
+    suitable_experiences: [ "culture", "history", "art" ]
   },
   {
     name: "Sacred Heart Cathedral",
@@ -406,8 +403,7 @@ locations_data = [
     budget: :low,
     categories: [ "place" ],
     tags: [ "nature", "park", "spring", "walking", "family-friendly" ],
-    suitable_experiences: [ "nature", "wellness" ],
-    video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
+    suitable_experiences: [ "nature", "wellness" ]
   },
   {
     name: "Trebević Mountain",
@@ -418,8 +414,7 @@ locations_data = [
     budget: :low,
     categories: [ "place" ],
     tags: [ "mountain", "hiking", "olympics", "bobsled", "viewpoint" ],
-    suitable_experiences: [ "nature", "sport", "mountains", "history" ],
-    video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
+    suitable_experiences: [ "nature", "sport", "mountains", "history" ]
   },
   {
     name: "Yellow Fortress (Žuta Tabija)",
@@ -474,8 +469,7 @@ locations_data = [
     budget: :medium,
     categories: [ "place" ],
     tags: [ "museum", "war", "siege", "history", "tunnel" ],
-    suitable_experiences: [ "history", "culture" ],
-    video_url: "https://www.youtube.com/watch?v=agHtkA2ttM0"
+    suitable_experiences: [ "history", "culture" ]
   },
   {
     name: "National Museum of BiH",
@@ -831,8 +825,12 @@ rescue => e
   nil
 end
 
-# Attach audio to locations that have video_url (key locations) via AudioTour
-locations_with_audio = Location.where.not(video_url: nil).limit(5)
+# Attach demo audio to five key locations via AudioTour. They used to be the
+# ones with a video, but the seeded video was a placeholder unrelated to the
+# places, so the seeds carry no video now.
+AUDIO_DEMO_LOCATIONS = [ "Baščaršija", "Gazi Husrev-beg Mosque", "Sarajevo City Hall (Vijećnica)",
+                         "Vrelo Bosne", "Trebević Mountain" ].freeze
+locations_with_audio = Location.where(name: AUDIO_DEMO_LOCATIONS)
 locations_with_audio.each do |location|
   # Find or create audio tour for default locale
   audio_tour = location.audio_tours.find_or_initialize_by(locale: "bs")
