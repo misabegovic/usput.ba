@@ -2,7 +2,7 @@
 title: Product state
 kind: reference
 status: living
-updated: 2026-10-14
+updated: 2026-10-23
 repos:
 - usput.ba
 confidence: medium
@@ -67,6 +67,7 @@ Where Usput.ba has been, what is true in the code today, what the older planning
 
 - **Stack.** Rails 8.1 on PostgreSQL (PostGIS only offline, to build the Mine Checker's static artifacts, per `docs/mine_checker/README.md`), Hotwire, Tailwind, Solid Queue; two databases (`db/schema.rb`, `sources/planning/decisions/2026-02-03-remove-platform-database.md`).
 - **Browsers.** Since 2026-10-14 usput works from iOS 15.4 and Android browsers that still update (Chrome and WebView 99, Samsung Internet 18, Firefox 115): `es-module-shims` loads the import map where the browser cannot, Tailwind 4.3 falls back for older colour support, storage goes through one guarded helper, and a browser below the floor or without JavaScript sees a notice over the server-rendered pages ([decision](decisions/support-phones-from-ios-15.md)).
+- **Runtime.** Since 2026-10-23 usput runs Ruby 4.0.9 and Rails 8.1.4 (`.ruby-version`, `Dockerfile`, `Gemfile`), moved together with the picomatch lockfile fix; the production image must be rebuilt to pick it up.
 - **CI.** Since 2026-10-14 CI runs on the operator's machine only: `bin/ci` runs lint, security audits, Enola's architecture laws (`enola/constraints/`), exhale's duplication gate, qualm's review where it is installed and both test suites, then `gh signoff`; the GitHub workflow is gone ([decision](decisions/ci-runs-locally.md)).
 - **Public product.** Home, explore (the Browse-backed search with filters for type, season, budget, duration, rating, city, tag, origin, audio and accessibility), Explore Bosnia (a deck of places, nearest first), location, experience and plan pages, the plan wizard, walking a plan with check-ins, moments with likes, a travel profile that works without an account, reviews, `/mine-check` and the minesweeper game (`config/routes.rb`).
 - **Accounts.** Devise with sign-in by email, confirmation within three days, reset by email through Postmark, an account page, and one token that ends every session on a password change, a block or a button; #171's session rows are gone ([decision](decisions/accounts-through-devise.md)). A database holding accounts without an email cannot migrate, by design: the rebuild starts empty.

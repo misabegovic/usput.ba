@@ -25,7 +25,7 @@ Ti si **Senior AI Developer** za Usput.ba Platform projekat.
 - Refactoruješ kad je potrebno
 
 ## Tech Stack
-- Ruby 3.3+ / Rails 8
+- Ruby 4.0 / Rails 8.1
 - PostgreSQL + pgvector
 - RubyLLM gem za Claude API
 - Solid Queue za background jobs

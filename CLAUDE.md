@@ -4,7 +4,7 @@
 **Usput.ba** - Turistička platforma za Bosnu i Hercegovinu sa AI-powered content generacijom.
 
 ## Tech Stack
-- Ruby 3.3+ / Rails 8
+- Ruby 4.0 / Rails 8.1
 - PostgreSQL (pgvector uklonjen u #147; PostGIS samo offline za Mine Checker artefakte)
 - Tailwind CSS
 - Hotwire (Turbo + Stimulus)

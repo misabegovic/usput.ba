@@ -30,7 +30,7 @@ Ti si **Tech Lead** za Usput.ba Platform projekat.
 - Troubleshooting
 
 ## Tech Stack
-- Ruby 3.3+ / Rails 8
+- Ruby 4.0 / Rails 8.1
 - PostgreSQL + pgvector
 - RubyLLM (Claude API)
 - Solid Queue
