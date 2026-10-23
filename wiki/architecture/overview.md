@@ -2,7 +2,7 @@
 title: Architecture overview
 kind: reference
 status: living
-updated: 2026-10-14
+updated: 2026-10-23
 repos:
 - usput.ba
 confidence: medium
@@ -76,8 +76,8 @@ other. The deeper pages are [Platform DSL](platform-dsl.md),
 
 | Layer | What is used | Where it is declared |
 |-------|--------------|----------------------|
-| Language | Ruby 3.3 (`.ruby-version` says 3.3.5, the Dockerfile builds 3.3.6) | `.ruby-version`, `Dockerfile` |
-| Framework | Rails 8.1.3.1, pinned for a security release (#158) | `Gemfile` |
+| Language | Ruby 4.0 (`.ruby-version` and the Dockerfile both say 4.0.9) | `.ruby-version`, `Dockerfile` |
+| Framework | Rails 8.1.4, pinned to the exact release | `Gemfile` |
 | Database | PostgreSQL through `pg`; full text search on a stored `tsvector` column of `browses` | `Gemfile`, `db/schema.rb` |
 | Background jobs | Solid Queue on its own database; Solid Cache and Solid Cable are bundled | `Gemfile`, `config/queue.yml` |
 | Web server | Puma behind Thruster | `Gemfile`, `Dockerfile` |

@@ -44,7 +44,7 @@ Platform zamjenjuje admin dashboard sa konverzacijskim AI interface-om:
 - Knowledge Layer za rezonovanje nad velikim podacima
 
 ### Tech Stack
-- Ruby 3.3+ / Rails 8
+- Ruby 4.0 / Rails 8.1
 - PostgreSQL (pgvector uklonjen u #147; PostGIS samo offline za Mine Checker artefakte)
 - RubyLLM (Claude API)
 - Solid Queue

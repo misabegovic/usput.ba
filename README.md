@@ -6,7 +6,7 @@ Discover Bosnia and Herzegovina. A tourism platform featuring curated locations,
 
 ## Tech Stack
 
-- **Ruby 3.3** / **Rails 8**
+- **Ruby 4.0** / **Rails 8.1**
 - **PostgreSQL** with dual-database setup
 - **Hotwire** (Turbo + Stimulus) + **Tailwind CSS 4**
 - **Solid Queue** for background jobs
