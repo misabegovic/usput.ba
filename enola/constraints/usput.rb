@@ -71,7 +71,8 @@ Enola.architecture "usput" do
 
   # Avo Community authorizes nothing by itself (wiki/initiatives/avo-admin-and-roles.md).
   law "every Avo resource controller passes the policy gate" do
-    avo_controllers.must_reach policy_gate, via: :implements, direction: :outbound
+    avo_controllers.must_reach policy_gate, via: :implements
+    direction :outbound
     why "Avo's authorization service is a null object in Community; a controller without AdminResource opens its records to every curator"
     mode :strict
     exempt "Avo::ToolsController has no outbound calls edge into policy-gate",
